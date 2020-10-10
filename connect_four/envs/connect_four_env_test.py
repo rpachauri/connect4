@@ -27,7 +27,7 @@ class TestConnectFourEnv(unittest.TestCase):
     # place a token for Player 1 in the first column.
     self.env.state[0, -1, 0] = 1
     # fill the entire 2nd column with tokens belonging to Player 2.
-    self.env.state[1, :, 1] = np.ones(ConnectFourEnv.M)
+    self.env.state[1, :, 1] = 1
 
     # when there is only 1 token in the column,
     # the highest token should be at the lowest row.
@@ -41,7 +41,7 @@ class TestConnectFourEnv(unittest.TestCase):
 
   def test_place_token_in_full_column(self):
     # fill the entire 2nd column with tokens belonging to Player 2.
-    self.env.state[1, :, 1] = np.ones(ConnectFourEnv.M)
+    self.env.state[1, :, 1] = 1
     state_copy = self.env.state.copy()
 
     obs, reward, done, _ = self.env.step(1)
@@ -57,7 +57,7 @@ class TestConnectFourEnv(unittest.TestCase):
 
   def test_num_tokens_in_direction(self):
     # fill the entire 1st column with tokens belonging to Player 1.
-    self.env.state[0, :, 0] = np.ones(ConnectFourEnv.M)
+    self.env.state[0, :, 0] = 1
     # how many tokens belonging to Player 1 are on top of (ConnectFourEnv.M - 1, 0)?
     num_tokens = self.env._num_tokens_in_direction(
       player=0,
@@ -71,7 +71,7 @@ class TestConnectFourEnv(unittest.TestCase):
 
   def test_connected_four_vertically(self):
     # fill the entire 1st column with tokens belonging to Player 1.
-    self.env.state[0, :, 0] = np.ones(ConnectFourEnv.M)
+    self.env.state[0, :, 0] = 1
     self.assertTrue(self.env._connected_four(0, 0, 0))
 
   def test_connected_four_left_diagonally(self):
@@ -82,7 +82,7 @@ class TestConnectFourEnv(unittest.TestCase):
 
   def test_connected_four_horizontally(self):
     # fill the entire bottom row with tokens belonging to Player 1.
-    self.env.state[0, ConnectFourEnv.M - 1, :] = np.ones(ConnectFourEnv.N)
+    self.env.state[0, ConnectFourEnv.M - 1, :] = 1
     # If starting from the bottom-right token,
     # verify that Player 1 has connected four.
     self.assertTrue(
@@ -106,6 +106,39 @@ class TestConnectFourEnv(unittest.TestCase):
     ))
     # verify the expected reward.
     self.assertEqual(reward, ConnectFourEnv.CONNECTED_FOUR)
+    # verify the environment is done.
+    self.assertTrue(done)
+
+  def test_is_full(self):
+    # Place a token for Player 1 in the first column.
+    self.env.state[0, -1, 0] = 1
+    self.assertFalse(self.env._is_full())
+
+    # Cover the entire state with tokens from Player 1.
+    self.env.state[0, :, :] = 1
+    self.assertTrue(self.env._is_full())
+
+  def test_draw(self):
+    # **Note**. This test makes an assumption that env.step(action) only checks
+    # if the location of the **new token** results in a win.
+    # It assumes the environment does not check any other locations.
+
+    # Make all locations expect the top-left belong to Player 2.
+    self.env.state[1, :, :] = 1
+    self.env.state[1, 0, 0] = 0
+
+    # We expect there to be a token for Player 1 in the top-left.
+    expected_state = self.env.state.copy()
+    expected_state[0, 0, 0] = 1
+
+    obs, reward, done, _ = self.env.step(0)
+    # verify that the state has not changed.
+    self.assertIsNone(np.testing.assert_array_equal(
+      obs,
+      expected_state,
+    ))
+    # verify the expected reward.
+    self.assertEqual(reward, ConnectFourEnv.DRAW)
     # verify the environment is done.
     self.assertTrue(done)
 

@@ -12,6 +12,7 @@ class ConnectFourEnv(gym.Env):
 
   INVALID_MOVE = -1
   CONNECTED_FOUR = 1
+  DRAW = 0
 
   def __init__(self):
     self.reset()
@@ -33,6 +34,11 @@ class ConnectFourEnv(gym.Env):
     # Check if the player has connected four.
     if self._connected_four(self.player_turn, new_token_row, action):
       return self.state, ConnectFourEnv.CONNECTED_FOUR, True, None
+
+    # If all locations have been used and neither player has won,
+    # this results in a draw.
+    if self._is_full():
+      return self.state, ConnectFourEnv.DRAW, True, None
     pass
 
   def _find_highest_token(self, column):
@@ -109,6 +115,13 @@ class ConnectFourEnv(gym.Env):
       c += col_add
       num_tokens += 1
     return num_tokens
+
+  def _is_full(self):
+    """
+      Returns:
+        True if there is a token belonging to either player for every possible location.
+    """
+    return (self.state != 0).any(axis=0).all()
 
   def reset(self):
     """Resets the state of the environment and returns an initial observation.
