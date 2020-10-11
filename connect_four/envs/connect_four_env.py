@@ -10,6 +10,8 @@ class ConnectFourEnv(gym.Env):
   M = 6
   N = 7
 
+  action_space = N
+
   INVALID_MOVE = -1
   CONNECTED_FOUR = 1
   DRAW = 0
@@ -140,4 +142,34 @@ class ConnectFourEnv(gym.Env):
     return self.state
 
   def render(self, mode='human'):
-    pass
+    """Renders the current state of the environment.
+
+    Args:
+      mode (str): Supported modes: {'human'}
+    """
+    horizontal_wall = self._create_horizontal_wall()
+    print(horizontal_wall)
+
+    # plot the environment.
+    for m in range(ConnectFourEnv.M):
+      line = "|"
+      for n in range(ConnectFourEnv.N):
+        if self.state[0, m, n] == 1: # token belongs to Player 1
+          line += "o"
+        elif self.state[1, m, n] == 1: # token belongs to Player 2
+          line += "x"
+        else: # location belongs to neither player
+          line += " "
+      print(line + "|")
+
+    print(horizontal_wall)
+
+  def _create_horizontal_wall(self):
+    """Used to help render the top or bottom wall in human mode.
+    Returns:
+      str: a string that can be printed when rendering in human mode.
+    """
+    wall = "*"
+    for i in range(ConnectFourEnv.N):
+      wall += "="
+    return wall + "*"
