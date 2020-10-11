@@ -2,6 +2,7 @@ import unittest
 import gym
 import connect_four
 import numpy as np
+np.set_printoptions(threshold=np.inf)
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
@@ -37,7 +38,7 @@ class TestConnectFourEnv(unittest.TestCase):
     self.assertEqual(self.env._find_highest_token(1), 0)
     # when the column is empty,
     # the highest token should be -1.
-    self.assertEqual(self.env._find_highest_token(2), -1)
+    self.assertEqual(self.env._find_highest_token(2), ConnectFourEnv.M)
 
   def test_place_token_in_full_column(self):
     # fill the entire 2nd column with tokens belonging to Player 2.
@@ -141,6 +142,39 @@ class TestConnectFourEnv(unittest.TestCase):
     self.assertEqual(reward, ConnectFourEnv.DRAW)
     # verify the environment is done.
     self.assertTrue(done)
+
+  def test_continue_playing_after_step(self):
+    # We expect there to be a token for Player 1 in the bottom-left.
+    expected_state = self.env.state.copy()
+    expected_state[0, -1, 0] = 1
+
+    obs, reward, done, _ = self.env.step(0)
+    # verify that the state has not changed.
+    self.assertIsNone(np.testing.assert_array_equal(
+      obs,
+      expected_state,
+    ))
+    # verify the expected reward.
+    self.assertEqual(reward, ConnectFourEnv.DEFAULT_REWARD)
+    # verify the environment is done.
+    self.assertFalse(done)
+    # verify it is Player 2's turn.
+    self.assertEqual(self.env.player_turn, 1)
+
+    # We expect there to be a token for Player 2 above Player 1's token.
+    expected_state[1, -2, 0] = 1
+    obs, reward, done, _ = self.env.step(0)
+    # verify that the state has not changed.
+    self.assertIsNone(np.testing.assert_array_equal(
+      obs,
+      expected_state,
+    ))
+    # verify the expected reward.
+    self.assertEqual(reward, ConnectFourEnv.DEFAULT_REWARD)
+    # verify the environment is done.
+    self.assertFalse(done)
+    # verify it is Player 2's turn.
+    self.assertEqual(self.env.player_turn, 0)
 
 
 if __name__ == '__main__':

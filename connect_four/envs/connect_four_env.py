@@ -13,6 +13,7 @@ class ConnectFourEnv(gym.Env):
   INVALID_MOVE = -1
   CONNECTED_FOUR = 1
   DRAW = 0
+  DEFAULT_REWARD = 0
 
   def __init__(self):
     self.reset()
@@ -39,7 +40,10 @@ class ConnectFourEnv(gym.Env):
     # this results in a draw.
     if self._is_full():
       return self.state, ConnectFourEnv.DRAW, True, None
-    pass
+
+    # Continue play with it now being the other player's turn.
+    self.player_turn = 1 - self.player_turn
+    return self.state, ConnectFourEnv.DEFAULT_REWARD, False, None
 
   def _find_highest_token(self, column):
     """ Finds the highest token belonging to either player in the selected column.
@@ -53,7 +57,7 @@ class ConnectFourEnv(gym.Env):
     # mask is a boolean array. It is true if there is a token in the given column and false otherwise.
     mask = (self.state[:,:, column] != 0).any(axis=0)
     # get the highest row in the given column belonging to either player.
-    return np.where(mask.any(axis=0), mask.argmax(axis=0), -1)
+    return np.where(mask.any(axis=0), mask.argmax(axis=0), ConnectFourEnv.M)
 
   def _connected_four(self, player, row, col):
     """
