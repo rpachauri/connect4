@@ -176,6 +176,36 @@ class TestConnectFourEnv(unittest.TestCase):
     # verify it is Player 2's turn.
     self.assertEqual(self.env.player_turn, 0)
 
+  def test_reset_to_other_state(self):
+    # take an action for Player 1.
+    self.env.step(0)
+
+    # take an action for Player 2.
+    expected_state, _, _, _ = self.env.step(0)
+    # verify it is currently Player 1's turn.
+    self.assertEqual(self.env.player_turn, 0)
+
+    # take an action for Player 1.
+    obs, _, _, _ = self.env.step(0)
+
+    # verify that the state has changed.
+    np.testing.assert_raises(AssertionError,
+      np.testing.assert_array_equal,
+      obs,
+      expected_state,
+    )
+
+    # reset the state to expected_state and Player 1's turn.
+    obs = self.env.reset(state=expected_state, player_turn=0)
+    # verify that the state is back to what it was after Player 2 moved.
+    self.assertIsNone(np.testing.assert_array_equal(
+      obs,
+      expected_state,
+    ))
+    # verify it is currently Player 1's turn.
+    self.assertEqual(self.env.player_turn, 0)
+
+
 
 if __name__ == '__main__':
   unittest.main()

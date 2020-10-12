@@ -29,23 +29,23 @@ class ConnectFourEnv(gym.Env):
 
     # Placing a token in a full column is an invalid move.
     if new_token_row == -1:
-      return self.state, ConnectFourEnv.INVALID_MOVE, True, None
+      return self.state.copy(), ConnectFourEnv.INVALID_MOVE, True, None
 
     # Place a token.
     self.state[self.player_turn, new_token_row, action] = 1
 
     # Check if the player has connected four.
     if self._connected_four(self.player_turn, new_token_row, action):
-      return self.state, ConnectFourEnv.CONNECTED_FOUR, True, None
+      return self.state.copy(), ConnectFourEnv.CONNECTED_FOUR, True, None
 
     # If all locations have been used and neither player has won,
     # this results in a draw.
     if self._is_full():
-      return self.state, ConnectFourEnv.DRAW, True, None
+      return self.state.copy(), ConnectFourEnv.DRAW, True, None
 
     # Continue play with it now being the other player's turn.
     self.player_turn = 1 - self.player_turn
-    return self.state, ConnectFourEnv.DEFAULT_REWARD, False, None
+    return self.state.copy(), ConnectFourEnv.DEFAULT_REWARD, False, None
 
   def _find_highest_token(self, column):
     """ Finds the highest token belonging to either player in the selected column.
@@ -129,15 +129,20 @@ class ConnectFourEnv(gym.Env):
     """
     return (self.state != 0).any(axis=0).all()
 
-  def reset(self):
+  def reset(self, state=None, player_turn=0):
     """Resets the state of the environment and returns an initial observation.
 
+      Args:
+        state (ndarray): should be a a numpy ndarray of shape (2, M, N)
+        player_turn: whose turn it should be (0 or 1)
+      Usage:
+        1. Both state and player_turn should be specified OR neither should be specified.
       Returns:
         observation (object): the initial observation.
     """
-    self.player_turn = 0 # 0 means that it is Player 1's turn.
+    self.player_turn = player_turn # 0 means that it is Player 1's turn.
 
-    self.state = np.zeros(shape=(2, ConnectFourEnv.M, ConnectFourEnv.N))
+    self.state = np.zeros(shape=(2, ConnectFourEnv.M, ConnectFourEnv.N)) if state is None else state
 
     return self.state
 
