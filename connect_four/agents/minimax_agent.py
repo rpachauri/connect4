@@ -11,7 +11,7 @@ class Minimax():
   # assumes that each of these rewards are distinct.
   WIN_CONDITIONS = {
     ConnectFourEnv.INVALID_MOVE: -1000000,
-    ConnectFourEnv.CONNECTED_FOUR: 100000,
+    ConnectFourEnv.CONNECTED_FOUR: 100000, # We'd rather let the opponent win than play an invalid move.
     ConnectFourEnv.DRAW: 0,
   }
   def __init__(self, max_depth=4):

@@ -10,7 +10,9 @@ from connect_four.agents.minimax_agent import Minimax
 env = gym.make('connect_four-v0')
 
 # Initialize the agents
-agent = Minimax()
+agent1 = Minimax(max_depth=6)
+agent2 = Minimax(max_depth=4)
+
 
 # Reset the environment to default beginning
 # Default observation variable
@@ -20,8 +22,14 @@ env.render()
 done = False
 
 while not done:
-  action = agent.action(env)
-  print("Player", env.player_turn, "is placing a token in column:", action)
+  # Let the agent whose turn it is select an action.
+  action = -1
+  if env.player_turn == 0:
+    action = agent1.action(env)
+  else:
+    action = agent2.action(env)
+
+  print("Player", (env.player_turn + 1), "is placing a token in column:", action)
   _, reward, done, info = env.step(action)
 
   # Render the env
