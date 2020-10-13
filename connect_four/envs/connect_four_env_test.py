@@ -204,6 +204,5 @@ class TestConnectFourEnv(unittest.TestCase):
     self.assertEqual(self.env.player_turn, env_variables[1])
 
 
-
 if __name__ == '__main__':
   unittest.main()

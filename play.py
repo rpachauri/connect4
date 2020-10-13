@@ -1,7 +1,6 @@
 # Gotta import gym!
 import gym
 import connect_four
-import random
 
 from connect_four.agents.minimax_agent import Minimax
 
@@ -11,8 +10,7 @@ from connect_four.agents.minimax_agent import Minimax
 env = gym.make('connect_four-v0')
 
 # Initialize the agents
-agent1 = Minimax()
-agent2 = Minimax()
+agent = Minimax()
 
 # Reset the environment to default beginning
 # Default observation variable
@@ -22,9 +20,7 @@ env.render()
 done = False
 
 while not done:
-  # take a random action
-  # random.randint is inclusive on low and high.
-  action = random.randint(0, env.action_space - 1)
+  action = agent.action(env)
   print("Player", env.player_turn, "is placing a token in column:", action)
   _, reward, done, info = env.step(action)
 
