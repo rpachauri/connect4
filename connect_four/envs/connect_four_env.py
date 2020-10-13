@@ -129,22 +129,40 @@ class ConnectFourEnv(gym.Env):
     """
     return (self.state != 0).any(axis=0).all()
 
-  def reset(self, state=None, player_turn=0):
+  def get_env_variables(self):
+    """
+      Returns:
+        env_variables (tuple): a tuple that can be passed to reset() to restore a state.
+        - env_variables[0] contains "obs", the observable variable for that state.
+        - env_variables[1] contains "player_turn", indicating whose turn it is in that state.
+    """
+    return self.state.copy(), self.player_turn
+
+  def reset(self, env_variables=None):
     """Resets the state of the environment and returns an initial observation.
 
       Args:
-        state (ndarray): should be a a numpy ndarray of shape (2, M, N)
-        player_turn: whose turn it should be (0 or 1)
-      Usage:
-        1. Both state and player_turn should be specified OR neither should be specified.
+        env_variables (tuple) (optional):
+          env_variables[0] (ndarray): should be a a numpy ndarray of shape (2, M, N)
+          env_variables[1] (int): whose turn it should be (0 or 1)
+      Example Usage:
+        env_variables = env.get_env_variables()
+        env.step(action)
+        .
+        .
+        .
+        env.reset(env_variables)
       Returns:
         observation (object): the initial observation.
     """
-    self.player_turn = player_turn # 0 means that it is Player 1's turn.
+    if env_variables is not None:
+      self.state = env_variables[0].copy()
+      self.player_turn = env_variables[1]
+    else:
+      self.state = np.zeros(shape=(2, ConnectFourEnv.M, ConnectFourEnv.N))
+      self.player_turn = 0
 
-    self.state = np.zeros(shape=(2, ConnectFourEnv.M, ConnectFourEnv.N)) if state is None else state
-
-    return self.state
+    return self.state.copy()
 
   def render(self, mode='human'):
     """Renders the current state of the environment.

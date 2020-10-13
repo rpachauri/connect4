@@ -176,34 +176,32 @@ class TestConnectFourEnv(unittest.TestCase):
     # verify it is Player 2's turn.
     self.assertEqual(self.env.player_turn, 0)
 
-  def test_reset_to_other_state(self):
-    # take an action for Player 1.
+  def test_get_env_variables(self):
+    # Seed the environment so we can verify we can reset to an arbitrary state.
     self.env.step(0)
 
-    # take an action for Player 2.
-    expected_state, _, _, _ = self.env.step(0)
-    # verify it is currently Player 1's turn.
-    self.assertEqual(self.env.player_turn, 0)
+    # Retrieve the env variables.
+    env_variables = self.env.get_env_variables()
 
-    # take an action for Player 1.
+    # Modify the environment.
     obs, _, _, _ = self.env.step(0)
 
-    # verify that the state has changed.
+    # Verify that the state has changed.
     np.testing.assert_raises(AssertionError,
       np.testing.assert_array_equal,
       obs,
-      expected_state,
+      env_variables[0],
     )
 
-    # reset the state to expected_state and Player 1's turn.
-    obs = self.env.reset(state=expected_state, player_turn=0)
+    # reset the state to previously saved env_variables.
+    obs = self.env.reset(env_variables=env_variables)
     # verify that the state is back to what it was after Player 2 moved.
     self.assertIsNone(np.testing.assert_array_equal(
       obs,
-      expected_state,
+      env_variables[0],
     ))
     # verify it is currently Player 1's turn.
-    self.assertEqual(self.env.player_turn, 0)
+    self.assertEqual(self.env.player_turn, env_variables[1])
 
 
 
