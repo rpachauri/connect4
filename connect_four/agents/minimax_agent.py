@@ -1,18 +1,18 @@
 import gym
-import connect4
+import connect_four
 
 class Minimax():
   """ A Minimax agent applies the Minimax algorithm up to some depth before
   estimating the value of a state.
   """
-  def __init__():
+  def __init__(self):
     pass
 
-  def action():
+  def action(self):
     pass
 
-  def _minimax():
+  def _minimax(self):
     pass
 
-  def _estimate():
+  def _estimate(self):
     pass
