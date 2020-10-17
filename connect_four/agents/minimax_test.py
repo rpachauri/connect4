@@ -3,7 +3,7 @@ import gym
 import connect_four
 import numpy as np
 
-from connect_four.agents.minimax_agent import Minimax
+from connect_four.agents.minimax import Minimax
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
 class TestMinimax(unittest.TestCase):
@@ -32,7 +32,7 @@ class TestMinimax(unittest.TestCase):
     ])
     # Player 1 can win by playing action == 3.
     agent = Minimax(max_depth=1)
-    action = agent.action(self.env)
+    action = agent.action(env=self.env, last_action=0)
     self.assertEqual(action, 3)
 
   def test_take_draw_to_avoid_loss(self):
@@ -54,7 +54,7 @@ class TestMinimax(unittest.TestCase):
     ])
     # Player 1 can draw by playing action == 2.
     agent = Minimax(max_depth=1)
-    action = agent.action(self.env)
+    action = agent.action(env=self.env, last_action=0)
     self.assertEqual(action, 2)
 
   def test_prevent_opponent_from_winning(self):
@@ -75,7 +75,7 @@ class TestMinimax(unittest.TestCase):
     # Player 2 can win by playing action == 3.
     # Since it's Player 1's turn, they should play action == 3 to prevent that.
     agent = Minimax(max_depth=1)
-    action = agent.action(self.env)
+    action = agent.action(env=self.env, last_action=0)
     self.assertEqual(action, 3)
 
   def test_guarantee_win_if_possible(self):
@@ -96,7 +96,7 @@ class TestMinimax(unittest.TestCase):
     # Player 1 can guarantee a win by playing action == 1.
     # Player 1 should see this if they look 3 steps ahead.
     agent = Minimax(max_depth=3)
-    action = agent.action(self.env)
+    action = agent.action(env=self.env, last_action=0)
     self.assertEqual(action, 1)
 
 

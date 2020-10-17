@@ -2,9 +2,10 @@ import gym
 
 import numpy as np
 
+from connect_four.agents.agent import Agent
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
-class Minimax():
+class Minimax(Agent):
   """ A Minimax agent applies the Minimax algorithm up to some depth before
   estimating the value of a state.
   """
@@ -20,7 +21,8 @@ class Minimax():
     self.max_depth = max_depth
     pass
 
-  def action(self, env):
+  def action(self, env, last_action):
+    # last_action gets ignored
     return self._minimax(env, self.max_depth)[0]
 
   def _minimax(self, env, depth):
