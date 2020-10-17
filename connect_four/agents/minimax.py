@@ -8,12 +8,14 @@ class Minimax():
   """ A Minimax agent applies the Minimax algorithm up to some depth before
   estimating the value of a state.
   """
+  # TERMINAL_REWARDS are the reward given upon arriving at a terminal state.
   # assumes that each of these rewards are distinct.
-  WIN_CONDITIONS = {
+  TERMINAL_REWARDS = {
     ConnectFourEnv.INVALID_MOVE: -1000000,
     ConnectFourEnv.CONNECTED_FOUR: 100000, # We'd rather let the opponent win than play an invalid move.
     ConnectFourEnv.DRAW: 0,
   }
+
   def __init__(self, max_depth=4):
     self.max_depth = max_depth
     pass
@@ -32,7 +34,7 @@ class Minimax():
       _, reward, done, _ = env.step(action)
       if done:
         # makes the assumption that we can determine if the agent has won/lost/drawn based on the reward.
-        actionValues.append(Minimax.WIN_CONDITIONS[reward])
+        actionValues.append(Minimax.TERMINAL_REWARDS[reward])
       elif depth == 1:
         # reward goes to the current player.
         # self.estimate() is the estimated total return for the other player.

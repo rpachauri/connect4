@@ -2,7 +2,7 @@
 import gym
 import connect_four
 
-from connect_four.agents.minimax_agent import Minimax
+from connect_four.agents import Minimax
 
 
 # Make the environment, replace this string with any
@@ -10,8 +10,8 @@ from connect_four.agents.minimax_agent import Minimax
 env = gym.make('connect_four-v0')
 
 # Initialize the agents
-agent1 = Minimax(max_depth=6)
-agent2 = Minimax(max_depth=4)
+agent1 = Minimax(max_depth=4)
+agent2 = Minimax(max_depth=3)
 
 
 # Reset the environment to default beginning
@@ -20,17 +20,17 @@ obs = env.reset()
 env.render()
 
 done = False
+last_action = None
 
 while not done:
   # Let the agent whose turn it is select an action.
-  action = -1
   if env.player_turn == 0:
-    action = agent1.action(env)
+    last_action = agent1.action(env, last_action)
   else:
-    action = agent2.action(env)
+    last_action = agent2.action(env, last_action)
 
-  print("Player", (env.player_turn + 1), "is placing a token in column:", action)
-  _, reward, done, info = env.step(action)
+  print("Player", (env.player_turn + 1), "is placing a token in column:", last_action)
+  _, reward, done, info = env.step(last_action)
 
   # Render the env
   env.render()

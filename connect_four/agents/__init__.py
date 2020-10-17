@@ -1,1 +1,1 @@
-from connect_four.agents.minimax_agent import Minimax
+from connect_four.agents.minimax import Minimax
