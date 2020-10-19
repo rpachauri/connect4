@@ -3,15 +3,15 @@ import gym
 import connect_four
 
 from connect_four.agents import Minimax
-
+from connect_four.agents import MCTS
 
 # Make the environment, replace this string with any
 # from the docs. (Some environments have dependencies)
 env = gym.make('connect_four-v0')
 
 # Initialize the agents
-agent1 = Minimax(max_depth=4)
-agent2 = Minimax(max_depth=3)
+agent1 = Minimax(max_depth=5)
+agent2 = MCTS(num_rollouts=2000)
 
 
 # Reset the environment to default beginning

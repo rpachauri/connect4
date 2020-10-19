@@ -1,30 +1,41 @@
 import gym
 
 import numpy as np
-
+np.seterr(divide='ignore', invalid='ignore')
 from connect_four.envs.connect_four_env import ConnectFourEnv
+from enum import Enum
+
+class MCTSNodeStatus(Enum):
+  exploring = 0
+  winning = 1
+  drawing = 2
+  losing = 3
+  terminal = 4
+
+# TERMINAL_REWARDS are the reward given upon arriving at a terminal state.
+# assumes that each of these rewards are distinct.
+TERMINAL_REWARDS_TO_STATUSES = {
+  ConnectFourEnv.INVALID_MOVE: MCTSNodeStatus.losing,
+  ConnectFourEnv.CONNECTED_FOUR: MCTSNodeStatus.winning,
+  ConnectFourEnv.DRAW: MCTSNodeStatus.drawing,
+}
+
+STATUSES_TO_VALUES = {
+  MCTSNodeStatus.losing: -1000,
+  MCTSNodeStatus.winning: 100,
+  MCTSNodeStatus.drawing: 0,
+}
 
 class MCTSNode():
-  # TERMINAL_REWARDS are the reward given upon arriving at a terminal state.
-  # assumes that each of these rewards are distinct.
-  TERMINAL_REWARDS = {
-    # We'd rather let the opponent win than play an invalid move.
-    ConnectFourEnv.INVALID_MOVE: -1000000,
-    ConnectFourEnv.CONNECTED_FOUR: 100000,
-    ConnectFourEnv.DRAW: 0,
-  }
 
   def __init__(self, num_actions=7):
     self.children = {} # dictionary of moves to MCTSNodes
 
     self.action_total_values = np.zeros(num_actions)
     self.action_visits = np.zeros(num_actions)
-    # fully_explored[action] indicates if all paths have been found
-    # for that child/
-    # If fully_explored[action], then action_total_values[action] must be set
-    # to a TERMINAL_REWARDS value.
-    self.fully_explored = np.zeros(num_actions, dtype=bool)
 
+    # Every node is initialized with a status of exploring.
+    self.status = MCTSNodeStatus.exploring
 
   def update_tree(self, env):
     '''Performs MCTS for this node and all children of this node.
@@ -40,57 +51,64 @@ class MCTSNode():
        - the value of the new leaf node
     '''
     # SELECTION
-    all_actions = np.arange(env.action_space)
     # Only select from actions that are not fully explored.
-    actions_left_to_explore = all_actions[np.logical_not(self.fully_explored)]
+    actions_left_to_explore = self.get_actions_left_to_explore(env)
+    # print("actions_left_to_explore =", actions_left_to_explore)
 
     if len(actions_left_to_explore) == 0:
       # We've fully explored this node.
-      return np.max(self.action_total_values)
+      return max(self.action_total_values)
 
-    action = np.random.choice(actions_left_to_explore)
+    # Select a random action that still needs exploring.
+    action = np.random.choice(np.array(actions_left_to_explore))
+    # print("taking action", action)
     _, reward, done, _ = env.step(action)  # env is now at child.
     self.action_visits[action] += 1
 
+    # EXPANSION
     # Base case
-    if done:
-      # Makes the assumption that we can determine if
-      # the agent has won/lost/drawn based on the reward.
-      self.action_total_values[action] = MCTSNode.TERMINAL_REWARDS[reward]
-      # We found a terminal state so this action has been fully explored.
-      self.fully_explored[action] = True
-      # We return reward and not MCTSNode.TERMINAL_REWARDS[reward] because it
-      # would skew the action-values of parent nodes. This could be a
-      # problem if another trajectory has an earlier guaranteed win.
-      return reward
-    
     if action not in self.children:
-      # EXPANSION
+      
       self.children[action] = MCTSNode(env.action_space)
+
+      if done:
+        # Makes the assumption that we can determine if
+        # the agent has won/lost/drawn based on the reward.
+        self.children[action].status = TERMINAL_REWARDS_TO_STATUSES[reward]
+        self.status = self.get_new_status(env)
+        self.action_total_values[action] = STATUSES_TO_VALUES[self.children[action].status]
+        return reward
+
       value = reward - self.children[action].rollout(env, done)
       self.action_total_values[action] += value
       return value
-    
+
     # Recursive case
-    value = reward - self.children[action].update_tree(env)
-    self.action_total_values[action] += value
+    value = reward - self.children[action].update_tree(env)    
 
     # BACKUP
-    self.adjust_action_value(action, value)
+    # Change the status of this node based on the child nodes.
+    self.status = self.get_new_status(env)
+
+    if self.children[action].status == MCTSNodeStatus.exploring:
+      # If the child status is still exploring, add to the estimate.
+      self.action_total_values[action] += value
+    else:
+      # If the child status is no longer exploring, hardcode the action value.
+      self.action_total_values[action] = STATUSES_TO_VALUES[self.children[action].status]
     return value
 
-
-  def adjust_action_value(self, action, value):
-    child = self.children[action]
-
-    if np.all(child.fully_explored):
-      # all of child's actions have been fully explored
-      self.action_total_values[action] = -np.max(child.action_total_values)
-      self.fully_explored[action] = True
-    else:
-      # this action has already been fully explored
-      self.action_total_values[action] += value
-
+  def get_actions_left_to_explore(self, env):
+    # Only return actions for which there is no node or
+    # the existing node is still exploring.
+    actions_left_to_explore = []
+    for action in range(env.action_space):
+      if action not in self.children or self.children[action].status == MCTSNodeStatus.exploring:
+        actions_left_to_explore.append(action)
+      elif self.children[action].status == MCTSNodeStatus.winning:
+         # If this node has a winning action, there is no need to explore anymore.
+        return []
+    return actions_left_to_explore
 
   def rollout(self, env, done):
     value = 0
@@ -103,6 +121,38 @@ class MCTSNode():
       value *= -1
     return value
 
+  def get_new_status(self, env):
+    # If there is a winning action, this node is losing.
+    # Child statuses can be one of [exploring, winning, drawing, losing]
+    for action in self.children:
+      child = self.children[action]
+      if child.status == MCTSNodeStatus.winning:
+        # self.action_total_values[action] = STATUSES_TO_VALUES[MCTSNodeStatus.winning]
+        return MCTSNodeStatus.losing
+
+    # If we're missing a child, this node is still exploring.
+    if len(self.children) < env.action_space:
+      return MCTSNodeStatus.exploring
+
+    # If there is an action that still needs to be explored, this node is exploring.
+    # Possible child statuses can be one of [exploring, drawing, losing]
+    for action in self.children:
+      child = self.children[action]
+      if child.status == MCTSNodeStatus.exploring:
+        return MCTSNodeStatus.exploring
+
+    # If we can only draw or lose, this node is drawing.
+    # Possible child statuses can be one of [drawing, losing]
+    for action in self.children:
+      child = self.children[action]
+      if child.status == MCTSNodeStatus.drawing:
+        # self.action_total_values[action] = STATUSES_TO_VALUES[MCTSNodeStatus.drawing]
+        return MCTSNodeStatus.drawing
+
+    # All child statuses must be losing, so this node is winning.
+    # self.action_total_values[action] = STATUSES_TO_VALUES[MCTSNodeStatus.losing]
+    return MCTSNodeStatus.winning
+
 class MCTS():
 
   def __init__(self, num_rollouts):
@@ -113,7 +163,6 @@ class MCTS():
     '''
     self.root = None
     self.num_rollouts = num_rollouts
-
 
   def action(self, env, last_action):
     '''Returns an action.
@@ -145,18 +194,13 @@ class MCTS():
 
     # Perform rollouts.
     env_variables = env.get_env_variables()
-    for _ in range(self.num_rollouts):
+    for i in range(self.num_rollouts):
       self.root.update_tree(env)
       self.root_num_visits += 1
       env.reset(env_variables)
 
-    # Select action with the highest action-value.
+    # Otherwise, select action with the highest action-value.
     action_values = np.divide(self.root.action_total_values, self.root.action_visits)
-    # print("action_values =", action_values)
-    # print("self.root.children[0].action_values =", self.root.children[0].action_total_values)
-    # print("self.root.children[1].action_values =", self.root.children[1].action_total_values)
-    # print("self.root.children[2].action_values =", self.root.children[2].action_total_values)
-    # print("self.root.children[3].action_values =", self.root.children[3].action_total_values)
     best_action = np.nanargmax(action_values)
 
     self._move_root_to_action(best_action)

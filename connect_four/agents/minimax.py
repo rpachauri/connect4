@@ -25,7 +25,7 @@ class Minimax(Agent):
     # last_action gets ignored
     return self._minimax(env, self.max_depth)[0]
 
-  def _minimax(self, env, depth):
+  def _minimax(self, env, depth, gamma=0.99):
     # Get the current state and player.
     env_variables = env.get_env_variables()
 
@@ -52,7 +52,7 @@ class Minimax(Agent):
       env.reset(env_variables)
 
     bestAction = np.argmax(np.array(actionValues))
-    return bestAction, actionValues[bestAction]
+    return bestAction, gamma * actionValues[bestAction]
 
   def _estimate(self, env):
     """_estimate returns the estimated value of a state for a particular player.
