@@ -53,7 +53,6 @@ class MCTSNode():
     # SELECTION
     # Only select from actions that are not fully explored.
     actions_left_to_explore = self.get_actions_left_to_explore(env)
-    # print("actions_left_to_explore =", actions_left_to_explore)
 
     if len(actions_left_to_explore) == 0:
       # We've fully explored this node.
@@ -61,16 +60,16 @@ class MCTSNode():
 
     # Select a random action that still needs exploring.
     action = np.random.choice(np.array(actions_left_to_explore))
-    # print("taking action", action)
     _, reward, done, _ = env.step(action)  # env is now at child.
     self.action_visits[action] += 1
-
+    
+    # value is the action-value.
+    # (the reward minus the state-value of the state resulting from action)
     value = reward
-
-    # EXPANSION
-    # Base case
+    
     if action not in self.children:
-      
+      # Base case
+      # EXPANSION
       self.children[action] = MCTSNode(env.action_space)
 
       if done: # action leads to a terminal state
