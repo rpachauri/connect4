@@ -65,26 +65,22 @@ class MCTSNode():
     _, reward, done, _ = env.step(action)  # env is now at child.
     self.action_visits[action] += 1
 
+    value = reward
+
     # EXPANSION
     # Base case
     if action not in self.children:
       
       self.children[action] = MCTSNode(env.action_space)
 
-      if done:
-        # Makes the assumption that we can determine if
-        # the agent has won/lost/drawn based on the reward.
+      if done: # action leads to a terminal state
         self.children[action].status = TERMINAL_REWARDS_TO_STATUSES[reward]
-        self.status = self.get_new_status(env)
-        self.action_total_values[action] = STATUSES_TO_VALUES[self.children[action].status]
-        return reward
-
-      value = reward - self.children[action].rollout(env, done)
-      self.action_total_values[action] += value
-      return value
-
-    # Recursive case
-    value = reward - self.children[action].update_tree(env)    
+      else: # action needs to be explored further.
+        value -= self.children[action].rollout(env, done)
+    
+    else:
+      # Recursive case
+      value -= self.children[action].update_tree(env)    
 
     # BACKUP
     # Change the status of this node based on the child nodes.
