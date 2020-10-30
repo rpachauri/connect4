@@ -122,7 +122,6 @@ class MCTSNode():
     for action in self.children:
       child = self.children[action]
       if child.status == MCTSNodeStatus.winning:
-        # self.action_total_values[action] = STATUSES_TO_VALUES[MCTSNodeStatus.winning]
         return MCTSNodeStatus.losing
 
     # If we're missing a child, this node is still exploring.
@@ -141,11 +140,9 @@ class MCTSNode():
     for action in self.children:
       child = self.children[action]
       if child.status == MCTSNodeStatus.drawing:
-        # self.action_total_values[action] = STATUSES_TO_VALUES[MCTSNodeStatus.drawing]
         return MCTSNodeStatus.drawing
 
     # All child statuses must be losing, so this node is winning.
-    # self.action_total_values[action] = STATUSES_TO_VALUES[MCTSNodeStatus.losing]
     return MCTSNodeStatus.winning
 
 class MCTS():
@@ -189,7 +186,7 @@ class MCTS():
 
     # Perform rollouts.
     env_variables = env.get_env_variables()
-    for i in range(self.num_rollouts):
+    for _ in range(self.num_rollouts):
       self.root.update_tree(env)
       self.root_num_visits += 1
       env.reset(env_variables)
