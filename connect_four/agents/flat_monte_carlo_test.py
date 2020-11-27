@@ -78,6 +78,30 @@ class TestFlatMonteCarlo(unittest.TestCase):
         action = agent.action(env=self.env)
         self.assertEqual(3, action)
 
+    def test_prevent_immediate_win(self):
+        # Assumes env.step() only evaluates the win condition based
+        # on the most recent move.
+        # Action 0 and 1 lead to a loss due to going out of bounds.
+        # Action 2 lets the other player win.
+        # Action 3 prevents a win and guarantees a draw.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, ],
+                [1, 1, 1, 0, ],
+                [0, 0, 0, 0, ],
+                [0, 0, 0, 0, ],
+            ],
+            [
+                [1, 1, 0, 0, ],
+                [0, 0, 0, 1, ],
+                [1, 1, 1, 1, ],
+                [1, 1, 1, 1, ],
+            ],
+        ])
+        agent = FlatMonteCarlo(num_rollouts=1000)
+        action = agent.action(env=self.env)
+        self.assertEqual(3, action)
+
 
 if __name__ == '__main__':
     unittest.main()

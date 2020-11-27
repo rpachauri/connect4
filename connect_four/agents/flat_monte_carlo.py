@@ -78,9 +78,6 @@ class FlatMonteCarlo(Agent):
         value = r
 
         while not done:
-            # Inverse the value now that it is the other player's turn.
-            value *= -1
-
             # Select a random action.
             all_actions = np.arange(env.action_space)
             action = np.random.choice(all_actions)
@@ -88,5 +85,8 @@ class FlatMonteCarlo(Agent):
 
             # Increase the reward for the player.
             value += r
+
+            # Inverse the value now that it is the other player's turn.
+            value *= -1
 
         return value

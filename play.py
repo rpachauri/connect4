@@ -1,6 +1,7 @@
 # Gotta import gym!
 import gym
 
+from connect_four.agents import FlatMonteCarlo
 from connect_four.agents import MCPNS
 from connect_four.agents import Minimax
 from connect_four.agents import RandomAgent
@@ -10,8 +11,8 @@ from connect_four.agents import RandomAgent
 env = gym.make('connect_four-v0')
 
 # Initialize the agents
-agent1 = Minimax(max_depth=3)
-agent2 = RandomAgent()  # MCPNS(num_rollouts=2000)
+agent1 = FlatMonteCarlo(num_rollouts=100)  # Minimax(max_depth=3)
+agent2 = FlatMonteCarlo(num_rollouts=1000)  # RandomAgent()  # MCPNS(num_rollouts=2000)
 
 # Reset the environment to default beginning
 # Default observation variable
