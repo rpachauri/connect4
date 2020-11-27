@@ -1,6 +1,9 @@
 import numpy as np
+
+from connect_four.agents.agent import Agent
 from connect_four.envs.connect_four_env import ConnectFourEnv
 from enum import Enum
+
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -157,7 +160,7 @@ class MCPNSNode:
         return MCPNSNodeStatus.winning
 
 
-class MCPNS:
+class MCPNS(Agent):
 
     def __init__(self, num_rollouts):
         """

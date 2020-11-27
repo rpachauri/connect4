@@ -13,9 +13,9 @@ class ConnectFourEnv(gym.Env):
 
     action_space = N
 
-    INVALID_MOVE = 0
+    INVALID_MOVE = -1
     CONNECTED_FOUR = 1
-    DRAW = 0.5
+    DRAW = 0
     DEFAULT_REWARD = 0
 
     def __init__(self):

@@ -50,8 +50,8 @@ class Minimax(Agent):
             # undo move
             env.reset(env_variables)
 
-        # np.argmax() returns an array but we expect only 1 value.
-        best_action = np.argmax(np.array(action_values))[0]
+        best_action = np.argmax(np.array(action_values))
+        # noinspection PyTypeChecker
         return best_action, gamma * action_values[best_action]
 
     def _estimate(self, env):
