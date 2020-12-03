@@ -50,9 +50,9 @@ class FlatUCB(Agent):
             env.reset(env_variables)
 
         # print("action_total_values =", action_total_values)
-        # print("action_visits =", action_visits)
+        print("action_visits =", action_visits)
         # Select action with the highest action-value.
-        best_action = np.nanargmax(action_visits)
+        best_action = np.argmax(action_visits)
         return best_action
 
     @staticmethod

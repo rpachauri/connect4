@@ -4,6 +4,7 @@ import gym
 from connect_four.agents import FlatMonteCarlo
 from connect_four.agents import FlatUCB
 from connect_four.agents import MCPNS
+from connect_four.agents import MCTS
 from connect_four.agents import Minimax
 from connect_four.agents import RandomAgent
 from connect_four.envs import ConnectFourEnv
@@ -16,8 +17,8 @@ agents_record = [0, 0, 0]
 
 for i in range(10):
     # Initialize the agents
-    agent1 = FlatMonteCarlo(num_rollouts=1000)  # Minimax(max_depth=3)
-    agent2 = FlatUCB(num_rollouts=1000)  # RandomAgent()  # MCPNS(num_rollouts=2000)
+    agent1 = FlatUCB(num_rollouts=1000)
+    agent2 = MCTS(num_rollouts=1000)
 
     # Reset the environment to default beginning
     # Default observation variable

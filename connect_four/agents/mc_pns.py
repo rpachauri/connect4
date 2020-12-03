@@ -54,7 +54,7 @@ def rollout(env, done):
 class MCPNSNode:
 
     def __init__(self, num_actions=7):
-        self.children = {}  # dictionary of moves to MCTSNodes
+        self.children = {}  # dictionary of moves to MCPNSNodes
 
         self.action_total_values = np.zeros(num_actions)
         self.action_visits = np.zeros(num_actions)
