@@ -65,3 +65,25 @@ Found in the `minimax_agent.py` file.
 My implementation is H-Minimax (a more thorough explanation can be found in Chapter 5.4 of *Artificial Intelligence: A Modern Approach*, the textbook by Peter Norvig and Stuart J. Russell). Realistically, we cannot search the entire game tree because it would take too long. So, we use a maximum depth variable instead. If we find a terminal state before we reach the maximum depth, we can use the true value of that state (e.g. win == +1, lose == 0, draw == 1/2). If we haven't found a terminal state by the time we reach the maximum depth, we stop searching along that game trajectory and come up with an estimate for the value of that game state (some number in the range [0, 1]). If you don't have a very good "estimate" function, you'll notice that the agent doesn't play very well in the beginning, but it'll play as best it can towards the end of the game.
 
 At each state, Minimax selects an action with a time complexity of `O(b^d * e(s))`, where `b` is the number of branches, `d` is the max_depth, and `e(s)` is the cost of our estimate function for a state `s`. Note that the estimated state-values are all at the max depth. This means we can't reuse our calculations the next time we want to select an action because we want to estimate the value of states at a different depth.
+
+### Monte Carlo Proof Number Search
+
+Found in the `mc_pns.py` file.
+
+Monte Carlo Proof Number Search is a variation of Monte Carlo Tree Search that uses game-theory to limit search. It does this by assigning one of the following statuses to a game state:
+1. Winning
+2. Losing
+3. Drawing
+4. Exploring
+
+If a game state is not "exploring", then it must be one of "winning", "losing," or "drawing." The agent performs a rollout like normal MCTS then and assigns a status to each node during the Backup Phase of Monte Carlo Tree Search. It uses the following rules to determine a status for a state:
+1. If there is a single action in the current state that guarantees a win for the opponent, then the current state is considered "losing" for the player.
+2. If there isn't an action that has been determined to be "winning" for the opponent but there is a single action that still needs to be explored, then the current state is considered "exploring" for the player. This makes sense because if all actions are losing but the one remaining action that still needs to be explored could guarantee a win, then we'd want to keep exploring.
+3. If all actions lead to either a loss or a draw for the opponent, then the current state is considered "drawing." This is because an optimal agent would select the action that guarantees themselves a draw.
+4. If all actions from a state lead to a loss for the opponent, then the current state is a guaranteed win for the agent. This is because no matter what action the opponent selects, it will result in their loss.
+
+Once an agent has deemed an action as either winning, losing or drawing, it no longer needs to explore that action. This allows the agent to use its rollouts for any remaining actions.
+
+After performing a number of rollouts, the agent must select an action. If it determines that an action is winning, then it immediately selects that action. Otherwise, it selects the action with the highest estimated action-value.
+
+For a more thorough understanding of Monte Carlo Proof Number Search, see Section 5.4.2 entitled "Monte Carlo Proof-Number Search (MC-PNS)" of Browne, C., E. Powley, D. Whitehouse, S. Lucas, P. Cowling, Philipp Rohlfshagen, Stephen Tavener, Diego Perez Liebana, Spyridon Samothrakis and S. Colton. “A Survey of Monte Carlo Tree Search Methods.” IEEE Transactions on Computational Intelligence and AI in Games 4 (2012): 1-43. The authors state that using these game-theoretic guarantees allows the algorithm to 
