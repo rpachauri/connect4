@@ -50,7 +50,7 @@ class FlatUCB(Agent):
             env.reset(env_variables)
 
         # Uncomment below line to see the number of times each action was visited.
-        # print("action_visits =", action_visits)
+        print("action_visits =", action_visits, "=>", np.sum(action_visits))
 
         # Select action with the highest action-value.
         best_action = np.argmax(action_visits)

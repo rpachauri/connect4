@@ -54,6 +54,30 @@ First, let's look at MCTS. If the root is the first state of a game, then nodes 
 
 Now, recall that Flat UCB is able to discern between stronger and weaker moves by balancing the exploration-exploitation tradeoff. Since it visits weaker moves fewer times, it's able to use the extra rollouts to produce more accurate estimates of stronger moves (e.g. by ignoring 1 or 2 moves, it's able to visit remaining moves ~200 times). This is how it's able to do better than MCTS; it visits stronger moves more often than MCTS does and is thus able to discern between the best and second-best move more often.
 
+### Upper Confidence Bounds for Trees (UCT)
+
+Found in the `uct.py` file.
+
+Upper Confidence Bounds for Trees (UCT) is essentially the same as MCTS. However, it applies the Upper Confidence Bound algorithm for move selection while traversing the tree in order to balance the exploration-exploitation tradeoff (this is known as the selection policy). Note that during rollouts, it still selects moves uniformly randomly (this is known as the default policy).
+
+Recall that MCTS is able to use rollouts from previous batches to improve the estimate of action-values. UCT gets the same benefit; however it should have a slight improvement because it also balances the exploration-exploitation tradeoff.
+
+I pitted the UCT agent against the Flat UCB agent with the following parameters 10 times:
+- Flat UCB:
+  - num_rollouts: 1000
+  - exploration constant: 4
+- UCT:
+  - num_rollouts: 1000
+  - exploration constant: 4
+  
+These were the results:
+- Flat UCB won 4 games
+- UCT won 4 games
+- The agents drew 2 games
+
+One possible explanation for these results is that just like MCTS, UCT is not able to utilize the extra rollouts very well since it only selects actions at every other level in the tree. This means that it has to throw away many of the rollouts. However, these results were quite inconsistent, so it is possible more tests need to be performed in order to better compare the two algorithms.
+
+
 ## Combinatorial Agents
 
 ### Minimax

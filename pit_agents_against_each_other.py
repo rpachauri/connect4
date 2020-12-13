@@ -7,6 +7,7 @@ from connect_four.agents import MCPNS
 from connect_four.agents import MCTS
 from connect_four.agents import Minimax
 from connect_four.agents import RandomAgent
+from connect_four.agents import UCT
 from connect_four.envs import ConnectFourEnv
 
 # Make the environment, replace this string with any
@@ -18,7 +19,7 @@ agents_record = [0, 0, 0]
 for i in range(10):
     # Initialize the agents
     agent1 = FlatUCB(num_rollouts=1000)
-    agent2 = MCTS(num_rollouts=1000)
+    agent2 = UCT(num_rollouts=1000)
 
     # Reset the environment to default beginning
     # Default observation variable
@@ -44,7 +45,7 @@ for i in range(10):
             else:  # reward == ConnectFourEnv.DRAW
                 agents_record[2] += 1
 
-    print("Finished game", i)
+    print("Record after game", i, "-", agents_record)
 
 print("Number of wins for agent 1:", agents_record[0])
 print("Number of wins for agent 2:", agents_record[1])
