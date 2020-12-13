@@ -28,6 +28,32 @@ These were the results:
 - Flat Monte Carlo won 2 games
 - The agents drew 2 games
 
+### Monte Carlo Tree Search
+
+Found in the `mcts.py` file.
+
+Monte Carlo Tree Search is an algorithm similar to Flat Monte Carlo. It estimates the action-values for the current state by performing rollouts using uniform random selection. However, it also uses the rollouts to estimate the action-values for states along the rollout trajectory. This allows it to reuse the data gathered from previous rollout batches.
+
+It does this by creating a tree where each node is a state in the Markov Decision Process. Each node keeps track of the number of times each action was visited from a rollout and the total value of all of those rollouts. For a more thorough understanding of how the MCTS algorithm works, see Browne, C., E. Powley, D. Whitehouse, S. Lucas, P. Cowling, Philipp Rohlfshagen, Stephen Tavener, Diego Perez Liebana, Spyridon Samothrakis and S. Colton. “A Survey of Monte Carlo Tree Search Methods.” IEEE Transactions on Computational Intelligence and AI in Games 4 (2012): 1-43.
+
+I pitted the MCTS Agent against the Flat UCB agent with the following parameters 10 times:
+- Flat UCB:
+  - num_rollouts: 1000
+  - exploration constant: 4
+- MCTS:
+  - num_rollouts: 1000
+  
+These were the results:
+- MCTS won 3 games
+- Flat UCB won 5 games
+- The agents drew 2 games
+
+These results can be explained by looking at the number of visits to each action after performing rollouts. Note that every time either agent is requested to select an action, it performs 1000 rollouts. The MCTS agent is able to reuse rollouts from previous batches of rollouts; however, the Flat UCB agent tries to select actions for rollouts to balance the exploration-exploitation tradeoff.
+
+First, let's look at MCTS. If the root is the first state of a game, then nodes at depth=1 are the states resulting from the first action from the agent. The nodes at depth=2 are the states resulting from the first action from the agent and then the first action from the opponent. Note that since there are 7 actions to choose from for every state in Connect Four, with 1000 rollouts each node at depth=1 would be visited ~142 times if we used a uniform random policy to select actions. Each node at depth=2 would be visited ~20 times. This means that the next time we select an action (the second action from the agent) and need to perform 1000 rollouts, we've already performed ~20 rollouts from the state we're currently in (where both players have played a single action), so we have a total of ~1020 to estimate the action-values of that state. Since this isn't a huge increase in the number of rollouts, we're not going to see a much better performance than Flat Monte Carlo.
+
+Now, recall that Flat UCB is able to discern between stronger and weaker moves by balancing the exploration-exploitation tradeoff. Since it visits weaker moves fewer times, it's able to use the extra rollouts to produce more accurate estimates of stronger moves (e.g. by ignoring 1 or 2 moves, it's able to visit remaining moves ~200 times). This is how it's able to do better than MCTS; it visits stronger moves more often than MCTS does and is thus able to discern between the best and second-best move more often.
+
 ## Combinatorial Agents
 
 ### Minimax

@@ -121,7 +121,9 @@ class MCTS(Agent):
             self.root_num_visits += 1
             env.reset(env_variables)
 
-        print("self.root.action_visits =", self.root.action_visits)
+        # Uncomment below line to see the number of times each action was visited.
+        # print("self.root.action_visits =", self.root.action_visits)
+
         # Select action with the highest action-value.
         action_values = np.divide(self.root.action_total_values, self.root.action_visits)
         best_action = np.argmax(action_values)
