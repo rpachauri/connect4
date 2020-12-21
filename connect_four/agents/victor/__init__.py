@@ -10,3 +10,6 @@ from connect_four.agents.victor.baseinverse import baseinverse
 
 from connect_four.agents.victor.vertical import Vertical
 from connect_four.agents.victor.vertical import vertical
+
+from connect_four.agents.victor.aftereven import Aftereven
+from connect_four.agents.victor.aftereven import aftereven
