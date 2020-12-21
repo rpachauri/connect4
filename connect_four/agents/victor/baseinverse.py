@@ -22,6 +22,16 @@ class Baseinverse:
 
 
 def baseinverse(board: Board):
+    """baseinverse takes a Board and returns a set of Baseinverses for it.
+
+    It makes no assumptions about whose turn it is or who is the controller of the Zugzwang.
+
+    Args:
+        board (Board): a Board instance.
+
+    Returns:
+        baseinverses (set<Baseinverse>): a set of Baseinverses for board.
+    """
     baseinverses = set()
     playable_squares = board.playable_squares()
 

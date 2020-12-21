@@ -17,6 +17,16 @@ class Vertical:
 
 
 def vertical(board: Board):
+    """vertical takes a Board and returns a set of Verticals for it.
+
+    It makes no assumptions about whose turn it is or who is the controller of the Zugzwang.
+
+    Args:
+        board (Board): a Board instance.
+
+    Returns:
+        vertical (set<Verticals>): a set of Verticals for board.
+    """
     verticals = set()
 
     for row in range(1, len(board.state[0]) - 1, 2):

@@ -17,6 +17,16 @@ class Claimeven:
 
 
 def claimeven(board: Board):
+    """claimeven takes a Board and returns a set of Claimevens for it.
+
+    It makes no assumptions about whose turn it is or who is the controller of the Zugzwang.
+
+    Args:
+        board (Board): a Board instance.
+
+    Returns:
+        claimevens (set<Claimeven>): a set of Claimevens for board.
+    """
     claimevens = set()
 
     for row in range(0, len(board.state[0]), 2):

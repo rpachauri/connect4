@@ -2,6 +2,15 @@ from connect_four.agents.victor import Square
 
 
 class Threat:
+    """A Threat is a group of 4 squares on a Connect Four board.
+
+    Each Threat belongs to a specific player (0 or 1).
+    All four of the squares must be in a line.
+
+    In order to specify a threat, a client only needs to specify:
+        1.  Which player the Threat belongs to.
+        2.  The start and end of the threat (since the threat must consist of 4 squares in a line).
+    """
     def __init__(self, player: int, start: Square, end: Square):
         # Perform validation on player.
         if not(player == 0 or player == 1):
