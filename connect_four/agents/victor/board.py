@@ -25,3 +25,31 @@ class Board:
             False if the given square is occupied by either player.
         """
         return self.state[0][square.row][square.col] == 0 and self.state[1][square.row][square.col] == 0
+
+    def playable_squares(self):
+        """Returns a set of playable squares on this board.
+
+        Returns:
+            squares: a set of playable squares. empty if there are none.
+        """
+        squares = set()
+        for col in range(len(self.state[0][0])):
+            square = self.playable_square(col)
+            if square is not None:
+                squares.add(square)
+        return squares
+
+    def playable_square(self, col):
+        """Returns a playable square in this column if it exists.
+
+        Args:
+            col: (int) the column to find a playable square.
+
+        Returns:
+            square: (Square) the only playable square in this column if there is one.
+                    If there is no playable square, returns None.
+        """
+        for row in reversed(range(len(self.state[0]))):
+            square = Square(row, col)
+            if self.is_empty(square):
+                return square

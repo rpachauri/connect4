@@ -36,6 +36,50 @@ class TestBoard(unittest.TestCase):
         self.assertFalse(board.is_empty(Square(3, 3)))
         self.assertFalse(board.is_empty(Square(3, 2)))
 
+    def test_playable_square(self):
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, ],
+                [0, 0, 0, 0, ],
+                [0, 0, 0, 0, ],
+                [0, 0, 0, 1, ],
+            ],
+            [
+                [0, 0, 0, 0, ],
+                [0, 0, 0, 0, ],
+                [0, 0, 0, 0, ],
+                [0, 0, 1, 0, ],
+            ],
+        ])
+        state, _ = self.env.get_env_variables()
+        board = Board(state)
+        self.assertEqual(Square(3, 0), board.playable_square(0))
+
+    def test_playable_squares(self):
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, ],
+                [0, 0, 0, 0, ],
+                [0, 0, 0, 0, ],
+                [0, 0, 0, 1, ],
+            ],
+            [
+                [0, 0, 0, 0, ],
+                [0, 0, 0, 0, ],
+                [0, 0, 0, 0, ],
+                [0, 0, 1, 0, ],
+            ],
+        ])
+        state, _ = self.env.get_env_variables()
+        board = Board(state)
+        want_squares = {
+            Square(3, 0),
+            Square(3, 1),
+            Square(2, 2),
+            Square(2, 3),
+        }
+        self.assertEqual(want_squares, board.playable_squares())
+
 
 if __name__ == '__main__':
     unittest.main()

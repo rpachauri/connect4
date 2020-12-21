@@ -1,6 +1,5 @@
 from connect_four.agents.victor import Board
 from connect_four.agents.victor import Square
-from connect_four.envs.connect_four_env import ConnectFourEnv
 
 
 class Claimeven:
@@ -20,8 +19,8 @@ class Claimeven:
 def claimeven(board: Board):
     claimevens = set()
 
-    for row in range(0, ConnectFourEnv.M, 2):
-        for col in range(ConnectFourEnv.N):
+    for row in range(0, len(board.state[0]), 2):
+        for col in range(len(board.state[0][0])):
             upper = Square(row, col)
             lower = Square(row + 1, col)
 
