@@ -25,3 +25,8 @@ class Threat:
 
         self.squares = frozenset(square_list)
         assert len(self.squares) == 4
+
+    def __eq__(self, other):
+        if isinstance(other, Threat):
+            return self.player == other.player and self.squares == other.squares
+        return False
