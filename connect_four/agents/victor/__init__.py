@@ -6,3 +6,6 @@ from connect_four.agents.victor.claimeven import claimeven
 
 from connect_four.agents.victor.baseinverse import Baseinverse
 from connect_four.agents.victor.baseinverse import baseinverse
+
+from connect_four.agents.victor.vertical import Vertical
+from connect_four.agents.victor.vertical import vertical
