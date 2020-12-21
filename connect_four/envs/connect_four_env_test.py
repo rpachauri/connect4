@@ -183,7 +183,7 @@ class TestConnectFourEnv(unittest.TestCase):
         self.env.step(0)
 
         # Retrieve the env variables.
-        env_variables = self.env.get_env_variables()
+        env_variables = self.env.env_variables
 
         # Modify the environment.
         obs, _, _, _ = self.env.step(0)

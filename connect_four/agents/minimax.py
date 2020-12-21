@@ -26,7 +26,7 @@ class Minimax(Agent):
 
     def _minimax(self, env, depth, gamma=0.99):
         # Get the current state and player.
-        env_variables = env.get_env_variables()
+        env_variables = env.env_variables
 
         action_values = []
 
@@ -65,7 +65,7 @@ class Minimax(Agent):
       Returns:
         estimate (float): an estimate of how valuable the current state is to the current player.
     """
-        env_variables = env.get_env_variables()
+        env_variables = env.env_variables
         obs = env_variables[0]
         current_player = env_variables[1]
 

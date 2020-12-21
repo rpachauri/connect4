@@ -1,6 +1,11 @@
 import gym
 import numpy as np
 
+from collections import namedtuple
+
+
+ConnectFourEnvVariables = namedtuple("ConnectFourEnvVariables", ["state", "player_turn"])
+
 
 class ConnectFourEnv(gym.Env):
     """Implements the gym.Env interface.
@@ -134,14 +139,15 @@ class ConnectFourEnv(gym.Env):
     """
         return (self.state != 0).any(axis=0).all()
 
-    def get_env_variables(self):
+    @property
+    def env_variables(self):
         """
       Returns:
         env_variables (tuple): a tuple that can be passed to reset() to restore a state.
         - env_variables[0] contains "obs", the observable variable for that state.
         - env_variables[1] contains "player_turn", indicating whose turn it is in that state.
     """
-        return self.state.copy(), self.player_turn
+        return ConnectFourEnvVariables(self.state.copy(), self.player_turn)
 
     def reset(self, env_variables=None):
         """Resets the state of the environment and returns an initial observation.
@@ -151,7 +157,7 @@ class ConnectFourEnv(gym.Env):
           env_variables[0] (ndarray): should be a a numpy ndarray of shape (2, M, N)
           env_variables[1] (int): whose turn it should be (0 or 1)
       Example Usage:
-        env_variables = env.get_env_variables()
+        env_variables = env.env_variables()
         env.step(action)
         .
         .

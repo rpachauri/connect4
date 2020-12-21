@@ -23,7 +23,7 @@ class FlatUCB(Agent):
       env: a plannable gym.Env
       last_action: the last_action we took. None by default.
     Requires:
-      - env must implement get_env_variables, which returns a variable that can
+      - env must implement env_variables, which returns a variable that can
         be passed to env.reset() to restore a state (this supports planning agents)
       - env is a deterministic environment.
       - action space of env is finite.
@@ -34,7 +34,7 @@ class FlatUCB(Agent):
         action_visits = np.zeros(env.action_space)
 
         # Perform rollouts.
-        env_variables = env.get_env_variables()
+        env_variables = env.env_variables
         for _ in range(self.num_rollouts):
             # Select an action for rollout.
             action = self._select_action_for_rollout(action_total_values, action_visits)

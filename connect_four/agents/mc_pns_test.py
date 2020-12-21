@@ -39,7 +39,7 @@ class TestMCST(unittest.TestCase):
         # Player 1 can win by playing action == 3.
         # All other actions result in a loss.
 
-        env_variables = self.env.get_env_variables()
+        env_variables = self.env.env_variables
         _, reward, done, _ = self.env.step(0)
         self.assertEqual(reward, ConnectFourEnv.INVALID_MOVE)
         self.assertEqual(mc_pns.TERMINAL_REWARDS_TO_STATUSES[ConnectFourEnv.INVALID_MOVE], MCPNSNodeStatus.losing)
@@ -68,7 +68,7 @@ class TestMCST(unittest.TestCase):
         # All other actions result in a loss.
         node = MCPNSNode(num_actions=ConnectFourEnv.action_space)
 
-        env_variables = self.env.get_env_variables()
+        env_variables = self.env.env_variables
         _ = node.update_tree(env=self.env)
         self.env.reset(env_variables)
 
@@ -103,7 +103,7 @@ class TestMCST(unittest.TestCase):
         # MCPNSNode should not re-explore terminal states,
         # so we should be guaranteed to have explored
         # all states after 4 iterations.
-        env_variables = self.env.get_env_variables()
+        env_variables = self.env.env_variables
         for i in range(ConnectFourEnv.action_space):
             node.update_tree(env=self.env)
             self.env.reset(env_variables)

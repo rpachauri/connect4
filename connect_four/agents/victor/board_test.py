@@ -31,8 +31,7 @@ class TestBoard(unittest.TestCase):
                 [0, 0, 1, 0, ],
             ],
         ])
-        state, _ = self.env.get_env_variables()
-        board = Board(state)
+        board = Board(self.env.env_variables)
         self.assertTrue(board.is_empty(Square(0, 0)))
         self.assertFalse(board.is_empty(Square(3, 3)))
         self.assertFalse(board.is_empty(Square(3, 2)))
@@ -52,8 +51,7 @@ class TestBoard(unittest.TestCase):
                 [0, 0, 1, 0, ],
             ],
         ])
-        state, _ = self.env.get_env_variables()
-        board = Board(state)
+        board = Board(self.env.env_variables)
         self.assertEqual(Square(3, 0), board.playable_square(0))
 
     def test_playable_squares(self):
@@ -71,8 +69,7 @@ class TestBoard(unittest.TestCase):
                 [0, 0, 1, 0, ],
             ],
         ])
-        state, _ = self.env.get_env_variables()
-        board = Board(state)
+        board = Board(self.env.env_variables)
         want_squares = {
             Square(3, 0),
             Square(3, 1),
@@ -96,8 +93,7 @@ class TestBoard(unittest.TestCase):
                 [1, 0, 1, 0, ],
             ],
         ])
-        state, _ = self.env.get_env_variables()
-        board = Board(state)
+        board = Board(self.env.env_variables)
         self.assertTrue(board.is_valid(Square(row=0, col=3)))
         self.assertTrue(board.is_valid(Square(row=1, col=3)))
         self.assertTrue(board.is_valid(Square(row=2, col=3)))
@@ -119,8 +115,7 @@ class TestBoard(unittest.TestCase):
                 [1, 0, 1, 0, ],
             ],
         ])
-        state, _ = self.env.get_env_variables()
-        board = Board(state)
+        board = Board(self.env.env_variables)
         want_threats_player0 = {
             Threat(0, Square(0, 0), Square(0, 3)),
             Threat(0, Square(0, 3), Square(3, 3)),

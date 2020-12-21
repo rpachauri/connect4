@@ -4,6 +4,7 @@ import numpy as np
 
 from connect_four.agents import FlatUCB
 
+
 class TestFlatUCB(unittest.TestCase):
     def test_something(self):
         agent = FlatUCB()

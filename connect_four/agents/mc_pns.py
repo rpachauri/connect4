@@ -179,7 +179,7 @@ class MCPNS(Agent):
       env: a plannable gym.Env
       last_action: the last_action we took
     Requires:
-      - env must implement get_env_variables, which returns a variable that can
+      - env must implement env_variables, which returns a variable that can
         be passed to env.reset() to restore a state (this supports planning agents)
       - env is a deterministic environment.
       - action space of env is finite.
@@ -200,7 +200,7 @@ class MCPNS(Agent):
             self._move_root_to_action(last_action)
 
         # Perform rollouts.
-        env_variables = env.get_env_variables()
+        env_variables = env.env_variables
         for _ in range(self.num_rollouts):
             self.root.update_tree(env)
             self.root_num_visits += 1

@@ -36,8 +36,7 @@ class TestVertical(unittest.TestCase):
                 [0, 0, 0, 0, 1, 0, 0, ],
             ],
         ])
-        state, _ = self.env.get_env_variables()
-        board = Board(state)
+        board = Board(self.env.env_variables)
         got_verticals = vertical(board)
 
         want_verticals = {

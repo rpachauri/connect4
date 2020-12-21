@@ -1,16 +1,25 @@
-import numpy as np
-
 from connect_four.agents.victor import Square
 from connect_four.agents.victor import Threat
+from connect_four.envs import ConnectFourEnvVariables
 
 
 class Board:
     """Board is essentially a wrapper around the state of a ConnectFourEnv. It does not keep in sync with the
     environment's board. This means that if the state of the environment changes, this board will be out of date.
     """
+    def __init__(self, env_variables: ConnectFourEnvVariables):
+        """
 
-    def __init__(self, state: np.array):
-        self.state = state.copy()
+        Args:
+            env_variables (ConnectFourEnvVariables): an instance of the ConnectFourEnv.env_variables property.
+                It must contain the following variables:
+
+                state (np.array): a 2 x M x N np.array, where:
+                    M is the number of rows in the board.
+                    N is the number of columns in the board.
+                player (int): The player whose turn it is in this state (0 or 1).
+        """
+        self.state, self.player = env_variables.state.copy(), env_variables.player_turn
 
     def is_valid(self, square: Square):
         return 0 <= square.row < len(self.state[0]) and 0 <= square.col < len(self.state[0][0])
