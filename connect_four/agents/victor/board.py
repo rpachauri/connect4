@@ -1,6 +1,7 @@
 import numpy as np
 
 from connect_four.agents.victor import Square
+from connect_four.agents.victor import Threat
 
 
 class Board:
@@ -12,7 +13,7 @@ class Board:
         self.state = state.copy()
 
     def is_valid(self, square: Square):
-        return 0 <= square.row < len(self.state) and 0 <= square.col < len(self.state[0])
+        return 0 <= square.row < len(self.state[0]) and 0 <= square.col < len(self.state[0][0])
 
     def is_empty(self, square: Square):
         """Returns whether or not the given square is empty on this board.
@@ -54,13 +55,57 @@ class Board:
             if self.is_empty(square):
                 return square
 
-    def threats(self, player):
-        """Returns a set of threats that this player has in this board state.
+    def potential_threats(self, player):
+        """Returns a set of potential threats that this player has in this board state.
 
         Args:
-            player: (int) a player (0 or 1).
+            player (int): a player (0 or 1). Threats must belong to this player.
 
         Returns:
-            threats: a set of Threat instances. Each threat belongs to the given player.
+            threats (set<Threat>): a set of Threat instances. Each threat belongs to the given player.
         """
-        pass
+        directions = [
+            (-1, 1),  # up-right diagonal
+            (0, 1),  # horizontal
+            (1, 1),  # down-right diagonal
+            (1, 0),  # vertical
+        ]
+        threats = set()
+
+        for row in range(len(self.state[0])):
+            for col in range(len(self.state[0][0])):
+                for row_diff, col_diff in directions:
+                    if self.is_potential_threat(player, row, col, row_diff, col_diff):
+                        threats.add(Threat(
+                            player,
+                            start=Square(row, col),
+                            end=Square(row + 3 * row_diff, col + 3 * col_diff),
+                        ))
+
+        return threats
+
+    def is_potential_threat(self, player: int, row: int, col: int, row_diff: int, col_diff: int):
+        """Returns whether or not the given group is a threat that belongs to the player.
+
+        Args:
+            player (int): a player (0 or 1). Is the group a threat that belongs to this player?
+            row (int): starting row
+            col (int): starting column
+            row_diff (int): direction in which to increment the row (-1, 0 or 1)
+            col_diff (int): direction in which to increment the col (-1, 0 or 1)
+
+        Returns:
+            is_threat (bool): True if the group is a valid potential threat that belongs to the player.
+                              Otherwise, false.
+        """
+        opponent = 1 - player
+        for _ in range(4):
+            square = Square(row, col)
+            if not self.is_valid(square):
+                return False
+            if self.state[opponent][row][col]:
+                # If there is a token that belongs to the opponent in this group,
+                # then this group is not a potential threat that belongs to the given player.
+                return False
+            row, col = row + row_diff, col + col_diff
+        return True

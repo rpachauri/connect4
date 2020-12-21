@@ -30,3 +30,6 @@ class Threat:
         if isinstance(other, Threat):
             return self.player == other.player and self.squares == other.squares
         return False
+
+    def __hash__(self):
+        return self.squares.__hash__() + self.player

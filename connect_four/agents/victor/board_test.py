@@ -5,6 +5,7 @@ import numpy as np
 
 from connect_four.agents.victor import Board
 from connect_four.agents.victor import Square
+from connect_four.agents.victor import Threat
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
 
@@ -79,6 +80,58 @@ class TestBoard(unittest.TestCase):
             Square(2, 3),
         }
         self.assertEqual(want_squares, board.playable_squares())
+
+    def test_is_potential_threat(self):
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, ],
+                [0, 0, 0, 1, ],
+                [1, 0, 0, 1, ],
+                [0, 1, 0, 1, ],
+            ],
+            [
+                [0, 0, 0, 0, ],
+                [0, 0, 1, 0, ],
+                [0, 1, 1, 0, ],
+                [1, 0, 1, 0, ],
+            ],
+        ])
+        state, _ = self.env.get_env_variables()
+        board = Board(state)
+        self.assertTrue(board.is_valid(Square(row=0, col=3)))
+        self.assertTrue(board.is_valid(Square(row=1, col=3)))
+        self.assertTrue(board.is_valid(Square(row=2, col=3)))
+        self.assertTrue(board.is_valid(Square(row=3, col=3)))
+        self.assertTrue(board.is_potential_threat(player=0, row=0, col=3, row_diff=1, col_diff=0))
+
+    def test_potential_threats(self):
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, ],
+                [0, 0, 0, 1, ],
+                [1, 0, 0, 1, ],
+                [0, 1, 0, 1, ],
+            ],
+            [
+                [0, 0, 0, 0, ],
+                [0, 0, 1, 0, ],
+                [0, 1, 1, 0, ],
+                [1, 0, 1, 0, ],
+            ],
+        ])
+        state, _ = self.env.get_env_variables()
+        board = Board(state)
+        want_threats_player0 = {
+            Threat(0, Square(0, 0), Square(0, 3)),
+            Threat(0, Square(0, 3), Square(3, 3)),
+        }
+        self.assertEqual(want_threats_player0, board.potential_threats(0))
+        want_threats_player1 = {
+            Threat(1, Square(0, 0), Square(0, 3)),
+            Threat(1, Square(0, 3), Square(3, 0)),
+            Threat(1, Square(0, 2), Square(3, 2)),
+        }
+        self.assertEqual(want_threats_player1, board.potential_threats(1))
 
 
 if __name__ == '__main__':
