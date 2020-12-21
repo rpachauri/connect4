@@ -9,14 +9,19 @@ class Threat:
         self.player = player
 
         # Perform validation on start and end of threat.
-        row_diff = start.row - end.row
-        col_diff = start.col - end.col
+        row_diff = end.row - start.row
+        col_diff = end.col - start.col
         if not (row_diff == -3 or row_diff == 0 or row_diff == 3) or not(
                 col_diff == -3 or col_diff == 0 or col_diff == 3):
             raise ValueError("Invalid threat line:", start, "-", end)
 
-        self.squares = frozenset([
-            start,
-            end,
-        ])
-        assert len(self.squares) == 2
+        # Derive the four squares of the threat from the start and end squares.
+        row_diff, col_diff = row_diff // 3, col_diff // 3
+        square_list = [start]
+        for _ in range(3):
+            next_square = Square(square_list[-1].row + row_diff, square_list[-1].col + col_diff)
+            square_list.append(next_square)
+        assert square_list[-1] == end
+
+        self.squares = frozenset(square_list)
+        assert len(self.squares) == 4
