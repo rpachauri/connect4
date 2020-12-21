@@ -53,3 +53,14 @@ class Board:
             square = Square(row, col)
             if self.is_empty(square):
                 return square
+
+    def threats(self, player):
+        """Returns a set of threats that this player has in this board state.
+
+        Args:
+            player: (int) a player (0 or 1).
+
+        Returns:
+            threats: a set of Threat instances. Each threat belongs to the given player.
+        """
+        pass
