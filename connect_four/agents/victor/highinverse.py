@@ -15,7 +15,7 @@ class Highinverse:
 
 
 def highinverse(lowinverses):
-    """lowinverse takes an iterable of Lowinverses and returns an iterable of Highinverses.
+    """highinverse takes an iterable of Lowinverses and returns an iterable of Highinverses.
 
     Args:
         lowinverses (iterable<Lowinverse>): an iterable of Lowinverses.
