@@ -18,13 +18,13 @@ class Lowinverse:
 
 
 def lowinverse(verticals):
-    """lowinverse takes a Board and an iterable of Verticals and returns a set of Lowinverses for the Board.
+    """lowinverse takes an iterable of Verticals and returns an iterable of Lowinverses.
 
     Args:
-        verticals (iterable<Vertical>): an iterable of Verticals for board.
+        verticals (iterable<Vertical>): an iterable of Verticals.
 
     Returns:
-        lowinverses (iterable<Lowinverse>): an iterable of Lowinverses for board.
+        lowinverses (iterable<Lowinverse>): an iterable of Lowinverses.
     """
     lowinverses = set()
     for first_vertical in verticals:
