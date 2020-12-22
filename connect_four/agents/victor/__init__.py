@@ -13,3 +13,6 @@ from connect_four.agents.victor.vertical import vertical
 
 from connect_four.agents.victor.aftereven import Aftereven
 from connect_four.agents.victor.aftereven import aftereven
+
+from connect_four.agents.victor.lowinverse import Lowinverse
+from connect_four.agents.victor.lowinverse import lowinverse

@@ -6,7 +6,6 @@ import numpy as np
 from connect_four.agents.victor import Aftereven
 from connect_four.agents.victor import aftereven
 from connect_four.agents.victor import Board
-from connect_four.agents.victor import Claimeven
 from connect_four.agents.victor import claimeven
 from connect_four.agents.victor import Square
 from connect_four.agents.victor import Threat
