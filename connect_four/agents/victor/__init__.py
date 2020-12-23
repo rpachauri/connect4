@@ -19,3 +19,6 @@ from connect_four.agents.victor.lowinverse import lowinverse
 
 from connect_four.agents.victor.highinverse import Highinverse
 from connect_four.agents.victor.highinverse import highinverse
+
+from connect_four.agents.victor.baseclaim import Baseclaim
+from connect_four.agents.victor.baseclaim import baseclaim

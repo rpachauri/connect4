@@ -49,7 +49,7 @@ class Board:
                 squares.add(square)
         return squares
 
-    def playable_square(self, col):
+    def playable_square(self, col) -> Square:
         """Returns a playable square in this column if it exists.
 
         Args:

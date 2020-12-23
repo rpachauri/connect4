@@ -3,7 +3,6 @@ import unittest
 
 import numpy as np
 
-
 from connect_four.agents.victor import Board
 from connect_four.agents.victor import Lowinverse
 from connect_four.agents.victor import lowinverse
