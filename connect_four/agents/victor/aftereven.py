@@ -3,7 +3,7 @@ from connect_four.agents.victor import Threat
 
 
 class Aftereven:
-    def __init__(self, threat, columns):
+    def __init__(self, threat: Threat, columns):
         self.threat = threat
         self.columns = frozenset(columns)
 
