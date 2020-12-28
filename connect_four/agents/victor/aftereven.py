@@ -4,6 +4,12 @@ from connect_four.agents.victor import Threat
 
 class Aftereven:
     def __init__(self, threat: Threat, columns):
+        """Initializes an Aftereven instance.
+
+        Args:
+            threat (Threat): a Threat representing the Aftereven group.
+            columns (iterable<int>): a list of columns containing the empty squares of the Aftereven group.
+        """
         self.threat = threat
         self.columns = frozenset(columns)
 
