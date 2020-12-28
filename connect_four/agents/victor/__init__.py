@@ -1,5 +1,6 @@
 from connect_four.agents.victor.square import Square
 from connect_four.agents.victor.threat import Threat
+from connect_four.agents.victor.threat import ThreatDirection
 from connect_four.agents.victor.board import Board
 
 from connect_four.agents.victor.claimeven import Claimeven
@@ -22,3 +23,6 @@ from connect_four.agents.victor.highinverse import highinverse
 
 from connect_four.agents.victor.baseclaim import Baseclaim
 from connect_four.agents.victor.baseclaim import baseclaim
+
+from connect_four.agents.victor.before import Before
+from connect_four.agents.victor.before import before
