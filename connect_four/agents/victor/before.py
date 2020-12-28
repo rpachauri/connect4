@@ -142,3 +142,5 @@ def add_before_variations(board: Board, befores, threat: Threat, empty_squares, 
             add_before_variations(board, befores, threat, empty_squares, verticals, claimevens)
             # Unchoose.
             claimevens.remove(claimeven)
+
+    empty_squares.append(square)

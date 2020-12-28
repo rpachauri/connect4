@@ -11,6 +11,7 @@ from connect_four.agents.victor import Square
 from connect_four.agents.victor import Threat
 from connect_four.agents.victor import Vertical
 from connect_four.agents.victor.before import add_before_variations
+from connect_four.agents.victor.before import empty_squares_of_before_group
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
 
@@ -43,6 +44,7 @@ class TestBefore(unittest.TestCase):
         board = Board(self.env.env_variables)
         # With White to move, every Before group must belong to Black.
         black_threats = board.potential_threats(1)
+        got_befores = before(board, black_threats)
 
         threat_4_3_to_4_6 = Threat(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6))
         threat_2_3_to_2_6 = Threat(player=1, start=Square(row=2, col=3), end=Square(row=2, col=6))
@@ -60,7 +62,6 @@ class TestBefore(unittest.TestCase):
         }
         self.assertEqual(want_threats, black_threats)
 
-        got_befores = before(board, black_threats)
         vertical_3_5 = Vertical(upper=Square(row=3, col=5), lower=Square(row=4, col=5))
         vertical_1_5 = Vertical(upper=Square(row=1, col=5), lower=Square(row=2, col=5))
         vertical_2_5 = Vertical(upper=Square(row=2, col=5), lower=Square(row=3, col=5))
@@ -148,6 +149,74 @@ class TestBefore(unittest.TestCase):
             Before(threat=threat_2_1_to_5_4, verticals=[vertical_4_4], claimevens=[claimeven_2_1]),
         }
         self.assertEqual(want_befores, befores)
+
+    def test_add_before_variations_diagram_6_10(self):
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+        threat_4_3_to_4_6 = Threat(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6))
+
+        befores = set()
+        add_before_variations(board=board,
+                              befores=befores,
+                              threat=threat_4_3_to_4_6,
+                              empty_squares=[Square(row=4, col=4), Square(row=4, col=5), Square(row=4, col=6)],
+                              verticals=[],
+                              claimevens=[])
+        vertical_3_4 = Vertical(upper=Square(row=3, col=4), lower=Square(row=4, col=4))
+        vertical_3_5 = Vertical(upper=Square(row=3, col=5), lower=Square(row=4, col=5))
+        claimeven_4_5 = Claimeven(upper=Square(row=4, col=5), lower=Square(row=5, col=5))
+        vertical_3_6 = Vertical(upper=Square(row=3, col=6), lower=Square(row=4, col=6))
+        claimeven_4_6 = Claimeven(upper=Square(row=4, col=6), lower=Square(row=5, col=6))
+        want_befores = {
+            Before(threat=threat_4_3_to_4_6, verticals=[vertical_3_4, vertical_3_5, vertical_3_6], claimevens=[]),
+            Before(threat=threat_4_3_to_4_6, verticals=[vertical_3_4, vertical_3_5], claimevens=[claimeven_4_6]),
+            Before(threat=threat_4_3_to_4_6, verticals=[vertical_3_4, vertical_3_6], claimevens=[claimeven_4_5]),
+            Before(threat=threat_4_3_to_4_6, verticals=[vertical_3_4], claimevens=[claimeven_4_5, claimeven_4_6]),
+        }
+        self.assertEqual(want_befores, befores)
+
+    def test_empty_squares_of_before_group_diagram_6_10(self):
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+        threat_4_3_to_4_6 = Threat(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6))
+        want_empty_squares = [Square(row=4, col=4), Square(row=4, col=5), Square(row=4, col=6)]
+
+        got_empty_squares = empty_squares_of_before_group(board=board, threat=threat_4_3_to_4_6)
+        self.assertCountEqual(want_empty_squares, got_empty_squares)
 
 
 if __name__ == '__main__':
