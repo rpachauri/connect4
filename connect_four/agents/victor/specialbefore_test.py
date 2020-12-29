@@ -1,0 +1,653 @@
+import gym
+import unittest
+
+import numpy as np
+
+from connect_four.agents.victor import Before
+from connect_four.agents.victor import before
+from connect_four.agents.victor import Board
+from connect_four.agents.victor import Claimeven
+from connect_four.agents.victor import Square
+from connect_four.agents.victor import Threat
+from connect_four.agents.victor import Specialbefore
+from connect_four.agents.victor import specialbefore
+from connect_four.agents.victor import Vertical
+from connect_four.envs.connect_four_env import ConnectFourEnv
+
+
+class TestSpecialbefore(unittest.TestCase):
+    def setUp(self) -> None:
+        self.env = gym.make('connect_four-v0')
+        ConnectFourEnv.M = 6
+        ConnectFourEnv.N = 7
+        self.env.reset()
+
+    def test_before_simplified_diagram_6_10(self):
+        # This is a modified test case from Diagram 6.10 from the original paper.
+        # We filled up a lot of the columns to simplify the test case and reduce the total number of Specialbefores.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [1, 0, 0, 0, 0, 1, 1, ],
+                [0, 1, 1, 0, 0, 0, 0, ],
+                [1, 0, 0, 0, 0, 1, 1, ],
+                [0, 1, 1, 0, 0, 0, 0, ],
+                [1, 0, 1, 1, 0, 1, 1, ],
+            ],
+            [
+                [1, 0, 1, 0, 0, 1, 1, ],
+                [0, 1, 1, 0, 0, 0, 0, ],
+                [1, 0, 0, 0, 0, 1, 1, ],
+                [0, 1, 1, 0, 0, 0, 0, ],
+                [1, 0, 0, 1, 0, 1, 1, ],
+                [0, 1, 0, 0, 1, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+        black_threats = board.potential_threats(player=1)
+        befores = before(board=board, threats=black_threats)
+        got_specialbefores = specialbefore(board=board, befores=befores)
+
+        # Directly playable squares.
+        directly_playable_square_0_1 = Square(row=0, col=1)
+        directly_playable_square_3_3 = Square(row=3, col=3)
+        directly_playable_square_4_4 = Square(row=4, col=4)
+
+        # Non-vertical threats for black that contain at least one directly playable square.
+        threat_3_1_to_3_4 = Threat(player=1, start=Square(row=3, col=1), end=Square(row=3, col=4))
+        threat_4_3_to_4_6 = Threat(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6))
+
+        # Verticals/Claimevens that can belong to Befores.
+        vertical_2_3 = Vertical(upper=Square(row=2, col=3), lower=Square(row=3, col=3))
+        vertical_2_4 = Vertical(upper=Square(row=2, col=4), lower=Square(row=3, col=4))
+        vertical_3_4 = Vertical(upper=Square(row=3, col=4), lower=Square(row=4, col=4))
+
+        before_3_1_to_3_4_variation_1 = Before(
+            threat=threat_3_1_to_3_4,
+            verticals=[vertical_2_3, vertical_2_4],
+            claimevens=[],
+        )
+        before_3_1_to_3_4_variation_2 = Before(
+            threat=threat_3_1_to_3_4,
+            verticals=[vertical_2_3, vertical_3_4],
+            claimevens=[],
+        )
+        before_4_3_to_4_6 = Before(
+            threat=threat_4_3_to_4_6,
+            verticals=[vertical_3_4],
+            claimevens=[],
+        )
+
+        want_specialbefores = {
+            # Specialbefores for before_3_1_to_3_4_variation_1.
+            Specialbefore(before=before_3_1_to_3_4_variation_1, directly_playable_square=directly_playable_square_0_1),
+            Specialbefore(before=before_3_1_to_3_4_variation_1, directly_playable_square=directly_playable_square_4_4),
+            # Specialbefores for before_3_1_to_3_4_variation_2.
+            Specialbefore(before=before_3_1_to_3_4_variation_2, directly_playable_square=directly_playable_square_0_1),
+            Specialbefore(before=before_3_1_to_3_4_variation_2, directly_playable_square=directly_playable_square_4_4),
+            # Specialbefores for before_4_3_to_4_6.
+            Specialbefore(before=before_4_3_to_4_6, directly_playable_square=directly_playable_square_0_1),
+            Specialbefore(before=before_4_3_to_4_6, directly_playable_square=directly_playable_square_3_3),
+        }
+        self.assertEqual(want_specialbefores, got_specialbefores)
+
+    def test_before_diagram_6_10(self):
+        # This test case tries to find all possible Specialbefores from Diagram 6.10 in the original paper.
+        # The authors go through 1 example of a Specialbefore, but we find that there are in fact 216 possible
+        # Specialbefores. Not all of them may be useful (i.e. refute any new threats); however,
+        # they do satisfy the formal requirements as specified in the original paper.
+        # This test case is quite obscene; however, it did help in finding a few bugs.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+        black_threats = board.potential_threats(player=1)
+        befores = before(board=board, threats=black_threats)
+        got_specialbefores = specialbefore(board=board, befores=befores)
+
+        # Directly playable squares for the board.
+        directly_playable_square_5_0 = Square(row=5, col=0)
+        directly_playable_square_5_1 = Square(row=5, col=1)
+        directly_playable_square_0_2 = Square(row=0, col=2)
+        directly_playable_square_3_3 = Square(row=3, col=3)
+        directly_playable_square_4_4 = Square(row=4, col=4)
+        directly_playable_square_5_5 = Square(row=5, col=5)
+        directly_playable_square_5_6 = Square(row=5, col=6)
+
+        # Threats for Black that meet the following conditions:
+        # 1. Not vertical
+        # 2. Contain at least one directly playable square.
+        # 3. Do not contain a square in the top row.
+        ## Threats for Black containing directly_playable_square_5_0.
+        threat_5_0_to_2_3 = Threat(player=1, start=directly_playable_square_5_0, end=Square(row=2, col=3))
+        ## Threats for Black containing directly_playable_square_3_3.
+        threat_3_0_to_3_3 = Threat(player=1, start=Square(row=3, col=0), end=directly_playable_square_3_3)
+        threat_3_1_to_3_4 = Threat(player=1, start=Square(row=3, col=1), end=Square(row=3, col=4))
+        threat_3_2_to_3_5 = Threat(player=1, start=Square(row=3, col=2), end=Square(row=3, col=5))
+        threat_3_3_to_3_6 = Threat(player=1, start=directly_playable_square_3_3, end=Square(row=3, col=6))
+        ## Threats for Black containing directly_playable_square_4_4.
+        threat_4_3_to_4_6 = Threat(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6))
+        ## Threats for Black containing directly_playable_square_5_6.
+        threat_2_3_to_5_6 = Threat(player=1, start=Square(row=2, col=3), end=Square(row=5, col=6))
+
+        # All Verticals/Claimevens used in all Before variations of the threat (5, 0) to (2, 3).
+        vertical_4_0 = Vertical(upper=Square(row=4, col=0), lower=Square(row=5, col=0))
+        claimeven_4_1 = Claimeven(upper=Square(row=4, col=1), lower=Square(row=5, col=1))
+        vertical_3_1 = Vertical(upper=Square(row=3, col=1), lower=Square(row=4, col=1))
+        claimeven_2_3 = Claimeven(upper=Square(row=2, col=3), lower=Square(row=3, col=3))
+        vertical_1_3 = Vertical(upper=Square(row=1, col=3), lower=Square(row=2, col=3))
+
+        # All Before variations of the threat (5, 0) to (2, 3).
+        before_5_0_to_2_3_variation_1 = Before(
+            threat=threat_5_0_to_2_3,
+            verticals=[vertical_4_0],
+            claimevens=[claimeven_4_1, claimeven_2_3]
+        )
+        before_5_0_to_2_3_variation_2 = Before(
+            threat=threat_5_0_to_2_3,
+            verticals=[vertical_4_0, vertical_1_3],
+            claimevens=[claimeven_4_1]
+        )
+        before_5_0_to_2_3_variation_3 = Before(
+            threat=threat_5_0_to_2_3,
+            verticals=[vertical_4_0, vertical_3_1],
+            claimevens=[claimeven_2_3]
+        )
+        before_5_0_to_2_3_variation_4 = Before(
+            threat=threat_5_0_to_2_3,
+            verticals=[vertical_4_0, vertical_3_1, vertical_1_3],
+            claimevens=[]
+        )
+
+        # All Verticals/Claimevens used in all Before variations of the threat (3, 0) to (3, 3).
+        vertical_2_0 = Vertical(upper=Square(row=2, col=0), lower=Square(row=3, col=0))
+        vertical_3_0 = Vertical(upper=Square(row=3, col=0), lower=Square(row=4, col=0))
+        vertical_2_1 = Vertical(upper=Square(row=2, col=1), lower=Square(row=3, col=1))
+        vertical_3_1 = Vertical(upper=Square(row=3, col=1), lower=Square(row=4, col=1))
+        vertical_2_3 = Vertical(upper=Square(row=2, col=3), lower=Square(row=3, col=3))
+
+        # All Before variations of the threat (3, 0) to (3, 3).
+        before_3_0_to_3_3_variation_1 = Before(
+            threat=threat_3_0_to_3_3,
+            verticals=[vertical_2_0, vertical_2_1, vertical_2_3],
+            claimevens=[],
+        )
+        before_3_0_to_3_3_variation_2 = Before(
+            threat=threat_3_0_to_3_3,
+            verticals=[vertical_2_0, vertical_3_1, vertical_2_3],
+            claimevens=[],
+        )
+        before_3_0_to_3_3_variation_3 = Before(
+            threat=threat_3_0_to_3_3,
+            verticals=[vertical_3_0, vertical_2_1, vertical_2_3],
+            claimevens=[],
+        )
+        before_3_0_to_3_3_variation_4 = Before(
+            threat=threat_3_0_to_3_3,
+            verticals=[vertical_3_0, vertical_3_1, vertical_2_3],
+            claimevens=[],
+        )
+
+        # All Verticals/Claimevens used in all Before variations of the threat (3, 1) to (3, 4).
+        vertical_2_1 = Vertical(upper=Square(row=2, col=1), lower=Square(row=3, col=1))
+        vertical_3_1 = Vertical(upper=Square(row=3, col=1), lower=Square(row=4, col=1))
+        vertical_2_3 = Vertical(upper=Square(row=2, col=3), lower=Square(row=3, col=3))
+        vertical_2_4 = Vertical(upper=Square(row=2, col=4), lower=Square(row=3, col=4))
+        vertical_3_4 = Vertical(upper=Square(row=3, col=4), lower=Square(row=4, col=4))
+
+        # All Before variations of the threat (3, 1) to (3, 4).
+        before_3_1_to_3_4_variation_1 = Before(
+            threat=threat_3_1_to_3_4,
+            verticals=[vertical_2_1, vertical_2_3, vertical_2_4],
+            claimevens=[],
+        )
+        before_3_1_to_3_4_variation_2 = Before(
+            threat=threat_3_1_to_3_4,
+            verticals=[vertical_2_1, vertical_2_3, vertical_3_4],
+            claimevens=[],
+        )
+        before_3_1_to_3_4_variation_3 = Before(
+            threat=threat_3_1_to_3_4,
+            verticals=[vertical_3_1, vertical_2_3, vertical_2_4],
+            claimevens=[],
+        )
+        before_3_1_to_3_4_variation_4 = Before(
+            threat=threat_3_1_to_3_4,
+            verticals=[vertical_3_1, vertical_2_3, vertical_3_4],
+            claimevens=[],
+        )
+
+        # All Verticals/Claimevens used in all Before variations of the threat (3, 2) to (3, 5).
+        vertical_2_3 = Vertical(upper=Square(row=2, col=3), lower=Square(row=3, col=3))
+        vertical_2_4 = Vertical(upper=Square(row=2, col=4), lower=Square(row=3, col=4))
+        vertical_3_4 = Vertical(upper=Square(row=3, col=4), lower=Square(row=4, col=4))
+        vertical_2_5 = Vertical(upper=Square(row=2, col=5), lower=Square(row=3, col=5))
+        vertical_3_5 = Vertical(upper=Square(row=3, col=5), lower=Square(row=4, col=5))
+
+        # All Before variations of the threat (3, 2) to (3, 5).
+        before_3_2_to_3_5_variation_1 = Before(
+            threat=threat_3_2_to_3_5,
+            verticals=[vertical_2_3, vertical_2_4, vertical_2_5],
+            claimevens=[],
+        )
+        before_3_2_to_3_5_variation_2 = Before(
+            threat=threat_3_2_to_3_5,
+            verticals=[vertical_2_3, vertical_2_4, vertical_3_5],
+            claimevens=[],
+        )
+        before_3_2_to_3_5_variation_3 = Before(
+            threat=threat_3_2_to_3_5,
+            verticals=[vertical_2_3, vertical_3_4, vertical_2_5],
+            claimevens=[],
+        )
+        before_3_2_to_3_5_variation_4 = Before(
+            threat=threat_3_2_to_3_5,
+            verticals=[vertical_2_3, vertical_3_4, vertical_3_5],
+            claimevens=[],
+        )
+
+        # All Verticals/Claimevens used in all Before variations of the threat (3, 3) to (3, 6).
+        vertical_2_3 = Vertical(upper=Square(row=2, col=3), lower=Square(row=3, col=3))
+        vertical_2_4 = Vertical(upper=Square(row=2, col=4), lower=Square(row=3, col=4))
+        vertical_3_4 = Vertical(upper=Square(row=3, col=4), lower=Square(row=4, col=4))
+        vertical_2_5 = Vertical(upper=Square(row=2, col=5), lower=Square(row=3, col=5))
+        vertical_3_5 = Vertical(upper=Square(row=3, col=5), lower=Square(row=4, col=5))
+        vertical_2_6 = Vertical(upper=Square(row=2, col=6), lower=Square(row=3, col=6))
+        vertical_3_6 = Vertical(upper=Square(row=3, col=6), lower=Square(row=4, col=6))
+
+        # All Before variations of the threat (3, 3) to (3, 6).
+        before_3_3_to_3_6_variation_1 = Before(
+            threat=threat_3_3_to_3_6,
+            verticals=[vertical_2_3, vertical_2_4, vertical_2_5, vertical_2_6],
+            claimevens=[],
+        )
+        before_3_3_to_3_6_variation_2 = Before(
+            threat=threat_3_3_to_3_6,
+            verticals=[vertical_2_3, vertical_2_4, vertical_2_5, vertical_3_6],
+            claimevens=[],
+        )
+        before_3_3_to_3_6_variation_3 = Before(
+            threat=threat_3_3_to_3_6,
+            verticals=[vertical_2_3, vertical_2_4, vertical_3_5, vertical_2_6],
+            claimevens=[],
+        )
+        before_3_3_to_3_6_variation_4 = Before(
+            threat=threat_3_3_to_3_6,
+            verticals=[vertical_2_3, vertical_2_4, vertical_3_5, vertical_3_6],
+            claimevens=[],
+        )
+        before_3_3_to_3_6_variation_5 = Before(
+            threat=threat_3_3_to_3_6,
+            verticals=[vertical_2_3, vertical_3_4, vertical_2_5, vertical_2_6],
+            claimevens=[],
+        )
+        before_3_3_to_3_6_variation_6 = Before(
+            threat=threat_3_3_to_3_6,
+            verticals=[vertical_2_3, vertical_3_4, vertical_2_5, vertical_3_6],
+            claimevens=[],
+        )
+        before_3_3_to_3_6_variation_7 = Before(
+            threat=threat_3_3_to_3_6,
+            verticals=[vertical_2_3, vertical_3_4, vertical_3_5, vertical_2_6],
+            claimevens=[],
+        )
+        before_3_3_to_3_6_variation_8 = Before(
+            threat=threat_3_3_to_3_6,
+            verticals=[vertical_2_3, vertical_3_4, vertical_3_5, vertical_3_6],
+            claimevens=[],
+        )
+
+        # All Verticals/Claimevens used in all Before variations of the threat (4, 3) to (4, 6).
+        vertical_3_4 = Vertical(upper=Square(row=3, col=4), lower=Square(row=4, col=4))
+        vertical_3_5 = Vertical(upper=Square(row=3, col=5), lower=Square(row=4, col=5))
+        claimeven_4_5 = Claimeven(upper=Square(row=4, col=5), lower=Square(row=5, col=5))
+        vertical_3_6 = Vertical(upper=Square(row=3, col=6), lower=Square(row=4, col=6))
+        claimeven_4_6 = Claimeven(upper=Square(row=4, col=6), lower=Square(row=5, col=6))
+
+        # All Before variations of the threat (4, 3) to (4, 6).
+        before_4_3_to_4_6_variation_1 = Before(
+            threat=threat_4_3_to_4_6,
+            verticals=[vertical_3_4, vertical_3_5, vertical_3_6],
+            claimevens=[],
+        )
+        before_4_3_to_4_6_variation_2 = Before(
+            threat=threat_4_3_to_4_6,
+            verticals=[vertical_3_4, vertical_3_5],
+            claimevens=[claimeven_4_6],
+        )
+        before_4_3_to_4_6_variation_3 = Before(
+            threat=threat_4_3_to_4_6,
+            verticals=[vertical_3_4, vertical_3_6],
+            claimevens=[claimeven_4_5],
+        )
+        before_4_3_to_4_6_variation_4 = Before(
+            threat=threat_4_3_to_4_6,
+            verticals=[vertical_3_4],
+            claimevens=[claimeven_4_5, claimeven_4_6],
+        )
+
+        # All Verticals/Claimevens used in all Before variations of the threat (2, 3) to (5, 6).
+        vertical_1_3 = Vertical(upper=Square(row=1, col=3), lower=Square(row=2, col=3))
+        claimeven_2_3 = Claimeven(upper=Square(row=2, col=3), lower=Square(row=3, col=3))
+        vertical_2_4 = Vertical(upper=Square(row=2, col=4), lower=Square(row=3, col=4))
+        vertical_3_4 = Vertical(upper=Square(row=3, col=4), lower=Square(row=4, col=4))
+        vertical_3_5 = Vertical(upper=Square(row=3, col=5), lower=Square(row=4, col=5))
+        claimeven_4_5 = Claimeven(upper=Square(row=4, col=5), lower=Square(row=5, col=5))
+        vertical_4_6 = Vertical(upper=Square(row=4, col=6), lower=Square(row=5, col=6))
+
+        # All Before variations of the threat (2, 3) to (5, 6).
+        before_2_3_to_5_6_variation_1 = Before(
+            threat=threat_2_3_to_5_6,
+            verticals=[vertical_1_3, vertical_2_4, vertical_3_5, vertical_4_6],
+            claimevens=[],
+        )
+        before_2_3_to_5_6_variation_2 = Before(
+            threat=threat_2_3_to_5_6,
+            verticals=[vertical_1_3, vertical_2_4, vertical_4_6],
+            claimevens=[claimeven_4_5],
+        )
+        before_2_3_to_5_6_variation_3 = Before(
+            threat=threat_2_3_to_5_6,
+            verticals=[vertical_1_3, vertical_3_4, vertical_3_5, vertical_4_6],
+            claimevens=[],
+        )
+        before_2_3_to_5_6_variation_4 = Before(
+            threat=threat_2_3_to_5_6,
+            verticals=[vertical_1_3, vertical_3_4, vertical_4_6],
+            claimevens=[claimeven_4_5],
+        )
+        before_2_3_to_5_6_variation_5 = Before(
+            threat=threat_2_3_to_5_6,
+            verticals=[vertical_2_4, vertical_3_5, vertical_4_6],
+            claimevens=[claimeven_2_3],
+        )
+        before_2_3_to_5_6_variation_6 = Before(
+            threat=threat_2_3_to_5_6,
+            verticals=[vertical_2_4, vertical_4_6],
+            claimevens=[claimeven_2_3, claimeven_4_5],
+        )
+        before_2_3_to_5_6_variation_7 = Before(
+            threat=threat_2_3_to_5_6,
+            verticals=[vertical_3_4, vertical_3_5, vertical_4_6],
+            claimevens=[claimeven_2_3],
+        )
+        before_2_3_to_5_6_variation_8 = Before(
+            threat=threat_2_3_to_5_6,
+            verticals=[vertical_3_4, vertical_4_6],
+            claimevens=[claimeven_2_3, claimeven_4_5],
+        )
+
+        want_specialbefores = {
+            # All Specialbefores for before_5_0_to_2_3_variation_1.
+            Specialbefore(before=before_5_0_to_2_3_variation_1, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_5_0_to_2_3_variation_1, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_5_0_to_2_3_variation_1, directly_playable_square=directly_playable_square_3_3),
+            Specialbefore(before=before_5_0_to_2_3_variation_1, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_5_0_to_2_3_variation_1, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_5_0_to_2_3_variation_1, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_5_0_to_2_3_variation_2.
+            Specialbefore(before=before_5_0_to_2_3_variation_2, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_5_0_to_2_3_variation_2, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_5_0_to_2_3_variation_2, directly_playable_square=directly_playable_square_3_3),
+            Specialbefore(before=before_5_0_to_2_3_variation_2, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_5_0_to_2_3_variation_2, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_5_0_to_2_3_variation_2, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_5_0_to_2_3_variation_3.
+            Specialbefore(before=before_5_0_to_2_3_variation_3, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_5_0_to_2_3_variation_3, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_5_0_to_2_3_variation_3, directly_playable_square=directly_playable_square_3_3),
+            Specialbefore(before=before_5_0_to_2_3_variation_3, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_5_0_to_2_3_variation_3, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_5_0_to_2_3_variation_3, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_5_0_to_2_3_variation_4.
+            Specialbefore(before=before_5_0_to_2_3_variation_4, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_5_0_to_2_3_variation_4, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_5_0_to_2_3_variation_4, directly_playable_square=directly_playable_square_3_3),
+            Specialbefore(before=before_5_0_to_2_3_variation_4, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_5_0_to_2_3_variation_4, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_5_0_to_2_3_variation_4, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_3_0_to_3_3_variation_1.
+            Specialbefore(before=before_3_0_to_3_3_variation_1, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_3_0_to_3_3_variation_1, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_3_0_to_3_3_variation_1, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_3_0_to_3_3_variation_1, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_3_0_to_3_3_variation_1, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_3_0_to_3_3_variation_1, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_3_0_to_3_3_variation_2.
+            Specialbefore(before=before_3_0_to_3_3_variation_2, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_3_0_to_3_3_variation_2, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_3_0_to_3_3_variation_2, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_3_0_to_3_3_variation_2, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_3_0_to_3_3_variation_2, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_3_0_to_3_3_variation_2, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_3_0_to_3_3_variation_3.
+            Specialbefore(before=before_3_0_to_3_3_variation_3, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_3_0_to_3_3_variation_3, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_3_0_to_3_3_variation_3, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_3_0_to_3_3_variation_3, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_3_0_to_3_3_variation_3, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_3_0_to_3_3_variation_3, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_3_0_to_3_3_variation_4.
+            Specialbefore(before=before_3_0_to_3_3_variation_4, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_3_0_to_3_3_variation_4, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_3_0_to_3_3_variation_4, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_3_0_to_3_3_variation_4, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_3_0_to_3_3_variation_4, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_3_0_to_3_3_variation_4, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_3_1_to_3_4_variation_1.
+            Specialbefore(before=before_3_1_to_3_4_variation_1, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_3_1_to_3_4_variation_1, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_3_1_to_3_4_variation_1, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_3_1_to_3_4_variation_1, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_3_1_to_3_4_variation_1, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_3_1_to_3_4_variation_1, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_3_1_to_3_4_variation_2.
+            Specialbefore(before=before_3_1_to_3_4_variation_2, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_3_1_to_3_4_variation_2, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_3_1_to_3_4_variation_2, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_3_1_to_3_4_variation_2, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_3_1_to_3_4_variation_2, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_3_1_to_3_4_variation_2, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_3_1_to_3_4_variation_3.
+            Specialbefore(before=before_3_1_to_3_4_variation_3, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_3_1_to_3_4_variation_3, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_3_1_to_3_4_variation_3, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_3_1_to_3_4_variation_3, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_3_1_to_3_4_variation_3, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_3_1_to_3_4_variation_3, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_3_1_to_3_4_variation_4.
+            Specialbefore(before=before_3_1_to_3_4_variation_4, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_3_1_to_3_4_variation_4, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_3_1_to_3_4_variation_4, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_3_1_to_3_4_variation_4, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_3_1_to_3_4_variation_4, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_3_1_to_3_4_variation_4, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_3_2_to_3_5_variation_1.
+            Specialbefore(before=before_3_2_to_3_5_variation_1, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_3_2_to_3_5_variation_1, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_3_2_to_3_5_variation_1, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_3_2_to_3_5_variation_1, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_3_2_to_3_5_variation_1, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_3_2_to_3_5_variation_1, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_3_2_to_3_5_variation_2.
+            Specialbefore(before=before_3_2_to_3_5_variation_2, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_3_2_to_3_5_variation_2, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_3_2_to_3_5_variation_2, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_3_2_to_3_5_variation_2, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_3_2_to_3_5_variation_2, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_3_2_to_3_5_variation_2, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_3_2_to_3_5_variation_3.
+            Specialbefore(before=before_3_2_to_3_5_variation_3, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_3_2_to_3_5_variation_3, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_3_2_to_3_5_variation_3, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_3_2_to_3_5_variation_3, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_3_2_to_3_5_variation_3, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_3_2_to_3_5_variation_3, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_3_2_to_3_5_variation_4.
+            Specialbefore(before=before_3_2_to_3_5_variation_4, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_3_2_to_3_5_variation_4, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_3_2_to_3_5_variation_4, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_3_2_to_3_5_variation_4, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_3_2_to_3_5_variation_4, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_3_2_to_3_5_variation_4, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_3_3_to_3_6_variation_1.
+            Specialbefore(before=before_3_3_to_3_6_variation_1, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_3_3_to_3_6_variation_1, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_3_3_to_3_6_variation_1, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_3_3_to_3_6_variation_1, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_3_3_to_3_6_variation_1, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_3_3_to_3_6_variation_1, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_3_3_to_3_6_variation_2.
+            Specialbefore(before=before_3_3_to_3_6_variation_2, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_3_3_to_3_6_variation_2, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_3_3_to_3_6_variation_2, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_3_3_to_3_6_variation_2, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_3_3_to_3_6_variation_2, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_3_3_to_3_6_variation_2, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_3_3_to_3_6_variation_3.
+            Specialbefore(before=before_3_3_to_3_6_variation_3, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_3_3_to_3_6_variation_3, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_3_3_to_3_6_variation_3, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_3_3_to_3_6_variation_3, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_3_3_to_3_6_variation_3, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_3_3_to_3_6_variation_3, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_3_3_to_3_6_variation_4.
+            Specialbefore(before=before_3_3_to_3_6_variation_4, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_3_3_to_3_6_variation_4, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_3_3_to_3_6_variation_4, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_3_3_to_3_6_variation_4, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_3_3_to_3_6_variation_4, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_3_3_to_3_6_variation_4, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_3_3_to_3_6_variation_5.
+            Specialbefore(before=before_3_3_to_3_6_variation_5, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_3_3_to_3_6_variation_5, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_3_3_to_3_6_variation_5, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_3_3_to_3_6_variation_5, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_3_3_to_3_6_variation_5, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_3_3_to_3_6_variation_5, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_3_3_to_3_6_variation_6.
+            Specialbefore(before=before_3_3_to_3_6_variation_6, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_3_3_to_3_6_variation_6, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_3_3_to_3_6_variation_6, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_3_3_to_3_6_variation_6, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_3_3_to_3_6_variation_6, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_3_3_to_3_6_variation_6, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_3_3_to_3_6_variation_7.
+            Specialbefore(before=before_3_3_to_3_6_variation_7, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_3_3_to_3_6_variation_7, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_3_3_to_3_6_variation_7, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_3_3_to_3_6_variation_7, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_3_3_to_3_6_variation_7, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_3_3_to_3_6_variation_7, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_3_3_to_3_6_variation_8.
+            Specialbefore(before=before_3_3_to_3_6_variation_8, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_3_3_to_3_6_variation_8, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_3_3_to_3_6_variation_8, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_3_3_to_3_6_variation_8, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_3_3_to_3_6_variation_8, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_3_3_to_3_6_variation_8, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_4_3_to_4_6_variation_1.
+            Specialbefore(before=before_4_3_to_4_6_variation_1, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_4_3_to_4_6_variation_1, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_4_3_to_4_6_variation_1, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_4_3_to_4_6_variation_1, directly_playable_square=directly_playable_square_3_3),
+            Specialbefore(before=before_4_3_to_4_6_variation_1, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_4_3_to_4_6_variation_1, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_4_3_to_4_6_variation_2.
+            Specialbefore(before=before_4_3_to_4_6_variation_2, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_4_3_to_4_6_variation_2, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_4_3_to_4_6_variation_2, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_4_3_to_4_6_variation_2, directly_playable_square=directly_playable_square_3_3),
+            Specialbefore(before=before_4_3_to_4_6_variation_2, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_4_3_to_4_6_variation_2, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_4_3_to_4_6_variation_3.
+            Specialbefore(before=before_4_3_to_4_6_variation_3, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_4_3_to_4_6_variation_3, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_4_3_to_4_6_variation_3, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_4_3_to_4_6_variation_3, directly_playable_square=directly_playable_square_3_3),
+            Specialbefore(before=before_4_3_to_4_6_variation_3, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_4_3_to_4_6_variation_3, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_4_3_to_4_6_variation_4.
+            Specialbefore(before=before_4_3_to_4_6_variation_4, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_4_3_to_4_6_variation_4, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_4_3_to_4_6_variation_4, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_4_3_to_4_6_variation_4, directly_playable_square=directly_playable_square_3_3),
+            Specialbefore(before=before_4_3_to_4_6_variation_4, directly_playable_square=directly_playable_square_5_5),
+            Specialbefore(before=before_4_3_to_4_6_variation_4, directly_playable_square=directly_playable_square_5_6),
+            # All Specialbefores for before_2_3_to_5_6_variation_1.
+            Specialbefore(before=before_2_3_to_5_6_variation_1, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_2_3_to_5_6_variation_1, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_2_3_to_5_6_variation_1, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_2_3_to_5_6_variation_1, directly_playable_square=directly_playable_square_3_3),
+            Specialbefore(before=before_2_3_to_5_6_variation_1, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_2_3_to_5_6_variation_1, directly_playable_square=directly_playable_square_5_5),
+            # All Specialbefores for before_2_3_to_5_6_variation_2.
+            Specialbefore(before=before_2_3_to_5_6_variation_2, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_2_3_to_5_6_variation_2, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_2_3_to_5_6_variation_2, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_2_3_to_5_6_variation_2, directly_playable_square=directly_playable_square_3_3),
+            Specialbefore(before=before_2_3_to_5_6_variation_2, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_2_3_to_5_6_variation_2, directly_playable_square=directly_playable_square_5_5),
+            # All Specialbefores for before_2_3_to_5_6_variation_3.
+            Specialbefore(before=before_2_3_to_5_6_variation_3, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_2_3_to_5_6_variation_3, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_2_3_to_5_6_variation_3, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_2_3_to_5_6_variation_3, directly_playable_square=directly_playable_square_3_3),
+            Specialbefore(before=before_2_3_to_5_6_variation_3, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_2_3_to_5_6_variation_3, directly_playable_square=directly_playable_square_5_5),
+            # All Specialbefores for before_2_3_to_5_6_variation_4.
+            Specialbefore(before=before_2_3_to_5_6_variation_4, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_2_3_to_5_6_variation_4, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_2_3_to_5_6_variation_4, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_2_3_to_5_6_variation_4, directly_playable_square=directly_playable_square_3_3),
+            Specialbefore(before=before_2_3_to_5_6_variation_4, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_2_3_to_5_6_variation_4, directly_playable_square=directly_playable_square_5_5),
+            # All Specialbefores for before_2_3_to_5_6_variation_5.
+            Specialbefore(before=before_2_3_to_5_6_variation_5, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_2_3_to_5_6_variation_5, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_2_3_to_5_6_variation_5, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_2_3_to_5_6_variation_5, directly_playable_square=directly_playable_square_3_3),
+            Specialbefore(before=before_2_3_to_5_6_variation_5, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_2_3_to_5_6_variation_5, directly_playable_square=directly_playable_square_5_5),
+            # All Specialbefores for before_2_3_to_5_6_variation_6.
+            Specialbefore(before=before_2_3_to_5_6_variation_6, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_2_3_to_5_6_variation_6, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_2_3_to_5_6_variation_6, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_2_3_to_5_6_variation_6, directly_playable_square=directly_playable_square_3_3),
+            Specialbefore(before=before_2_3_to_5_6_variation_6, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_2_3_to_5_6_variation_6, directly_playable_square=directly_playable_square_5_5),
+            # All Specialbefores for before_2_3_to_5_6_variation_7.
+            Specialbefore(before=before_2_3_to_5_6_variation_7, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_2_3_to_5_6_variation_7, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_2_3_to_5_6_variation_7, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_2_3_to_5_6_variation_7, directly_playable_square=directly_playable_square_3_3),
+            Specialbefore(before=before_2_3_to_5_6_variation_7, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_2_3_to_5_6_variation_7, directly_playable_square=directly_playable_square_5_5),
+            # All Specialbefores for before_2_3_to_5_6_variation_8.
+            Specialbefore(before=before_2_3_to_5_6_variation_8, directly_playable_square=directly_playable_square_5_0),
+            Specialbefore(before=before_2_3_to_5_6_variation_8, directly_playable_square=directly_playable_square_5_1),
+            Specialbefore(before=before_2_3_to_5_6_variation_8, directly_playable_square=directly_playable_square_0_2),
+            Specialbefore(before=before_2_3_to_5_6_variation_8, directly_playable_square=directly_playable_square_3_3),
+            Specialbefore(before=before_2_3_to_5_6_variation_8, directly_playable_square=directly_playable_square_4_4),
+            Specialbefore(before=before_2_3_to_5_6_variation_8, directly_playable_square=directly_playable_square_5_5),
+        }
+        self.assertEqual(want_specialbefores, got_specialbefores)
+
+
+if __name__ == '__main__':
+    unittest.main()

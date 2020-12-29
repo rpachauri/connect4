@@ -26,3 +26,6 @@ from connect_four.agents.victor.baseclaim import baseclaim
 
 from connect_four.agents.victor.before import Before
 from connect_four.agents.victor.before import before
+
+from connect_four.agents.victor.specialbefore import Specialbefore
+from connect_four.agents.victor.specialbefore import specialbefore
