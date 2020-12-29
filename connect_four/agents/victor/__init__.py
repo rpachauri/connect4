@@ -3,6 +3,8 @@ from connect_four.agents.victor.threat import Threat
 from connect_four.agents.victor.threat import ThreatDirection
 from connect_four.agents.victor.board import Board
 
+from connect_four.agents.victor.rule import Rule
+
 from connect_four.agents.victor.claimeven import Claimeven
 from connect_four.agents.victor.claimeven import claimeven
 
