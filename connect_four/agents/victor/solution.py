@@ -58,8 +58,23 @@ def from_baseinverse(baseinverse: Baseinverse, squares_to_threats) -> Solution:
         return Solution(rule=Rule.Baseinverse, squares=squares, threats=threats_intersection)
 
 
-def from_vertical(vertical: Vertical) -> Solution:
-    pass
+def from_vertical(vertical: Vertical, squares_to_threats) -> Solution:
+    """Converts a Vertical into a Solution.
+    Must solve at least one potential threat in order to be converted into a Solution
+
+    Args:
+        vertical (Vertical): a Vertical.
+        squares_to_threats (Map<Square, Set<Threat>>): A dictionary mapping each
+            Square to all Threats that contain that Square.
+
+    Returns:
+        solution (Solution): a Solution if vertical can be converted into one. None if it can't.
+    """
+    upper_threats, lower_threats = squares_to_threats[vertical.upper], squares_to_threats[vertical.lower]
+    threats_intersection = upper_threats.intersection(lower_threats)
+    if threats_intersection:
+        squares = frozenset([vertical.upper, vertical.lower])
+        return Solution(rule=Rule.Vertical, squares=squares, threats=threats_intersection)
 
 
 def from_aftereven(aftereven: Aftereven) -> Solution:

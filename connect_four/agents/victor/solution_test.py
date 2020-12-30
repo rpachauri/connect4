@@ -13,6 +13,7 @@ from connect_four.agents.victor import threat
 
 from connect_four.agents.victor import Claimeven
 from connect_four.agents.victor import Baseinverse
+from connect_four.agents.victor import Vertical
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
@@ -100,7 +101,7 @@ class TestSolution(unittest.TestCase):
             rule=Rule.Baseinverse,
             squares=frozenset(baseinverse_a1_b1.squares),
             threats=frozenset([
-                Threat(player=0, start=Square(row=5, col=0), end=Square(row=5, col=3)),
+                Threat(player=0, start=Square(row=5, col=0), end=Square(row=5, col=3)),  # a1-d1
             ]),
         )
         self.assertEqual(want_solution, got_solution)
@@ -109,6 +110,45 @@ class TestSolution(unittest.TestCase):
         # Thus, it should not be converted into a Solution.
         baseinverse_a1_c4 = Baseinverse(playable1=Square(row=5, col=0), playable2=Square(row=2, col=2))
         self.assertIsNone(solution.from_baseinverse(baseinverse_a1_c4, square_to_threats))
+
+    def test_from_vertical(self):
+        # This board is from Diagram 6.3 of the original paper.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
+                [0, 0, 1, 0, 1, 0, 0, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+
+        white_threats = board.potential_threats(0)
+        square_to_threats = threat.square_to_threats(white_threats)
+
+        # The Vertical e4-e5 solves e2-e5 and e3-e6.
+        vertical_e4_e5 = Vertical(upper=Square(row=2, col=4), lower=Square(row=3, col=4))
+
+        got_solution = solution.from_vertical(vertical_e4_e5, square_to_threats)
+        want_solution = Solution(
+            rule=Rule.Vertical,
+            squares=frozenset([vertical_e4_e5.upper, vertical_e4_e5.lower]),
+            threats=frozenset([
+                Threat(player=0, start=Square(row=4, col=4), end=Square(row=1, col=4)),  # e2-e5
+                Threat(player=0, start=Square(row=3, col=4), end=Square(row=0, col=4)),  # e3-e6
+            ])
+        )
+        self.assertEqual(want_solution, got_solution)
 
 
 if __name__ == '__main__':
