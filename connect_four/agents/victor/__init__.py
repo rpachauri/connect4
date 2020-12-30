@@ -31,3 +31,5 @@ from connect_four.agents.victor.before import before
 
 from connect_four.agents.victor.specialbefore import Specialbefore
 from connect_four.agents.victor.specialbefore import specialbefore
+
+from connect_four.agents.victor.solution import Solution

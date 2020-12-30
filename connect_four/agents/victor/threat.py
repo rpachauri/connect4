@@ -79,7 +79,7 @@ def square_to_threats(threats):
         threats (iterable<Threat>): an iterable of Threats.
 
     Returns:
-        d (Map<Square, Set<Threat>>): A dictionary of Squares to all Threats that contain that Square.
+        d (Map<Square, Set<Threat>>): A dictionary mapping each Square to all Threats that contain that Square.
     """
     d = {}
     for threat in threats:
