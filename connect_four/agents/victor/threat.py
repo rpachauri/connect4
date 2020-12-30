@@ -69,3 +69,22 @@ class Threat:
 
     def __hash__(self):
         return self.squares.__hash__() + self.player
+
+
+def square_to_threats(threats):
+    """Accepts an iterable of Threats and outputs a dictionary mapping
+    each Square to all Threats that contain that Square.
+
+    Args:
+        threats (iterable<Threat>): an iterable of Threats.
+
+    Returns:
+        d (Map<Square, Set<Threat>>): A dictionary of Squares to all Threats that contain that Square.
+    """
+    d = {}
+    for threat in threats:
+        for square in threat.squares:
+            if square not in d:
+                d[square] = set()
+            d[square].add(threat)
+    return d
