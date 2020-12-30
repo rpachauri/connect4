@@ -22,9 +22,7 @@ Solution = namedtuple("Solution", ["rule", "squares", "threats"])
 
 def from_claimeven(claimeven: Claimeven, squares_to_threats) -> Solution:
     """Converts a Claimeven into a Solution.
-
-    Must meet the following requirements in order to be converted into a Solution:
-    1. Solves at least one potential threat.
+    Must solve at least one potential threat in order to be converted into a Solution.
 
     Args:
         claimeven (Claimeven): a Claimeven.
@@ -40,8 +38,24 @@ def from_claimeven(claimeven: Claimeven, squares_to_threats) -> Solution:
         return Solution(rule=Rule.Claimeven, squares=squares, threats=threats)
 
 
-def from_baseinverse(baseinverse: Baseinverse) -> Solution:
-    pass
+def from_baseinverse(baseinverse: Baseinverse, squares_to_threats) -> Solution:
+    """Converts a Baseinverse into a Solution.
+    Must solve at least one potential threat in order to be converted into a Solution.
+
+    Args:
+        baseinverse (Baseinverse): a Baseinverse.
+        squares_to_threats (Map<Square, Set<Threat>>): A dictionary mapping each
+            Square to all Threats that contain that Square.
+
+    Returns:
+        solution (Solution): a Solution if baseinverse can be converted into one. None if it can't.
+    """
+    square1, square2 = tuple(baseinverse.squares)
+    threats1, threats2 = squares_to_threats[square1], squares_to_threats[square2]
+    threats_intersection = threats1.intersection(threats2)
+    if threats_intersection:
+        squares = frozenset([square1, square2])
+        return Solution(rule=Rule.Baseinverse, squares=squares, threats=threats_intersection)
 
 
 def from_vertical(vertical: Vertical) -> Solution:

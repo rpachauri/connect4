@@ -4,13 +4,16 @@ import unittest
 import numpy as np
 
 from connect_four.agents.victor import Board
-from connect_four.agents.victor import Claimeven
 from connect_four.agents.victor import Square
 from connect_four.agents.victor import Rule
 from connect_four.agents.victor import Solution
 from connect_four.agents.victor import solution
 from connect_four.agents.victor import Threat
 from connect_four.agents.victor import threat
+
+from connect_four.agents.victor import Claimeven
+from connect_four.agents.victor import Baseinverse
+
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
 
@@ -63,6 +66,49 @@ class TestSolution(unittest.TestCase):
             ]),
         )
         self.assertEqual(want_solution, got_solution)
+
+    def test_baseinverse(self):
+        # This board is from Diagram 6.2 of the original paper.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+
+        white_threats = board.potential_threats(0)
+        square_to_threats = threat.square_to_threats(white_threats)
+
+        # The Baseinverse a1-b1 solves a1-d1.
+        baseinverse_a1_b1 = Baseinverse(playable1=Square(row=5, col=0), playable2=Square(row=5, col=1))
+
+        got_solution = solution.from_baseinverse(baseinverse_a1_b1, square_to_threats)
+        want_solution = Solution(
+            rule=Rule.Baseinverse,
+            squares=frozenset(baseinverse_a1_b1.squares),
+            threats=frozenset([
+                Threat(player=0, start=Square(row=5, col=0), end=Square(row=5, col=3)),
+            ]),
+        )
+        self.assertEqual(want_solution, got_solution)
+
+        # As stated in the original paper, the Baseinverse a1-c4 is possible but useless.
+        # Thus, it should not be converted into a Solution.
+        baseinverse_a1_c4 = Baseinverse(playable1=Square(row=5, col=0), playable2=Square(row=2, col=2))
+        self.assertIsNone(solution.from_baseinverse(baseinverse_a1_c4, square_to_threats))
 
 
 if __name__ == '__main__':
