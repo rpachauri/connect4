@@ -21,64 +21,64 @@ consists of and which rule they are an application of.
 Solution = namedtuple("Solution", ["rule", "squares", "threats"])
 
 
-def from_claimeven(claimeven: Claimeven, squares_to_threats) -> Solution:
+def from_claimeven(claimeven: Claimeven, square_to_threats) -> Solution:
     """Converts a Claimeven into a Solution.
     Must solve at least one potential threat in order to be converted into a Solution.
 
     Args:
         claimeven (Claimeven): a Claimeven.
-        squares_to_threats (Map<Square, Set<Threat>>): A dictionary mapping each
+        square_to_threats (Map<Square, Set<Threat>>): A dictionary mapping each
             Square to all Threats that contain that Square.
 
     Returns:
         solution (Solution): a Solution if claimeven can be converted into one. None if it can't.
     """
-    threats = squares_to_threats[claimeven.upper]
+    threats = square_to_threats[claimeven.upper]
     if threats:  # len(threats) > 0
         squares = frozenset([claimeven.upper, claimeven.lower])
         return Solution(rule=Rule.Claimeven, squares=squares, threats=threats)
 
 
-def from_baseinverse(baseinverse: Baseinverse, squares_to_threats) -> Solution:
+def from_baseinverse(baseinverse: Baseinverse, square_to_threats) -> Solution:
     """Converts a Baseinverse into a Solution.
     Must solve at least one potential threat in order to be converted into a Solution.
 
     Args:
         baseinverse (Baseinverse): a Baseinverse.
-        squares_to_threats (Map<Square, Set<Threat>>): A dictionary mapping each
+        square_to_threats (Map<Square, Set<Threat>>): A dictionary mapping each
             Square to all Threats that contain that Square.
 
     Returns:
         solution (Solution): a Solution if baseinverse can be converted into one. None if it can't.
     """
     square1, square2 = tuple(baseinverse.squares)
-    threats1, threats2 = squares_to_threats[square1], squares_to_threats[square2]
+    threats1, threats2 = square_to_threats[square1], square_to_threats[square2]
     threats_intersection = threats1.intersection(threats2)
     if threats_intersection:
         squares = frozenset([square1, square2])
         return Solution(rule=Rule.Baseinverse, squares=squares, threats=threats_intersection)
 
 
-def from_vertical(vertical: Vertical, squares_to_threats) -> Solution:
+def from_vertical(vertical: Vertical, square_to_threats) -> Solution:
     """Converts a Vertical into a Solution.
     Must solve at least one potential threat in order to be converted into a Solution.
 
     Args:
         vertical (Vertical): a Vertical.
-        squares_to_threats (Map<Square, Set<Threat>>): A dictionary mapping each
+        square_to_threats (Map<Square, Set<Threat>>): A dictionary mapping each
             Square to all Threats that contain that Square.
 
     Returns:
         solution (Solution): a Solution if vertical can be converted into one. None if it can't.
     """
-    upper_threats, lower_threats = squares_to_threats[vertical.upper], squares_to_threats[vertical.lower]
+    upper_threats, lower_threats = square_to_threats[vertical.upper], square_to_threats[vertical.lower]
     threats_intersection = upper_threats.intersection(lower_threats)
     if threats_intersection:
         squares = frozenset([vertical.upper, vertical.lower])
         return Solution(rule=Rule.Vertical, squares=squares, threats=threats_intersection)
 
 
-def from_aftereven(aftereven: Aftereven, squares_to_threats) -> Solution:
+def from_aftereven(aftereven: Aftereven, square_to_threats) -> Solution:
     """Converts an Aftereven into a Solution.
     Must solve at least one *new* potential threat in order to be converted into a Solution.
     By "new potential threat," we mean any threat that isn't already solved by one of the Claimevens
@@ -86,7 +86,7 @@ def from_aftereven(aftereven: Aftereven, squares_to_threats) -> Solution:
 
     Args:
         aftereven (Aftereven): an Aftereven.
-        squares_to_threats (Map<Square, Set<Threat>>): A dictionary mapping each
+        square_to_threats (Map<Square, Set<Threat>>): A dictionary mapping each
             Square to all Threats that contain that Square.
 
     Returns:
@@ -113,14 +113,14 @@ def from_aftereven(aftereven: Aftereven, squares_to_threats) -> Solution:
         threats=threats,
         empty_squares_of_aftereven=empty_squares_of_aftereven,
         threatening_squares=[],
-        squares_to_threats=squares_to_threats,
+        square_to_threats=square_to_threats,
     )
 
     # Aftereven should only be converted into a Solution if it refutes new threats.
     if threats:
         squares_involved = list(aftereven.threat.squares)
         for claimeven in aftereven.claimevens:
-            claimeven_solution = from_claimeven(claimeven, squares_to_threats)
+            claimeven_solution = from_claimeven(claimeven, square_to_threats)
             threats.update(claimeven_solution.threats)
             squares_involved.append(claimeven.lower)
 
@@ -131,7 +131,7 @@ def from_aftereven(aftereven: Aftereven, squares_to_threats) -> Solution:
         )
 
 
-def add_new_threats_from_aftereven(threats, empty_squares_of_aftereven, threatening_squares, squares_to_threats):
+def add_new_threats_from_aftereven(threats, empty_squares_of_aftereven, threatening_squares, square_to_threats):
     """Adds any new threats that intersect squares above empty_squares_of_aftereven to threats.
     This is a recursive backtracking algorithm.
     threatening_squares starts out as an empty list.
@@ -153,7 +153,7 @@ def add_new_threats_from_aftereven(threats, empty_squares_of_aftereven, threaten
         threatening_squares (list<Square>):
             A list of Squares that could belong to a threat that the Aftereven refutes.
             It is required that none of the Squares share the same column.
-        squares_to_threats (Map<Square, Set<Threat>>): A dictionary mapping each
+        square_to_threats (Map<Square, Set<Threat>>): A dictionary mapping each
             Square to all Threats that contain that Square.
 
     Returns:
@@ -161,9 +161,9 @@ def add_new_threats_from_aftereven(threats, empty_squares_of_aftereven, threaten
     """
     # Base case.
     if not empty_squares_of_aftereven:
-        new_threats_to_add = squares_to_threats[threatening_squares[0]]
+        new_threats_to_add = square_to_threats[threatening_squares[0]]
         for square in threatening_squares[1:]:
-            new_threats_to_add = new_threats_to_add.intersection(squares_to_threats[square])
+            new_threats_to_add = new_threats_to_add.intersection(square_to_threats[square])
         threats.update(new_threats_to_add)
         return
 
@@ -174,13 +174,13 @@ def add_new_threats_from_aftereven(threats, empty_squares_of_aftereven, threaten
         # Choose.
         threatening_squares.append(square_above)
         # Recurse.
-        add_new_threats_from_aftereven(threats, empty_squares_of_aftereven, threatening_squares, squares_to_threats)
+        add_new_threats_from_aftereven(threats, empty_squares_of_aftereven, threatening_squares, square_to_threats)
         # Unchoose.
         threatening_squares.remove(square_above)
     empty_squares_of_aftereven.append(square)
 
 
-def from_lowinverse(lowinverse: Lowinverse, squares_to_threats) -> Solution:
+def from_lowinverse(lowinverse: Lowinverse, square_to_threats) -> Solution:
     """Converts a Lowinverse into a Solution.
     Must solve at least one *new* potential threat in order to be converted into a Solution.
     By "new potential threat," we mean any threat that isn't already solved by one of the Verticals
@@ -188,7 +188,7 @@ def from_lowinverse(lowinverse: Lowinverse, squares_to_threats) -> Solution:
 
     Args:
         lowinverse (Lowinverse): a Lowinverse.
-        squares_to_threats (Map<Square, Set<Threat>>): A dictionary mapping each
+        square_to_threats (Map<Square, Set<Threat>>): A dictionary mapping each
             Square to all Threats that contain that Square.
 
     Returns:
@@ -196,14 +196,14 @@ def from_lowinverse(lowinverse: Lowinverse, squares_to_threats) -> Solution:
     """
     verticals_as_list = list(lowinverse.verticals)
     vertical_0, vertical_1 = verticals_as_list[0], verticals_as_list[1]
-    threats = squares_to_threats[vertical_0.upper].intersection(squares_to_threats[vertical_1.upper])
+    threats = square_to_threats[vertical_0.upper].intersection(square_to_threats[vertical_1.upper])
 
     # Lowinverse should only be converted into a Solution if it refutes new threats.
     if threats:
         squares = [vertical_0.upper, vertical_0.lower, vertical_1.upper, vertical_1.lower]
 
-        vertical_0_threats = from_vertical(vertical_0, squares_to_threats).threats
-        vertical_1_threats = from_vertical(vertical_1, squares_to_threats).threats
+        vertical_0_threats = from_vertical(vertical_0, square_to_threats).threats
+        vertical_1_threats = from_vertical(vertical_1, square_to_threats).threats
         threats.update(vertical_0_threats)
         threats.update(vertical_1_threats)
 
@@ -214,7 +214,7 @@ def from_lowinverse(lowinverse: Lowinverse, squares_to_threats) -> Solution:
         )
 
 
-def from_highinverse(highinverse: Highinverse, squares_to_threats, directly_playable_squares) -> Solution:
+def from_highinverse(highinverse: Highinverse, square_to_threats, directly_playable_squares) -> Solution:
     """Converts a Highinverse into a Solution.
     Must solve at least one *new* potential threat in order to be converted into a Solution.
     By "new potential threat," we mean any threat that isn't already solved by the Lowinverse
@@ -222,7 +222,7 @@ def from_highinverse(highinverse: Highinverse, squares_to_threats, directly_play
 
     Args:
         highinverse (Highinverse): a Highinverse.
-        squares_to_threats (Map<Square, Set<Threat>>): A dictionary mapping each
+        square_to_threats (Map<Square, Set<Threat>>): A dictionary mapping each
             Square to all Threats that contain that Square.
         directly_playable_squares (Set<Square>): A Set of directly playable Squares.
 
@@ -236,34 +236,34 @@ def from_highinverse(highinverse: Highinverse, squares_to_threats, directly_play
     vertical_0, vertical_1 = verticals_as_list[0], verticals_as_list[1]
     upper_square_0 = Square(row=vertical_0.upper.row - 1, col=vertical_0.upper.col)
     upper_square_1 = Square(row=vertical_1.upper.row - 1, col=vertical_1.upper.col)
-    upper_squares_threats = squares_to_threats[upper_square_0].intersection(squares_to_threats[upper_square_1])
+    upper_squares_threats = square_to_threats[upper_square_0].intersection(square_to_threats[upper_square_1])
     highinverse_threats.update(upper_squares_threats)
 
     # Add all threats which contain the two middle squares.
-    middle_squares_threats = squares_to_threats[vertical_0.upper].intersection(squares_to_threats[vertical_1.upper])
+    middle_squares_threats = square_to_threats[vertical_0.upper].intersection(square_to_threats[vertical_1.upper])
     highinverse_threats.update(middle_squares_threats)
 
     # For each Highinverse column, add all (vertical) threats which contain the two highest squares of the column.
     upper_vertical_0 = Vertical(upper=upper_square_0, lower=vertical_0.upper)
     upper_vertical_1 = Vertical(upper=upper_square_1, lower=vertical_1.upper)
-    highinverse_threats.update(from_vertical(upper_vertical_0, squares_to_threats).threats)
-    highinverse_threats.update(from_vertical(upper_vertical_1, squares_to_threats).threats)
+    highinverse_threats.update(from_vertical(upper_vertical_0, square_to_threats).threats)
+    highinverse_threats.update(from_vertical(upper_vertical_1, square_to_threats).threats)
 
     # If the lower square of the first column is directly playable:
     if vertical_0.lower in directly_playable_squares:
         # Add all threats which contain both the lower square of the first column and
         # the upper square of the second column.
-        lower_0_upper_1_threats = squares_to_threats[vertical_0.lower].intersection(squares_to_threats[upper_square_1])
+        lower_0_upper_1_threats = square_to_threats[vertical_0.lower].intersection(square_to_threats[upper_square_1])
         highinverse_threats.update(lower_0_upper_1_threats)
 
     # If the lower square of the second column is directly playable:
     if vertical_1.lower in directly_playable_squares:
         # Add all threats which contain both the lower square of the second column and
         # the upper square of the first column.
-        lower_1_upper_0_threats = squares_to_threats[vertical_1.lower].intersection(squares_to_threats[upper_square_0])
+        lower_1_upper_0_threats = square_to_threats[vertical_1.lower].intersection(square_to_threats[upper_square_0])
         highinverse_threats.update(lower_1_upper_0_threats)
 
-    lowinverse_threats = from_lowinverse(highinverse.lowinverse, squares_to_threats)
+    lowinverse_threats = from_lowinverse(highinverse.lowinverse, square_to_threats)
     for threat in highinverse_threats:
         # If the highinverse introduces at least one new threat that the lowinverse doesn't already refute:
         if threat not in lowinverse_threats:
@@ -285,13 +285,13 @@ def from_highinverse(highinverse: Highinverse, squares_to_threats, directly_play
     # the Highinverse into a Solution.
 
 
-def from_baseclaim(baseclaim: Baseclaim, squares_to_threats) -> Solution:
+def from_baseclaim(baseclaim: Baseclaim, square_to_threats) -> Solution:
     """Converts a Baseclaim into a Solution.
     Must solve at least one potential threat in order to be converted into a Solution.
 
     Args:
         baseclaim (Baseclaim): a Baseclaim.
-        squares_to_threats (Map<Square, Set<Threat>>): A dictionary mapping each
+        square_to_threats (Map<Square, Set<Threat>>): A dictionary mapping each
             Square to all Threats that contain that Square.
 
     Returns:
@@ -302,10 +302,10 @@ def from_baseclaim(baseclaim: Baseclaim, squares_to_threats) -> Solution:
     # Add all threats which contain the first playable square and the square above the second playable
     # square.
     square_above_second = Square(row=baseclaim.second.row - 1, col=baseclaim.second.col)
-    threats.update(squares_to_threats[baseclaim.first].intersection(squares_to_threats[square_above_second]))
+    threats.update(square_to_threats[baseclaim.first].intersection(square_to_threats[square_above_second]))
 
     # Add all threats which contain the second and third playable square.
-    threats.update(squares_to_threats[baseclaim.second].intersection(squares_to_threats[baseclaim.third]))
+    threats.update(square_to_threats[baseclaim.second].intersection(square_to_threats[baseclaim.third]))
 
     # If there is at least one threat:
     if threats:
@@ -317,8 +317,52 @@ def from_baseclaim(baseclaim: Baseclaim, squares_to_threats) -> Solution:
         )
 
 
-def from_before(before: Before) -> Solution:
-    pass
+def from_before(before: Before, square_to_threats) -> Solution:
+    """Converts a Before into a Solution.
+    Must solve at least one *new* potential threat in order to be converted into a Solution.
+    By "new potential threat," we mean any threat that contains all successors of the empty
+    squares in the Before group.
+
+    Args:
+        before (Before): a Before.
+        square_to_threats (Map<Square, Set<Threat>>): A dictionary mapping each
+            Square to all Threats that contain that Square.
+
+    Returns:
+        solution (Solution): a Solution if before can be converted into one. None if it can't.
+    """
+    empty_squares = before.empty_squares_of_before_group()
+    empty_square_successors = []
+    for square in empty_squares:
+        empty_square_successors.append(Square(row=square.row - 1, col=square.col))
+
+    threats = square_to_threats[empty_square_successors[0]]
+    for square in empty_square_successors[1:]:
+        threats = threats.intersection(square_to_threats[square])
+
+    # If there is at least one threat that contains all direct successors of all empty squares in the Before group:
+    if threats:
+        squares = set(empty_squares)
+
+        for vertical in before.verticals:
+            # Add all squares part of Verticals which are part of the Before.
+            squares.add(vertical.upper)
+            squares.add(vertical.lower)
+            # Add all threats refuted by Verticals which are part of the Before.
+            threats.update(from_vertical(vertical, square_to_threats).threats)
+
+        for claimeven in before.claimevens:
+            # Add all squares part of Claimevens which are part of the Before.
+            squares.add(claimeven.upper)
+            squares.add(claimeven.lower)
+            # Add all threats refuted by Claimevens which are part of the Before.
+            threats.update(from_claimeven(claimeven, square_to_threats).threats)
+
+        return Solution(
+            rule=Rule.Before,
+            squares=frozenset(squares),
+            threats=frozenset(threats),
+        )
 
 
 def from_specialbefore(specialbefore: Specialbefore) -> Solution:

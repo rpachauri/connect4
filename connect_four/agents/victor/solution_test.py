@@ -18,6 +18,7 @@ from connect_four.agents.victor import Aftereven
 from connect_four.agents.victor import Lowinverse
 from connect_four.agents.victor import Highinverse
 from connect_four.agents.victor import Baseclaim
+from connect_four.agents.victor import Before
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
@@ -322,7 +323,7 @@ class TestSolution(unittest.TestCase):
 
         got_solution = solution.from_highinverse(
             highinverse=highinverse_c2_c3_c4_d2_d3_d4,
-            squares_to_threats=square_to_threats,
+            square_to_threats=square_to_threats,
             directly_playable_squares=board.playable_squares(),
         )
         want_solution = Solution(
@@ -390,7 +391,7 @@ class TestSolution(unittest.TestCase):
 
         got_solution = solution.from_baseclaim(
             baseclaim=baseclaim_b1_c1_c2_f1,
-            squares_to_threats=square_to_threats,
+            square_to_threats=square_to_threats,
         )
         want_solution = Solution(
             rule=Rule.Baseclaim,
@@ -404,6 +405,69 @@ class TestSolution(unittest.TestCase):
                 Threat(player=0, start=Square(row=5, col=1), end=Square(row=2, col=4)),  # b1-e4
                 Threat(player=0, start=Square(row=5, col=2), end=Square(row=5, col=5)),  # c1-f1
                 Threat(player=0, start=Square(row=5, col=1), end=Square(row=5, col=4)),  # b1-e1
+            ]),
+        )
+        self.assertEqual(want_solution, got_solution)
+
+    def test_from_before(self):
+        # This board is from Diagram 6.9 of the original paper.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+
+        white_threats = board.potential_threats(0)
+        square_to_threats = threat.square_to_threats(white_threats)
+
+        # Before b4-e1+b5+e2 refutes b5-e2.
+        before_b4_e1 = Before(
+            threat=Threat(player=1, start=Square(row=2, col=1), end=Square(row=5, col=4)),  # Threat b4-e1
+            verticals=[
+                Vertical(upper=Square(row=4, col=4), lower=Square(row=5, col=4)),  # Vertical e1-e2
+            ],
+            claimevens=[
+                Claimeven(upper=Square(row=2, col=1), lower=Square(row=3, col=1))  # Claimeven b3-b4
+            ]
+        )
+
+        got_solution = solution.from_before(before_b4_e1, square_to_threats)
+        want_solution = Solution(
+            rule=Rule.Before,
+            squares=frozenset([
+                # Empty squares part of the Before group.
+                Square(row=2, col=1),  # b4
+                Square(row=5, col=4),  # e1
+                # Squares part of Claimevens/Verticals not part of the Before group.
+                Square(row=3, col=1),  # b3
+                Square(row=4, col=4),  # e2
+            ]),
+            threats=frozenset([
+                # Threats that include all successors of empty squares of the Before group.
+                Threat(player=0, start=Square(row=1, col=1), end=Square(row=4, col=4)),  # b5-e2
+                # Threats that include upper square of Claimeven b3-b4.
+                Threat(player=0, start=Square(row=2, col=0), end=Square(row=2, col=3)),  # a4-d4
+                Threat(player=0, start=Square(row=2, col=1), end=Square(row=2, col=4)),  # b4-e4
+                Threat(player=0, start=Square(row=3, col=0), end=Square(row=0, col=3)),  # a3-d6
+                Threat(player=0, start=Square(row=5, col=1), end=Square(row=2, col=1)),  # b1-b4
+                Threat(player=0, start=Square(row=4, col=1), end=Square(row=1, col=1)),  # b2-b5
+                Threat(player=0, start=Square(row=3, col=1), end=Square(row=0, col=1)),  # b3-b6
+                # Threats that include both squares of Vertical e1-e2.
+                Threat(player=0, start=Square(row=5, col=4), end=Square(row=2, col=4)),  # e1-e4
             ]),
         )
         self.assertEqual(want_solution, got_solution)
