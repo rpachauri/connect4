@@ -4,23 +4,31 @@ from connect_four.agents.victor import Square
 
 
 class Specialbefore:
-    def __init__(self, before: Before, directly_playable_square: Square):
+    def __init__(self,
+                 before: Before,
+                 internal_directly_playable_square: Square,
+                 external_directly_playable_square: Square):
         """Initializes a Specialbefore instance.
 
         Args:
             before (Before): A before. At least one empty square of the Before group must be playable.
-            directly_playable_square (Square): A directly playable square not part of the Before.
+            external_directly_playable_square (Square): A directly playable square not part of the Before.
         """
         self.before = before
-        self.directly_playable_square = directly_playable_square
+        self.internal_directly_playable_square = internal_directly_playable_square
+        self.external_directly_playable_square = external_directly_playable_square
 
     def __eq__(self, other):
         if isinstance(other, Specialbefore):
-            return self.before == other.before and self.directly_playable_square == other.directly_playable_square
+            return (self.before == other.before and
+                    self.internal_directly_playable_square == other.internal_directly_playable_square and
+                    self.external_directly_playable_square == other.external_directly_playable_square)
         return False
 
     def __hash__(self):
-        return self.before.__hash__() * 59 + self.directly_playable_square.__hash__()
+        return (self.before.__hash__() * 59 +
+                self.internal_directly_playable_square.__hash__() * 47 +
+                self.external_directly_playable_square.__hash__())
 
 
 def specialbefore(board: Board, befores):
@@ -38,29 +46,32 @@ def specialbefore(board: Board, befores):
     directly_playable_squares = board.playable_squares()
 
     for before in befores:
-        if contains_directly_playable_square(before, directly_playable_squares):
-            for directly_playable_square in directly_playable_squares:
-                if directly_playable_square not in before.threat.squares:
+        directly_playable_squares_in_before_group = internal_directly_playable_squares(
+            before, directly_playable_squares)
+        for internal_directly_playable_square in directly_playable_squares_in_before_group:
+            for external_directly_playable_square in directly_playable_squares:
+                if external_directly_playable_square not in directly_playable_squares_in_before_group:
                     # Recall that a requirement of the Specialbefore is that the directly playable square
                     # must not be a part of the Before.
-                    specialbefores.add(Specialbefore(before, directly_playable_square))
+                    specialbefores.add(Specialbefore(
+                        before=before,
+                        internal_directly_playable_square=internal_directly_playable_square,
+                        external_directly_playable_square=external_directly_playable_square,
+                    ))
 
     return specialbefores
 
 
-def contains_directly_playable_square(before: Before, directly_playable_squares):
-    """Returns true if there exists a square in before.threat.squares that also exists in directly_playable_squares.
-    Otherwise, returns false.
+def internal_directly_playable_squares(before: Before, directly_playable_squares):
+    """Returns a set of directly playable squares in before.threat.squares.
+    If there are none, returns an empty set.
 
     Args:
         before (Before): a Before.
         directly_playable_squares (iterable<Square>): an iterable of directly playable squares.
 
     Returns:
-        Returns true if there exists a square in before.threat that also exists in directly_playable_squares.
-        Returns false otherwise.
+        squares (Set<Square>): a Set of all Squares that exist in both
+            before.threat.squares and directly_playable_squares.
     """
-    for square in before.threat.squares:
-        if square in directly_playable_squares:
-            return True
-    return False
+    return before.threat.squares.intersection(directly_playable_squares)
