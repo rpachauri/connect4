@@ -214,8 +214,75 @@ def from_lowinverse(lowinverse: Lowinverse, squares_to_threats) -> Solution:
         )
 
 
-def from_highinverse(highinverse: Highinverse) -> Solution:
-    pass
+def from_highinverse(highinverse: Highinverse, squares_to_threats, directly_playable_squares) -> Solution:
+    """Converts a Highinverse into a Solution.
+    Must solve at least one *new* potential threat in order to be converted into a Solution.
+    By "new potential threat," we mean any threat that isn't already solved by the Lowinverse
+    which is part of the Highinverse.
+
+    Args:
+        highinverse (Highinverse): a Highinverse.
+        squares_to_threats (Map<Square, Set<Threat>>): A dictionary mapping each
+            Square to all Threats that contain that Square.
+        directly_playable_squares (Set<Square>): A Set of directly playable Squares.
+
+    Returns:
+        solution (Solution): a Solution if highinverse can be converted into one. None if it can't.
+    """
+    highinverse_threats = set()
+
+    # Add all threats which contain the two upper squares.
+    verticals_as_list = list(highinverse.lowinverse.verticals)
+    vertical_0, vertical_1 = verticals_as_list[0], verticals_as_list[1]
+    upper_square_0 = Square(row=vertical_0.upper.row - 1, col=vertical_0.upper.col)
+    upper_square_1 = Square(row=vertical_1.upper.row - 1, col=vertical_1.upper.col)
+    upper_squares_threats = squares_to_threats[upper_square_0].intersection(squares_to_threats[upper_square_1])
+    highinverse_threats.update(upper_squares_threats)
+
+    # Add all threats which contain the two middle squares.
+    middle_squares_threats = squares_to_threats[vertical_0.upper].intersection(squares_to_threats[vertical_1.upper])
+    highinverse_threats.update(middle_squares_threats)
+
+    # For each Highinverse column, add all (vertical) threats which contain the two highest squares of the column.
+    upper_vertical_0 = Vertical(upper=upper_square_0, lower=vertical_0.upper)
+    upper_vertical_1 = Vertical(upper=upper_square_1, lower=vertical_1.upper)
+    highinverse_threats.update(from_vertical(upper_vertical_0, squares_to_threats).threats)
+    highinverse_threats.update(from_vertical(upper_vertical_1, squares_to_threats).threats)
+
+    # If the lower square of the first column is directly playable:
+    if vertical_0.lower in directly_playable_squares:
+        # Add all threats which contain both the lower square of the first column and
+        # the upper square of the second column.
+        lower_0_upper_1_threats = squares_to_threats[vertical_0.lower].intersection(squares_to_threats[upper_square_1])
+        highinverse_threats.update(lower_0_upper_1_threats)
+
+    # If the lower square of the second column is directly playable:
+    if vertical_1.lower in directly_playable_squares:
+        # Add all threats which contain both the lower square of the second column and
+        # the upper square of the first column.
+        lower_1_upper_0_threats = squares_to_threats[vertical_1.lower].intersection(squares_to_threats[upper_square_0])
+        highinverse_threats.update(lower_1_upper_0_threats)
+
+    lowinverse_threats = from_lowinverse(highinverse.lowinverse, squares_to_threats)
+    for threat in highinverse_threats:
+        # If the highinverse introduces at least one new threat that the lowinverse doesn't already refute:
+        if threat not in lowinverse_threats:
+            # Form the highinverse into a solution.
+            squares = frozenset([
+                upper_square_0,
+                vertical_0.upper,
+                vertical_0.lower,
+                upper_square_1,
+                vertical_1.upper,
+                vertical_1.lower,
+            ])
+            return Solution(
+                rule=Rule.Highinverse,
+                squares=squares,
+                threats=frozenset(highinverse_threats),
+            )
+    # If the highinverse did not have a threat that the lowinverse already refuted, then we don't convert
+    # the Highinverse into a Solution.
 
 
 def from_baseclaim(baseclaim: Baseclaim) -> Solution:
