@@ -41,6 +41,8 @@ class Threat:
         if not (player == 0 or player == 1):
             raise ValueError("player must be 0 or 1. player =", player)
         self.player = player
+        self.start = start
+        self.end = end
 
         # Perform validation on start and end of threat.
         row_diff = end.row - start.row
@@ -69,6 +71,15 @@ class Threat:
 
     def __hash__(self):
         return self.squares.__hash__() + self.player
+
+    def __str__(self):
+        return ("[" + str(self.player) + " -> " +
+                "(" + str(self.start.row) + "," + str(self.start.col) + ") -" +
+                "(" + str(self.end.row) + "," + str(self.end.col) + ")]"
+                )
+
+    def __repr__(self):
+        return self.__str__()
 
 
 def square_to_threats(threats):
