@@ -15,6 +15,7 @@ from connect_four.agents.victor import Claimeven
 from connect_four.agents.victor import Baseinverse
 from connect_four.agents.victor import Vertical
 from connect_four.agents.victor import Aftereven
+from connect_four.agents.victor import Lowinverse
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
@@ -214,6 +215,65 @@ class TestSolution(unittest.TestCase):
         )
         for got_threat in got_solution.threats:
             print(got_threat.squares)
+        self.assertEqual(want_solution, got_solution)
+
+    def test_lowinverse(self):
+        # This board is from Diagram 6.6 of the original paper.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+
+        white_threats = board.potential_threats(0)
+        square_to_threats = threat.square_to_threats(white_threats)
+
+        # Lowinverse c2-c3-d2-d3 guarantees that Black will get at least one square
+        # out of each of three pairs of squares:
+        # 1. The squares in the first column (c2-c3).
+        # 2. The squares in the other column (d2-d3).
+        # 3. The upper two squares (c3-d3).
+        lowinverse_c2_c3_d2_d3 = Lowinverse(
+            first_vertical=Vertical(upper=Square(row=3, col=2), lower=Square(row=4, col=2)),  # c2-c3
+            second_vertical=Vertical(upper=Square(row=3, col=3), lower=Square(row=4, col=3)),  # d2-d3
+        )
+
+        got_solution = solution.from_lowinverse(lowinverse_c2_c3_d2_d3, square_to_threats)
+        want_solution = Solution(
+            rule=Rule.Lowinverse,
+            squares=frozenset([
+                Square(row=3, col=2),
+                Square(row=4, col=2),
+                Square(row=3, col=3),
+                Square(row=4, col=3),
+            ]),
+            threats=frozenset([
+                # Threats which contain both upper squares of the Verticals.
+                Threat(player=0, start=Square(row=3, col=0), end=Square(row=3, col=3)),  # a3-d3
+                Threat(player=0, start=Square(row=3, col=1), end=Square(row=3, col=4)),  # b3-e3
+                Threat(player=0, start=Square(row=3, col=2), end=Square(row=3, col=5)),  # c3-f3
+                # Threats refuted by Vertical c2-c3.
+                Threat(player=0, start=Square(row=1, col=2), end=Square(row=4, col=2)),  # c2-c5
+                # Note that c1-c4 does not need to be refuted because Black already occupies c1.
+                # Threats refuted by Vertical d2-d3.
+                Threat(player=0, start=Square(row=1, col=3), end=Square(row=4, col=3)),  # d2-d5
+                Threat(player=0, start=Square(row=2, col=3), end=Square(row=5, col=3)),  # d1-d4
+            ]),
+        )
         self.assertEqual(want_solution, got_solution)
 
 

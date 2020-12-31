@@ -180,8 +180,38 @@ def add_new_threats_from_aftereven(threats, empty_squares_of_aftereven, threaten
     empty_squares_of_aftereven.append(square)
 
 
-def from_lowinverse(lowinverse: Lowinverse) -> Solution:
-    pass
+def from_lowinverse(lowinverse: Lowinverse, squares_to_threats) -> Solution:
+    """Converts a Lowinverse into a Solution.
+    Must solve at least one *new* potential threat in order to be converted into a Solution.
+    By "new potential threat," we mean any threat that isn't already solved by one of the Verticals
+    which are part of the Lowinverse.
+
+    Args:
+        lowinverse (Lowinverse): a Lowinverse.
+        squares_to_threats (Map<Square, Set<Threat>>): A dictionary mapping each
+            Square to all Threats that contain that Square.
+
+    Returns:
+        solution (Solution): a Solution if lowinverse can be converted into one. None if it can't.
+    """
+    verticals_as_list = list(lowinverse.verticals)
+    vertical_0, vertical_1 = verticals_as_list[0], verticals_as_list[1]
+    threats = squares_to_threats[vertical_0.upper].intersection(squares_to_threats[vertical_1.upper])
+
+    # Lowinverse should only be converted into a Solution if it refutes new threats.
+    if threats:
+        squares = [vertical_0.upper, vertical_0.lower, vertical_1.upper, vertical_1.lower]
+
+        vertical_0_threats = from_vertical(vertical_0, squares_to_threats).threats
+        vertical_1_threats = from_vertical(vertical_1, squares_to_threats).threats
+        threats.update(vertical_0_threats)
+        threats.update(vertical_1_threats)
+
+        return Solution(
+            rule=Rule.Lowinverse,
+            squares=frozenset(squares),
+            threats=frozenset(threats),
+        )
 
 
 def from_highinverse(highinverse: Highinverse) -> Solution:
