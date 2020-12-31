@@ -3,23 +3,26 @@ from connect_four.agents.victor import Threat
 
 
 class Aftereven:
-    def __init__(self, threat: Threat, columns):
+    # TODO deprecate columns.
+    def __init__(self, threat: Threat, columns, claimevens):
         """Initializes an Aftereven instance.
 
         Args:
             threat (Threat): a Threat representing the Aftereven group.
             columns (iterable<int>): a list of columns containing the empty squares of the Aftereven group.
+            claimevens (iterable<Claimeven>): an iterable of Claimevens which are part of the Aftereven.
         """
         self.threat = threat
         self.columns = frozenset(columns)
+        self.claimevens = frozenset(claimevens)
 
     def __eq__(self, other):
         if isinstance(other, Aftereven):
-            return self.threat == other.threat and self.columns == other.columns
+            return self.threat == other.threat and self.columns == other.columns and self.claimevens == other.claimevens
         return False
 
     def __hash__(self):
-        return self.threat.__hash__() * 31 + self.columns.__hash__()
+        return self.threat.__hash__() * 31 + self.columns.__hash__() * 17 + self.claimevens.__hash__()
 
 
 def aftereven(board: Board, claimevens):
@@ -35,21 +38,24 @@ def aftereven(board: Board, claimevens):
     # Find all threats that belong to the opponent.
     threats_of_opponent = board.potential_threats(1 - board.player)
 
-    # Find all even squares of Claimevens.
-    claimeven_even_squares = set()
+    # Dictionary of the upper square of a Claimeven to the Claimeven itself.
+    even_squares_to_claimevens = {}
     for claimeven in claimevens:
-        claimeven_even_squares.add(claimeven.upper)
+        even_squares_to_claimevens[claimeven.upper] = claimeven
 
     afterevens = set()
     for threat in threats_of_opponent:
-        columns = aftereven_columns(board, claimeven_even_squares, threat)
-        if columns is not None:
-            afterevens.add(Aftereven(threat, columns))
+        aftereven_claimevens = get_aftereven_claimevens(board, even_squares_to_claimevens, threat)
+        if aftereven_claimevens is not None:
+            columns = []
+            for claimeven in aftereven_claimevens:
+                columns.append(claimeven.upper.col)
+            afterevens.add(Aftereven(threat, columns, aftereven_claimevens))
 
     return afterevens
 
 
-def aftereven_columns(board: Board, claimeven_even_squares, threat: Threat):
+def get_aftereven_claimevens(board: Board, even_squares_to_claimevens, threat: Threat):
     """aftereven_columns takes a Board, set of Claimevens and a Threat.
     It figures out if the Threat is an Aftereven group.
     If the Threat is an Aftereven group, then it returns the Aftereven columns.
@@ -57,8 +63,9 @@ def aftereven_columns(board: Board, claimeven_even_squares, threat: Threat):
 
     Args:
         board (Board): a Board instance.
-        claimeven_even_squares (set<Square>): a set of Squares for board.
-            Each Square is the even square of a Claimeven on the board.
+        even_squares_to_claimevens (dict<Square, Claimeven>): dictionary of Squares to Claimevens.
+            Each Square in the key set is the even square of a Claimeven on the board.
+            It maps to the Claimeven it is a part of.
         threat (Threat): a Threat on this board.
 
     Returns:
@@ -68,16 +75,20 @@ def aftereven_columns(board: Board, claimeven_even_squares, threat: Threat):
 
             If the given Threat is not an Aftereven group, returns None.
     """
-    columns = set()
+    claimevens = set()
 
     for square in threat.squares:
+        # If a square is in the top row, then this would be a useless Aftereven.
+        if square.row == 0:
+            return None
+
         # If the square is not empty, we assume it already belongs to the player who owns the Threat.
         if board.is_empty(square):
-            if square in claimeven_even_squares:
-                columns.add(square.col)
+            if square in even_squares_to_claimevens:
+                claimevens.add(even_squares_to_claimevens[square])
             else:
                 # If an empty square does not belong to any of the Claimeven even squares,
                 # then the Threat is not an Aftereven group.
                 return None
 
-    return columns
+    return claimevens

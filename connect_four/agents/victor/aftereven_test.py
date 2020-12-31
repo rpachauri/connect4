@@ -6,6 +6,7 @@ import numpy as np
 from connect_four.agents.victor import Aftereven
 from connect_four.agents.victor import aftereven
 from connect_four.agents.victor import Board
+from connect_four.agents.victor import Claimeven
 from connect_four.agents.victor import claimeven
 from connect_four.agents.victor import Square
 from connect_four.agents.victor import Threat
@@ -42,8 +43,16 @@ class TestAftereven(unittest.TestCase):
         got_afterevens = aftereven(board=board, claimevens=claimeven(board))
 
         want_afterevens = {
-            Aftereven(threat=Threat(player=1, start=Square(row=4, col=1), end=Square(row=4, col=4)), columns=[1]),
-            Aftereven(threat=Threat(player=1, start=Square(row=4, col=2), end=Square(row=4, col=5)), columns=[5]),
+            Aftereven(
+                threat=Threat(player=1, start=Square(row=4, col=1), end=Square(row=4, col=4)),
+                columns=[1],
+                claimevens=frozenset([Claimeven(upper=Square(row=4, col=1), lower=Square(row=5, col=1))]),
+            ),
+            Aftereven(
+                threat=Threat(player=1, start=Square(row=4, col=2), end=Square(row=4, col=5)),
+                columns=[5],
+                claimevens=frozenset([Claimeven(upper=Square(row=4, col=5), lower=Square(row=5, col=5))]),
+            ),
         }
         self.assertEqual(want_afterevens, got_afterevens)
 
@@ -70,10 +79,29 @@ class TestAftereven(unittest.TestCase):
         got_afterevens = aftereven(board=board, claimevens=claimeven(board))
 
         want_afterevens = {
-            Aftereven(threat=Threat(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6)), columns=[5, 6]),
-            Aftereven(threat=Threat(player=1, start=Square(row=2, col=3), end=Square(row=2, col=6)), columns=[5, 6]),
-            Aftereven(threat=Threat(player=1, start=Square(row=2, col=2), end=Square(row=2, col=5)), columns=[5]),
-            Aftereven(threat=Threat(player=1, start=Square(row=0, col=3), end=Square(row=0, col=6)), columns=[4, 5, 6]),
+            Aftereven(
+                threat=Threat(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6)),
+                columns=[5, 6],
+                claimevens=frozenset([
+                    Claimeven(upper=Square(row=4, col=5), lower=Square(row=5, col=5)),
+                    Claimeven(upper=Square(row=4, col=6), lower=Square(row=5, col=6)),
+                ]),
+            ),
+            Aftereven(
+                threat=Threat(player=1, start=Square(row=2, col=3), end=Square(row=2, col=6)),
+                columns=[5, 6],
+                claimevens=frozenset([
+                    Claimeven(upper=Square(row=2, col=5), lower=Square(row=3, col=5)),
+                    Claimeven(upper=Square(row=2, col=6), lower=Square(row=3, col=6)),
+                ]),
+            ),
+            Aftereven(
+                threat=Threat(player=1, start=Square(row=2, col=2), end=Square(row=2, col=5)),
+                columns=[5],
+                claimevens=frozenset([
+                    Claimeven(upper=Square(row=2, col=5), lower=Square(row=3, col=5)),
+                ]),
+            ),
         }
         self.assertEqual(want_afterevens, got_afterevens)
 
