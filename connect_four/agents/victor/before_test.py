@@ -192,7 +192,12 @@ class TestBefore(unittest.TestCase):
         }
         self.assertEqual(want_befores, befores)
 
+        want_empty_squares = frozenset([Square(row=4, col=4), Square(row=4, col=5), Square(row=4, col=6)])
+        for b in befores:
+            self.assertSetEqual(want_empty_squares, b.empty_squares_of_before_group())
+
     def test_empty_squares_of_before_group_diagram_6_10(self):
+        # Note that this tests the function empty_squares_of_before_group.
         self.env.state = np.array([
             [
                 [0, 0, 0, 0, 0, 0, 0, ],

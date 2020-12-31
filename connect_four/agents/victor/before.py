@@ -28,6 +28,27 @@ class Before:
     def __hash__(self):
         return self.threat.__hash__() * 41 + self.verticals.__hash__() * 31 + self.claimevens.__hash__()
 
+    def empty_squares_of_before_group(self):
+        """Returns the empty squares of the Before group of this Before.
+
+        Returns:
+            empty_squares (Set<Square>): The empty squares of the Before group of this Before.
+        """
+        empty_squares = set()
+
+        for vertical in self.verticals:
+            if vertical.upper in self.threat.squares:
+                empty_squares.add(vertical.upper)
+            else:
+                empty_squares.add(vertical.lower)
+
+        for claimeven in self.claimevens:
+            # claimeven.upper should be an empty square part of the Before group by definition.
+            # Otherwise, something is wrong.
+            empty_squares.add(claimeven.upper)
+
+        return frozenset(empty_squares)
+
 
 def before(board: Board, threats):
     """before takes a Board and an iterable of Threats and returns an iterable of Befores for the Board.
