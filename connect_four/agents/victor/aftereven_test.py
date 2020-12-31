@@ -45,12 +45,10 @@ class TestAftereven(unittest.TestCase):
         want_afterevens = {
             Aftereven(
                 threat=Threat(player=1, start=Square(row=4, col=1), end=Square(row=4, col=4)),
-                columns=[1],
                 claimevens=frozenset([Claimeven(upper=Square(row=4, col=1), lower=Square(row=5, col=1))]),
             ),
             Aftereven(
                 threat=Threat(player=1, start=Square(row=4, col=2), end=Square(row=4, col=5)),
-                columns=[5],
                 claimevens=frozenset([Claimeven(upper=Square(row=4, col=5), lower=Square(row=5, col=5))]),
             ),
         }
@@ -81,7 +79,6 @@ class TestAftereven(unittest.TestCase):
         want_afterevens = {
             Aftereven(
                 threat=Threat(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6)),
-                columns=[5, 6],
                 claimevens=frozenset([
                     Claimeven(upper=Square(row=4, col=5), lower=Square(row=5, col=5)),
                     Claimeven(upper=Square(row=4, col=6), lower=Square(row=5, col=6)),
@@ -89,7 +86,6 @@ class TestAftereven(unittest.TestCase):
             ),
             Aftereven(
                 threat=Threat(player=1, start=Square(row=2, col=3), end=Square(row=2, col=6)),
-                columns=[5, 6],
                 claimevens=frozenset([
                     Claimeven(upper=Square(row=2, col=5), lower=Square(row=3, col=5)),
                     Claimeven(upper=Square(row=2, col=6), lower=Square(row=3, col=6)),
@@ -97,7 +93,6 @@ class TestAftereven(unittest.TestCase):
             ),
             Aftereven(
                 threat=Threat(player=1, start=Square(row=2, col=2), end=Square(row=2, col=5)),
-                columns=[5],
                 claimevens=frozenset([
                     Claimeven(upper=Square(row=2, col=5), lower=Square(row=3, col=5)),
                 ]),

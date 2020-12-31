@@ -3,26 +3,23 @@ from connect_four.agents.victor import Threat
 
 
 class Aftereven:
-    # TODO deprecate columns.
-    def __init__(self, threat: Threat, columns, claimevens):
+    def __init__(self, threat: Threat, claimevens):
         """Initializes an Aftereven instance.
 
         Args:
             threat (Threat): a Threat representing the Aftereven group.
-            columns (iterable<int>): a list of columns containing the empty squares of the Aftereven group.
             claimevens (iterable<Claimeven>): an iterable of Claimevens which are part of the Aftereven.
         """
         self.threat = threat
-        self.columns = frozenset(columns)
         self.claimevens = frozenset(claimevens)
 
     def __eq__(self, other):
         if isinstance(other, Aftereven):
-            return self.threat == other.threat and self.columns == other.columns and self.claimevens == other.claimevens
+            return self.threat == other.threat and self.claimevens == other.claimevens
         return False
 
     def __hash__(self):
-        return self.threat.__hash__() * 31 + self.columns.__hash__() * 17 + self.claimevens.__hash__()
+        return self.threat.__hash__() * 31 + self.claimevens.__hash__()
 
 
 def aftereven(board: Board, claimevens):
@@ -47,18 +44,15 @@ def aftereven(board: Board, claimevens):
     for threat in threats_of_opponent:
         aftereven_claimevens = get_aftereven_claimevens(board, even_squares_to_claimevens, threat)
         if aftereven_claimevens is not None:
-            columns = []
-            for claimeven in aftereven_claimevens:
-                columns.append(claimeven.upper.col)
-            afterevens.add(Aftereven(threat, columns, aftereven_claimevens))
+            afterevens.add(Aftereven(threat, aftereven_claimevens))
 
     return afterevens
 
 
 def get_aftereven_claimevens(board: Board, even_squares_to_claimevens, threat: Threat):
-    """aftereven_columns takes a Board, set of Claimevens and a Threat.
+    """get_aftereven_claimevens takes a Board, set of Claimevens and a Threat.
     It figures out if the Threat is an Aftereven group.
-    If the Threat is an Aftereven group, then it returns the Aftereven columns.
+    If the Threat is an Aftereven group, then it returns the Claimevens which are part of the Aftereven.
     If the Threat is not an Aftereven group, then it returns None.
 
     Args:
@@ -69,9 +63,9 @@ def get_aftereven_claimevens(board: Board, even_squares_to_claimevens, threat: T
         threat (Threat): a Threat on this board.
 
     Returns:
-        aftereven_columns (iterable<int>):
-            If the given Threat is an Aftereven group, an iterable of ints,
-            where each int is the column of an empty square in the Aftereven group.
+        claimevens (iterable<Claimeven>):
+            If the given Threat is an Aftereven group, an iterable of Claimevens,
+            where the upper square of each Claimeven is an empty square in the Aftereven group.
 
             If the given Threat is not an Aftereven group, returns None.
     """
