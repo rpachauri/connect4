@@ -285,8 +285,36 @@ def from_highinverse(highinverse: Highinverse, squares_to_threats, directly_play
     # the Highinverse into a Solution.
 
 
-def from_baseclaim(baseclaim: Baseclaim) -> Solution:
-    pass
+def from_baseclaim(baseclaim: Baseclaim, squares_to_threats) -> Solution:
+    """Converts a Baseclaim into a Solution.
+    Must solve at least one potential threat in order to be converted into a Solution.
+
+    Args:
+        baseclaim (Baseclaim): a Baseclaim.
+        squares_to_threats (Map<Square, Set<Threat>>): A dictionary mapping each
+            Square to all Threats that contain that Square.
+
+    Returns:
+        solution (Solution): a Solution if baseclaim can be converted into one. None if it can't.
+    """
+    threats = set()
+
+    # Add all threats which contain the first playable square and the square above the second playable
+    # square.
+    square_above_second = Square(row=baseclaim.second.row - 1, col=baseclaim.second.col)
+    threats.update(squares_to_threats[baseclaim.first].intersection(squares_to_threats[square_above_second]))
+
+    # Add all threats which contain the second and third playable square.
+    threats.update(squares_to_threats[baseclaim.second].intersection(squares_to_threats[baseclaim.third]))
+
+    # If there is at least one threat:
+    if threats:
+        squares = frozenset([baseclaim.first, baseclaim.second, baseclaim.third, square_above_second])
+        return Solution(
+            rule=Rule.Baseclaim,
+            squares=squares,
+            threats=frozenset(threats),
+        )
 
 
 def from_before(before: Before) -> Solution:

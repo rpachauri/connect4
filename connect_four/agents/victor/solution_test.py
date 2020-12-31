@@ -17,6 +17,7 @@ from connect_four.agents.victor import Vertical
 from connect_four.agents.victor import Aftereven
 from connect_four.agents.victor import Lowinverse
 from connect_four.agents.victor import Highinverse
+from connect_four.agents.victor import Baseclaim
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
@@ -351,6 +352,58 @@ class TestSolution(unittest.TestCase):
                 Threat(player=0, start=Square(row=0, col=3), end=Square(row=3, col=3)),  # d3-d6
                 Threat(player=0, start=Square(row=1, col=3), end=Square(row=4, col=3)),  # d2-d5
                 Threat(player=0, start=Square(row=2, col=3), end=Square(row=5, col=3)),  # d1-d4
+            ]),
+        )
+        self.assertEqual(want_solution, got_solution)
+
+    def test_from_baseclaim(self):
+        # This board is from Diagram 6.7 of the original paper.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 1, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [1, 0, 0, 0, 0, 0, 1, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+
+        white_threats = board.potential_threats(0)
+        square_to_threats = threat.square_to_threats(white_threats)
+
+        # Baseclaim b1-c1-c2-e1 can be used to refute b1-e4 and c1-f1.
+        baseclaim_b1_c1_c2_f1 = Baseclaim(
+            first=Square(row=5, col=1),  # b1
+            second=Square(row=5, col=2),  # c1
+            third=Square(row=5, col=4),  # e1
+        )
+
+        got_solution = solution.from_baseclaim(
+            baseclaim=baseclaim_b1_c1_c2_f1,
+            squares_to_threats=square_to_threats,
+        )
+        want_solution = Solution(
+            rule=Rule.Baseclaim,
+            squares=frozenset([
+                Square(row=5, col=1),  # b1
+                Square(row=5, col=2),  # c1
+                Square(row=4, col=2),  # c2
+                Square(row=5, col=4),  # e1
+            ]),
+            threats=frozenset([
+                Threat(player=0, start=Square(row=5, col=1), end=Square(row=2, col=4)),  # b1-e4
+                Threat(player=0, start=Square(row=5, col=2), end=Square(row=5, col=5)),  # c1-f1
+                Threat(player=0, start=Square(row=5, col=1), end=Square(row=5, col=4)),  # b1-e1
             ]),
         )
         self.assertEqual(want_solution, got_solution)
