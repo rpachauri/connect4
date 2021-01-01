@@ -19,6 +19,7 @@ from connect_four.agents.victor import Lowinverse
 from connect_four.agents.victor import Highinverse
 from connect_four.agents.victor import Baseclaim
 from connect_four.agents.victor import Before
+from connect_four.agents.victor import Specialbefore
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
@@ -468,6 +469,90 @@ class TestSolution(unittest.TestCase):
                 Threat(player=0, start=Square(row=3, col=1), end=Square(row=0, col=1)),  # b3-b6
                 # Threats that include both squares of Vertical e1-e2.
                 Threat(player=0, start=Square(row=5, col=4), end=Square(row=2, col=4)),  # e1-e4
+            ]),
+        )
+        self.assertEqual(want_solution, got_solution)
+
+    def test_from_specialbefore(self):
+        # This board is from Diagram 6.10 of the original paper.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+
+        white_threats = board.potential_threats(0)
+        square_to_threats = threat.square_to_threats(white_threats)
+
+        # Verticals/Claimevens which are part of the Before.
+        vertical_e2_e3 = Vertical(upper=Square(row=3, col=4), lower=Square(row=4, col=4))  # Vertical e2-e3.
+        claimeven_f1_f2 = Claimeven(upper=Square(row=4, col=5), lower=Square(row=5, col=5))  # Claimeven f1-f2.
+        claimeven_g1_g2 = Claimeven(upper=Square(row=4, col=6), lower=Square(row=5, col=6))  # Claimeven g1-g2.
+
+        # Before d2-g2.
+        before_d2_g2 = Before(
+            threat=Threat(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6)),  # d2-g2
+            verticals=[vertical_e2_e3],
+            claimevens=[claimeven_f1_f2, claimeven_g1_g2],
+        )
+        # Specialbefore d2-g2.
+        specialbefore_d2_g2 = Specialbefore(
+            before=before_d2_g2,
+            internal_directly_playable_square=Square(row=4, col=4),  # e2
+            external_directly_playable_square=Square(row=3, col=3),  # d3
+        )
+
+        got_solution = solution.from_specialbefore(
+            specialbefore=specialbefore_d2_g2,
+            square_to_threats=square_to_threats,
+        )
+        want_solution = Solution(
+            rule=Rule.Specialbefore,
+            squares=frozenset([
+                # Empty squares part of the Specialbefore group.
+                Square(row=4, col=4),  # e2. Note that this is the internal directly playable square.
+                Square(row=4, col=5),  # f2
+                Square(row=4, col=6),  # g2
+                # Squares not part of the Specialbefore group but are
+                # part of Verticals/Claimevens which are part of the Specialbefore.
+                Square(row=3, col=4),  # e3 is the upper Square of Vertical e2-e3.
+                Square(row=5, col=5),  # f1 is the lower Square of Claimeven f1-f2.
+                Square(row=5, col=6),  # g1 is the lower Square of Claimeven g1-g2.
+                # Directly playable square not part of the Specialbefore group.
+                Square(row=3, col=3),  # d3
+            ]),
+            threats=frozenset([
+                # Threats that contain the external directly playable square and
+                # all successors of empty squares of the Specialbefore.
+                Threat(player=0, start=Square(row=3, col=3), end=Square(row=3, col=6)),  # d3-g3
+                # Threats that contain the internal directly playable square and
+                # external directly playable square of the Specialbefore.
+                Threat(player=0, start=Square(row=1, col=1), end=Square(row=4, col=4)),  # b5-e2
+                Threat(player=0, start=Square(row=2, col=2), end=Square(row=5, col=5)),  # c4-f1
+                # Threats that are refuted by Vertical e2-e3.
+                Threat(player=0, start=Square(row=1, col=4), end=Square(row=4, col=4)),  # e2-e5
+                # Threats that are refuted by Claimeven f1-f2.
+                Threat(player=0, start=Square(row=1, col=5), end=Square(row=4, col=5)),  # f2-f5
+                Threat(player=0, start=Square(row=2, col=5), end=Square(row=5, col=5)),  # f1-f4
+                Threat(player=0, start=Square(row=2, col=3), end=Square(row=5, col=6)),  # d4-g1
+                # Threats that are refuted by Claimeven g1-g2.
+                Threat(player=0, start=Square(row=1, col=6), end=Square(row=4, col=6)),  # g2-g5
+                Threat(player=0, start=Square(row=2, col=6), end=Square(row=5, col=6)),  # g1-g4
+                Threat(player=0, start=Square(row=1, col=3), end=Square(row=4, col=6)),  # d5-g4
             ]),
         )
         self.assertEqual(want_solution, got_solution)

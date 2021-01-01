@@ -365,5 +365,47 @@ def from_before(before: Before, square_to_threats) -> Solution:
         )
 
 
-def from_specialbefore(specialbefore: Specialbefore) -> Solution:
-    pass
+def from_specialbefore(specialbefore: Specialbefore, square_to_threats) -> Solution:
+    """Converts a Specialbefore into a Solution.
+    Must solve at least one *new* potential threat in order to be converted into a Solution.
+    By "new potential threat," we mean threats that meet either of the following conditions:
+    1. Threats that contain the external directly playable square and
+       all successors of empty squares of the Specialbefore.
+    2. Threats that contain the internal directly playable square and external directly playable square
+       of the Specialbefore.
+
+    Args:
+        specialbefore (Specialbefore): a Specialbefore.
+        square_to_threats (Map<Square, Set<Threat>>): A dictionary mapping each
+            Square to all Threats that contain that Square.
+
+    Returns:
+        solution (Solution): a Solution if before can be converted into one. None if it can't.
+    """
+    # Find all threats that contain the external directly playable square and
+    # all successors of empty squares of the Specialbefore.
+    external_and_successor_threats = square_to_threats[specialbefore.external_directly_playable_square]
+    empty_squares = specialbefore.before.empty_squares_of_before_group()
+    for square in empty_squares:
+        direct_successor = Square(row=square.row - 1, col=square.col)
+        external_and_successor_threats = external_and_successor_threats.intersection(
+            square_to_threats[direct_successor])
+
+    # Find all threats that contain the internal directly playable square and
+    # external directly playable square of the Specialbefore.
+    sq1 = specialbefore.internal_directly_playable_square
+    sq2 = specialbefore.external_directly_playable_square
+    directly_playable_squares_threats = square_to_threats[sq1].intersection(square_to_threats[sq2])
+
+    # The union of external_and_successor_threats and directly_playable_squares_threats are all
+    # new threats that this Specialbefore refutes.
+    threats = external_and_successor_threats.union(directly_playable_squares_threats)
+
+    if threats:
+        # The Specialbefore Solution includes all squares and threats that the Before Solution has.
+        before_solution = from_before(before=specialbefore.before, square_to_threats=square_to_threats)
+        return Solution(
+            rule=Rule.Specialbefore,
+            squares=frozenset(before_solution.squares.union([specialbefore.external_directly_playable_square])),
+            threats=frozenset(before_solution.threats.union(threats)),
+        )
