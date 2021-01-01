@@ -4,12 +4,10 @@ import unittest
 import numpy as np
 
 from connect_four.agents.victor import Board
-from connect_four.agents.victor import Square
 from connect_four.agents.victor import Rule
 from connect_four.agents.victor import Solution
-from connect_four.agents.victor import solution
+from connect_four.agents.victor import Square
 from connect_four.agents.victor import Threat
-from connect_four.agents.victor import threat
 
 from connect_four.agents.victor import Claimeven
 from connect_four.agents.victor import Baseinverse
@@ -20,6 +18,9 @@ from connect_four.agents.victor import Highinverse
 from connect_four.agents.victor import Baseclaim
 from connect_four.agents.victor import Before
 from connect_four.agents.victor import Specialbefore
+
+from connect_four.agents.victor import solution
+from connect_four.agents.victor import threat
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
