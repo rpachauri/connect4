@@ -1,3 +1,5 @@
+from connect_four.agents.victor import Rule
+
 from connect_four.agents.victor import Solution
 
 
@@ -37,6 +39,9 @@ def allowed_with_claimeven(solution: Solution, other: Solution) -> bool:
     Returns:
         combination_allowed (bool): True if other can be combined with solution; Otherwise, False.
     """
+    if other.rule in [Rule.Claimeven, Rule.Baseinverse, Rule.Vertical]:
+        # Return true if the sets of squares are disjoint.
+        return not solution.squares.intersection(other.squares)
     return False
 
 
