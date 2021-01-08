@@ -18,10 +18,14 @@ class Solution:
     Two Solutions may or may not work together depending on which squares each
     consists of and which rule they are an application of.
     """
-    def __init__(self, rule, squares, threats, claimeven_bottom_squares=None):
+    def __init__(self, rule, squares, threats=None, claimeven_bottom_squares=None):
         self.rule = rule
         self.squares = frozenset(squares)
+
+        if threats is None:
+            threats = set()
         self.threats = frozenset(threats)
+
         if claimeven_bottom_squares is None:
             claimeven_bottom_squares = set()
         self.claimeven_bottom_squares = frozenset(claimeven_bottom_squares)

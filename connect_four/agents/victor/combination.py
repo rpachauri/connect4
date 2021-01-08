@@ -16,6 +16,40 @@ def allowed(s1: Solution, s2: Solution) -> bool:
     return False
 
 
+def disjoint(solution: Solution, other: Solution):
+    """Returns True if the sets of squares are disjoint. Otherwise, False.
+
+    Args:
+        solution (Solution): a Solution.
+        other (Solution): a Solution.
+
+    Returns:
+        True if the sets of squares are disjoint. Otherwise, False
+    """
+    return not solution.squares.intersection(other.squares)
+
+
+def no_claimeven_below_or_at_inverse(inverse_solution: Solution, claimeven_solution: Solution):
+    """Returns True if there is no Claimeven in claimeven_solution below or at the Inverse of inverse_solution.
+
+    Args:
+        inverse_solution (Solution): either a Lowinverse or Highinverse Solution.
+        claimeven_solution (Solution): a Claimeven, Aftereven, Baseclaim, Before, or Specialbefore Solution.
+
+    Returns:
+        False if there exists a lower Claimeven square in claimeven_solution equal to or
+            above a square in inverse_solution.
+        Otherwise, True.
+    """
+    #
+    for i_square in inverse_solution.squares:
+        for c_square in claimeven_solution.claimeven_bottom_squares:
+            # If the inverse has a square above or equal to the bottom square of a Claimeven in other:
+            if i_square.col == c_square.col and i_square.row <= c_square.row:
+                return False
+    return True
+
+
 def allowed_with_claimeven(solution: Solution, other: Solution) -> bool:
     """Returns True if other can be combined with solution; Otherwise, False.
 
@@ -39,10 +73,19 @@ def allowed_with_claimeven(solution: Solution, other: Solution) -> bool:
     Returns:
         combination_allowed (bool): True if other can be combined with solution; Otherwise, False.
     """
-    if other.rule in [Rule.Claimeven, Rule.Baseinverse, Rule.Vertical]:
-        # Return true if the sets of squares are disjoint.
-        return not solution.squares.intersection(other.squares)
-    return False
+    if other.rule in [
+        Rule.Claimeven,
+        Rule.Baseinverse,
+        Rule.Vertical,
+        Rule.Aftereven,
+        Rule.Baseclaim,
+        Rule.Before,
+        Rule.Specialbefore,
+    ]:
+        return disjoint(solution=solution, other=other)
+    if other.rule in [Rule.Lowinverse, Rule.Highinverse]:
+        return no_claimeven_below_or_at_inverse(inverse_solution=other, claimeven_solution=solution)
+    return True
 
 
 def allowed_with_baseinverse(solution: Solution, other: Solution) -> bool:

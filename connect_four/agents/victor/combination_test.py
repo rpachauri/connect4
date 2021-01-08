@@ -34,7 +34,6 @@ class TestCombination(unittest.TestCase):
                     Square(row=5, col=4),  # e1
                     Square(row=4, col=4),  # e2
                 ]),
-                threats=frozenset(),
             ),
             other=Solution(
                 rule=Rule.Claimeven,
@@ -42,7 +41,6 @@ class TestCombination(unittest.TestCase):
                     Square(row=3, col=4),  # e3
                     Square(row=2, col=4),  # e4
                 ]),
-                threats=frozenset(),
             ),
         ))
 
@@ -54,7 +52,6 @@ class TestCombination(unittest.TestCase):
                     Square(row=5, col=4),  # e1
                     Square(row=4, col=4),  # e2
                 ]),
-                threats=frozenset(),
             ),
             other=Solution(
                 rule=Rule.Claimeven,
@@ -62,7 +59,6 @@ class TestCombination(unittest.TestCase):
                     Square(row=5, col=4),  # e1
                     Square(row=4, col=4),  # e2
                 ]),
-                threats=frozenset(),
             ),
         ))
 
@@ -79,7 +75,6 @@ class TestCombination(unittest.TestCase):
                     Square(row=5, col=4),  # e1
                     Square(row=4, col=4),  # e2
                 ]),
-                threats=frozenset(),
             ),
             other=Solution(
                 rule=Rule.Baseinverse,
@@ -87,7 +82,6 @@ class TestCombination(unittest.TestCase):
                     Square(row=5, col=3),  # d1
                     Square(row=5, col=5),  # f1
                 ]),
-                threats=frozenset(),
             ),
         ))
 
@@ -99,7 +93,6 @@ class TestCombination(unittest.TestCase):
                     Square(row=5, col=4),  # e1
                     Square(row=4, col=4),  # e2
                 ]),
-                threats=frozenset(),
             ),
             other=Solution(
                 rule=Rule.Baseinverse,
@@ -107,7 +100,6 @@ class TestCombination(unittest.TestCase):
                     Square(row=5, col=3),  # d1
                     Square(row=5, col=4),  # e1
                 ]),
-                threats=frozenset(),
             ),
         ))
 
@@ -124,7 +116,6 @@ class TestCombination(unittest.TestCase):
                     Square(row=5, col=4),  # e1
                     Square(row=4, col=4),  # e2
                 ]),
-                threats=frozenset(),
             ),
             other=Solution(
                 rule=Rule.Vertical,
@@ -132,7 +123,6 @@ class TestCombination(unittest.TestCase):
                     Square(row=4, col=3),  # d2
                     Square(row=3, col=3),  # d3
                 ]),
-                threats=frozenset(),
             ),
         ))
 
@@ -144,7 +134,6 @@ class TestCombination(unittest.TestCase):
                     Square(row=5, col=4),  # e1
                     Square(row=4, col=4),  # e2
                 ]),
-                threats=frozenset(),
             ),
             other=Solution(
                 rule=Rule.Vertical,
@@ -152,7 +141,59 @@ class TestCombination(unittest.TestCase):
                     Square(row=4, col=4),  # e2
                     Square(row=3, col=4),  # e3
                 ]),
-                threats=frozenset(),
+            ),
+        ))
+
+    def test_lowinverse_allowed_with_claimeven(self):
+        # For this test:
+        # solution is a Claimeven.
+        # other is a Lowinverse.
+
+        # See Section 7.1 of the original paper for reasoning.
+        # A Lowinverse which can be combined with a Claimeven.
+        self.assertTrue(combination.allowed_with_claimeven(
+            solution=Solution(
+                rule=Rule.Claimeven,
+                squares=frozenset([
+                    Square(row=1, col=0),  # a5
+                    Square(row=0, col=0),  # a6
+                ]),
+                claimeven_bottom_squares=[
+                    Square(row=1, col=0),  # a5
+                ],
+            ),
+            other=Solution(
+                rule=Rule.Lowinverse,
+                squares=frozenset([
+                    Square(row=4, col=0),  # a2
+                    Square(row=3, col=0),  # a3
+                    Square(row=4, col=1),  # b2
+                    Square(row=3, col=1),  # b3
+                ]),
+            ),
+        ))
+
+        # See Diagram 7.2 from the original paper for an explanation.
+        # A Lowinverse which cannot be combined with a Claimeven.
+        self.assertFalse(combination.allowed_with_claimeven(
+            solution=Solution(
+                rule=Rule.Claimeven,
+                squares=frozenset([
+                    Square(row=5, col=0),  # a1
+                    Square(row=4, col=0),  # a2
+                ]),
+                claimeven_bottom_squares=[
+                    Square(row=5, col=0),  # a1
+                ],
+            ),
+            other=Solution(
+                rule=Rule.Lowinverse,
+                squares=frozenset([
+                    Square(row=2, col=0),  # a4
+                    Square(row=1, col=0),  # a5
+                    Square(row=2, col=1),  # b4
+                    Square(row=1, col=1),  # b5
+                ]),
             ),
         ))
 
