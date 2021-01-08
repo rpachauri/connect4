@@ -13,10 +13,64 @@ def allowed(s1: Solution, s2: Solution) -> bool:
     Returns:
         combination_allowed (bool): True if the two Solutions can be combined; Otherwise, False.
     """
-    return False
+    # If either Solution is a Claimeven.
+    if s1.rule == Rule.Claimeven:
+        return allowed_with_claimeven(solution=s1, other=s2)
+    if s2.rule == Rule.Claimeven:
+        return allowed_with_claimeven(solution=s2, other=s1)
+
+    # If either Solution is a Baseinverse:
+    if s1.rule == Rule.Baseinverse:
+        return allowed_with_baseinverse(solution=s1, other=s2)
+    if s2.rule == Rule.Baseinverse:
+        return allowed_with_baseinverse(solution=s2, other=s1)
+
+    # If either Solution is a Vertical:
+    if s1.rule == Rule.Vertical:
+        return allowed_with_vertical(solution=s1, other=s2)
+    if s2.rule == Rule.Vertical:
+        return allowed_with_vertical(solution=s2, other=s1)
+
+    # If either Solution is an Aftereven:
+    if s1.rule == Rule.Aftereven:
+        return allowed_with_aftereven(solution=s1, other=s2)
+    if s2.rule == Rule.Aftereven:
+        return allowed_with_aftereven(solution=s2, other=s1)
+
+    # If either Solution is a Lowinverse:
+    if s1.rule == Rule.Lowinverse:
+        return allowed_with_lowinverse(solution=s1, other=s2)
+    if s2.rule == Rule.Lowinverse:
+        return allowed_with_lowinverse(solution=s2, other=s1)
+
+    # If either Solution is a Highinverse:
+    if s1.rule == Rule.Highinverse:
+        return allowed_with_highinverse(solution=s1, other=s2)
+    if s2.rule == Rule.Highinverse:
+        return allowed_with_highinverse(solution=s2, other=s1)
+
+    # If either Solution is a Baseclaim:
+    if s1.rule == Rule.Baseclaim:
+        return allowed_with_baseclaim(solution=s1, other=s2)
+    if s2.rule == Rule.Baseclaim:
+        return allowed_with_baseclaim(solution=s2, other=s1)
+
+    # If either Solution is a Before:
+    if s1.rule == Rule.Before:
+        return allowed_with_before(solution=s1, other=s2)
+    if s2.rule == Rule.Before:
+        return allowed_with_before(solution=s2, other=s1)
+
+    # If either Solution is a Specialbefore: (although at this point, this must be true).
+    if s1.rule == Rule.Specialbefore:
+        return allowed_with_specialbefore(solution=s1, other=s2)
+    if s2.rule == Rule.Specialbefore:
+        return allowed_with_specialbefore(solution=s2, other=s1)
+
+    raise ValueError("Unacceptable Rule types:", s1.rule, s2.rule)
 
 
-def disjoint(solution: Solution, other: Solution):
+def disjoint(solution: Solution, other: Solution) -> bool:
     """Returns True if the sets of squares are disjoint. Otherwise, False.
 
     Args:
@@ -29,7 +83,7 @@ def disjoint(solution: Solution, other: Solution):
     return not solution.squares.intersection(other.squares)
 
 
-def no_claimeven_below_or_at_inverse(inverse_solution: Solution, claimeven_solution: Solution):
+def no_claimeven_below_or_at_inverse(inverse_solution: Solution, claimeven_solution: Solution) -> bool:
     """Returns True if there is no Claimeven in claimeven_solution below or at the Inverse of inverse_solution.
 
     Args:
@@ -48,6 +102,47 @@ def no_claimeven_below_or_at_inverse(inverse_solution: Solution, claimeven_solut
             if i_square.col == c_square.col and i_square.row <= c_square.row:
                 return False
     return True
+
+
+def column_wise_disjoint_or_equal(solution: Solution, other: Solution) -> bool:
+    """Returns true if the two solutions are disjoint or equal (column-wise).
+
+    Args:
+        solution (Solution): a Solution.
+        other (Solution): a Solution.
+
+    Returns:
+        False if the two solutions have intersecting squares in a column,
+        but the sets squares in that column are not equal.
+        Otherwise, True.
+    """
+    solution_cols_to_squares = cols_to_squares(solution.squares)
+    other_cols_to_squares = cols_to_squares(other.squares)
+
+    for col in solution_cols_to_squares:
+        if col in other_cols_to_squares:
+            # If the two sets of Squares are not equal but share a Square:
+            if (solution_cols_to_squares[col].intersection(other_cols_to_squares[col]) and
+                    solution_cols_to_squares[col] != other_cols_to_squares[col]):
+                return False
+    return True
+
+
+def cols_to_squares(squares):
+    """Converts an iterable of Squares into a dictionary of Squares keyed by the column they belong in.
+
+    Args:
+        squares (iterable<Square>): an iterable of Square objects.
+
+    Returns:
+        col_to_squares_dict (Map<int, Set<Square>>): a dictionary of columns to Squares in that column.
+    """
+    col_to_squares_dict = {}
+    for square in squares:
+        if square.col not in col_to_squares_dict:
+            col_to_squares_dict[square.col] = set()
+        col_to_squares_dict[square.col].add(square)
+    return col_to_squares_dict
 
 
 def allowed_with_claimeven(solution: Solution, other: Solution) -> bool:
@@ -85,7 +180,7 @@ def allowed_with_claimeven(solution: Solution, other: Solution) -> bool:
         return disjoint(solution=solution, other=other)
     if other.rule in [Rule.Lowinverse, Rule.Highinverse]:
         return no_claimeven_below_or_at_inverse(inverse_solution=other, claimeven_solution=solution)
-    return True
+    raise ValueError("invalid other.rule for allowed_with_claimeven:", other.rule)
 
 
 def allowed_with_baseinverse(solution: Solution, other: Solution) -> bool:
@@ -110,7 +205,7 @@ def allowed_with_baseinverse(solution: Solution, other: Solution) -> bool:
     Returns:
         combination_allowed (bool): True if other can be combined with solution; Otherwise, False.
     """
-    return False
+    return disjoint(solution=solution, other=other)
 
 
 def allowed_with_vertical(solution: Solution, other: Solution) -> bool:
@@ -134,7 +229,7 @@ def allowed_with_vertical(solution: Solution, other: Solution) -> bool:
     Returns:
         combination_allowed (bool): True if other can be combined with solution; Otherwise, False.
     """
-    return False
+    return disjoint(solution=solution, other=other)
 
 
 def allowed_with_aftereven(solution: Solution, other: Solution) -> bool:
@@ -157,7 +252,14 @@ def allowed_with_aftereven(solution: Solution, other: Solution) -> bool:
     Returns:
         combination_allowed (bool): True if other can be combined with solution; Otherwise, False.
     """
-    return False
+    if other.rule in [Rule.Aftereven, Rule.Before, Rule.Specialbefore]:
+        return column_wise_disjoint_or_equal(solution=solution, other=other)
+    if other.rule in [Rule.Lowinverse, Rule.Highinverse]:
+        return (disjoint(solution=solution, other=other) and
+                no_claimeven_below_or_at_inverse(inverse_solution=other, claimeven_solution=solution))
+    if other.rule in [Rule.Baseclaim]:
+        return disjoint(solution=solution, other=other)
+    raise ValueError("invalid other.rule for allowed_with_aftereven:", other.rule)
 
 
 def allowed_with_lowinverse(solution: Solution, other: Solution) -> bool:
