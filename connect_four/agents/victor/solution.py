@@ -1,5 +1,3 @@
-from collections import namedtuple
-
 from connect_four.agents.victor import Rule
 from connect_four.agents.victor import Square
 
@@ -13,12 +11,34 @@ from connect_four.agents.victor import Baseclaim
 from connect_four.agents.victor import Before
 from connect_four.agents.victor import Specialbefore
 
-"""A Solution is an application of a Rule that refutes at least one threat.
 
-Two Solutions may or may not work together depending on which squares each
-consists of and which rule they are an application of.
-"""
-Solution = namedtuple("Solution", ["rule", "squares", "threats"])
+class Solution:
+    """A Solution is an application of a Rule that refutes at least one threat.
+
+    Two Solutions may or may not work together depending on which squares each
+    consists of and which rule they are an application of.
+    """
+    def __init__(self, rule, squares, threats, claimeven_bottom_squares=None):
+        self.rule = rule
+        self.squares = frozenset(squares)
+        self.threats = frozenset(threats)
+        if claimeven_bottom_squares is None:
+            claimeven_bottom_squares = set()
+        self.claimeven_bottom_squares = frozenset(claimeven_bottom_squares)
+
+    def __eq__(self, other):
+        if isinstance(other, Solution):
+            return (self.rule == other.rule and
+                    self.squares == other.squares and
+                    self.threats == other.threats and
+                    self.claimeven_bottom_squares == other.claimeven_bottom_squares)
+        return False
+
+    def __hash__(self):
+        return (self.rule.__hash__() * 73 +
+                self.squares.__hash__() * 59 +
+                self.threats.__hash__() * 37 +
+                self.claimeven_bottom_squares.__hash__())
 
 
 def from_claimeven(claimeven: Claimeven, square_to_threats) -> Solution:
@@ -35,8 +55,12 @@ def from_claimeven(claimeven: Claimeven, square_to_threats) -> Solution:
     """
     threats = square_to_threats[claimeven.upper]
     if threats:  # len(threats) > 0
-        squares = frozenset([claimeven.upper, claimeven.lower])
-        return Solution(rule=Rule.Claimeven, squares=squares, threats=threats)
+        return Solution(
+            rule=Rule.Claimeven,
+            squares=[claimeven.upper, claimeven.lower],
+            threats=threats,
+            claimeven_bottom_squares=[claimeven.lower]
+        )
 
 
 def from_baseinverse(baseinverse: Baseinverse, square_to_threats) -> Solution:
@@ -119,15 +143,18 @@ def from_aftereven(aftereven: Aftereven, square_to_threats) -> Solution:
     # Aftereven should only be converted into a Solution if it refutes new threats.
     if threats:
         squares_involved = list(aftereven.threat.squares)
+        claimeven_bottom_squares = []
         for claimeven in aftereven.claimevens:
             claimeven_solution = from_claimeven(claimeven, square_to_threats)
             threats.update(claimeven_solution.threats)
             squares_involved.append(claimeven.lower)
+            claimeven_bottom_squares.append(claimeven.lower)
 
         return Solution(
             rule=Rule.Aftereven,
             squares=frozenset(squares_involved),
             threats=frozenset(threats),
+            claimeven_bottom_squares=claimeven_bottom_squares,
         )
 
 
@@ -263,7 +290,7 @@ def from_highinverse(highinverse: Highinverse, square_to_threats, directly_playa
         lower_1_upper_0_threats = square_to_threats[vertical_1.lower].intersection(square_to_threats[upper_square_0])
         highinverse_threats.update(lower_1_upper_0_threats)
 
-    lowinverse_threats = from_lowinverse(highinverse.lowinverse, square_to_threats)
+    lowinverse_threats = from_lowinverse(highinverse.lowinverse, square_to_threats).threats
     for threat in highinverse_threats:
         # If the highinverse introduces at least one new threat that the lowinverse doesn't already refute:
         if threat not in lowinverse_threats:
@@ -314,6 +341,7 @@ def from_baseclaim(baseclaim: Baseclaim, square_to_threats) -> Solution:
             rule=Rule.Baseclaim,
             squares=squares,
             threats=frozenset(threats),
+            claimeven_bottom_squares=[baseclaim.second],
         )
 
 
@@ -351,10 +379,12 @@ def from_before(before: Before, square_to_threats) -> Solution:
             # Add all threats refuted by Verticals which are part of the Before.
             threats.update(from_vertical(vertical, square_to_threats).threats)
 
+        claimeven_bottom_squares = []
         for claimeven in before.claimevens:
             # Add all squares part of Claimevens which are part of the Before.
             squares.add(claimeven.upper)
             squares.add(claimeven.lower)
+            claimeven_bottom_squares.append(claimeven.lower)
             # Add all threats refuted by Claimevens which are part of the Before.
             threats.update(from_claimeven(claimeven, square_to_threats).threats)
 
@@ -362,6 +392,7 @@ def from_before(before: Before, square_to_threats) -> Solution:
             rule=Rule.Before,
             squares=frozenset(squares),
             threats=frozenset(threats),
+            claimeven_bottom_squares=claimeven_bottom_squares,
         )
 
 
@@ -408,4 +439,5 @@ def from_specialbefore(specialbefore: Specialbefore, square_to_threats) -> Solut
             rule=Rule.Specialbefore,
             squares=frozenset(before_solution.squares.union([specialbefore.external_directly_playable_square])),
             threats=frozenset(before_solution.threats.union(threats)),
+            claimeven_bottom_squares=before_solution.claimeven_bottom_squares,
         )

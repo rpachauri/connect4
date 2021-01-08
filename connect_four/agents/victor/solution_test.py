@@ -72,6 +72,7 @@ class TestSolution(unittest.TestCase):
                 Threat(player=0, start=Square(row=5, col=1), end=Square(row=2, col=4)),  # b1-e4
                 Threat(player=0, start=Square(row=3, col=4), end=Square(row=0, col=4)),  # e3-d6
             ]),
+            claimeven_bottom_squares=[claimeven_2_4.lower],
         )
         self.assertEqual(want_solution, got_solution)
 
@@ -217,6 +218,11 @@ class TestSolution(unittest.TestCase):
                 Threat(player=0, start=Square(row=2, col=6), end=Square(row=5, col=6)),  # g1-g4
                 Threat(player=0, start=Square(row=1, col=6), end=Square(row=4, col=6)),  # g2-g5
             ]),
+            claimeven_bottom_squares=[
+                # Lower squares of Claimevens.
+                Square(row=5, col=5),
+                Square(row=5, col=6),
+            ],
         )
         self.assertEqual(want_solution, got_solution)
 
@@ -408,6 +414,9 @@ class TestSolution(unittest.TestCase):
                 Threat(player=0, start=Square(row=5, col=2), end=Square(row=5, col=5)),  # c1-f1
                 Threat(player=0, start=Square(row=5, col=1), end=Square(row=5, col=4)),  # b1-e1
             ]),
+            claimeven_bottom_squares=[
+                Square(row=5, col=2),  # c1
+            ],
         )
         self.assertEqual(want_solution, got_solution)
 
@@ -471,6 +480,9 @@ class TestSolution(unittest.TestCase):
                 # Threats that include both squares of Vertical e1-e2.
                 Threat(player=0, start=Square(row=5, col=4), end=Square(row=2, col=4)),  # e1-e4
             ]),
+            claimeven_bottom_squares=[
+                Square(row=3, col=1),  # b3
+            ],
         )
         self.assertEqual(want_solution, got_solution)
 
@@ -555,6 +567,10 @@ class TestSolution(unittest.TestCase):
                 Threat(player=0, start=Square(row=2, col=6), end=Square(row=5, col=6)),  # g1-g4
                 Threat(player=0, start=Square(row=1, col=3), end=Square(row=4, col=6)),  # d5-g4
             ]),
+            claimeven_bottom_squares=[
+                Square(row=5, col=5),  # f1 is the lower Square of Claimeven f1-f2.
+                Square(row=5, col=6),  # g1 is the lower Square of Claimeven g1-g2.
+            ],
         )
         self.assertEqual(want_solution, got_solution)
 
