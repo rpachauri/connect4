@@ -9,7 +9,7 @@ from connect_four.agents.victor import Lowinverse
 from connect_four.agents.victor import find_all_lowinverses
 from connect_four.agents.victor import Vertical
 from connect_four.agents.victor import find_all_verticals
-from connect_four.agents.victor import Square
+from connect_four.agents.victor.game import Square
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
 

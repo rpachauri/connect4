@@ -1,6 +1,6 @@
 import unittest
 
-from connect_four.agents.victor import Square
+from connect_four.agents.victor.game import Square
 
 
 class TestSquare(unittest.TestCase):

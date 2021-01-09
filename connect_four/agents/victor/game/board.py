@@ -1,4 +1,4 @@
-from connect_four.agents.victor import Square
+from connect_four.agents.victor.game import Square
 from connect_four.agents.victor import Threat
 from connect_four.envs import ConnectFourEnvVariables
 

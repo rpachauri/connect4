@@ -1,6 +1,6 @@
 import unittest
 
-from connect_four.agents.victor import Square
+from connect_four.agents.victor.game import Square
 from connect_four.agents.victor import Threat
 from connect_four.agents.victor import ThreatDirection
 from connect_four.agents.victor.game.threat import square_to_threats
