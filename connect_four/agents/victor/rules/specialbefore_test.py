@@ -8,7 +8,7 @@ from connect_four.agents.victor import find_all_befores
 from connect_four.agents.victor import Board
 from connect_four.agents.victor import Claimeven
 from connect_four.agents.victor.game import Square
-from connect_four.agents.victor import Threat
+from connect_four.agents.victor.game import Threat
 from connect_four.agents.victor import Specialbefore
 from connect_four.agents.victor import find_all_specialbefores
 from connect_four.agents.victor import Vertical

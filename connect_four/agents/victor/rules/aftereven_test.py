@@ -9,7 +9,7 @@ from connect_four.agents.victor import Board
 from connect_four.agents.victor import Claimeven
 from connect_four.agents.victor import find_all_claimevens
 from connect_four.agents.victor.game import Square
-from connect_four.agents.victor import Threat
+from connect_four.agents.victor.game import Threat
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
 

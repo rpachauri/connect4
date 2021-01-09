@@ -7,7 +7,7 @@ from connect_four.agents.victor import Board
 from connect_four.agents.victor import Rule
 from connect_four.agents.victor import Solution
 from connect_four.agents.victor.game import Square
-from connect_four.agents.victor import Threat
+from connect_four.agents.victor.game import Threat
 
 from connect_four.agents.victor import Claimeven
 from connect_four.agents.victor import Baseinverse
