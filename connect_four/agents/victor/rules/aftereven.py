@@ -32,6 +32,7 @@ def find_all_afterevens(board: Board, claimevens):
     Returns:
         afterevens (set<Aftereven>): a set of Afterevens for board.
     """
+    # TODO make threats_of_opponent be a parameter.
     # Find all threats that belong to the opponent.
     threats_of_opponent = board.potential_threats(1 - board.player)
 

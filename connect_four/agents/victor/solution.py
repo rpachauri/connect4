@@ -1,4 +1,6 @@
 from connect_four.agents.victor.game import Square
+from connect_four.agents.victor.game import Board
+from connect_four.agents.victor.game.threat import create_square_to_threats
 
 from connect_four.agents.victor.rules import Rule
 from connect_four.agents.victor.rules import Claimeven
@@ -10,6 +12,16 @@ from connect_four.agents.victor.rules import Highinverse
 from connect_four.agents.victor.rules import Baseclaim
 from connect_four.agents.victor.rules import Before
 from connect_four.agents.victor.rules import Specialbefore
+
+from connect_four.agents.victor.rules import find_all_claimevens
+from connect_four.agents.victor.rules import find_all_baseinverses
+from connect_four.agents.victor.rules import find_all_verticals
+from connect_four.agents.victor.rules import find_all_afterevens
+from connect_four.agents.victor.rules import find_all_lowinverses
+from connect_four.agents.victor.rules import find_all_highinverses
+from connect_four.agents.victor.rules import find_all_baseclaims
+from connect_four.agents.victor.rules import find_all_befores
+from connect_four.agents.victor.rules import find_all_specialbefores
 
 
 class Solution:
@@ -43,6 +55,90 @@ class Solution:
                 self.squares.__hash__() * 59 +
                 self.threats.__hash__() * 37 +
                 self.claimeven_bottom_squares.__hash__())
+
+
+def find_all_solutions(board: Board):
+    """find_all_solutions finds all Solutions the opponent of the
+    current player can employ for the given Board.
+
+    Args:
+        board (Board): a Board instance.
+
+    Returns:
+        solutions (Set<Solution>): a set of Solutions the opponent of the
+            current player can employ for board.
+    """
+    # opponent_threats are the potential Threats that the opponent of the current player has for board.
+    opponent_threats = board.potential_threats(1 - board.player)
+
+    # Find all applications of all rules.
+    claimevens = find_all_claimevens(board=board)
+    baseinverses = find_all_baseinverses(board=board)
+    verticals = find_all_verticals(board=board)
+    afterevens = find_all_afterevens(board=board, claimevens=claimevens)
+    lowinverses = find_all_lowinverses(verticals=verticals)
+    highinverses = find_all_highinverses(lowinverses=lowinverses)
+    baseclaims = find_all_baseclaims(board=board)
+    befores = find_all_befores(board=board, threats=opponent_threats)
+    specialbefores = find_all_specialbefores(board=board, befores=befores)
+
+    # player_threats are the potential Threats that the current player has for board.
+    player_threats = board.potential_threats(board.player)
+    square_to_player_threats = create_square_to_threats(threats=player_threats)
+
+    # Convert each application of each rule into a Solution.
+    solutions = set()
+
+    for claimeven in claimevens:
+        solution = from_claimeven(claimeven=claimeven, square_to_threats=square_to_player_threats)
+        if solution is not None:
+            solutions.add(solution)
+
+    for baseinverse in baseinverses:
+        solution = from_baseinverse(baseinverse=baseinverse, square_to_threats=square_to_player_threats)
+        if solution is not None:
+            solutions.add(solution)
+
+    for vertical in verticals:
+        solution = from_vertical(vertical=vertical, square_to_threats=square_to_player_threats)
+        if solution is not None:
+            solutions.add(solution)
+
+    for aftereven in afterevens:
+        solution = from_aftereven(aftereven=aftereven, square_to_threats=square_to_player_threats)
+        if solution is not None:
+            solutions.add(solution)
+
+    for lowinverse in lowinverses:
+        solution = from_lowinverse(lowinverse=lowinverse, square_to_threats=square_to_player_threats)
+        if solution is not None:
+            solutions.add(solution)
+
+    for highinverse in highinverses:
+        solution = from_highinverse(
+            highinverse=highinverse,
+            square_to_threats=square_to_player_threats,
+            directly_playable_squares=board.playable_squares()
+        )
+        if solution is not None:
+            solutions.add(solution)
+
+    for baseclaim in baseclaims:
+        solution = from_baseclaim(baseclaim=baseclaim, square_to_threats=square_to_player_threats)
+        if solution is not None:
+            solutions.add(solution)
+
+    for before in befores:
+        solution = from_before(before=before, square_to_threats=square_to_player_threats)
+        if solution is not None:
+            solutions.add(solution)
+
+    for specialbefore in specialbefores:
+        solution = from_specialbefore(specialbefore=specialbefore, square_to_threats=square_to_player_threats)
+        if solution is not None:
+            solutions.add(solution)
+
+    return solutions
 
 
 def from_claimeven(claimeven: Claimeven, square_to_threats) -> Solution:

@@ -55,7 +55,7 @@ class TestSolution(unittest.TestCase):
         board = Board(self.env.env_variables)
 
         white_threats = board.potential_threats(0)
-        square_to_threats = threat.square_to_threats(white_threats)
+        square_to_threats = threat.create_square_to_threats(white_threats)
 
         # We're using the Claimeven with the upper square being e4.
         # In the example from the original paper, this refutes the groups in (4):
@@ -99,7 +99,7 @@ class TestSolution(unittest.TestCase):
         board = Board(self.env.env_variables)
 
         white_threats = board.potential_threats(0)
-        square_to_threats = threat.square_to_threats(white_threats)
+        square_to_threats = threat.create_square_to_threats(white_threats)
 
         # The Baseinverse a1-b1 solves a1-d1.
         baseinverse_a1_b1 = Baseinverse(playable1=Square(row=5, col=0), playable2=Square(row=5, col=1))
@@ -142,7 +142,7 @@ class TestSolution(unittest.TestCase):
         board = Board(self.env.env_variables)
 
         white_threats = board.potential_threats(0)
-        square_to_threats = threat.square_to_threats(white_threats)
+        square_to_threats = threat.create_square_to_threats(white_threats)
 
         # The Vertical e4-e5 solves e2-e5 and e3-e6.
         vertical_e4_e5 = Vertical(upper=Square(row=2, col=4), lower=Square(row=3, col=4))
@@ -181,7 +181,7 @@ class TestSolution(unittest.TestCase):
         board = Board(self.env.env_variables)
 
         white_threats = board.potential_threats(0)
-        square_to_threats = threat.square_to_threats(white_threats)
+        square_to_threats = threat.create_square_to_threats(white_threats)
 
         # The Aftereven d2-g2 solves all groups which need a square in both the f and g column.
         aftereven_d2_g2 = Aftereven(
@@ -249,7 +249,7 @@ class TestSolution(unittest.TestCase):
         board = Board(self.env.env_variables)
 
         white_threats = board.potential_threats(0)
-        square_to_threats = threat.square_to_threats(white_threats)
+        square_to_threats = threat.create_square_to_threats(white_threats)
 
         # Lowinverse c2-c3-d2-d3 guarantees that Black will get at least one square
         # out of each of three pairs of squares:
@@ -308,7 +308,7 @@ class TestSolution(unittest.TestCase):
         board = Board(self.env.env_variables)
 
         white_threats = board.potential_threats(0)
-        square_to_threats = threat.square_to_threats(white_threats)
+        square_to_threats = threat.create_square_to_threats(white_threats)
 
         # Lowinverse c2-c3-d2-d3 guarantees that Black will get at least one square
         # out of each of three pairs of squares:
@@ -388,7 +388,7 @@ class TestSolution(unittest.TestCase):
         board = Board(self.env.env_variables)
 
         white_threats = board.potential_threats(0)
-        square_to_threats = threat.square_to_threats(white_threats)
+        square_to_threats = threat.create_square_to_threats(white_threats)
 
         # Baseclaim b1-c1-c2-e1 can be used to refute b1-e4 and c1-f1.
         baseclaim_b1_c1_c2_f1 = Baseclaim(
@@ -443,7 +443,7 @@ class TestSolution(unittest.TestCase):
         board = Board(self.env.env_variables)
 
         white_threats = board.potential_threats(0)
-        square_to_threats = threat.square_to_threats(white_threats)
+        square_to_threats = threat.create_square_to_threats(white_threats)
 
         # Before b4-e1+b5+e2 refutes b5-e2.
         before_b4_e1 = Before(
@@ -509,7 +509,7 @@ class TestSolution(unittest.TestCase):
         board = Board(self.env.env_variables)
 
         white_threats = board.potential_threats(0)
-        square_to_threats = threat.square_to_threats(white_threats)
+        square_to_threats = threat.create_square_to_threats(white_threats)
 
         # Verticals/Claimevens which are part of the Before.
         vertical_e2_e3 = Vertical(upper=Square(row=3, col=4), lower=Square(row=4, col=4))  # Vertical e2-e3.

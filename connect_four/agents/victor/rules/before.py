@@ -56,6 +56,7 @@ def find_all_befores(board: Board, threats):
 
     Args:
         board (Board): a Board instance.
+        # TODO rename to opponent_threats to be more clear to clients.
         threats (iterable<Threat>): an iterable of Threats belonging to the opponent of the player to move on board.
 
     Returns:

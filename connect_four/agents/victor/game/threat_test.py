@@ -3,7 +3,7 @@ import unittest
 from connect_four.agents.victor.game import Square
 from connect_four.agents.victor.game import Threat
 from connect_four.agents.victor.game import ThreatDirection
-from connect_four.agents.victor.game.threat import square_to_threats
+from connect_four.agents.victor.game.threat import create_square_to_threats
 
 
 class TestThreat(unittest.TestCase):
@@ -66,7 +66,7 @@ class TestThreat(unittest.TestCase):
             Square(2, 2): {threat},
             Square(3, 3): {threat},
         }
-        got_square_to_threats = square_to_threats([threat])
+        got_square_to_threats = create_square_to_threats([threat])
         self.assertEqual(want_square_to_threats, got_square_to_threats)
 
 

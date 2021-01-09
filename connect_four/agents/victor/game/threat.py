@@ -82,7 +82,7 @@ class Threat:
         return self.__str__()
 
 
-def square_to_threats(threats):
+def create_square_to_threats(threats):
     """Accepts an iterable of Threats and outputs a dictionary mapping
     each Square to all Threats that contain that Square.
 
