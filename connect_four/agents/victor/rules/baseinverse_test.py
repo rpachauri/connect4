@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from connect_four.agents.victor import Board
+from connect_four.agents.victor.game import Board
 from connect_four.agents.victor import Baseinverse
 from connect_four.agents.victor import find_all_baseinverses
 from connect_four.agents.victor.game import Square

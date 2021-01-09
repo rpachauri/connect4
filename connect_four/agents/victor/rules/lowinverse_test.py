@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 
 
-from connect_four.agents.victor import Board
+from connect_four.agents.victor.game import Board
 from connect_four.agents.victor import Lowinverse
 from connect_four.agents.victor import find_all_lowinverses
 from connect_four.agents.victor import Vertical

@@ -1,4 +1,4 @@
-from connect_four.agents.victor import Board
+from connect_four.agents.victor.game import Board
 from connect_four.agents.victor import Claimeven
 from connect_four.agents.victor.game import Square
 from connect_four.agents.victor.game import Threat

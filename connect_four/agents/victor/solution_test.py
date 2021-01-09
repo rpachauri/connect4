@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from connect_four.agents.victor import Board
+from connect_four.agents.victor.game import Board
 from connect_four.agents.victor import Rule
 from connect_four.agents.victor import Solution
 from connect_four.agents.victor.game import Square

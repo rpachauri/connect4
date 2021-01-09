@@ -5,7 +5,7 @@ import numpy as np
 
 from connect_four.agents.victor import Aftereven
 from connect_four.agents.victor import find_all_afterevens
-from connect_four.agents.victor import Board
+from connect_four.agents.victor.game import Board
 from connect_four.agents.victor import Claimeven
 from connect_four.agents.victor import find_all_claimevens
 from connect_four.agents.victor.game import Square

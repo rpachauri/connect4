@@ -1,5 +1,5 @@
 from connect_four.agents.victor import Before
-from connect_four.agents.victor import Board
+from connect_four.agents.victor.game import Board
 from connect_four.agents.victor.game import Square
 
 

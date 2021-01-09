@@ -1,5 +1,3 @@
-from connect_four.agents.victor.game.board import Board
-
 from connect_four.agents.victor.rules.rule import Rule
 
 from connect_four.agents.victor.rules.claimeven import Claimeven
