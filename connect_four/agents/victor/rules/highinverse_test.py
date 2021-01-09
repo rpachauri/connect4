@@ -10,8 +10,8 @@ from connect_four.agents.victor.rules import Vertical
 from connect_four.agents.victor.rules import find_all_verticals
 from connect_four.agents.victor.rules import Lowinverse
 from connect_four.agents.victor.rules import find_all_lowinverses
-from connect_four.agents.victor import Highinverse
-from connect_four.agents.victor import find_all_highinverses
+from connect_four.agents.victor.rules import Highinverse
+from connect_four.agents.victor.rules import find_all_highinverses
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
 

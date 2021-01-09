@@ -1,6 +1,3 @@
-from connect_four.agents.victor.rules.highinverse import Highinverse
-from connect_four.agents.victor.rules.highinverse import find_all_highinverses
-
 from connect_four.agents.victor.rules.baseclaim import Baseclaim
 from connect_four.agents.victor.rules.baseclaim import find_all_baseclaims
 

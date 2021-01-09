@@ -14,3 +14,6 @@ from connect_four.agents.victor.rules.aftereven import find_all_afterevens
 
 from connect_four.agents.victor.rules.lowinverse import Lowinverse
 from connect_four.agents.victor.rules.lowinverse import find_all_lowinverses
+
+from connect_four.agents.victor.rules.highinverse import Highinverse
+from connect_four.agents.victor.rules.highinverse import find_all_highinverses
