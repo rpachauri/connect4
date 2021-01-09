@@ -4,7 +4,7 @@ from connect_four.agents.victor.game import Threat
 from connect_four.agents.victor.game import ThreatDirection
 
 from connect_four.agents.victor.rules import Claimeven
-from connect_four.agents.victor import Vertical
+from connect_four.agents.victor.rules import Vertical
 
 
 class Before:

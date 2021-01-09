@@ -1,4 +1,4 @@
-from connect_four.agents.victor import Vertical
+from connect_four.agents.victor.rules import Vertical
 
 
 class Lowinverse:
