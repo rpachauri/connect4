@@ -8,8 +8,8 @@ from connect_four.agents.victor.game import Square
 
 from connect_four.agents.victor.rules import Vertical
 from connect_four.agents.victor.rules import find_all_verticals
-from connect_four.agents.victor import Lowinverse
-from connect_four.agents.victor import find_all_lowinverses
+from connect_four.agents.victor.rules import Lowinverse
+from connect_four.agents.victor.rules import find_all_lowinverses
 from connect_four.agents.victor import Highinverse
 from connect_four.agents.victor import find_all_highinverses
 

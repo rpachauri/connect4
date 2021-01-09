@@ -13,7 +13,7 @@ from connect_four.agents.victor.rules import Claimeven
 from connect_four.agents.victor.rules import Baseinverse
 from connect_four.agents.victor.rules import Vertical
 from connect_four.agents.victor.rules import Aftereven
-from connect_four.agents.victor import Lowinverse
+from connect_four.agents.victor.rules import Lowinverse
 from connect_four.agents.victor import Highinverse
 from connect_four.agents.victor import Baseclaim
 from connect_four.agents.victor import Before

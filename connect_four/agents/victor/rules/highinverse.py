@@ -1,4 +1,4 @@
-from connect_four.agents.victor import Lowinverse
+from connect_four.agents.victor.rules import Lowinverse
 
 
 class Highinverse:
