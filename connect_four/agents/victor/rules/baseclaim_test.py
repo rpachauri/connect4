@@ -3,10 +3,12 @@ import unittest
 
 import numpy as np
 
-from connect_four.agents.victor import Baseclaim
-from connect_four.agents.victor import find_all_baseclaims
 from connect_four.agents.victor.game import Board
 from connect_four.agents.victor.game import Square
+
+from connect_four.agents.victor.rules import Baseclaim
+from connect_four.agents.victor.rules import find_all_baseclaims
+
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
 
