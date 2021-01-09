@@ -1,4 +1,4 @@
-from connect_four.agents.victor import Rule
+from connect_four.agents.victor.rules import Rule
 
 from connect_four.agents.victor import Solution
 

@@ -1,6 +1,6 @@
 from connect_four.agents.victor.game import Square
 
-from connect_four.agents.victor import Rule
+from connect_four.agents.victor.rules import Rule
 from connect_four.agents.victor import Claimeven
 from connect_four.agents.victor import Baseinverse
 from connect_four.agents.victor import Vertical

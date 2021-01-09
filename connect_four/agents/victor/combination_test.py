@@ -1,7 +1,7 @@
 import unittest
 
 
-from connect_four.agents.victor import Rule
+from connect_four.agents.victor.rules import Rule
 from connect_four.agents.victor import Solution
 from connect_four.agents.victor.game import Square
 
