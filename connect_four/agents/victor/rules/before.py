@@ -1,8 +1,9 @@
 from connect_four.agents.victor.game import Board
-from connect_four.agents.victor import Claimeven
 from connect_four.agents.victor.game import Square
 from connect_four.agents.victor.game import Threat
 from connect_four.agents.victor.game import ThreatDirection
+
+from connect_four.agents.victor.rules import Claimeven
 from connect_four.agents.victor import Vertical
 
 
