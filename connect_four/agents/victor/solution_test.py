@@ -17,7 +17,7 @@ from connect_four.agents.victor.rules import Lowinverse
 from connect_four.agents.victor.rules import Highinverse
 from connect_four.agents.victor.rules import Baseclaim
 from connect_four.agents.victor.rules import Before
-from connect_four.agents.victor import Specialbefore
+from connect_four.agents.victor.rules import Specialbefore
 
 from connect_four.agents.victor import Solution
 from connect_four.agents.victor import solution
