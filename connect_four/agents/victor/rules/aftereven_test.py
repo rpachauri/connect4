@@ -7,10 +7,10 @@ from connect_four.agents.victor.game import Board
 from connect_four.agents.victor.game import Square
 from connect_four.agents.victor.game import Threat
 
-from connect_four.agents.victor import Aftereven
-from connect_four.agents.victor import find_all_afterevens
 from connect_four.agents.victor.rules import Claimeven
 from connect_four.agents.victor.rules import find_all_claimevens
+from connect_four.agents.victor.rules import Aftereven
+from connect_four.agents.victor.rules import find_all_afterevens
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
 

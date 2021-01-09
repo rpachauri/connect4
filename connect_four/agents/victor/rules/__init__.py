@@ -8,3 +8,6 @@ from connect_four.agents.victor.rules.baseinverse import find_all_baseinverses
 
 from connect_four.agents.victor.rules.vertical import Vertical
 from connect_four.agents.victor.rules.vertical import find_all_verticals
+
+from connect_four.agents.victor.rules.aftereven import Aftereven
+from connect_four.agents.victor.rules.aftereven import find_all_afterevens
