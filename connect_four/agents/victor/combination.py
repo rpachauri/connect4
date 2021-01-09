@@ -80,7 +80,7 @@ def disjoint(solution: Solution, other: Solution) -> bool:
     Returns:
         True if the sets of squares are disjoint. Otherwise, False
     """
-    return not solution.squares.intersection(other.squares)
+    return solution.squares.isdisjoint(other.squares)
 
 
 def no_claimeven_below_or_at_inverse(inverse_solution: Solution, claimeven_solution: Solution) -> bool:
@@ -302,7 +302,12 @@ def allowed_with_highinverse(solution: Solution, other: Solution) -> bool:
     Returns:
         combination_allowed (bool): True if other can be combined with solution; Otherwise, False.
     """
-    return False
+    if other.rule in [Rule.Highinverse]:
+        return disjoint(solution=solution, other=other)
+    if other.rule in [Rule.Baseclaim, Rule.Before, Rule.Specialbefore]:
+        return (disjoint(solution=solution, other=other) and
+                no_claimeven_below_or_at_inverse(inverse_solution=solution, claimeven_solution=other))
+    raise ValueError("invalid other.rule for allowed_with_aftereven:", other.rule)
 
 
 def allowed_with_baseclaim(solution: Solution, other: Solution) -> bool:
@@ -322,7 +327,7 @@ def allowed_with_baseclaim(solution: Solution, other: Solution) -> bool:
     Returns:
         combination_allowed (bool): True if other can be combined with solution; Otherwise, False.
     """
-    return False
+    return disjoint(solution=solution, other=other)
 
 
 def allowed_with_before(solution: Solution, other: Solution) -> bool:
@@ -341,7 +346,7 @@ def allowed_with_before(solution: Solution, other: Solution) -> bool:
     Returns:
         combination_allowed (bool): True if other can be combined with solution; Otherwise, False.
     """
-    return False
+    return column_wise_disjoint_or_equal(solution=solution, other=other)
 
 
 def allowed_with_specialbefore(solution: Solution, other: Solution) -> bool:
@@ -359,4 +364,4 @@ def allowed_with_specialbefore(solution: Solution, other: Solution) -> bool:
     Returns:
         combination_allowed (bool): True if other can be combined with solution; Otherwise, False.
     """
-    return False
+    return column_wise_disjoint_or_equal(solution=solution, other=other)
