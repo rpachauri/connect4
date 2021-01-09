@@ -17,8 +17,8 @@ class Lowinverse:
         return self.verticals.__hash__()
 
 
-def lowinverse(verticals):
-    """lowinverse takes an iterable of Verticals and returns an iterable of Lowinverses.
+def find_all_lowinverses(verticals):
+    """find_all_lowinverses takes an iterable of Verticals and returns an iterable of Lowinverses.
 
     Args:
         verticals (iterable<Vertical>): an iterable of Verticals.

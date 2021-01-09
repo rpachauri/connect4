@@ -5,7 +5,7 @@ import numpy as np
 
 from connect_four.agents.victor import Board
 from connect_four.agents.victor import Vertical
-from connect_four.agents.victor import vertical
+from connect_four.agents.victor import find_all_verticals
 from connect_four.agents.victor import Square
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
@@ -37,7 +37,7 @@ class TestVertical(unittest.TestCase):
             ],
         ])
         board = Board(self.env.env_variables)
-        got_verticals = vertical(board)
+        got_verticals = find_all_verticals(board)
 
         want_verticals = {
             # First column.

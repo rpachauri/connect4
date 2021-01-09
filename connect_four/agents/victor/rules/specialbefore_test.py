@@ -4,13 +4,13 @@ import unittest
 import numpy as np
 
 from connect_four.agents.victor import Before
-from connect_four.agents.victor import before
+from connect_four.agents.victor import find_all_befores
 from connect_four.agents.victor import Board
 from connect_four.agents.victor import Claimeven
 from connect_four.agents.victor import Square
 from connect_four.agents.victor import Threat
 from connect_four.agents.victor import Specialbefore
-from connect_four.agents.victor import specialbefore
+from connect_four.agents.victor import find_all_specialbefores
 from connect_four.agents.victor import Vertical
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
@@ -45,8 +45,8 @@ class TestSpecialbefore(unittest.TestCase):
         ])
         board = Board(self.env.env_variables)
         black_threats = board.potential_threats(player=1)
-        befores = before(board=board, threats=black_threats)
-        got_specialbefores = specialbefore(board=board, befores=befores)
+        befores = find_all_befores(board=board, threats=black_threats)
+        got_specialbefores = find_all_specialbefores(board=board, befores=befores)
 
         # Directly playable squares.
         directly_playable_square_0_1 = Square(row=0, col=1)
@@ -141,8 +141,8 @@ class TestSpecialbefore(unittest.TestCase):
         ])
         board = Board(self.env.env_variables)
         black_threats = board.potential_threats(player=1)
-        befores = before(board=board, threats=black_threats)
-        got_specialbefores = specialbefore(board=board, befores=befores)
+        befores = find_all_befores(board=board, threats=black_threats)
+        got_specialbefores = find_all_specialbefores(board=board, befores=befores)
 
         # Directly playable squares for the board.
         directly_playable_square_5_0 = Square(row=5, col=0)
@@ -154,7 +154,7 @@ class TestSpecialbefore(unittest.TestCase):
         directly_playable_square_5_6 = Square(row=5, col=6)
 
         # Threats for Black that meet the following conditions:
-        # 1. Not vertical
+        # 1. Not vertical.
         # 2. Contain at least one directly playable square.
         # 3. Do not contain a square in the top row.
         ## Threats for Black containing directly_playable_square_5_0.

@@ -281,7 +281,14 @@ def allowed_with_lowinverse(solution: Solution, other: Solution) -> bool:
     Returns:
         combination_allowed (bool): True if other can be combined with solution; Otherwise, False.
     """
-    return False
+    if other.rule in [Rule.Lowinverse, Rule.Highinverse]:
+        return disjoint(solution=solution, other=other)
+    if other.rule in [Rule.Baseclaim]:
+        return (disjoint(solution=solution, other=other) and
+                no_claimeven_below_or_at_inverse(inverse_solution=solution, claimeven_solution=other))
+    if other.rule in [Rule.Before, Rule.Specialbefore]:
+        return (no_claimeven_below_or_at_inverse(inverse_solution=solution, claimeven_solution=other) and
+                column_wise_disjoint_or_equal(solution=solution, other=other))
 
 
 def allowed_with_highinverse(solution: Solution, other: Solution) -> bool:

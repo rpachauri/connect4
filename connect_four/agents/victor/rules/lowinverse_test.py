@@ -6,9 +6,9 @@ import numpy as np
 
 from connect_four.agents.victor import Board
 from connect_four.agents.victor import Lowinverse
-from connect_four.agents.victor import lowinverse
+from connect_four.agents.victor import find_all_lowinverses
 from connect_four.agents.victor import Vertical
-from connect_four.agents.victor import vertical
+from connect_four.agents.victor import find_all_verticals
 from connect_four.agents.victor import Square
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
@@ -40,7 +40,7 @@ class TestLowinverse(unittest.TestCase):
             ],
         ])
         board = Board(self.env.env_variables)
-        got_lowinverses = lowinverse(verticals=vertical(board))
+        got_lowinverses = find_all_lowinverses(verticals=find_all_verticals(board))
 
         # Verticals in the first column.
         vertical_1_0 = Vertical(upper=Square(row=1, col=0), lower=Square(row=2, col=0))

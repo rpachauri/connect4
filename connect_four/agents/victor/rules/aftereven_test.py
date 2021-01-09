@@ -4,10 +4,10 @@ import unittest
 import numpy as np
 
 from connect_four.agents.victor import Aftereven
-from connect_four.agents.victor import aftereven
+from connect_four.agents.victor import find_all_afterevens
 from connect_four.agents.victor import Board
 from connect_four.agents.victor import Claimeven
-from connect_four.agents.victor import claimeven
+from connect_four.agents.victor import find_all_claimevens
 from connect_four.agents.victor import Square
 from connect_four.agents.victor import Threat
 from connect_four.envs.connect_four_env import ConnectFourEnv
@@ -40,7 +40,7 @@ class TestAftereven(unittest.TestCase):
             ],
         ])
         board = Board(self.env.env_variables)
-        got_afterevens = aftereven(board=board, claimevens=claimeven(board))
+        got_afterevens = find_all_afterevens(board=board, claimevens=find_all_claimevens(board))
 
         want_afterevens = {
             Aftereven(
@@ -74,7 +74,7 @@ class TestAftereven(unittest.TestCase):
             ],
         ])
         board = Board(self.env.env_variables)
-        got_afterevens = aftereven(board=board, claimevens=claimeven(board))
+        got_afterevens = find_all_afterevens(board=board, claimevens=find_all_claimevens(board))
 
         want_afterevens = {
             Aftereven(

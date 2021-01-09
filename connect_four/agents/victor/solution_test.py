@@ -20,7 +20,7 @@ from connect_four.agents.victor import Before
 from connect_four.agents.victor import Specialbefore
 
 from connect_four.agents.victor import solution
-from connect_four.agents.victor import threat
+from connect_four.agents.victor.game import threat
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
 

@@ -4,14 +4,14 @@ import unittest
 import numpy as np
 
 from connect_four.agents.victor import Before
-from connect_four.agents.victor import before
+from connect_four.agents.victor import find_all_befores
 from connect_four.agents.victor import Board
 from connect_four.agents.victor import Claimeven
 from connect_four.agents.victor import Square
 from connect_four.agents.victor import Threat
 from connect_four.agents.victor import Vertical
-from connect_four.agents.victor.before import add_before_variations
-from connect_four.agents.victor.before import empty_squares_of_before_group
+from connect_four.agents.victor.rules.before import add_before_variations
+from connect_four.agents.victor.rules.before import empty_squares_of_before_group
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
 
@@ -44,7 +44,7 @@ class TestBefore(unittest.TestCase):
         board = Board(self.env.env_variables)
         # With White to move, every Before group must belong to Black.
         black_threats = board.potential_threats(1)
-        got_befores = before(board, black_threats)
+        got_befores = find_all_befores(board, black_threats)
 
         threat_4_3_to_4_6 = Threat(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6))
         threat_2_3_to_2_6 = Threat(player=1, start=Square(row=2, col=3), end=Square(row=2, col=6))
@@ -70,8 +70,8 @@ class TestBefore(unittest.TestCase):
             Before(threat=threat_4_3_to_4_6, verticals=[vertical_3_5], claimevens=[]),
             Before(threat=threat_2_3_to_2_6, verticals=[vertical_1_5], claimevens=[]),
             # The Before below is excluded because it doesn't have any verticals. This makes it an Aftereven.
-            # claimeven = Claimeven(upper=Square(row=2, col=5), lower=Square(row=3, col=5))
-            # Before(threat=threat_2_3_to_2_6, verticals=[], claimevens=[claimeven]),
+            # claimeven_3_5 = Claimeven(upper=Square(row=2, col=5), lower=Square(row=3, col=5))
+            # Before(threat=threat_2_3_to_2_6, verticals=[], claimevens=[claimeven_3_5]),
             Before(threat=threat_1_3_to_4_6, verticals=[vertical_3_5], claimevens=[]),
             Before(threat=threat_1_3_to_4_6, verticals=[vertical_2_5], claimevens=[]),
         }

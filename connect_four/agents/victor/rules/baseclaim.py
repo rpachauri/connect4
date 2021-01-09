@@ -24,8 +24,8 @@ class Baseclaim:
         return self.first.__hash__() * 41 + self.second.__hash__() * 31 + self.third.__hash__()
 
 
-def baseclaim(board: Board):
-    """baseclaim takes a Board and returns an iterable of Baseclaims for the Board.
+def find_all_baseclaims(board: Board):
+    """find_all_baseclaims takes a Board and returns an iterable of Baseclaims for the Board.
 
     Args:
         board (Board): a Board instance.

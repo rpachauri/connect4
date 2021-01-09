@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 
 from connect_four.agents.victor import Baseclaim
-from connect_four.agents.victor import baseclaim
+from connect_four.agents.victor import find_all_baseclaims
 from connect_four.agents.victor import Board
 from connect_four.agents.victor import Square
 from connect_four.envs.connect_four_env import ConnectFourEnv
@@ -37,7 +37,7 @@ class TestBaseclaim(unittest.TestCase):
             ],
         ])
         board = Board(self.env.env_variables)
-        got_baseclaims = baseclaim(board)
+        got_baseclaims = find_all_baseclaims(board)
 
         # Directly playable squares.
         square_4_0 = Square(row=4, col=0)

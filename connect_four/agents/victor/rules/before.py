@@ -50,8 +50,8 @@ class Before:
         return frozenset(empty_squares)
 
 
-def before(board: Board, threats):
-    """before takes a Board and an iterable of Threats and returns an iterable of Befores for the Board.
+def find_all_befores(board: Board, threats):
+    """find_all_befores takes a Board and an iterable of Threats and returns an iterable of Befores for the Board.
 
     Args:
         board (Board): a Board instance.
@@ -72,7 +72,7 @@ def before(board: Board, threats):
         empty_squares = empty_squares_of_before_group(board, threat)
 
         if empty_squares:  # Only create variations if empty_squares has at least one square.
-            # Add all before variations with threat as the Before group to befores.
+            # Add all Before variations with threat as the Before group to befores.
             add_before_variations(board, befores, threat, empty_squares, [], [])
 
     return befores
@@ -103,7 +103,7 @@ def empty_squares_of_before_group(board: Board, threat: Threat):
 
 
 def add_before_variations(board: Board, befores, threat: Threat, empty_squares, verticals, claimevens):
-    """Adds all before variations with threat as the Before group to befores.
+    """Adds all Before variations with threat as the Before group to befores.
 
     Args:
         board (Board): a Board instance.

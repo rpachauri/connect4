@@ -11,7 +11,7 @@ class Specialbefore:
         """Initializes a Specialbefore instance.
 
         Args:
-            before (Before): A before. At least one empty square of the Before group must be playable.
+            before (Before): A Before. At least one empty square of the Before group must be playable.
             external_directly_playable_square (Square): A directly playable square not part of the Before.
         """
         self.before = before
@@ -31,8 +31,8 @@ class Specialbefore:
                 self.external_directly_playable_square.__hash__())
 
 
-def specialbefore(board: Board, befores):
-    """specialbefore takes a Board and an iterable of Befores for the Board and
+def find_all_specialbefores(board: Board, befores):
+    """find_all_specialbefores takes a Board and an iterable of Befores for the Board and
     outputs an iterable of Specialbefores for the Board.
 
     Args:

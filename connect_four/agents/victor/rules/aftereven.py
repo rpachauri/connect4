@@ -22,8 +22,8 @@ class Aftereven:
         return self.threat.__hash__() * 31 + self.claimevens.__hash__()
 
 
-def aftereven(board: Board, claimevens):
-    """aftereven takes a Board and a set of Claimevens and returns a set of Afterevens for the Board.
+def find_all_afterevens(board: Board, claimevens):
+    """find_all_afterevens takes a Board and a set of Claimevens and returns a set of Afterevens for the Board.
 
     Args:
         board (Board): a Board instance.

@@ -5,7 +5,7 @@ import numpy as np
 
 from connect_four.agents.victor import Board
 from connect_four.agents.victor import Baseinverse
-from connect_four.agents.victor import baseinverse
+from connect_four.agents.victor import find_all_baseinverses
 from connect_four.agents.victor import Square
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
@@ -37,7 +37,7 @@ class TestBaseinverse(unittest.TestCase):
             ],
         ])
         board = Board(self.env.env_variables)
-        got_baseinverses = baseinverse(board)
+        got_baseinverses = find_all_baseinverses(board)
 
         want_baseinverses = {
             # All matches with Square(5, 0).

@@ -3,7 +3,7 @@ import unittest
 from connect_four.agents.victor import Square
 from connect_four.agents.victor import Threat
 from connect_four.agents.victor import ThreatDirection
-from connect_four.agents.victor.threat import square_to_threats
+from connect_four.agents.victor.game.threat import square_to_threats
 
 
 class TestThreat(unittest.TestCase):

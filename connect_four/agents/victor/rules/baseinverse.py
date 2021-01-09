@@ -21,8 +21,8 @@ class Baseinverse:
         return self.squares.__hash__()
 
 
-def baseinverse(board: Board):
-    """baseinverse takes a Board and returns a set of Baseinverses for it.
+def find_all_baseinverses(board: Board):
+    """find_all_baseinverses takes a Board and returns a set of Baseinverses for it.
 
     It makes no assumptions about whose turn it is or who is the controller of the Zugzwang.
 
