@@ -2,7 +2,7 @@ from connect_four.agents.victor.game import Square
 
 from connect_four.agents.victor.rules import Rule
 from connect_four.agents.victor.rules import Claimeven
-from connect_four.agents.victor import Baseinverse
+from connect_four.agents.victor.rules import Baseinverse
 from connect_four.agents.victor import Vertical
 from connect_four.agents.victor import Aftereven
 from connect_four.agents.victor import Lowinverse
