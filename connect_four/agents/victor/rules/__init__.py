@@ -20,3 +20,6 @@ from connect_four.agents.victor.rules.highinverse import find_all_highinverses
 
 from connect_four.agents.victor.rules.baseclaim import Baseclaim
 from connect_four.agents.victor.rules.baseclaim import find_all_baseclaims
+
+from connect_four.agents.victor.rules.before import Before
+from connect_four.agents.victor.rules.before import find_all_befores
