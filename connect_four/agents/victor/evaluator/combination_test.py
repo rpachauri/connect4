@@ -1,11 +1,10 @@
 import unittest
 
-
-from connect_four.agents.victor.rules import Rule
-from connect_four.agents.victor import Solution
 from connect_four.agents.victor.game import Square
+from connect_four.agents.victor.rules import Rule
 
-from connect_four.agents.victor import combination
+from connect_four.agents.victor.evaluator import Solution
+from connect_four.agents.victor.evaluator import combination
 
 
 class TestCombination(unittest.TestCase):

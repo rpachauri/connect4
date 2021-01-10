@@ -19,8 +19,8 @@ from connect_four.agents.victor.rules import Baseclaim
 from connect_four.agents.victor.rules import Before
 from connect_four.agents.victor.rules import Specialbefore
 
-from connect_four.agents.victor import Solution
-from connect_four.agents.victor import solution
+from connect_four.agents.victor.evaluator import Solution
+from connect_four.agents.victor.evaluator import solution
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
