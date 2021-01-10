@@ -32,6 +32,7 @@ def create_node_graph(solutions):
     Returns:
         node_graph (dict<Threat|Solution, Set<Solution>>): a Dictionary of Threats or
             Solutions to all Solutions they are connected to.
+            Every Solution will at least be connected to itself.
     """
     node_graph = {}
 
@@ -45,7 +46,7 @@ def create_node_graph(solutions):
         # Connect all Solutions that cannot work with solution to solution.
         node_graph[solution] = set()
         for other in solutions:
-            if other != solution and not combination.allowed(s1=solution, s2=other):
+            if not combination.allowed(s1=solution, s2=other):
                 node_graph[solution].add(other)
     return node_graph
 
@@ -65,4 +66,48 @@ def find_chosen_set(node_graph, problems, allowed_solutions, used_solutions):
         chosen_set (Set<Solution>): a chosen set of Solutions that solves problems, if one exists.
             None if it doesn't.
     """
-    pass
+    # Base Case.
+    if not problems:
+        # If there are no problems, return the set of Solutions are currently using.
+        return used_solutions.copy()
+
+    # Recursive Case.
+    most_difficult_node = node_with_least_number_of_neighbors(
+        node_graph=node_graph, problems=problems, allowed_solutions=allowed_solutions)
+    most_difficult_node_usable_solutions = node_graph[most_difficult_node].intersection(allowed_solutions)
+
+    for solution in most_difficult_node_usable_solutions:
+        # Choose.
+        used_solutions.add(solution)
+        # Recurse.
+        chosen_set = find_chosen_set(
+            node_graph=node_graph,
+            problems=problems - solution.threats,
+            allowed_solutions=allowed_solutions - node_graph[solution],
+            used_solutions=used_solutions,
+        )
+        # Unchoose.
+        used_solutions.remove(solution)
+
+        if chosen_set is not None:
+            return chosen_set
+
+
+def node_with_least_number_of_neighbors(node_graph, problems, allowed_solutions):
+    most_difficult_node = None
+    num_neighbors_of_most_difficult = len(allowed_solutions) + 1  # Set to an arbitrary high number.
+
+    # Find the Problem in problems with the fewest neighbors in node_graph.
+    # Only allowed_solutions are counted.
+    for problem in problems:
+        num_nodes = len(node_graph[problem].intersection(allowed_solutions))
+        if num_nodes < num_neighbors_of_most_difficult:
+            most_difficult_node = problem
+            num_neighbors_of_most_difficult = num_nodes
+
+    # If we didn't find a most_difficult_node, then that means there isn't a single Problem in both
+    # problems and node_graph.
+    if most_difficult_node is not None:
+        return most_difficult_node
+
+    raise ValueError("No problem in problems and node_graph")

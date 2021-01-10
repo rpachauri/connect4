@@ -47,9 +47,9 @@ class TestEvaluator(unittest.TestCase):
             threat_0_0_to_0_3: {solution1},
             threat_1_0_to_4_0: {solution2},
             threat_0_1_to_3_4: {solution3},
-            solution1: {solution2},
-            solution2: {solution1},
-            solution3: set(),
+            solution1: {solution1, solution2},
+            solution2: {solution1, solution2},
+            solution3: {solution3},
         }
         got_node_graph = create_node_graph({solution1, solution2, solution3})
         self.assertEqual(want_node_graph, got_node_graph)
