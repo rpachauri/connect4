@@ -2,6 +2,7 @@
 Note that in this module, we use the term "Threat" and "Problem" interchangeably.
 """
 from connect_four.agents.victor.game import Board
+from connect_four.agents.victor.evaluator import combination
 
 
 def evaluate(board: Board):
@@ -32,7 +33,21 @@ def create_node_graph(solutions):
         node_graph (dict<Threat|Solution, Set<Solution>>): a Dictionary of Threats or
             Solutions to all Solutions they are connected to.
     """
-    pass
+    node_graph = {}
+
+    for solution in solutions:
+        # Connect solution to all Problems it solves.
+        for threat in solution.threats:
+            if threat not in node_graph:
+                node_graph[threat] = set()
+            node_graph[threat].add(solution)
+
+        # Connect all Solutions that cannot work with solution to solution.
+        node_graph[solution] = set()
+        for other in solutions:
+            if other != solution and not combination.allowed(s1=solution, s2=other):
+                node_graph[solution].add(other)
+    return node_graph
 
 
 def find_chosen_set(node_graph, problems, allowed_solutions, used_solutions):
