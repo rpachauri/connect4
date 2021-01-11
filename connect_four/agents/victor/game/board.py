@@ -118,3 +118,14 @@ class Board:
                 return False
             row, col = row + row_diff, col + col_diff
         return True
+
+    def potential_threats_by_square(self):
+        """Returns a dictionary of Squares to all Threats that contain that Square.
+        Every Threat is a potential Threat that the current player has in this board state.
+
+        Returns:
+            square_to_threats (Map<Square, Set<Threat>>):
+                A dictionary mapping each Square to all Threats that contain that Square.
+                Every Square in Board will be in the keyset.
+        """
+        pass
