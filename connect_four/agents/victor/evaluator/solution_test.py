@@ -6,7 +6,6 @@ import numpy as np
 from connect_four.agents.victor.game import Board
 from connect_four.agents.victor.game import Square
 from connect_four.agents.victor.game import Threat
-from connect_four.agents.victor.game import threat
 
 from connect_four.agents.victor.rules import Rule
 from connect_four.agents.victor.rules import Claimeven
@@ -728,6 +727,55 @@ class TestSolution(unittest.TestCase):
             ],
         )
         self.assertEqual(want_solution, got_solution)
+
+    def test_useless_specialbefore(self):
+        # An empty board.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+        square_to_threats = board.potential_threats_by_square()
+
+        # Verticals/Claimevens which are part of the Before.
+        vertical_b4_b5 = Vertical(upper=Square(row=1, col=1), lower=Square(row=2, col=1))
+        vertical_c2_c3 = Vertical(upper=Square(row=3, col=2), lower=Square(row=4, col=2))
+        claimeven_d1_d2 = Claimeven(upper=Square(row=4, col=3), lower=Square(row=5, col=3))
+        vertical_e1_e2 = Vertical(upper=Square(row=4, col=4), lower=Square(row=5, col=4))
+        # Before b4-e1.
+        before_b4_e1 = Before(
+            threat=Threat(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6)),  # d2-g2
+            verticals=[vertical_b4_b5, vertical_c2_c3, vertical_e1_e2],
+            claimevens=[claimeven_d1_d2],
+        )
+        # Specialbefore b4-e1.
+        specialbefore_d2_g2 = Specialbefore(
+            before=before_b4_e1,
+            internal_directly_playable_square=Square(row=5, col=4),  # e1
+            external_directly_playable_square=Square(row=5, col=3),  # d1
+        )
+        # Note that there are no threats that contain b5-e2 and d1 because that is not possible.
+        # Thus, this Specialbefore is useless.
+
+        got_solution = solution.from_specialbefore(
+            specialbefore=specialbefore_d2_g2,
+            square_to_threats=square_to_threats,
+        )
+        self.assertIsNone(got_solution)
 
 
 if __name__ == '__main__':

@@ -536,17 +536,18 @@ def from_specialbefore(specialbefore: Specialbefore, square_to_threats) -> Solut
         external_and_successor_threats = external_and_successor_threats.intersection(
             square_to_threats[direct_successor])
 
-    # Find all threats that contain the internal directly playable square and
-    # external directly playable square of the Specialbefore.
-    sq1 = specialbefore.internal_directly_playable_square
-    sq2 = specialbefore.external_directly_playable_square
-    directly_playable_squares_threats = square_to_threats[sq1].intersection(square_to_threats[sq2])
+    if external_and_successor_threats:
+        # Find all threats that contain the internal directly playable square and
+        # external directly playable square of the Specialbefore.
+        # Essentially, reproducing the threats refuted by a Baseinverse.
+        sq1 = specialbefore.internal_directly_playable_square
+        sq2 = specialbefore.external_directly_playable_square
+        directly_playable_squares_threats = square_to_threats[sq1].intersection(square_to_threats[sq2])
 
-    # The union of external_and_successor_threats and directly_playable_squares_threats are all
-    # new threats that this Specialbefore refutes.
-    threats = external_and_successor_threats.union(directly_playable_squares_threats)
+        # The union of external_and_successor_threats and directly_playable_squares_threats are all
+        # new threats that this Specialbefore refutes.
+        threats = external_and_successor_threats.union(directly_playable_squares_threats)
 
-    if threats:
         # The Specialbefore Solution includes all squares and threats that the Before Solution has.
         before_solution = from_before(before=specialbefore.before, square_to_threats=square_to_threats)
         return Solution(
