@@ -126,6 +126,16 @@ class Board:
         Returns:
             square_to_threats (Map<Square, Set<Threat>>):
                 A dictionary mapping each Square to all Threats that contain that Square.
-                Every Square in Board will be in the keyset.
+                Every Square in Board will be in the key set.
         """
-        pass
+        square_to_threats = {}
+        for row in range(len(self.state[0])):
+            for col in range(len(self.state[0][0])):
+                square_to_threats[Square(row=row, col=col)] = set()
+
+        threats = self.potential_threats(self.player)
+        for threat in threats:
+            for square in threat.squares:
+                square_to_threats[square].add(threat)
+
+        return square_to_threats

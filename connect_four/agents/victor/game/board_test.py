@@ -128,6 +128,50 @@ class TestBoard(unittest.TestCase):
         }
         self.assertEqual(want_threats_player1, board.potential_threats(1))
 
+    def test_potential_threats_by_square(self):
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, ],
+                [0, 0, 0, 1, ],
+                [1, 0, 0, 1, ],
+                [0, 1, 0, 1, ],
+            ],
+            [
+                [0, 0, 0, 0, ],
+                [0, 0, 1, 0, ],
+                [0, 1, 1, 0, ],
+                [1, 0, 1, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+        threat_0_0_to_0_3 = Threat(0, Square(0, 0), Square(0, 3))
+        threat_0_3_to_3_3 = Threat(0, Square(0, 3), Square(3, 3))
+
+        want_threats_by_square = {
+            # Column 0.
+            Square(row=0, col=0): {threat_0_0_to_0_3},
+            Square(row=1, col=0): set(),
+            Square(row=2, col=0): set(),
+            Square(row=3, col=0): set(),
+            # Column 1.
+            Square(row=0, col=1): {threat_0_0_to_0_3},
+            Square(row=1, col=1): set(),
+            Square(row=2, col=1): set(),
+            Square(row=3, col=1): set(),
+            # Column 2.
+            Square(row=0, col=2): {threat_0_0_to_0_3},
+            Square(row=1, col=2): set(),
+            Square(row=2, col=2): set(),
+            Square(row=3, col=2): set(),
+            # Column 3.
+            Square(row=0, col=3): {threat_0_0_to_0_3, threat_0_3_to_3_3},
+            Square(row=1, col=3): {threat_0_3_to_3_3},
+            Square(row=2, col=3): {threat_0_3_to_3_3},
+            Square(row=3, col=3): {threat_0_3_to_3_3},
+        }
+        got_threats_by_square = board.potential_threats_by_square()
+        self.assertEqual(want_threats_by_square, got_threats_by_square)
+
 
 if __name__ == '__main__':
     unittest.main()
