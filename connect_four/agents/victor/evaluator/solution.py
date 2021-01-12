@@ -1,6 +1,5 @@
 from connect_four.agents.victor.game import Square
 from connect_four.agents.victor.game import Board
-from connect_four.agents.victor.game.threat import create_square_to_threats
 
 from connect_four.agents.victor.rules import Rule
 from connect_four.agents.victor.rules import Claimeven
@@ -82,9 +81,9 @@ def find_all_solutions(board: Board):
     befores = find_all_befores(board=board, threats=opponent_threats)
     specialbefores = find_all_specialbefores(board=board, befores=befores)
 
-    # player_threats are the potential Threats that the current player has for board.
-    player_threats = board.potential_threats(board.player)
-    square_to_player_threats = create_square_to_threats(threats=player_threats)
+    # square_to_player_threats is a dict of all Squares on board that map to
+    # all Threats the current player has that contain that Square.
+    square_to_player_threats = board.potential_threats_by_square()
 
     # Convert each application of each rule into a Solution.
     solutions = set()
@@ -329,10 +328,12 @@ def from_lowinverse(lowinverse: Lowinverse, square_to_threats) -> Solution:
     if threats:
         squares = [vertical_0.upper, vertical_0.lower, vertical_1.upper, vertical_1.lower]
 
-        vertical_0_threats = from_vertical(vertical_0, square_to_threats).threats
-        vertical_1_threats = from_vertical(vertical_1, square_to_threats).threats
-        threats.update(vertical_0_threats)
-        threats.update(vertical_1_threats)
+        vertical_0_solution = from_vertical(vertical_0, square_to_threats)
+        vertical_1_solution = from_vertical(vertical_1, square_to_threats)
+        if vertical_0_solution is not None:
+            threats.update(vertical_0_solution.threats)
+        if vertical_1_solution is not None:
+            threats.update(vertical_1_solution.threats)
 
         return Solution(
             rule=Rule.Lowinverse,
@@ -344,8 +345,8 @@ def from_lowinverse(lowinverse: Lowinverse, square_to_threats) -> Solution:
 def from_highinverse(highinverse: Highinverse, square_to_threats, directly_playable_squares) -> Solution:
     """Converts a Highinverse into a Solution.
     Must solve at least one *new* potential threat in order to be converted into a Solution.
-    By "new potential threat," we mean any threat that isn't already solved by the Lowinverse
-    which is part of the Highinverse.
+    By "new potential threat," we mean any threat that isn't already solved by the Verticals or Lowinverse
+    which are part of the Highinverse.
 
     Args:
         highinverse (Highinverse): a Highinverse.
@@ -373,8 +374,12 @@ def from_highinverse(highinverse: Highinverse, square_to_threats, directly_playa
     # For each Highinverse column, add all (vertical) threats which contain the two highest squares of the column.
     upper_vertical_0 = Vertical(upper=upper_square_0, lower=vertical_0.upper)
     upper_vertical_1 = Vertical(upper=upper_square_1, lower=vertical_1.upper)
-    highinverse_threats.update(from_vertical(upper_vertical_0, square_to_threats).threats)
-    highinverse_threats.update(from_vertical(upper_vertical_1, square_to_threats).threats)
+    upper_vertical_0_solution = from_vertical(upper_vertical_0, square_to_threats)
+    upper_vertical_1_solution = from_vertical(upper_vertical_1, square_to_threats)
+    if upper_vertical_0_solution is not None:
+        highinverse_threats.update(upper_vertical_0_solution.threats)
+    if upper_vertical_1_solution is not None:
+        highinverse_threats.update(upper_vertical_1_solution.threats)
 
     # If the lower square of the first column is directly playable:
     if vertical_0.lower in directly_playable_squares:
@@ -390,25 +395,34 @@ def from_highinverse(highinverse: Highinverse, square_to_threats, directly_playa
         lower_1_upper_0_threats = square_to_threats[vertical_1.lower].intersection(square_to_threats[upper_square_0])
         highinverse_threats.update(lower_1_upper_0_threats)
 
-    lowinverse_threats = from_lowinverse(highinverse.lowinverse, square_to_threats).threats
-    for threat in highinverse_threats:
-        # If the highinverse introduces at least one new threat that the lowinverse doesn't already refute:
-        if threat not in lowinverse_threats:
-            # Form the highinverse into a solution.
-            squares = frozenset([
-                upper_square_0,
-                vertical_0.upper,
-                vertical_0.lower,
-                upper_square_1,
-                vertical_1.upper,
-                vertical_1.lower,
-            ])
-            return Solution(
-                rule=Rule.Highinverse,
-                squares=squares,
-                threats=frozenset(highinverse_threats),
-            )
-    # If the highinverse did not have a threat that the lowinverse already refuted, then we don't convert
+    # already_solved_threats are all Threats that are already solved by vertical_0, vertical_1 or lowinverse.
+    already_solved_threats = set()
+    vertical_0_solution = from_vertical(vertical=vertical_0, square_to_threats=square_to_threats)
+    if vertical_0_solution is not None:
+        already_solved_threats.update(vertical_0_solution.threats)
+    vertical_1_solution = from_vertical(vertical=vertical_1, square_to_threats=square_to_threats)
+    if vertical_1_solution is not None:
+        already_solved_threats.update(vertical_1_solution.threats)
+    lowinverse_solution = from_lowinverse(lowinverse=highinverse.lowinverse, square_to_threats=square_to_threats)
+    if lowinverse_solution is not None:
+        already_solved_threats.update(lowinverse_solution.threats)
+
+    if not highinverse_threats.issubset(already_solved_threats):
+        # Form the highinverse into a solution.
+        squares = frozenset([
+            upper_square_0,
+            vertical_0.upper,
+            vertical_0.lower,
+            upper_square_1,
+            vertical_1.upper,
+            vertical_1.lower,
+        ])
+        return Solution(
+            rule=Rule.Highinverse,
+            squares=squares,
+            threats=frozenset(highinverse_threats),
+        )
+    # If the highinverse does not have any new threats, then we don't convert
     # the Highinverse into a Solution.
 
 

@@ -74,28 +74,9 @@ class Threat:
 
     def __str__(self):
         return ("[" + str(self.player) + " -> " +
-                "(" + str(self.start.row) + "," + str(self.start.col) + ") -" +
+                "(" + str(self.start.row) + "," + str(self.start.col) + ")-" +
                 "(" + str(self.end.row) + "," + str(self.end.col) + ")]"
                 )
 
     def __repr__(self):
         return self.__str__()
-
-
-def create_square_to_threats(threats):
-    """Accepts an iterable of Threats and outputs a dictionary mapping
-    each Square to all Threats that contain that Square.
-
-    Args:
-        threats (iterable<Threat>): an iterable of Threats.
-
-    Returns:
-        d (Map<Square, Set<Threat>>): A dictionary mapping each Square to all Threats that contain that Square.
-    """
-    d = {}
-    for threat in threats:
-        for square in threat.squares:
-            if square not in d:
-                d[square] = set()
-            d[square].add(threat)
-    return d
