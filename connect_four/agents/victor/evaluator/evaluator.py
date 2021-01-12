@@ -3,6 +3,7 @@ Note that in this module, we use the term "Threat" and "Problem" interchangeably
 """
 from connect_four.agents.victor.game import Board
 from connect_four.agents.victor.evaluator import combination
+from connect_four.agents.victor.evaluator.solution import find_all_solutions
 
 
 def evaluate(board: Board):
@@ -17,6 +18,21 @@ def evaluate(board: Board):
             refutes all Threats belonging to the current player, if one exists.
             None if no such set of Solutions exist.
     """
+    player_threats = board.potential_threats(player=board.player)
+    all_solutions = find_all_solutions(board=board)
+
+    if board.player == 0:  # Current player is White.
+        node_graph = create_node_graph(solutions=all_solutions)
+        # Only try to find a set that can solve all problems if every Problem has at least one Solution.
+        if player_threats.issubset(node_graph.keys()):
+            return find_chosen_set(
+                node_graph=node_graph,
+                problems=player_threats,
+                allowed_solutions=all_solutions,
+                used_solutions=set(),
+            )
+    else:
+        raise NotImplementedError()
     pass
 
 

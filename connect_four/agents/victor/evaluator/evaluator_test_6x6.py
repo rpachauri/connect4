@@ -6,7 +6,6 @@ import numpy as np
 from connect_four.agents.victor.game import Board
 from connect_four.agents.victor.game import Square
 from connect_four.agents.victor.game import Threat
-from connect_four.agents.victor.game.threat import create_square_to_threats
 
 from connect_four.agents.victor.rules import Claimeven
 from connect_four.agents.victor.rules import Baseinverse
@@ -48,7 +47,7 @@ class TestEvaluator6x6(unittest.TestCase):
         ])
         board = Board(self.env.env_variables)
         white_threats = board.potential_threats(0)
-        square_to_threats = create_square_to_threats(threats=white_threats)
+        square_to_threats = board.potential_threats_by_square()
 
         # Define Rules that will be used as part of other Rules.
         claimeven_a1_a2 = Claimeven(lower=Square(row=5, col=0), upper=Square(row=4, col=0))
@@ -148,7 +147,9 @@ class TestEvaluator6x6(unittest.TestCase):
         )
         self.assertIsNotNone(claimeven_f5_f6)
 
-        # In this test case, the given Solution set is the desired set.
+        # Note that typically, for a given set of Solutions, there may be multiple subsets of Solutions that
+        # solve all Threats.
+        # In this test case, the given Solution set is the desired set so there is exactly one subset.
         solutions = {
             before_a1_a2_b1_b2_c2_c3_d2_d3,
             before_a3_a4_b3_b4_c4_c5_d4_d5,
@@ -170,6 +171,29 @@ class TestEvaluator6x6(unittest.TestCase):
             used_solutions=set()
         )
         self.assertEqual(solutions, got_solutions)
+
+    def test_evaluate_6x6(self):
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+        got_solution_set = evaluator.evaluate(board=board)
+        self.assertIsNotNone(got_solution_set)
 
 
 if __name__ == '__main__':
