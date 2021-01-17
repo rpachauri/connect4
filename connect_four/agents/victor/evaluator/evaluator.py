@@ -2,7 +2,7 @@
 Note that in this module, we use the term "Threat" and "Problem" interchangeably.
 """
 from connect_four.agents.victor.game import Board
-from connect_four.agents.victor.evaluator import combination
+from connect_four.agents.victor.evaluator import solution_combination
 from connect_four.agents.victor.evaluator.solution import find_all_solutions
 
 
@@ -62,7 +62,7 @@ def create_node_graph(solutions):
         # Connect all Solutions that cannot work with solution to solution.
         node_graph[solution] = set()
         for other in solutions:
-            if not combination.allowed(s1=solution, s2=other):
+            if not solution_combination.allowed(s1=solution, s2=other):
                 node_graph[solution].add(other)
     return node_graph
 
