@@ -4,6 +4,7 @@ from connect_four.agents.victor.game import Square
 
 from connect_four.agents.victor.rules import Claimeven
 from connect_four.agents.victor.rules import Baseinverse
+from connect_four.agents.victor.rules import Vertical
 
 from connect_four.agents.victor.planning import plan
 
@@ -43,6 +44,19 @@ class TestPlan(unittest.TestCase):
         got_response = got_plan.execute(square_a1)
         self.assertEqual(square_a2, got_response)
         self.assertEqual(want_plan_after_execution, got_plan)
+
+    def test_from_vertical(self):
+        square_e4 = Square(row=2, col=4)
+        square_e5 = Square(row=1, col=4)
+        vertical_e4_e5 = Vertical(upper=square_e5, lower=square_e4)
+        want_plan = plan.Plan(
+            responses={
+                square_e4: square_e5,
+            },
+            availabilities={square_e4},
+        )
+        got_plan = plan.from_vertical(vertical=vertical_e4_e5)
+        self.assertEqual(want_plan, got_plan)
 
 
 if __name__ == '__main__':

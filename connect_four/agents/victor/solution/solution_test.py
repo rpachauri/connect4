@@ -138,7 +138,7 @@ class TestSolution(unittest.TestCase):
         square_to_threats = board.potential_threats_by_square()
 
         # The Vertical e4-e5 solves e2-e5 and e3-e6.
-        vertical_e4_e5 = Vertical(upper=Square(row=2, col=4), lower=Square(row=3, col=4))
+        vertical_e4_e5 = Vertical(upper=Square(row=2, col=4), lower=Square(row=1, col=4))
 
         got_solution = solution.from_vertical(vertical_e4_e5, square_to_threats)
         want_solution = Solution(
