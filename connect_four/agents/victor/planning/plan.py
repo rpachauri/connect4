@@ -20,6 +20,9 @@ class Plan:
             return self.responses == other.responses and self.availabilities == other.availabilities
         return False
 
+    def __hash__(self):
+        return self.responses.__hash__() * 97 + self.availabilities.__hash__() * 53
+
     def execute(self, square: Square) -> Square:
         if square in self.responses:
             # Find the appropriate response for square and remove it from the plan.

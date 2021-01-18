@@ -22,6 +22,8 @@ from connect_four.agents.victor.rules import find_all_baseclaims
 from connect_four.agents.victor.rules import find_all_befores
 from connect_four.agents.victor.rules import find_all_specialbefores
 
+from connect_four.agents.victor.planning import plan
+
 
 class Solution:
     """A Solution is an application of a Rule that refutes at least one threat.
@@ -29,7 +31,7 @@ class Solution:
     Two Solutions may or may not work together depending on which squares each
     consists of and which rule they are an application of.
     """
-    def __init__(self, rule, squares, threats=None, claimeven_bottom_squares=None):
+    def __init__(self, rule, squares, threats=None, claimeven_bottom_squares=None, solution_plan=None):
         self.rule = rule
         self.squares = frozenset(squares)
 
@@ -41,19 +43,23 @@ class Solution:
             claimeven_bottom_squares = set()
         self.claimeven_bottom_squares = frozenset(claimeven_bottom_squares)
 
+        self.plan = solution_plan
+
     def __eq__(self, other):
         if isinstance(other, Solution):
             return (self.rule == other.rule and
                     self.squares == other.squares and
                     self.threats == other.threats and
-                    self.claimeven_bottom_squares == other.claimeven_bottom_squares)
+                    self.claimeven_bottom_squares == other.claimeven_bottom_squares and
+                    self.plan == other.plan)
         return False
 
     def __hash__(self):
         return (self.rule.__hash__() * 73 +
                 self.squares.__hash__() * 59 +
                 self.threats.__hash__() * 37 +
-                self.claimeven_bottom_squares.__hash__())
+                self.claimeven_bottom_squares.__hash__() * 31 +
+                self.plan.__hash__())
 
 
 def find_all_solutions(board: Board):
@@ -158,7 +164,8 @@ def from_claimeven(claimeven: Claimeven, square_to_threats) -> Solution:
             rule=Rule.Claimeven,
             squares=[claimeven.upper, claimeven.lower],
             threats=threats,
-            claimeven_bottom_squares=[claimeven.lower]
+            claimeven_bottom_squares=[claimeven.lower],
+            solution_plan=plan.from_claimeven(claimeven=claimeven),
         )
 
 
