@@ -3,6 +3,7 @@ from connect_four.agents.victor.game import Square
 from connect_four.agents.victor.rules import Claimeven
 from connect_four.agents.victor.rules import Baseinverse
 from connect_four.agents.victor.rules import Vertical
+from connect_four.agents.victor.rules import Aftereven
 
 
 class Plan:
@@ -29,6 +30,7 @@ class Plan:
             if response in self.responses:
                 self.responses.pop(response)
             return response
+        # TODO pick a square from self.availabilities.
 
 
 def from_claimeven(claimeven: Claimeven):
@@ -56,3 +58,10 @@ def from_vertical(vertical: Vertical):
         },
         availabilities={vertical.lower},
     )
+
+
+def from_aftereven(aftereven: Aftereven):
+    responses = dict()
+    for claimeven in aftereven.claimevens:
+        responses[claimeven.lower] = claimeven.upper
+    return Plan(responses=responses)
