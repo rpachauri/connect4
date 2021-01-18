@@ -58,8 +58,7 @@ class Solution:
         return (self.rule.__hash__() * 73 +
                 self.squares.__hash__() * 59 +
                 self.threats.__hash__() * 37 +
-                self.claimeven_bottom_squares.__hash__() * 31 +
-                self.plan.__hash__())
+                self.claimeven_bottom_squares.__hash__())
 
 
 def find_all_solutions(board: Board):

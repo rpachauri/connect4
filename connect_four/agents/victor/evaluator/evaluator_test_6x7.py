@@ -10,6 +10,7 @@ from connect_four.agents.victor.evaluator import evaluator
 from connect_four.agents.victor.solution import solution
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
+
 class TestEvaluator6x7(unittest.TestCase):
     def setUp(self) -> None:
         self.env = gym.make('connect_four-v0')
@@ -137,8 +138,8 @@ class TestEvaluator6x7(unittest.TestCase):
         white_threats = board.potential_threats(0)
         square_to_threats = board.potential_threats_by_square()
 
-        # Define all Claimevens that will be converted into Solutions.
-        # The set of all of these Claimevens can refute all of white_threats.
+        # Define all Solutions using Claimevens.
+        # A subset of these Claimevens can refute all of white_threats.
         claimeven_a1_a2 = solution.from_claimeven(
             claimeven=Claimeven(lower=Square(row=5, col=0), upper=Square(row=4, col=0)),
             square_to_threats=square_to_threats,
