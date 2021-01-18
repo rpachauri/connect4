@@ -3,7 +3,7 @@ import unittest
 from connect_four.agents.victor.game import Square
 from connect_four.agents.victor.game import Threat
 from connect_four.agents.victor.rules import Rule
-from connect_four.agents.victor.evaluator import Solution
+from connect_four.agents.victor.solution import Solution
 
 from connect_four.agents.victor.evaluator.evaluator import create_node_graph
 

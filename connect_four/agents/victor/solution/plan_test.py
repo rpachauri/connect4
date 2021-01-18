@@ -4,7 +4,7 @@ from connect_four.agents.victor.game import Square
 
 from connect_four.agents.victor.rules import Claimeven
 
-from connect_four.agents.victor.evaluator import plan
+from connect_four.agents.victor.solution import plan
 
 
 class TestPlan(unittest.TestCase):

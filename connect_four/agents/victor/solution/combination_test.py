@@ -3,8 +3,8 @@ import unittest
 from connect_four.agents.victor.game import Square
 from connect_four.agents.victor.rules import Rule
 
-from connect_four.agents.victor.evaluator import Solution
-from connect_four.agents.victor.evaluator import solution_combination
+from connect_four.agents.victor.solution import Solution
+from connect_four.agents.victor.solution import combination
 
 
 class TestCombination(unittest.TestCase):
@@ -26,7 +26,7 @@ class TestCombination(unittest.TestCase):
         # other is a Claimeven.
 
         # Two Claimevens which can be combined.
-        self.assertTrue(solution_combination.allowed(
+        self.assertTrue(combination.allowed(
             s1=Solution(
                 rule=Rule.Claimeven,
                 squares=frozenset([
@@ -44,7 +44,7 @@ class TestCombination(unittest.TestCase):
         ))
 
         # Two Claimevens which cannot be combined.
-        self.assertFalse(solution_combination.allowed(
+        self.assertFalse(combination.allowed(
             s1=Solution(
                 rule=Rule.Claimeven,
                 squares=frozenset([
@@ -67,7 +67,7 @@ class TestCombination(unittest.TestCase):
         # other is a Baseinverse.
 
         # A Baseinverse which can be combined with a Claimeven.
-        self.assertTrue(solution_combination.allowed(
+        self.assertTrue(combination.allowed(
             s1=Solution(
                 rule=Rule.Claimeven,
                 squares=frozenset([
@@ -85,7 +85,7 @@ class TestCombination(unittest.TestCase):
         ))
 
         # A Baseinverse which cannot be combined with a Claimeven.
-        self.assertFalse(solution_combination.allowed(
+        self.assertFalse(combination.allowed(
             s1=Solution(
                 rule=Rule.Claimeven,
                 squares=frozenset([
@@ -108,7 +108,7 @@ class TestCombination(unittest.TestCase):
         # other is a Vertical.
 
         # A Vertical which can be combined with a Claimeven.
-        self.assertTrue(solution_combination.allowed(
+        self.assertTrue(combination.allowed(
             s1=Solution(
                 rule=Rule.Claimeven,
                 squares=frozenset([
@@ -126,7 +126,7 @@ class TestCombination(unittest.TestCase):
         ))
 
         # A Vertical which cannot be combined with a Claimeven.
-        self.assertFalse(solution_combination.allowed(
+        self.assertFalse(combination.allowed(
             s1=Solution(
                 rule=Rule.Claimeven,
                 squares=frozenset([
@@ -150,7 +150,7 @@ class TestCombination(unittest.TestCase):
 
         # See Section 7.1 of the original paper for reasoning.
         # A Lowinverse which can be combined with a Claimeven.
-        self.assertTrue(solution_combination.allowed(
+        self.assertTrue(combination.allowed(
             s1=Solution(
                 rule=Rule.Claimeven,
                 squares=frozenset([
@@ -174,7 +174,7 @@ class TestCombination(unittest.TestCase):
 
         # See Diagram 7.2 from the original paper for an explanation.
         # A Lowinverse which cannot be combined with a Claimeven.
-        self.assertFalse(solution_combination.allowed(
+        self.assertFalse(combination.allowed(
             s1=Solution(
                 rule=Rule.Claimeven,
                 squares=frozenset([
@@ -202,7 +202,7 @@ class TestCombination(unittest.TestCase):
         # other is an Aftereven.
 
         # Two Afterevens which can be combined.
-        self.assertTrue(solution_combination.allowed(
+        self.assertTrue(combination.allowed(
             s1=Solution(
                 rule=Rule.Aftereven,
                 squares=frozenset([

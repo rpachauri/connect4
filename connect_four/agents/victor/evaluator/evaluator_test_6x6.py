@@ -12,7 +12,7 @@ from connect_four.agents.victor.rules import Baseinverse
 from connect_four.agents.victor.rules import Vertical
 from connect_four.agents.victor.rules import Before
 
-from connect_four.agents.victor.evaluator import solution
+from connect_four.agents.victor.solution import solution
 from connect_four.agents.victor.evaluator import evaluator
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
