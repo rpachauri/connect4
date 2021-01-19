@@ -7,6 +7,7 @@ from connect_four.agents.victor.rules import Claimeven
 from connect_four.agents.victor.rules import Baseinverse
 from connect_four.agents.victor.rules import Vertical
 from connect_four.agents.victor.rules import Aftereven
+from connect_four.agents.victor.rules import Lowinverse
 
 from connect_four.agents.victor.planning import plan
 
@@ -132,6 +133,40 @@ class TestPlan(unittest.TestCase):
         got_response = got_plan.execute(square=square_f1)
         self.assertEqual(square_f2, got_response)
         self.assertEqual(want_plan_after_execution, got_plan)
+
+    def test_from_lowinverse(self):
+        square_c2 = Square(row=4, col=2)
+        square_c3 = Square(row=3, col=2)
+        square_d2 = Square(row=4, col=3)
+        square_d3 = Square(row=3, col=3)
+        lowinverse_c2_c3_d2_d3 = Lowinverse(
+            first_vertical=Vertical(upper=square_c3, lower=square_c2),  # c2-c3
+            second_vertical=Vertical(upper=square_d3, lower=square_d2),  # d2-d3
+        )
+        want_plan = plan.Plan(
+            responses={
+                square_c2: plan.Plan(
+                    forced_square=square_c3,
+                    responses={
+                        square_d2: plan.Plan(
+                            forced_square=square_d3,
+                        )
+                    },
+                    availabilities={square_d2},
+                ),
+                square_d2: plan.Plan(
+                    forced_square=square_d3,
+                    responses={
+                        square_c2: plan.Plan(
+                            forced_square=square_c3,
+                        )
+                    },
+                    availabilities={square_c2},
+                ),
+            },
+        )
+        got_plan = plan.from_lowinverse(lowinverse=lowinverse_c2_c3_d2_d3)
+        self.assertEqual(want_plan, got_plan)
 
 
 if __name__ == '__main__':

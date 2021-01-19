@@ -4,26 +4,31 @@ from connect_four.agents.victor.rules import Claimeven
 from connect_four.agents.victor.rules import Baseinverse
 from connect_four.agents.victor.rules import Vertical
 from connect_four.agents.victor.rules import Aftereven
+from connect_four.agents.victor.rules import Lowinverse
 
 
 class Plan:
-    def __init__(self, responses=None, availabilities=None):
+    def __init__(self, responses=None, availabilities=None, forced_square: Square = None):
         if responses is None:
             responses = dict()
         if availabilities is None:
             availabilities = set()
         self.responses = responses
         self.availabilities = availabilities
+        self.forced_square = forced_square
 
     def __eq__(self, other):
         if isinstance(other, Plan):
-            return self.responses == other.responses and self.availabilities == other.availabilities
+            return (self.responses == other.responses and
+                    self.availabilities == other.availabilities and
+                    self.forced_square == other.forced_square)
         return False
 
     def execute(self, square: Square) -> Square:
         if square in self.responses:
             # Find the appropriate response for square and remove it from the plan.
             response = self.responses[square]
+
             self.responses.pop(square)
 
             # Since the response is being executed, we no longer need a response for it.
@@ -73,3 +78,29 @@ def from_aftereven(aftereven: Aftereven):
     for claimeven in aftereven.claimevens:
         responses[claimeven.lower] = claimeven.upper
     return Plan(responses=responses)
+
+
+def from_lowinverse(lowinverse: Lowinverse):
+    vertical0, vertical1 = tuple(lowinverse.verticals)
+    return Plan(
+        responses={
+            vertical0.lower: Plan(
+                forced_square=vertical0.upper,
+                responses={
+                    vertical1.lower: Plan(
+                        forced_square=vertical1.upper,
+                    )
+                },
+                availabilities={vertical1.lower},
+            ),
+            vertical1.lower: Plan(
+                forced_square=vertical1.upper,
+                responses={
+                    vertical0.lower: Plan(
+                        forced_square=vertical0.upper,
+                    )
+                },
+                availabilities={vertical0.lower},
+            ),
+        }
+    )

@@ -50,8 +50,7 @@ class Solution:
             return (self.rule == other.rule and
                     self.squares == other.squares and
                     self.threats == other.threats and
-                    self.claimeven_bottom_squares == other.claimeven_bottom_squares and
-                    self.plan == other.plan)
+                    self.claimeven_bottom_squares == other.claimeven_bottom_squares)
         return False
 
     def __hash__(self):
