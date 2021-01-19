@@ -32,6 +32,14 @@ class Plan:
             return response
         # TODO pick a square from self.availabilities.
 
+    def merge(self, plan):
+        for response in plan.responses:
+            if response not in self.responses:
+                self.responses[response] = plan.responses[response]
+            elif self.responses[response] != plan.responses[response]:
+                raise ValueError("Cannot merge", self.responses[response], "with", plan.responses[response])
+        self.availabilities.update(plan.availabilities)
+
 
 def from_claimeven(claimeven: Claimeven):
     return Plan(

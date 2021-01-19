@@ -16,13 +16,13 @@ class TestPlan(unittest.TestCase):
         # Example from Diagram 5.4.
         square_e3 = Square(row=3, col=4)
         square_e4 = Square(row=2, col=4)
-        claimeven_2_4 = Claimeven(upper=square_e4, lower=square_e3)
+        claimeven_e3_e4 = Claimeven(upper=square_e4, lower=square_e3)
         want_plan = plan.Plan(
             responses={
                 square_e3: square_e4,
             },
         )
-        got_plan = plan.from_claimeven(claimeven=claimeven_2_4)
+        got_plan = plan.from_claimeven(claimeven=claimeven_e3_e4)
         self.assertEqual(want_plan, got_plan)
 
         want_plan_after_execution = plan.Plan()
@@ -30,15 +30,36 @@ class TestPlan(unittest.TestCase):
         self.assertEqual(square_e4, got_response)
         self.assertEqual(want_plan_after_execution, got_plan)
 
+    def test_merge_claimeven(self):
+        square_e3 = Square(row=3, col=4)
+        square_e4 = Square(row=2, col=4)
+        claimeven_plan_e3_e4 = plan.from_claimeven(
+            claimeven=Claimeven(upper=square_e4, lower=square_e3),
+        )
+        square_a1 = Square(row=5, col=0)
+        square_a2 = Square(row=4, col=0)
+        claimeven_plan_a1_a2 = plan.from_claimeven(
+            claimeven=Claimeven(upper=square_a2, lower=square_a1),
+        )
+
+        want_plan_after_merging = plan.Plan(
+            responses={
+                square_e3: square_e4,
+                square_a1: square_a2,
+            },
+        )
+        claimeven_plan_e3_e4.merge(plan=claimeven_plan_a1_a2)
+        self.assertEqual(want_plan_after_merging, claimeven_plan_e3_e4)
+
     def test_from_baseinverse(self):
         # Example from Diagram 6.2.
         square_a1 = Square(row=5, col=0)
-        square_a2 = Square(row=5, col=1)
-        baseinverse_a1_b1 = Baseinverse(playable1=square_a1, playable2=square_a2)
+        square_b1 = Square(row=5, col=1)
+        baseinverse_a1_b1 = Baseinverse(playable1=square_a1, playable2=square_b1)
         want_plan = plan.Plan(
             responses={
-                square_a1: square_a2,
-                square_a2: square_a1,
+                square_a1: square_b1,
+                square_b1: square_a1,
             }
         )
         got_plan = plan.from_baseinverse(baseinverse=baseinverse_a1_b1)
@@ -46,8 +67,26 @@ class TestPlan(unittest.TestCase):
 
         want_plan_after_execution = plan.Plan()
         got_response = got_plan.execute(square_a1)
-        self.assertEqual(square_a2, got_response)
+        self.assertEqual(square_b1, got_response)
         self.assertEqual(want_plan_after_execution, got_plan)
+
+    def test_impossible_merge(self):
+        # Example from Diagram 6.7.
+        square_c1 = Square(row=5, col=2)
+        square_c2 = Square(row=4, col=2)
+        claimeven_c1_c2 = Claimeven(upper=square_c2, lower=square_c1)
+        square_e1 = Square(row=5, col=4)
+        baseinverse_c1_e1 = Baseinverse(playable1=square_c1, playable2=square_e1)
+
+        claimeven_plan_c1_c2 = plan.from_claimeven(claimeven=claimeven_c1_c2)
+        baseinverse_plan_c1_e1 = plan.from_baseinverse(baseinverse=baseinverse_c1_e1)
+
+        raises = False
+        try:
+            claimeven_plan_c1_c2.merge(baseinverse_plan_c1_e1)
+        except ValueError:
+            raises = True
+        self.assertTrue(raises)
 
     def test_from_vertical(self):
         # Example from Diagram 6.3.
