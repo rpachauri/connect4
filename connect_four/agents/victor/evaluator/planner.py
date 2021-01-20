@@ -1,3 +1,4 @@
+# TODO deprecate.
 from connect_four.agents.victor.planning.plan import Plan
 
 

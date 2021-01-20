@@ -43,6 +43,7 @@ class Solution:
             claimeven_bottom_squares = set()
         self.claimeven_bottom_squares = frozenset(claimeven_bottom_squares)
 
+        # TODO deprecate. Use the rule instance instead.
         self.plan = solution_plan
 
     def __eq__(self, other):
