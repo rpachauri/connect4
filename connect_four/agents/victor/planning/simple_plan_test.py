@@ -11,7 +11,7 @@ from connect_four.agents.victor.rules import Aftereven
 from connect_four.agents.victor.planning import simple_plan
 
 
-class MyTestCase(unittest.TestCase):
+class TestSimplePlan(unittest.TestCase):
     def test_from_claimeven(self):
         # Example from Diagram 5.4.
         square_e3 = Square(row=3, col=4)

@@ -41,7 +41,7 @@ class SimplePlanBuilder:
         pass
 
 
-def from_claimeven(claimeven: Claimeven):
+def from_claimeven(claimeven: Claimeven) -> SimplePlan:
     return SimplePlan(
         responses={
             claimeven.lower: claimeven.upper,
@@ -49,7 +49,7 @@ def from_claimeven(claimeven: Claimeven):
     )
 
 
-def from_baseinverse(baseinverse: Baseinverse):
+def from_baseinverse(baseinverse: Baseinverse) -> SimplePlan:
     square0, square1 = tuple(baseinverse.squares)
     return SimplePlan(
         responses={
@@ -59,7 +59,7 @@ def from_baseinverse(baseinverse: Baseinverse):
     )
 
 
-def from_vertical(vertical: Vertical):
+def from_vertical(vertical: Vertical) -> SimplePlan:
     return SimplePlan(
         responses={
             vertical.lower: vertical.upper,
@@ -68,7 +68,7 @@ def from_vertical(vertical: Vertical):
     )
 
 
-def from_aftereven(aftereven: Aftereven):
+def from_aftereven(aftereven: Aftereven) -> SimplePlan:
     responses = dict()
     for claimeven in aftereven.claimevens:
         responses[claimeven.lower] = claimeven.upper
