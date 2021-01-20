@@ -73,4 +73,3 @@ def from_aftereven(aftereven: Aftereven):
     for claimeven in aftereven.claimevens:
         responses[claimeven.lower] = claimeven.upper
     return SimplePlan(responses=responses)
-
