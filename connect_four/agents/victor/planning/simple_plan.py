@@ -1,3 +1,9 @@
+from connect_four.agents.victor.rules import Claimeven
+from connect_four.agents.victor.rules import Baseinverse
+from connect_four.agents.victor.rules import Vertical
+from connect_four.agents.victor.rules import Aftereven
+
+
 class SimplePlan:
     def __init__(self, responses=None, availabilities=None):
         if responses is None:
@@ -33,3 +39,38 @@ class SimplePlanBuilder:
 
     def build(self):
         pass
+
+
+def from_claimeven(claimeven: Claimeven):
+    return SimplePlan(
+        responses={
+            claimeven.lower: claimeven.upper,
+        },
+    )
+
+
+def from_baseinverse(baseinverse: Baseinverse):
+    square0, square1 = tuple(baseinverse.squares)
+    return SimplePlan(
+        responses={
+            square0: square1,
+            square1: square0,
+        }
+    )
+
+
+def from_vertical(vertical: Vertical):
+    return SimplePlan(
+        responses={
+            vertical.lower: vertical.upper,
+        },
+        availabilities={vertical.lower},
+    )
+
+
+def from_aftereven(aftereven: Aftereven):
+    responses = dict()
+    for claimeven in aftereven.claimevens:
+        responses[claimeven.lower] = claimeven.upper
+    return SimplePlan(responses=responses)
+
