@@ -314,6 +314,7 @@ class TestSolution(unittest.TestCase):
         # 4. The upper squares from both columns (c4-d4).
         highinverse_c2_c3_c4_d2_d3_d4 = Highinverse(
             lowinverse=lowinverse_c2_c3_d2_d3,
+            directly_playable_squares=[Square(row=4, col=2), Square(row=4, col=3)],  # c2 and d2
         )
         want_solution = Solution(
             rule=Rule.Highinverse,
@@ -347,7 +348,6 @@ class TestSolution(unittest.TestCase):
         got_solution = solution.from_highinverse(
             highinverse=highinverse_c2_c3_c4_d2_d3_d4,
             square_to_threats=square_to_threats,
-            directly_playable_squares=board.playable_squares(),
         )
         self.assertEqual(want_solution, got_solution)
 
@@ -420,7 +420,6 @@ class TestSolution(unittest.TestCase):
         got_highinverse_solution = solution.from_highinverse(
             highinverse=highinverse_c4_c5_c6_d4_d5_d6,
             square_to_threats=square_to_threats,
-            directly_playable_squares=board.playable_squares(),
         )
         self.assertEqual(want_highinverse_solution, got_highinverse_solution)
 
@@ -468,11 +467,11 @@ class TestSolution(unittest.TestCase):
         # Lowinverse which is part of it doesn't already refute.
         highinverse_c4_c5_c6_d4_d5_d6 = Highinverse(
             lowinverse=lowinverse_c4_c5_d4_d5,
+            directly_playable_squares=[Square(row=2, col=2), Square(row=2, col=3)],  # c4 and d4
         )
         got_highinverse_solution = solution.from_highinverse(
             highinverse=highinverse_c4_c5_c6_d4_d5_d6,
             square_to_threats=square_to_threats,
-            directly_playable_squares=board.playable_squares(),
         )
         self.assertIsNone(got_highinverse_solution)
 
@@ -517,11 +516,11 @@ class TestSolution(unittest.TestCase):
         # Vertical c4-c5 which is part of it doesn't already refute.
         highinverse_c4_c5_c6_d4_d5_d6 = Highinverse(
             lowinverse=lowinverse_c4_c5_d4_d5,
+            directly_playable_squares=[Square(row=2, col=2), Square(row=2, col=3)],  # c4 and d4
         )
         got_highinverse_solution = solution.from_highinverse(
             highinverse=highinverse_c4_c5_c6_d4_d5_d6,
             square_to_threats=square_to_threats,
-            directly_playable_squares=board.playable_squares(),
         )
         self.assertIsNone(got_highinverse_solution)
 

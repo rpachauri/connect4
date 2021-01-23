@@ -81,7 +81,7 @@ def find_all_solutions(board: Board):
     verticals = find_all_verticals(board=board)
     afterevens = find_all_afterevens(board=board, claimevens=claimevens)
     lowinverses = find_all_lowinverses(verticals=verticals)
-    highinverses = find_all_highinverses(lowinverses=lowinverses)
+    highinverses = find_all_highinverses(board=board, lowinverses=lowinverses)
     baseclaims = find_all_baseclaims(board=board)
     befores = find_all_befores(board=board, threats=opponent_threats)
     specialbefores = find_all_specialbefores(board=board, befores=befores)
@@ -119,11 +119,7 @@ def find_all_solutions(board: Board):
             solutions.add(solution)
 
     for highinverse in highinverses:
-        solution = from_highinverse(
-            highinverse=highinverse,
-            square_to_threats=square_to_player_threats,
-            directly_playable_squares=board.playable_squares()
-        )
+        solution = from_highinverse(highinverse=highinverse, square_to_threats=square_to_player_threats)
         if solution is not None:
             solutions.add(solution)
 
@@ -348,7 +344,7 @@ def from_lowinverse(lowinverse: Lowinverse, square_to_threats) -> Solution:
         )
 
 
-def from_highinverse(highinverse: Highinverse, square_to_threats, directly_playable_squares) -> Solution:
+def from_highinverse(highinverse: Highinverse, square_to_threats) -> Solution:
     """Converts a Highinverse into a Solution.
     Must solve at least one *new* potential threat in order to be converted into a Solution.
     By "new potential threat," we mean any threat that isn't already solved by the Verticals or Lowinverse
@@ -358,7 +354,6 @@ def from_highinverse(highinverse: Highinverse, square_to_threats, directly_playa
         highinverse (Highinverse): a Highinverse.
         square_to_threats (Map<Square, Set<Threat>>): A dictionary mapping each
             Square to all Threats that contain that Square.
-        directly_playable_squares (Set<Square>): A Set of directly playable Squares.
 
     Returns:
         solution (Solution): a Solution if highinverse can be converted into one. None if it can't.
@@ -388,14 +383,14 @@ def from_highinverse(highinverse: Highinverse, square_to_threats, directly_playa
         highinverse_threats.update(upper_vertical_1_solution.threats)
 
     # If the lower square of the first column is directly playable:
-    if vertical_0.lower in directly_playable_squares:
+    if vertical_0.lower in highinverse.directly_playable_squares:
         # Add all threats which contain both the lower square of the first column and
         # the upper square of the second column.
         lower_0_upper_1_threats = square_to_threats[vertical_0.lower].intersection(square_to_threats[upper_square_1])
         highinverse_threats.update(lower_0_upper_1_threats)
 
     # If the lower square of the second column is directly playable:
-    if vertical_1.lower in directly_playable_squares:
+    if vertical_1.lower in highinverse.directly_playable_squares:
         # Add all threats which contain both the lower square of the second column and
         # the upper square of the first column.
         lower_1_upper_0_threats = square_to_threats[vertical_1.lower].intersection(square_to_threats[upper_square_0])
