@@ -68,6 +68,7 @@ class TestLowinverse(unittest.TestCase):
 
         want_lowinverses = {
             # All Lowinverses with vertical_1_0.
+            # TODO a Lowinverse with both verticals in the same column doesn't make sense.
             Lowinverse(first_vertical=vertical_1_0, second_vertical=vertical_3_0),
             Lowinverse(first_vertical=vertical_1_0, second_vertical=vertical_1_1),
             Lowinverse(first_vertical=vertical_1_0, second_vertical=vertical_3_1),

@@ -1,3 +1,5 @@
+from connect_four.agents.victor.game import Square
+
 from connect_four.agents.victor.rules import Claimeven
 from connect_four.agents.victor.rules import Baseinverse
 from connect_four.agents.victor.rules import Vertical
@@ -19,13 +21,19 @@ class SimplePlan:
         return False
 
     def merge(self, simple_plan):
-        pass
+        responses = self.responses.copy()
+        responses.update(simple_plan.responses)
+        availabilities = self.availabilities.union(simple_plan.availabilities)
+        return SimplePlan(responses=responses, availabilities=availabilities)
 
     def add_responses(self, responses):
         pass
 
-    def add_availability(self, availability):
-        pass
+    def add_availabilities(self, availabilities):
+        return SimplePlan(
+            self.responses,
+            self.availabilities.union(set(availabilities)),
+        )
 
 
 class SimplePlanBuilder:
@@ -38,7 +46,17 @@ class SimplePlanBuilder:
         pass
 
     def build(self):
-        pass
+        responses = dict()
+        availabilities = set()
+        for plan in self.plans:
+            if isinstance(plan, SimplePlan):
+                responses.update(plan.responses)
+                availabilities.update(plan.availabilities)
+            elif isinstance(plan, Square):
+                availabilities.add(plan)
+            else:  # plan must be a response
+                responses.update(plan)
+        return SimplePlan(responses=responses, availabilities=availabilities)
 
 
 def from_claimeven(claimeven: Claimeven) -> SimplePlan:
