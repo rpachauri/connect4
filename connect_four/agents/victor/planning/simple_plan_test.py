@@ -7,6 +7,7 @@ from connect_four.agents.victor.rules import Claimeven
 from connect_four.agents.victor.rules import Baseinverse
 from connect_four.agents.victor.rules import Vertical
 from connect_four.agents.victor.rules import Aftereven
+from connect_four.agents.victor.rules import Before
 
 from connect_four.agents.victor.planning import simple_plan
 
@@ -73,6 +74,26 @@ class TestSimplePlan(unittest.TestCase):
             }
         )
         got_plan = simple_plan.from_aftereven(aftereven=aftereven_d2_g2)
+        self.assertEqual(want_plan, got_plan)
+
+    def test_from_before(self):
+        # Example from Diagram 6.9.
+        square_b3 = Square(row=3, col=1)
+        square_b4 = Square(row=2, col=1)
+        square_e1 = Square(row=5, col=4)
+        square_e2 = Square(row=4, col=4)
+        vertical_e1_e2 = Vertical(upper=square_e2, lower=square_e1)
+        claimeven_b3_b4 = Claimeven(upper=square_b4, lower=square_b3)
+        before_b4_e1 = Before(
+            threat=Threat(player=1, start=Square(row=2, col=1), end=Square(row=5, col=4)),  # Threat b4-e1
+            verticals=[vertical_e1_e2],
+            claimevens=[claimeven_b3_b4],
+        )
+        want_plan = simple_plan.SimplePlanBuilder([
+            simple_plan.from_vertical(vertical=vertical_e1_e2),
+            simple_plan.from_claimeven(claimeven=claimeven_b3_b4),
+        ]).build()
+        got_plan = simple_plan.from_before(before=before_b4_e1)
         self.assertEqual(want_plan, got_plan)
 
 

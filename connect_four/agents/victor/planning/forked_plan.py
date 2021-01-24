@@ -51,7 +51,7 @@ def from_highinverse(highinverse: Highinverse) -> Fork:
     )
 
 
-def _create_highinverse_branch(vertical_a, vertical_b, directly_playable_squares):
+def _create_highinverse_branch(vertical_a, vertical_b, directly_playable_squares) -> Branch:
     square_above_vertical_a = Square(row=vertical_a.upper.row - 1, col=vertical_a.upper.col)
     square_above_vertical_b = Square(row=vertical_b.upper.row - 1, col=vertical_b.upper.col)
     branch_simple_plan = simple_plan.from_claimeven(
@@ -78,7 +78,7 @@ def _create_highinverse_branch(vertical_a, vertical_b, directly_playable_squares
     )
 
 
-def from_baseclaim(baseclaim: Baseclaim):
+def from_baseclaim(baseclaim: Baseclaim) -> Fork:
     square_above_second = Square(row=baseclaim.second.row - 1, col=baseclaim.second.col)
 
     return Fork(

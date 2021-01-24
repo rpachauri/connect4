@@ -4,6 +4,7 @@ from connect_four.agents.victor.rules import Claimeven
 from connect_four.agents.victor.rules import Baseinverse
 from connect_four.agents.victor.rules import Vertical
 from connect_four.agents.victor.rules import Aftereven
+from connect_four.agents.victor.rules import Before
 
 
 class SimplePlan:
@@ -43,7 +44,7 @@ class SimplePlanBuilder:
         self.plans = plans.copy()
 
     def add(self, plan):
-        pass
+        self.plans.append(plan)
 
     def build(self):
         responses = dict()
@@ -91,3 +92,12 @@ def from_aftereven(aftereven: Aftereven) -> SimplePlan:
     for claimeven in aftereven.claimevens:
         responses[claimeven.lower] = claimeven.upper
     return SimplePlan(responses=responses)
+
+
+def from_before(before: Before) -> SimplePlan:
+    builder = SimplePlanBuilder()
+    for vertical in before.verticals:
+        builder.add(plan=from_vertical(vertical=vertical))
+    for claimeven in before.claimevens:
+        builder.add(plan=from_claimeven(claimeven=claimeven))
+    return builder.build()
