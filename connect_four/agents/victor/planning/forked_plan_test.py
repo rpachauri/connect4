@@ -7,6 +7,7 @@ from connect_four.agents.victor.rules import Baseinverse
 from connect_four.agents.victor.rules import Vertical
 from connect_four.agents.victor.rules import Lowinverse
 from connect_four.agents.victor.rules import Highinverse
+from connect_four.agents.victor.rules import Baseclaim
 
 from connect_four.agents.victor.planning import simple_plan
 from connect_four.agents.victor.planning import forked_plan
@@ -14,6 +15,7 @@ from connect_four.agents.victor.planning import forked_plan
 
 class TestForkedPlan(unittest.TestCase):
     def test_from_lowinverse(self):
+        # Test case from Diagram 6.6 of the original paper.
         square_c2 = Square(row=4, col=2)
         square_c3 = Square(row=3, col=2)
         square_d2 = Square(row=4, col=3)
@@ -40,6 +42,7 @@ class TestForkedPlan(unittest.TestCase):
         self.assertEqual(want_plan, got_plan)
 
     def test_from_highinverse(self):
+        # Test case from Diagram 6.6 of the original paper.
         square_c2 = Square(row=4, col=2)
         square_c3 = Square(row=3, col=2)
         square_c4 = Square(row=2, col=2)
@@ -82,6 +85,51 @@ class TestForkedPlan(unittest.TestCase):
             },
         )
         got_plan = forked_plan.from_highinverse(highinverse=highinverse_c2_c3_c4_d2_d3_d4)
+        self.assertEqual(want_plan, got_plan)
+
+    def test_from_baseclaim(self):
+        # Test case from Diagram 6.7 of the original paper.
+        square_b1 = Square(row=5, col=1)
+        square_c1 = Square(row=5, col=2)
+        square_c2 = Square(row=4, col=2)
+        square_e1 = Square(row=5, col=4)
+        baseclaim_b1_c1_c2_f1 = Baseclaim(
+            first=square_b1,  # b1
+            second=square_c1,  # c1
+            third=square_e1,  # e1
+        )
+        want_plan = forked_plan.Fork(
+            branches={
+                square_b1: forked_plan.Branch(
+                    forced_square=square_e1,
+                    simple_plan=simple_plan.from_claimeven(
+                        claimeven=Claimeven(
+                            lower=square_c1,
+                            upper=square_c2,
+                        ),
+                    )
+                ),
+                square_c1: forked_plan.Branch(
+                    forced_square=square_e1,
+                    simple_plan=simple_plan.from_baseinverse(
+                        baseinverse=Baseinverse(
+                            playable1=square_b1,
+                            playable2=square_c2,
+                        ),
+                    ),
+                ),
+                square_e1: forked_plan.Branch(
+                    forced_square=square_c1,
+                    simple_plan=simple_plan.from_baseinverse(
+                        baseinverse=Baseinverse(
+                            playable1=square_b1,
+                            playable2=square_c2,
+                        ),
+                    ),
+                ),
+            },
+        )
+        got_plan = forked_plan.from_baseclaim(baseclaim=baseclaim_b1_c1_c2_f1)
         self.assertEqual(want_plan, got_plan)
 
 

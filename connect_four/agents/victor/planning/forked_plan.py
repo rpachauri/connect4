@@ -6,6 +6,7 @@ from connect_four.agents.victor.rules import Claimeven
 from connect_four.agents.victor.rules import Baseinverse
 from connect_four.agents.victor.rules import Lowinverse
 from connect_four.agents.victor.rules import Highinverse
+from connect_four.agents.victor.rules import Baseclaim
 
 from connect_four.agents.victor.planning import simple_plan
 
@@ -74,4 +75,40 @@ def _create_highinverse_branch(vertical_a, vertical_b, directly_playable_squares
     return Branch(
         forced_square=vertical_a.upper,
         simple_plan=branch_simple_plan,
+    )
+
+
+def from_baseclaim(baseclaim: Baseclaim):
+    square_above_second = Square(row=baseclaim.second.row - 1, col=baseclaim.second.col)
+
+    return Fork(
+        branches={
+            baseclaim.first: Branch(
+                forced_square=baseclaim.third,
+                simple_plan=simple_plan.from_claimeven(
+                    claimeven=Claimeven(
+                        lower=baseclaim.second,
+                        upper=square_above_second,
+                    ),
+                )
+            ),
+            baseclaim.second: Branch(
+                forced_square=baseclaim.third,
+                simple_plan=simple_plan.from_baseinverse(
+                    baseinverse=Baseinverse(
+                        playable1=baseclaim.first,
+                        playable2=square_above_second,
+                    ),
+                ),
+            ),
+            baseclaim.third: Branch(
+                forced_square=baseclaim.second,
+                simple_plan=simple_plan.from_baseinverse(
+                    baseinverse=Baseinverse(
+                        playable1=baseclaim.first,
+                        playable2=square_above_second,
+                    ),
+                ),
+            ),
+        },
     )
