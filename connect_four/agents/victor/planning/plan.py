@@ -3,6 +3,7 @@ from connect_four.agents.victor.game import Square
 from connect_four.agents.victor.planning import simple_plan
 
 from connect_four.agents.victor.rules import Claimeven
+from connect_four.agents.victor.rules import Baseinverse
 from connect_four.agents.victor.rules import Vertical
 
 
@@ -32,6 +33,8 @@ class Plan:
         for application in rule_applications:
             if isinstance(application, Claimeven):
                 plan = simple_plan.from_claimeven(claimeven=application)
+            elif isinstance(application, Baseinverse):
+                plan = simple_plan.from_baseinverse(baseinverse=application)
             elif isinstance(application, Vertical):
                 plan = simple_plan.from_vertical(vertical=application)
             else:
@@ -49,7 +52,6 @@ class Plan:
         """Executes this Plan by responding to square.
 
         Raises:
-            ValueError: If square is not in directly_playable_squares.
             KeyError: If this Plan doesn't have a known response for square and square is not known to be available.
 
         Modifies:
@@ -61,14 +63,12 @@ class Plan:
 
         Args:
             square (Square): a directly playable Square.
-            directly_playable_squares (Set<Square>): an iterable of directly playable Squares.
+            directly_playable_squares (Set<Square>): an iterable of directly playable Squares. If square is not in the
+                top row, it must contain the Square above square.
 
         Returns:
-            response (Square): a Square in directly_playable_squares or directly above square. response != square.
+            response (Square): a Square in directly_playable_squares.
         """
-        if square not in directly_playable_squares:
-            raise ValueError("square", square, "not in directly playable squares:", directly_playable_squares)
-
         if square in self.responses:
             response = self.responses[square]
 

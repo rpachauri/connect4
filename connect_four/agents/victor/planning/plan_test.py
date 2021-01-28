@@ -3,6 +3,7 @@ import unittest
 from connect_four.agents.victor.game import Square
 
 from connect_four.agents.victor.rules import Claimeven
+from connect_four.agents.victor.rules import Baseinverse
 from connect_four.agents.victor.rules import Vertical
 
 from connect_four.agents.victor.planning import plan
@@ -70,12 +71,77 @@ class TestPlan(unittest.TestCase):
         pure_claimeven_plan = plan.Plan(rule_applications=rule_applications)
 
         # Verify that the upper of a Claimeven is the response to the lower of a Claimeven even
-        # when there are no directly playable squares.
-        got_response = pure_claimeven_plan.execute(square=square_a1, directly_playable_squares={square_a1})
+        # when there are no other directly playable squares.
+        got_response = pure_claimeven_plan.execute(square=square_a1, directly_playable_squares={})
         self.assertEqual(square_a2, got_response)
+
+    def test_evaluate_diagram_6_2(self):
+        # This test case is based on Diagram 6.2.
+
+        # Define all the Squares that will be used in Baseinverses.
+        square_a1 = Square(row=5, col=0)
+        square_b1 = Square(row=5, col=1)
+        square_c4 = Square(row=2, col=2)
+        square_d3 = Square(row=3, col=3)
+        square_e2 = Square(row=4, col=4)
+        square_f1 = Square(row=5, col=5)
+        square_g1 = Square(row=5, col=6)
+        square_g2 = Square(row=4, col=5)
+
+        directly_playable_squares = {
+            square_a1,
+            square_b1,
+            square_c4,
+            square_d3,
+            square_e2,
+            square_f1,
+            square_g1,
+        }
+
+        # Define a set of Baseinverses that can be used together.
+        baseinverse_a1_b1 = Baseinverse(playable1=square_a1, playable2=square_b1)
+        baseinverse_c4_d3 = Baseinverse(playable1=square_c4, playable2=square_d3)
+        baseinverse_e2_f1 = Baseinverse(playable1=square_e2, playable2=square_f1)
+
+        # Combine the Baseinverses into an iterable of Rule applications.
+        rule_applications = [
+            baseinverse_a1_b1,
+            baseinverse_c4_d3,
+            baseinverse_e2_f1,
+        ]
+        pure_baseinverse_plan = plan.Plan(rule_applications=rule_applications, availabilities={square_g1, square_g2})
+
+        # Verify that g2 is the response when g1 is played because all squares part of the Baseinverses are forbidden.
+        got_response = pure_baseinverse_plan.execute(
+            square=square_g1,
+            directly_playable_squares={
+                square_a1,
+                square_b1,
+                square_c4,
+                square_d3,
+                square_e2,
+                square_f1,
+                square_g2,
+            },
+        )
+        self.assertEqual(square_g2, got_response)
+
+        # Verify that one of the Squares of a Baseinverse is the response to the other Square of the Baseinverse.
+        got_response = pure_baseinverse_plan.execute(
+            square=square_a1,
+            directly_playable_squares=[
+                square_b1,
+                square_c4,
+                square_d3,
+                square_e2,
+                square_f1,
+            ])
+        self.assertEqual(square_b1, got_response)
 
     def test_evaluate_diagram_6_3(self):
         # This test case is based on Diagram 6.3.
+
+        # Define all the Squares that will be used in Verticals
         square_c6 = Square(row=0, col=2)
         square_e4 = Square(row=2, col=4)
         square_e5 = Square(row=1, col=4)
@@ -85,12 +151,12 @@ class TestPlan(unittest.TestCase):
 
         # Verify that when the lower square is given, the Plan responds with the upper square.
         play_upper_plan = plan.Plan(rule_applications={vertical_e4_e5})
-        got_response = play_upper_plan.execute(square=square_e4, directly_playable_squares=[square_e4])
+        got_response = play_upper_plan.execute(square=square_e4, directly_playable_squares=[square_e5, square_c6])
         self.assertEqual(square_e5, got_response)
 
         # Verify that if no other squares are available, the Plan responds with the lower square.
         play_lower_plan = plan.Plan(rule_applications={vertical_e4_e5}, availabilities=[square_c6])
-        got_response = play_lower_plan.execute(square=square_c6, directly_playable_squares=[square_c6, square_e4])
+        got_response = play_lower_plan.execute(square=square_c6, directly_playable_squares=[square_e4])
         self.assertEqual(square_e4, got_response)
 
 
