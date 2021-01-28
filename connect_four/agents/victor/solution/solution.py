@@ -22,8 +22,6 @@ from connect_four.agents.victor.rules import find_all_baseclaims
 from connect_four.agents.victor.rules import find_all_befores
 from connect_four.agents.victor.rules import find_all_specialbefores
 
-from connect_four.agents.victor.planning import plan
-
 
 class Solution:
     """A Solution is an application of a Rule that refutes at least one threat.
@@ -31,7 +29,7 @@ class Solution:
     Two Solutions may or may not work together depending on which squares each
     consists of and which rule they are an application of.
     """
-    def __init__(self, rule, squares, threats=None, claimeven_bottom_squares=None, solution_plan=None):
+    def __init__(self, rule, squares, threats=None, claimeven_bottom_squares=None):
         self.rule = rule
         self.squares = frozenset(squares)
 
@@ -43,8 +41,7 @@ class Solution:
             claimeven_bottom_squares = set()
         self.claimeven_bottom_squares = frozenset(claimeven_bottom_squares)
 
-        # TODO deprecate. Use the rule instance instead.
-        self.plan = solution_plan
+        # TODO Store the rule instance.
 
     def __eq__(self, other):
         if isinstance(other, Solution):
@@ -160,7 +157,7 @@ def from_claimeven(claimeven: Claimeven, square_to_threats) -> Solution:
             squares=[claimeven.upper, claimeven.lower],
             threats=threats,
             claimeven_bottom_squares=[claimeven.lower],
-            solution_plan=plan.from_claimeven(claimeven=claimeven),
+            # solution_plan=plan.from_claimeven(claimeven=claimeven),
         )
 
 

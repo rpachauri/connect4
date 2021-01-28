@@ -1,106 +1,67 @@
 from connect_four.agents.victor.game import Square
 
+from connect_four.agents.victor.planning import simple_plan
+
 from connect_four.agents.victor.rules import Claimeven
-from connect_four.agents.victor.rules import Baseinverse
-from connect_four.agents.victor.rules import Vertical
-from connect_four.agents.victor.rules import Aftereven
-from connect_four.agents.victor.rules import Lowinverse
 
 
 class Plan:
-    def __init__(self, responses=None, availabilities=None, forced_square: Square = None):
-        if responses is None:
-            responses = dict()
-        if availabilities is None:
-            availabilities = set()
-        self.responses = responses
-        self.availabilities = availabilities
-        self.forced_square = forced_square
+    def __init__(self, rule_applications):
+        """Initializes a Plan instance.
+
+        Requires:
+            1. Every application_1 in rule_applications must be able to be combined with every other application_2 in
+                rule_applications.
+
+        Assumptions:
+            1. Makes an assumption that together, all applications in rule_applications can be used to respond to
+                any move the opponent makes until the end of the game.
+
+        Args:
+            rule_applications (Iterable): rule_applications is an iterable of Rule applications:
+                (Claimeven, Baseinverse, etc.).
+        """
+        self.responses = dict()
+        self.availabilities = set()
+
+        for application in rule_applications:
+            if isinstance(application, Claimeven):
+                claimeven_simple_plan = simple_plan.from_claimeven(claimeven=application)
+                self.responses.update(claimeven_simple_plan.responses)
+                self.availabilities.update(claimeven_simple_plan.availabilities)
 
     def __eq__(self, other):
         if isinstance(other, Plan):
-            return (self.responses == other.responses and
-                    self.availabilities == other.availabilities and
-                    self.forced_square == other.forced_square)
+            return self.responses == other.responses and self.availabilities == other.availabilities
         return False
 
-    def execute(self, square: Square) -> Square:
+    def execute(self, square: Square, directly_playable_squares) -> Square:
+        """
+
+        Throws:
+            KeyError: If this Plan doesn't have a known response for square and square is not known to be available.
+
+        Modifies:
+            this:
+                1. If square forces a Square in this Plan, this Plan will no longer store that response.
+                2. If square forces a Fork in this Plan, this Plan will remove any references to the Fork and
+                    add any SimplePlans part of the chosen Branch.
+                3. If square is an available square, selects an available directly playable Square.
+
+        Args:
+            square (Square): a directly playable Square.
+            directly_playable_squares (iterable<Square>): an iterable of directly playable Squares.
+
+        Returns:
+            response (Square): a Square in directly_playable_squares or directly above square. response != square.
+        """
         if square in self.responses:
-            # Find the appropriate response for square and remove it from the plan.
             response = self.responses[square]
 
-            self.responses.pop(square)
+            # response is exactly a Square.
+            if isinstance(response, Square):
+                self.responses.pop(square)
+                return response
 
-            # Since the response is being executed, we no longer need a response for it.
-            if response in self.responses:
-                self.responses.pop(response)
-            return response
-        # TODO pick a square from self.availabilities.
-
-    def merge(self, plan):
-        for response in plan.responses:
-            if response not in self.responses:
-                self.responses[response] = plan.responses[response]
-            elif self.responses[response] != plan.responses[response]:
-                raise ValueError("Cannot merge", self.responses[response], "with", plan.responses[response])
-        self.availabilities.update(plan.availabilities)
-
-
-def from_claimeven(claimeven: Claimeven):
-    return Plan(
-        responses={
-            claimeven.lower: claimeven.upper,
-        },
-    )
-
-
-def from_baseinverse(baseinverse: Baseinverse):
-    square0, square1 = tuple(baseinverse.squares)
-    return Plan(
-        responses={
-            square0: square1,
-            square1: square0,
-        }
-    )
-
-
-def from_vertical(vertical: Vertical):
-    return Plan(
-        responses={
-            vertical.lower: vertical.upper,
-        },
-        availabilities={vertical.lower},
-    )
-
-
-def from_aftereven(aftereven: Aftereven):
-    responses = dict()
-    for claimeven in aftereven.claimevens:
-        responses[claimeven.lower] = claimeven.upper
-    return Plan(responses=responses)
-
-
-def from_lowinverse(lowinverse: Lowinverse):
-    vertical0, vertical1 = tuple(lowinverse.verticals)
-    return Plan(
-        responses={
-            vertical0.lower: Plan(
-                forced_square=vertical0.upper,
-                responses={
-                    vertical1.lower: Plan(
-                        forced_square=vertical1.upper,
-                    )
-                },
-                availabilities={vertical1.lower},
-            ),
-            vertical1.lower: Plan(
-                forced_square=vertical1.upper,
-                responses={
-                    vertical0.lower: Plan(
-                        forced_square=vertical0.upper,
-                    )
-                },
-                availabilities={vertical0.lower},
-            ),
-        }
-    )
+            # else: response must be a Fork.
+        pass  # TODO pick a square from self.availabilities.
