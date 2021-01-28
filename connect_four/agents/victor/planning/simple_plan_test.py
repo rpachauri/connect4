@@ -8,6 +8,7 @@ from connect_four.agents.victor.rules import Baseinverse
 from connect_four.agents.victor.rules import Vertical
 from connect_four.agents.victor.rules import Aftereven
 from connect_four.agents.victor.rules import Before
+from connect_four.agents.victor.rules import Specialbefore
 
 from connect_four.agents.victor.planning import simple_plan
 
@@ -94,6 +95,46 @@ class TestSimplePlan(unittest.TestCase):
             simple_plan.from_claimeven(claimeven=claimeven_b3_b4),
         ]).build()
         got_plan = simple_plan.from_before(before=before_b4_e1)
+        self.assertEqual(want_plan, got_plan)
+
+    def test_from_specialbefore(self):
+        # Example from Diagram 6.10.
+        internal_directly_playable_square_e2 = Square(row=4, col=4)
+        square_e3 = Square(row=3, col=4)
+        square_f1 = Square(row=5, col=5)
+        square_f2 = Square(row=4, col=5)
+        square_g1 = Square(row=5, col=6)
+        square_g2 = Square(row=4, col=6)
+        external_directly_playable_square_d3 = Square(row=3, col=3)
+
+        # Verticals/Claimevens which are part of the Before.
+        vertical_e2_e3 = Vertical(upper=square_e3, lower=internal_directly_playable_square_e2)  # Vertical e2-e3.
+        claimeven_f1_f2 = Claimeven(upper=square_f2, lower=square_f1)  # Claimeven f1-f2.
+        claimeven_g1_g2 = Claimeven(upper=square_g2, lower=square_g1)  # Claimeven g1-g2.
+
+        # Before d2-g2.
+        before_d2_g2 = Before(
+            threat=Threat(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6)),  # d2-g2
+            verticals=[vertical_e2_e3],
+            claimevens=[claimeven_f1_f2, claimeven_g1_g2],
+        )
+        # Specialbefore d2-g2.
+        specialbefore_d2_g2 = Specialbefore(
+            before=before_d2_g2,
+            internal_directly_playable_square=internal_directly_playable_square_e2,  # e2
+            external_directly_playable_square=external_directly_playable_square_d3,  # d3
+        )
+
+        want_plan = simple_plan.SimplePlanBuilder([
+            simple_plan.from_baseinverse(
+                baseinverse=Baseinverse(
+                    playable1=internal_directly_playable_square_e2,
+                    playable2=external_directly_playable_square_d3,
+                )),
+            simple_plan.from_claimeven(claimeven=claimeven_f1_f2),
+            simple_plan.from_claimeven(claimeven=claimeven_g1_g2),
+        ]).build()
+        got_plan = simple_plan.from_specialbefore(specialbefore=specialbefore_d2_g2)
         self.assertEqual(want_plan, got_plan)
 
 

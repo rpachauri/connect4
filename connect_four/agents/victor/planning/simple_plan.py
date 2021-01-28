@@ -5,6 +5,7 @@ from connect_four.agents.victor.rules import Baseinverse
 from connect_four.agents.victor.rules import Vertical
 from connect_four.agents.victor.rules import Aftereven
 from connect_four.agents.victor.rules import Before
+from connect_four.agents.victor.rules import Specialbefore
 
 
 class SimplePlan:
@@ -99,5 +100,22 @@ def from_before(before: Before) -> SimplePlan:
     for vertical in before.verticals:
         builder.add(plan=from_vertical(vertical=vertical))
     for claimeven in before.claimevens:
+        builder.add(plan=from_claimeven(claimeven=claimeven))
+    return builder.build()
+
+
+def from_specialbefore(specialbefore: Specialbefore) -> SimplePlan:
+    builder = SimplePlanBuilder()
+    builder.add(
+        plan=from_baseinverse(
+            baseinverse=Baseinverse(
+                playable1=specialbefore.internal_directly_playable_square,
+                playable2=specialbefore.external_directly_playable_square),
+        ),
+    )
+    for vertical in specialbefore.before.verticals:
+        if vertical != specialbefore.unused_vertical():
+            builder.add(plan=from_vertical(vertical=vertical))
+    for claimeven in specialbefore.before.claimevens:
         builder.add(plan=from_claimeven(claimeven=claimeven))
     return builder.build()
