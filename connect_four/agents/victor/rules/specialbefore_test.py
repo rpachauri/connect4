@@ -24,6 +24,29 @@ class TestSpecialbefore(unittest.TestCase):
         ConnectFourEnv.N = 7
         self.env.reset()
 
+    def test_unused_vertical(self):
+        directly_playable_square_3_3 = Square(row=3, col=3)
+        directly_playable_square_4_4 = Square(row=4, col=4)
+        square_above_directly_playable_square_4_4 = Square(row=3, col=4)
+        vertical_3_4 = Vertical(upper=Square(row=3, col=4), lower=Square(row=4, col=4))
+        threat_4_3_to_4_6 = Threat(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6))
+        before_4_3_to_4_6 = Before(
+            threat=threat_4_3_to_4_6,
+            verticals=[vertical_3_4],
+            claimevens=[],
+        )
+        specialbefore = Specialbefore(
+            before=before_4_3_to_4_6,
+            internal_directly_playable_square=directly_playable_square_4_4,
+            external_directly_playable_square=directly_playable_square_3_3,
+        )
+        want_unused_vertical = Vertical(
+            lower=directly_playable_square_4_4,
+            upper=square_above_directly_playable_square_4_4,
+        )
+        got_unused_vertical = specialbefore.unused_vertical()
+        self.assertEqual(want_unused_vertical, got_unused_vertical)
+
     def test_before_simplified_diagram_6_10(self):
         # This is a modified test case from Diagram 6.10 from the original paper.
         # We filled up a lot of the columns to simplify the test case and reduce the total number of Specialbefores.

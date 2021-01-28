@@ -1,5 +1,7 @@
 from connect_four.agents.victor.game import Board
 from connect_four.agents.victor.game import Square
+
+from connect_four.agents.victor.rules import Vertical
 from connect_four.agents.victor.rules import Before
 
 
@@ -10,10 +12,23 @@ class Specialbefore:
                  external_directly_playable_square: Square):
         """Initializes a Specialbefore instance.
 
+        Assumptions:
+            1. The internal directly playable square belongs to at most one Vertical.
+                a. This allows us to not have to dedupe different variations of Befores.
+                b. Note that this is important because that Vertical does not get used by the Specialbefore.
+            2. A requirement of the Before is that there must be at least one Vertical. This is not a
+                requirement of the Specialbefore.
+
         Args:
             before (Before): A Before. At least one empty square of the Before group must be playable.
+            internal_directly_playable_square (Square): A directly playable square part of the Before.
             external_directly_playable_square (Square): A directly playable square not part of the Before.
         """
+        # An assumption we make is that the internal directly playable square belongs to at most one Vertical.
+        # This allows us to not have to dedupe different variations of Befores.
+        # Note that this is important because that Vertical does not get used by the Specialbefore.
+        # Also note that a requirement of the Before is that there must be at least one Vertical. This is not a
+        # requirement of the Specialbefore.
         self.before = before
         self.internal_directly_playable_square = internal_directly_playable_square
         self.external_directly_playable_square = external_directly_playable_square
@@ -29,6 +44,20 @@ class Specialbefore:
         return (self.before.__hash__() * 59 +
                 self.internal_directly_playable_square.__hash__() * 47 +
                 self.external_directly_playable_square.__hash__())
+
+    def unused_vertical(self) -> Vertical:
+        """
+        Returns:
+            unused_vertical (Vertical): a Vertical part of the Before but not part of the Specialbefore.
+                The lower square of the Vertical is the internal directly playable square of the Specialbefore.
+        """
+        return Vertical(
+            lower=self.internal_directly_playable_square,
+            upper=Square(
+                row=self.internal_directly_playable_square.row - 1,
+                col=self.internal_directly_playable_square.col,
+            ),
+        )
 
 
 def find_all_specialbefores(board: Board, befores):
