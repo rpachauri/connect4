@@ -70,7 +70,7 @@ class TestPlan(unittest.TestCase):
 
         # Verify that the upper of a Claimeven is the response to the lower of a Claimeven even
         # when there are no directly playable squares.
-        got_response = pure_claimeven_plan.execute(square=square_a1, directly_playable_squares=[])
+        got_response = pure_claimeven_plan.execute(square=square_a1, directly_playable_squares=[square_a1])
         self.assertEqual(square_a2, got_response)
 
 

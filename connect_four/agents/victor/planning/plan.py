@@ -36,9 +36,10 @@ class Plan:
         return False
 
     def execute(self, square: Square, directly_playable_squares) -> Square:
-        """
+        """Executes this Plan by responding to square.
 
-        Throws:
+        Raises:
+            ValueError: If square is not in directly_playable_squares.
             KeyError: If this Plan doesn't have a known response for square and square is not known to be available.
 
         Modifies:
@@ -55,6 +56,8 @@ class Plan:
         Returns:
             response (Square): a Square in directly_playable_squares or directly above square. response != square.
         """
+        if square not in directly_playable_squares:
+            raise ValueError("square", square, "not in directly playable squares:", directly_playable_squares)
         if square in self.responses:
             response = self.responses[square]
 
