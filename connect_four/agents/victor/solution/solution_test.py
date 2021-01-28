@@ -695,7 +695,7 @@ class TestSolution(unittest.TestCase):
                 Square(row=4, col=6),  # g2
                 # Squares not part of the Specialbefore group but are
                 # part of Verticals/Claimevens which are part of the Specialbefore.
-                Square(row=3, col=4),  # e3 is the upper Square of Vertical e2-e3.
+                # Square(row=3, col=4),  # e3 is the upper Square of Vertical e2-e3 and does not get used.
                 Square(row=5, col=5),  # f1 is the lower Square of Claimeven f1-f2.
                 Square(row=5, col=6),  # g1 is the lower Square of Claimeven g1-g2.
                 # Directly playable square not part of the Specialbefore group.
@@ -709,8 +709,8 @@ class TestSolution(unittest.TestCase):
                 # external directly playable square of the Specialbefore.
                 Threat(player=0, start=Square(row=1, col=1), end=Square(row=4, col=4)),  # b5-e2
                 Threat(player=0, start=Square(row=2, col=2), end=Square(row=5, col=5)),  # c4-f1
-                # Threats that are refuted by Vertical e2-e3.
-                Threat(player=0, start=Square(row=1, col=4), end=Square(row=4, col=4)),  # e2-e5
+                # Note that Vertical e2-e3 does not get used.
+                # Threat(player=0, start=Square(row=1, col=4), end=Square(row=4, col=4)),  # e2-e5
                 # Threats that are refuted by Claimeven f1-f2.
                 Threat(player=0, start=Square(row=1, col=5), end=Square(row=4, col=5)),  # f2-f5
                 Threat(player=0, start=Square(row=2, col=5), end=Square(row=5, col=5)),  # f1-f4

@@ -90,6 +90,7 @@ def empty_squares_of_before_group(board: Board, threat: Threat):
 
     Returns:
         empty_squares (list<Square>):
+            TODO: Should be -> If square.row == 0 for every square in threat.squares:
             If there exists a square with square.row == 0 in threat:
                 returns []
             Otherwise:

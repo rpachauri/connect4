@@ -477,6 +477,7 @@ def from_before(before: Before, square_to_threats) -> Solution:
     empty_squares = before.empty_squares_of_before_group()
     empty_square_successors = []
     for square in empty_squares:
+        # TODO if square.row != 0:
         empty_square_successors.append(Square(row=square.row - 1, col=square.col))
 
     threats = square_to_threats[empty_square_successors[0]]
@@ -545,15 +546,31 @@ def from_specialbefore(specialbefore: Specialbefore, square_to_threats) -> Solut
         sq2 = specialbefore.external_directly_playable_square
         directly_playable_squares_threats = square_to_threats[sq1].intersection(square_to_threats[sq2])
 
-        # The union of external_and_successor_threats and directly_playable_squares_threats are all
-        # new threats that this Specialbefore refutes.
+        squares = {sq1, sq2}
         threats = external_and_successor_threats.union(directly_playable_squares_threats)
+
+        for vertical in specialbefore.before.verticals:
+            if vertical != specialbefore.unused_vertical():
+                # Add all squares part of Verticals which are part of the Before.
+                squares.add(vertical.upper)
+                squares.add(vertical.lower)
+                # Add all threats refuted by Verticals which are part of the Before.
+                threats.update(from_vertical(vertical, square_to_threats).threats)
+
+        claimeven_bottom_squares = []
+        for claimeven in specialbefore.before.claimevens:
+            # Add all squares part of Claimevens which are part of the Before.
+            squares.add(claimeven.upper)
+            squares.add(claimeven.lower)
+            claimeven_bottom_squares.append(claimeven.lower)
+            # Add all threats refuted by Claimevens which are part of the Before.
+            threats.update(from_claimeven(claimeven, square_to_threats).threats)
 
         # The Specialbefore Solution includes all squares and threats that the Before Solution has.
         before_solution = from_before(before=specialbefore.before, square_to_threats=square_to_threats)
         return Solution(
             rule=Rule.Specialbefore,
-            squares=frozenset(before_solution.squares.union([specialbefore.external_directly_playable_square])),
-            threats=frozenset(before_solution.threats.union(threats)),
-            claimeven_bottom_squares=before_solution.claimeven_bottom_squares,
+            squares=frozenset(squares),
+            threats=frozenset(threats),
+            claimeven_bottom_squares=claimeven_bottom_squares,
         )
