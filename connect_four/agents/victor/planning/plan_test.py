@@ -3,6 +3,7 @@ import unittest
 from connect_four.agents.victor.game import Square
 
 from connect_four.agents.victor.rules import Claimeven
+from connect_four.agents.victor.rules import Vertical
 
 from connect_four.agents.victor.planning import plan
 
@@ -37,7 +38,7 @@ class TestPlan(unittest.TestCase):
         square_g5 = Square(row=1, col=6)
         square_g6 = Square(row=0, col=6)
 
-        # Define a set of Claimevens.
+        # Define the Claimevens.
         claimeven_a1_a2 = Claimeven(lower=square_a1, upper=square_a2)
         claimeven_a5_a6 = Claimeven(lower=square_a5, upper=square_a6)
         claimeven_b1_b2 = Claimeven(lower=square_b1, upper=square_b2)
@@ -70,8 +71,27 @@ class TestPlan(unittest.TestCase):
 
         # Verify that the upper of a Claimeven is the response to the lower of a Claimeven even
         # when there are no directly playable squares.
-        got_response = pure_claimeven_plan.execute(square=square_a1, directly_playable_squares=[square_a1])
+        got_response = pure_claimeven_plan.execute(square=square_a1, directly_playable_squares={square_a1})
         self.assertEqual(square_a2, got_response)
+
+    def test_evaluate_diagram_6_3(self):
+        # This test case is based on Diagram 6.3.
+        square_c6 = Square(row=0, col=2)
+        square_e4 = Square(row=2, col=4)
+        square_e5 = Square(row=1, col=4)
+
+        # Define the Verticals.
+        vertical_e4_e5 = Vertical(lower=square_e4, upper=square_e5)
+
+        # Verify that when the lower square is given, the Plan responds with the upper square.
+        play_upper_plan = plan.Plan(rule_applications={vertical_e4_e5})
+        got_response = play_upper_plan.execute(square=square_e4, directly_playable_squares=[square_e4])
+        self.assertEqual(square_e5, got_response)
+
+        # Verify that if no other squares are available, the Plan responds with the lower square.
+        play_lower_plan = plan.Plan(rule_applications={vertical_e4_e5}, availabilities=[square_c6])
+        got_response = play_lower_plan.execute(square=square_c6, directly_playable_squares=[square_c6, square_e4])
+        self.assertEqual(square_e4, got_response)
 
 
 if __name__ == '__main__':

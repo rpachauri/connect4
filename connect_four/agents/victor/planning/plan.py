@@ -3,10 +3,11 @@ from connect_four.agents.victor.game import Square
 from connect_four.agents.victor.planning import simple_plan
 
 from connect_four.agents.victor.rules import Claimeven
+from connect_four.agents.victor.rules import Vertical
 
 
 class Plan:
-    def __init__(self, rule_applications):
+    def __init__(self, rule_applications, availabilities=None):
         """Initializes a Plan instance.
 
         Requires:
@@ -20,15 +21,24 @@ class Plan:
         Args:
             rule_applications (Iterable): rule_applications is an iterable of Rule applications:
                 (Claimeven, Baseinverse, etc.).
+            availabilities (Set<Square>): a set of available Squares.
         """
+        if availabilities is None:
+            availabilities = set()
+
         self.responses = dict()
-        self.availabilities = set()
+        self.availabilities = set(availabilities)
 
         for application in rule_applications:
             if isinstance(application, Claimeven):
-                claimeven_simple_plan = simple_plan.from_claimeven(claimeven=application)
-                self.responses.update(claimeven_simple_plan.responses)
-                self.availabilities.update(claimeven_simple_plan.availabilities)
+                plan = simple_plan.from_claimeven(claimeven=application)
+            elif isinstance(application, Vertical):
+                plan = simple_plan.from_vertical(vertical=application)
+            else:
+                raise TypeError("unsupported application type", application.__class__.__name__)
+
+            self.responses.update(plan.responses)
+            self.availabilities.update(plan.availabilities)
 
     def __eq__(self, other):
         if isinstance(other, Plan):
@@ -51,15 +61,20 @@ class Plan:
 
         Args:
             square (Square): a directly playable Square.
-            directly_playable_squares (iterable<Square>): an iterable of directly playable Squares.
+            directly_playable_squares (Set<Square>): an iterable of directly playable Squares.
 
         Returns:
             response (Square): a Square in directly_playable_squares or directly above square. response != square.
         """
         if square not in directly_playable_squares:
             raise ValueError("square", square, "not in directly playable squares:", directly_playable_squares)
+
         if square in self.responses:
             response = self.responses[square]
+
+            # square has been taken so it is no longer available.
+            if square in self.availabilities:
+                self.availabilities.remove(square)
 
             # response is exactly a Square.
             if isinstance(response, Square):
@@ -67,4 +82,16 @@ class Plan:
                 return response
 
             # else: response must be a Fork.
-        pass  # TODO pick a square from self.availabilities.
+
+        # Remove square from availabilities.
+        self.availabilities.remove(square)
+        # Select an arbitrary, available, directly playable Square.
+        response = self.availabilities.intersection(directly_playable_squares).pop()
+
+        # Remove response from responses if applicable.
+        if response in self.responses:
+            self.responses.pop(response)
+        # Remove response from availabilities.
+        self.availabilities.remove(response)
+
+        return response
