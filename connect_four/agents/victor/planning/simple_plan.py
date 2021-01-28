@@ -84,7 +84,7 @@ def from_vertical(vertical: Vertical) -> SimplePlan:
         responses={
             vertical.lower: vertical.upper,
         },
-        availabilities={vertical.lower},
+        availabilities={vertical.lower, vertical.upper},
     )
 
 

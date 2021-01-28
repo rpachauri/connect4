@@ -50,7 +50,7 @@ class TestSimplePlan(unittest.TestCase):
             responses={
                 square_e4: square_e5,
             },
-            availabilities={square_e4},
+            availabilities={square_e4, square_e5},
         )
         got_plan = simple_plan.from_vertical(vertical=vertical_e4_e5)
         self.assertEqual(want_plan, got_plan)
