@@ -31,7 +31,7 @@ class Plan:
         if directly_playable_squares is None:
             directly_playable_squares = set()
 
-        self.responses = dict()
+        self.forcing_to_forced = dict()
         self.availabilities = set(availabilities)
         self.directly_playable_squares = set(directly_playable_squares)
 
@@ -47,12 +47,12 @@ class Plan:
             else:
                 raise TypeError("unsupported application type", application.__class__.__name__)
 
-            self.responses.update(plan.responses)
+            self.forcing_to_forced.update(plan.responses)
             self.availabilities.update(plan.availabilities)
 
     def __eq__(self, other):
         if isinstance(other, Plan):
-            return self.responses == other.responses and self.availabilities == other.availabilities
+            return self.forcing_to_forced == other.forcing_to_forced and self.availabilities == other.availabilities
         return False
 
     def execute(self, square: Square) -> Square:
@@ -74,44 +74,59 @@ class Plan:
         Returns:
             response (Square): a Square in directly_playable_squares.
         """
-        self._update_directly_playable_squares(square=square)
-        print("self.directly_playable_squares =", self.directly_playable_squares)
 
-        if square in self.responses:
-            response = self.responses[square]
+        self._play(square=square)
+        response = self._find_response(square=square)
+        self._play(square=response)
 
-            # square has been taken so it is no longer available.
-            if square in self.availabilities:
-                self.availabilities.remove(square)
+        self._expire(square=square)
+        self._expire(square=response)
 
-            # response is exactly a Square.
-            if isinstance(response, Square):
-                self.responses.pop(square)
-                self._update_directly_playable_squares(square=response)
-                return response
-
-            # else: response must be a Fork.
-
-        # Remove square from availabilities.
-        self.availabilities.remove(square)
-        # Select an arbitrary, available, directly playable Square.
-        response = self.availabilities.intersection(self.directly_playable_squares).pop()
-
-        # Remove response from responses if applicable.
-        if response in self.responses:
-            self.responses.pop(response)
-        # Remove response from availabilities.
-        self.availabilities.remove(response)
-
-        self._update_directly_playable_squares(square=response)
         return response
 
-    def _update_directly_playable_squares(self, square: Square):
+    def _find_response(self, square: Square):
+        """Finds a appropriate response to square according to this Plan.
+
+        Args:
+            square (Square): a Square representing the opponent's move.
+
+        Returns:
+            response (Square): a Square representing the player's move.
+        """
+        if square in self.forcing_to_forced:
+            return self.forcing_to_forced[square]
+        return self.availabilities.intersection(self.directly_playable_squares).difference({square}).pop()
+
+    def _play(self, square: Square):
+        """Internally "play" square and update Plan accordingly.
+
+        Args:
+            square (Square): a Square that should be directly playable.
+
+        Raises:
+            ValueError: if square is not directly playable.
+        """
+        # Validate that square is in self.directly_playable_squares.
         if square not in self.directly_playable_squares:
             raise ValueError("square", square, "not in directly playable squares:", self.directly_playable_squares)
 
+        # Remove square from self.directly_playable_squares.
         self.directly_playable_squares.remove(square)
 
+        # If square is not in the top row, add the Square above it.
         if square.row != 0:
-            # If square is not in the top row, add the Square above it.
             self.directly_playable_squares.add(Square(row=square.row - 1, col=square.col))
+
+    def _expire(self, square: Square):
+        """Removes square from self.forcing_to_forced and self.availabilities if present.
+
+        Args:
+            square (Square): a Square to expire.
+        """
+        # Remove square from self.forcing_to_forced if applicable.
+        if square in self.forcing_to_forced:
+            self.forcing_to_forced.pop(square)
+
+        # Remove square from self.availabilities if applicable.
+        if square in self.availabilities:
+            self.availabilities.remove(square)
