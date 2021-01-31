@@ -7,6 +7,7 @@ from connect_four.agents.victor.rules import Claimeven
 from connect_four.agents.victor.rules import Baseinverse
 from connect_four.agents.victor.rules import Vertical
 from connect_four.agents.victor.rules import Aftereven
+from connect_four.agents.victor.rules import Lowinverse
 
 from connect_four.agents.victor.planning import plan
 
@@ -170,6 +171,37 @@ class TestPlan(unittest.TestCase):
         )
         got_response = pure_aftereven_plan.execute(square=square_f1)
         self.assertEqual(square_f2, got_response)
+
+    def test_evaluate_diagram_6_6(self):
+        # This test case is based on Diagram 6.6.
+
+        # Define all the Squares that will be used in the Lowinverses.
+        square_c2 = Square(row=4, col=2)
+        square_c3 = Square(row=3, col=2)
+        square_d2 = Square(row=4, col=3)
+        square_d3 = Square(row=3, col=3)
+
+        # Define the Verticals that will be part of the Lowinverses.
+        vertical_c2_c3 = Vertical(upper=square_c3, lower=square_c2)
+        vertical_d2_d3 = Vertical(upper=square_d3, lower=square_d2)
+
+        # Define the Lowinverses.
+        lowinverse_c2_c3_d2_d3 = Lowinverse(
+            first_vertical=vertical_c2_c3,  # c2-c3
+            second_vertical=vertical_d2_d3,  # d2-d3
+        )
+
+        # Verify that the correct Branch of a Fork is chosen.
+        pure_lowinverse_plan = plan.Plan(
+            rule_applications=[lowinverse_c2_c3_d2_d3],
+            directly_playable_squares={square_c2, square_d2},
+        )
+        got_response = pure_lowinverse_plan.execute(square=square_c2)
+        self.assertEqual(square_c3, got_response)
+
+        # Verify that the upper of a Vertical is the response to the lower of a Vertical.
+        got_response = pure_lowinverse_plan.execute(square=square_d2)
+        self.assertEqual(square_d3, got_response)
 
 
 if __name__ == '__main__':
