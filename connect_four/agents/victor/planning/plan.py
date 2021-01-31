@@ -55,7 +55,7 @@ class Plan:
             return self.responses == other.responses and self.availabilities == other.availabilities
         return False
 
-    def execute(self, square: Square, directly_playable_squares) -> Square:
+    def execute(self, square: Square) -> Square:
         """Executes this Plan by responding to square.
 
         Raises:
@@ -70,8 +70,6 @@ class Plan:
 
         Args:
             square (Square): a directly playable Square.
-            directly_playable_squares (Set<Square>): an iterable of directly playable Squares. If square is not in the
-                top row, it must contain the Square above square.
 
         Returns:
             response (Square): a Square in directly_playable_squares.
@@ -97,7 +95,7 @@ class Plan:
         # Remove square from availabilities.
         self.availabilities.remove(square)
         # Select an arbitrary, available, directly playable Square.
-        response = self.availabilities.intersection(directly_playable_squares).pop()
+        response = self.availabilities.intersection(self.directly_playable_squares).pop()
 
         # Remove response from responses if applicable.
         if response in self.responses:

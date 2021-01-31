@@ -76,7 +76,7 @@ class TestPlan(unittest.TestCase):
         )
 
         # Verify that the upper of a Claimeven is the response to the lower of a Claimeven.
-        got_response = pure_claimeven_plan.execute(square=square_a1, directly_playable_squares={square_a2})
+        got_response = pure_claimeven_plan.execute(square=square_a1)
         self.assertEqual(square_a2, got_response)
         self.assertEqual({Square(row=3, col=0)}, pure_claimeven_plan.directly_playable_squares)  # a3
 
@@ -92,16 +92,6 @@ class TestPlan(unittest.TestCase):
         square_f1 = Square(row=5, col=5)
         square_g1 = Square(row=5, col=6)
         square_g2 = Square(row=4, col=6)
-
-        directly_playable_squares = {
-            square_a1,
-            square_b1,
-            square_c4,
-            square_d3,
-            square_e2,
-            square_f1,
-            square_g1,
-        }
 
         # Define a set of Baseinverses that can be used together.
         baseinverse_a1_b1 = Baseinverse(playable1=square_a1, playable2=square_b1)
@@ -121,30 +111,11 @@ class TestPlan(unittest.TestCase):
         )
 
         # Verify that g2 is the response when g1 is played because all squares part of the Baseinverses are forbidden.
-        got_response = pure_baseinverse_plan.execute(
-            square=square_g1,
-            directly_playable_squares={
-                square_a1,
-                square_b1,
-                square_c4,
-                square_d3,
-                square_e2,
-                square_f1,
-                square_g2,
-            },
-        )
+        got_response = pure_baseinverse_plan.execute(square=square_g1)
         self.assertEqual(square_g2, got_response)
 
         # Verify that one of the Squares of a Baseinverse is the response to the other Square of the Baseinverse.
-        got_response = pure_baseinverse_plan.execute(
-            square=square_a1,
-            directly_playable_squares=[
-                square_b1,
-                square_c4,
-                square_d3,
-                square_e2,
-                square_f1,
-            ])
+        got_response = pure_baseinverse_plan.execute(square=square_a1)
         self.assertEqual(square_b1, got_response)
 
     def test_evaluate_diagram_6_3(self):
@@ -163,7 +134,7 @@ class TestPlan(unittest.TestCase):
             rule_applications={vertical_e4_e5},
             directly_playable_squares={square_e4},
         )
-        got_response = play_upper_plan.execute(square=square_e4, directly_playable_squares=[square_e5, square_c6])
+        got_response = play_upper_plan.execute(square=square_e4)
         self.assertEqual(square_e5, got_response)
 
         # Verify that if no other squares are available, the Plan responds with the lower square.
@@ -172,7 +143,7 @@ class TestPlan(unittest.TestCase):
             availabilities=[square_c6],
             directly_playable_squares={square_c6, square_e4},
         )
-        got_response = play_lower_plan.execute(square=square_c6, directly_playable_squares=[square_e4])
+        got_response = play_lower_plan.execute(square=square_c6)
         self.assertEqual(square_e4, got_response)
 
     def test_evaluate_diagram_6_4(self):
@@ -197,7 +168,7 @@ class TestPlan(unittest.TestCase):
             availabilities={square_f1, square_f2},
             directly_playable_squares={square_f1},
         )
-        got_response = pure_aftereven_plan.execute(square=square_f1, directly_playable_squares={square_f2})
+        got_response = pure_aftereven_plan.execute(square=square_f1)
         self.assertEqual(square_f2, got_response)
 
 
