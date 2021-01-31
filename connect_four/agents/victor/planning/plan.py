@@ -5,6 +5,7 @@ from connect_four.agents.victor.rules import Baseinverse
 from connect_four.agents.victor.rules import Vertical
 from connect_four.agents.victor.rules import Aftereven
 from connect_four.agents.victor.rules import Lowinverse
+from connect_four.agents.victor.rules import Highinverse
 
 from connect_four.agents.victor.planning import simple_plan
 from connect_four.agents.victor.planning import forked_plan
@@ -50,6 +51,8 @@ class Plan:
                 plan = simple_plan.from_aftereven(aftereven=application)
             elif isinstance(application, Lowinverse):
                 plan = forked_plan.from_lowinverse(lowinverse=application)
+            elif isinstance(application, Highinverse):
+                plan = forked_plan.from_highinverse(highinverse=application)
             else:
                 raise TypeError("unsupported application type", application.__class__.__name__)
 
