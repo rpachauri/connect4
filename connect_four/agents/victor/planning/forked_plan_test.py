@@ -28,14 +28,14 @@ class TestForkedPlan(unittest.TestCase):
         )
         want_plan = forked_plan.Fork(
             branches={
-                square_c2: forked_plan.Branch(
-                    forced_square=square_c3,
-                    simple_plan=simple_plan.from_vertical(vertical_d2_d3),
-                ),
-                square_d2: forked_plan.Branch(
-                    forced_square=square_d3,
-                    simple_plan=simple_plan.from_vertical(vertical_c2_c3),
-                ),
+                square_c2: simple_plan.SimplePlanBuilder([
+                    {square_c2: square_c3},
+                    simple_plan.from_vertical(vertical_d2_d3),
+                ]).build(),
+                square_d2: simple_plan.SimplePlanBuilder([
+                    {square_d2: square_d3},
+                    simple_plan.from_vertical(vertical_c2_c3),
+                ]).build(),
             },
         )
         got_plan = forked_plan.from_lowinverse(lowinverse=lowinverse_c2_c3_d2_d3)
@@ -61,27 +61,23 @@ class TestForkedPlan(unittest.TestCase):
         )
         want_plan = forked_plan.Fork(
             branches={
-                square_c2: forked_plan.Branch(
-                    forced_square=square_c3,
-                    simple_plan=simple_plan.SimplePlanBuilder([
-                        simple_plan.from_claimeven(
-                            claimeven=Claimeven(upper=square_d4, lower=square_d3),
-                        ),
-                        square_d2,  # available square.
-                        square_c4,  # available square.
-                    ]).build(),
-                ),
-                square_d2: forked_plan.Branch(
-                    forced_square=square_d3,
-                    simple_plan=simple_plan.SimplePlanBuilder([
-                        simple_plan.from_claimeven(
-                            claimeven=Claimeven(upper=square_c4, lower=square_c3),
-                        ),
-                        simple_plan.from_baseinverse(
-                            baseinverse=Baseinverse(playable1=square_c2, playable2=square_d4),
-                        )
-                    ]).build(),
-                ),
+                square_c2: simple_plan.SimplePlanBuilder([
+                    {square_c2: square_c3},
+                    simple_plan.from_claimeven(
+                        claimeven=Claimeven(upper=square_d4, lower=square_d3),
+                    ),
+                    square_d2,  # available square.
+                    square_c4,  # available square.
+                ]).build(),
+                square_d2: simple_plan.SimplePlanBuilder([
+                    {square_d2: square_d3},
+                    simple_plan.from_claimeven(
+                        claimeven=Claimeven(upper=square_c4, lower=square_c3),
+                    ),
+                    simple_plan.from_baseinverse(
+                        baseinverse=Baseinverse(playable1=square_c2, playable2=square_d4),
+                    )
+                ]).build(),
             },
         )
         got_plan = forked_plan.from_highinverse(highinverse=highinverse_c2_c3_c4_d2_d3_d4)
@@ -100,33 +96,33 @@ class TestForkedPlan(unittest.TestCase):
         )
         want_plan = forked_plan.Fork(
             branches={
-                square_b1: forked_plan.Branch(
-                    forced_square=square_e1,
-                    simple_plan=simple_plan.from_claimeven(
+                square_b1: simple_plan.SimplePlanBuilder([
+                    {square_b1: square_e1},
+                    simple_plan.from_claimeven(
                         claimeven=Claimeven(
                             lower=square_c1,
                             upper=square_c2,
                         ),
-                    )
-                ),
-                square_c1: forked_plan.Branch(
-                    forced_square=square_e1,
-                    simple_plan=simple_plan.from_baseinverse(
+                    ),
+                ]).build(),
+                square_c1: simple_plan.SimplePlanBuilder([
+                    {square_c1: square_e1},
+                    simple_plan.from_baseinverse(
                         baseinverse=Baseinverse(
                             playable1=square_b1,
                             playable2=square_c2,
                         ),
                     ),
-                ),
-                square_e1: forked_plan.Branch(
-                    forced_square=square_c1,
-                    simple_plan=simple_plan.from_baseinverse(
+                ]).build(),
+                square_e1: simple_plan.SimplePlanBuilder([
+                    {square_e1: square_c1},
+                    simple_plan.from_baseinverse(
                         baseinverse=Baseinverse(
                             playable1=square_b1,
                             playable2=square_c2,
                         ),
                     ),
-                ),
+                ]).build(),
             },
         )
         got_plan = forked_plan.from_baseclaim(baseclaim=baseclaim_b1_c1_c2_f1)

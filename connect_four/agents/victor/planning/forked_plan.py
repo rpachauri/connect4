@@ -11,7 +11,6 @@ from connect_four.agents.victor.rules import Baseclaim
 from connect_four.agents.victor.planning import simple_plan
 
 
-Branch = namedtuple("Branch", ["forced_square", "simple_plan"])
 Fork = namedtuple("Fork", ["branches"])
 
 
@@ -19,14 +18,14 @@ def from_lowinverse(lowinverse: Lowinverse) -> Fork:
     vertical0, vertical1 = tuple(lowinverse.verticals)
     return Fork(
         branches={
-            vertical0.lower: Branch(
-                forced_square=vertical0.upper,
-                simple_plan=simple_plan.from_vertical(vertical1),
-            ),
-            vertical1.lower: Branch(
-                forced_square=vertical1.upper,
-                simple_plan=simple_plan.from_vertical(vertical0),
-            ),
+            vertical0.lower: simple_plan.SimplePlanBuilder([
+                {vertical0.lower: vertical0.upper},
+                simple_plan.from_vertical(vertical1),
+            ]).build(),
+            vertical1.lower: simple_plan.SimplePlanBuilder([
+                {vertical1.lower: vertical1.upper},
+                simple_plan.from_vertical(vertical0),
+            ]).build(),
         }
     )
 
@@ -51,7 +50,7 @@ def from_highinverse(highinverse: Highinverse) -> Fork:
     )
 
 
-def _create_highinverse_branch(vertical_a, vertical_b, directly_playable_squares) -> Branch:
+def _create_highinverse_branch(vertical_a, vertical_b, directly_playable_squares) -> simple_plan.SimplePlan:
     square_above_vertical_a = Square(row=vertical_a.upper.row - 1, col=vertical_a.upper.col)
     square_above_vertical_b = Square(row=vertical_b.upper.row - 1, col=vertical_b.upper.col)
     branch_simple_plan = simple_plan.from_claimeven(
@@ -72,10 +71,10 @@ def _create_highinverse_branch(vertical_a, vertical_b, directly_playable_squares
     else:
         branch_simple_plan = branch_simple_plan.add_availabilities([vertical_b.lower, square_above_vertical_a])
 
-    return Branch(
-        forced_square=vertical_a.upper,
-        simple_plan=branch_simple_plan,
-    )
+    return simple_plan.SimplePlanBuilder([
+        {vertical_a.lower: vertical_a.upper},
+        branch_simple_plan,
+    ]).build()
 
 
 def from_baseclaim(baseclaim: Baseclaim) -> Fork:
@@ -83,32 +82,32 @@ def from_baseclaim(baseclaim: Baseclaim) -> Fork:
 
     return Fork(
         branches={
-            baseclaim.first: Branch(
-                forced_square=baseclaim.third,
-                simple_plan=simple_plan.from_claimeven(
+            baseclaim.first: simple_plan.SimplePlanBuilder([
+                {baseclaim.first: baseclaim.third},
+                simple_plan.from_claimeven(
                     claimeven=Claimeven(
                         lower=baseclaim.second,
                         upper=square_above_second,
                     ),
-                )
-            ),
-            baseclaim.second: Branch(
-                forced_square=baseclaim.third,
-                simple_plan=simple_plan.from_baseinverse(
+                ),
+            ]).build(),
+            baseclaim.second: simple_plan.SimplePlanBuilder([
+                {baseclaim.second: baseclaim.third},
+                simple_plan.from_baseinverse(
                     baseinverse=Baseinverse(
                         playable1=baseclaim.first,
                         playable2=square_above_second,
                     ),
                 ),
-            ),
-            baseclaim.third: Branch(
-                forced_square=baseclaim.second,
-                simple_plan=simple_plan.from_baseinverse(
+            ]).build(),
+            baseclaim.third: simple_plan.SimplePlanBuilder([
+                {baseclaim.third: baseclaim.second},
+                simple_plan.from_baseinverse(
                     baseinverse=Baseinverse(
                         playable1=baseclaim.first,
                         playable2=square_above_second,
                     ),
                 ),
-            ),
+            ]).build(),
         },
     )
