@@ -11,6 +11,7 @@ from connect_four.agents.victor.rules import Lowinverse
 from connect_four.agents.victor.rules import Highinverse
 from connect_four.agents.victor.rules import Baseclaim
 from connect_four.agents.victor.rules import Before
+from connect_four.agents.victor.rules import Specialbefore
 
 from connect_four.agents.victor.planning import plan
 
@@ -278,7 +279,7 @@ class TestPlan(unittest.TestCase):
         got_response = pure_baseclaim_plan.execute(square=square_c1)
         self.assertEqual(square_c2, got_response)
 
-    def test_evaluate_diagram_6_8(self):
+    def test_evaluate_diagram_6_9(self):
         # Define all the Squares that will be used in the Before.
         square_b3 = Square(row=3, col=1)
         square_b4 = Square(row=2, col=1)
@@ -297,14 +298,48 @@ class TestPlan(unittest.TestCase):
             ]
         )
 
-        # Verify that either of the lower
+        # Verify that if there are no available squares except the lower of a Vertical, it is chosen.
         pure_before_plan = plan.Plan(
             rule_applications=[before_b4_e1],
             directly_playable_squares={square_b3, square_c4, square_e1},
         )
-        # Verify that if there are no available squares except the lower of a Vertical, it is chosen.
         got_response = pure_before_plan.execute(square=square_c4)
         self.assertEqual(square_e1, got_response)
+
+    def test_evaluate_diagram_6_10(self):
+        square_d3 = Square(row=3, col=3)
+        square_e2 = Square(row=4, col=4)
+        square_e3 = Square(row=3, col=4)
+        square_f1 = Square(row=5, col=5)
+        square_f2 = Square(row=4, col=5)
+        square_g1 = Square(row=5, col=6)
+        square_g2 = Square(row=4, col=6)
+
+        # Verticals/Claimevens which are part of the Before.
+        vertical_e2_e3 = Vertical(upper=square_e3, lower=square_e2)  # Vertical e2-e3.
+        claimeven_f1_f2 = Claimeven(upper=square_f2, lower=square_f1)  # Claimeven f1-f2.
+        claimeven_g1_g2 = Claimeven(upper=square_g2, lower=square_g1)  # Claimeven g1-g2.
+
+        # Define the Before.
+        before_d2_g2 = Before(
+            threat=Threat(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6)),  # d2-g2
+            verticals=[vertical_e2_e3],
+            claimevens=[claimeven_f1_f2, claimeven_g1_g2],
+        )
+        # Define the Specialbefore.
+        specialbefore_d2_g2 = Specialbefore(
+            before=before_d2_g2,
+            internal_directly_playable_square=square_e2,  # e2
+            external_directly_playable_square=square_d3,  # d3
+        )
+
+        # Verify that even though e2 is the lower of vertical_e2_e3, the response is d3.
+        pure_specialbefore_plan = plan.Plan(
+            rule_applications=[specialbefore_d2_g2],
+            directly_playable_squares={square_d3, square_e2, square_f1, square_g1},
+        )
+        got_response = pure_specialbefore_plan.execute(square=square_e2)
+        self.assertEqual(square_d3, got_response)
 
 
 if __name__ == '__main__':

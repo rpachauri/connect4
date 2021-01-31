@@ -8,6 +8,7 @@ from connect_four.agents.victor.rules import Lowinverse
 from connect_four.agents.victor.rules import Highinverse
 from connect_four.agents.victor.rules import Baseclaim
 from connect_four.agents.victor.rules import Before
+from connect_four.agents.victor.rules import Specialbefore
 
 from connect_four.agents.victor.planning import simple_plan
 from connect_four.agents.victor.planning import forked_plan
@@ -59,6 +60,8 @@ class Plan:
                 plan = forked_plan.from_baseclaim(baseclaim=application)
             elif isinstance(application, Before):
                 plan = simple_plan.from_before(before=application)
+            elif isinstance(application, Specialbefore):
+                plan = simple_plan.from_specialbefore(specialbefore=application)
             else:
                 raise TypeError("unsupported application type", application.__class__.__name__)
 
