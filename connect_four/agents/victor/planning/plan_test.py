@@ -9,6 +9,7 @@ from connect_four.agents.victor.rules import Vertical
 from connect_four.agents.victor.rules import Aftereven
 from connect_four.agents.victor.rules import Lowinverse
 from connect_four.agents.victor.rules import Highinverse
+from connect_four.agents.victor.rules import Baseclaim
 
 from connect_four.agents.victor.planning import plan
 
@@ -176,13 +177,13 @@ class TestPlan(unittest.TestCase):
     def test_evaluate_diagram_6_6_lowinverse(self):
         # This test case is based on Diagram 6.6.
 
-        # Define all the Squares that will be used in the Lowinverses.
+        # Define all the Squares that will be used in the Lowinverse.
         square_c2 = Square(row=4, col=2)
         square_c3 = Square(row=3, col=2)
         square_d2 = Square(row=4, col=3)
         square_d3 = Square(row=3, col=3)
 
-        # Define the Verticals that will be part of the Lowinverses.
+        # Define the Verticals that will be part of the Lowinverse.
         vertical_c2_c3 = Vertical(upper=square_c3, lower=square_c2)
         vertical_d2_d3 = Vertical(upper=square_d3, lower=square_d2)
 
@@ -207,7 +208,7 @@ class TestPlan(unittest.TestCase):
     def test_evaluate_diagram_6_6_highinverse(self):
         # This test case is based on Diagram 6.6.
 
-        # Define all the Squares that will be used in the Lowinverses.
+        # Define all the Squares that will be used in the Highinverse.
         square_c2 = Square(row=4, col=2)
         square_c3 = Square(row=3, col=2)
         square_c4 = Square(row=2, col=2)
@@ -215,38 +216,66 @@ class TestPlan(unittest.TestCase):
         square_d3 = Square(row=3, col=3)
         square_d4 = Square(row=2, col=3)
 
-        # Define the Verticals that will be part of the Lowinverses.
+        # Define the Verticals that will be part of the Lowinverse.
         vertical_c2_c3 = Vertical(upper=square_c3, lower=square_c2)
         vertical_d2_d3 = Vertical(upper=square_d3, lower=square_d2)
 
-        # Define the Lowinverses.
+        # Define the Lowinverse.
         lowinverse_c2_c3_d2_d3 = Lowinverse(
             first_vertical=vertical_c2_c3,  # c2-c3
             second_vertical=vertical_d2_d3,  # d2-d3
         )
 
-        # Define the Highinverses.
+        # Define the Highinverse.
         highinverse_c2_c3_c4_d2_d3_d4 = Highinverse(
             lowinverse=lowinverse_c2_c3_d2_d3,
             directly_playable_squares=[square_c2, square_d2],  # c2 and d2
         )
 
         # Verify that the correct Branch of a Fork is chosen.
-        pure_lowinverse_plan = plan.Plan(
+        pure_highinverse_plan = plan.Plan(
             rule_applications=[highinverse_c2_c3_c4_d2_d3_d4],
             directly_playable_squares={square_c2, square_d2},
         )
-        got_response = pure_lowinverse_plan.execute(square=square_c2)
+        got_response = pure_highinverse_plan.execute(square=square_c2)
         self.assertEqual(square_c3, got_response)
 
         # Verify that if the bottom square of the column that is not chosen is directly playable,
         # it becomes part of a Baseinverse with the top square of the first column.
-        got_response = pure_lowinverse_plan.execute(square=square_d2)
+        got_response = pure_highinverse_plan.execute(square=square_d2)
         self.assertEqual(square_c4, got_response)
 
         # Verify that the top two squares of the second column become a Claimeven.
-        got_response = pure_lowinverse_plan.execute(square=square_d3)
+        got_response = pure_highinverse_plan.execute(square=square_d3)
         self.assertEqual(square_d4, got_response)
+
+    def test_evaluate_diagram_6_7(self):
+        # This test case is based on Diagram 6.7.
+
+        # Define all the Squares that will be used in the Baseclaim.
+        square_b1 = Square(row=5, col=1)
+        square_c1 = Square(row=5, col=2)
+        square_c2 = Square(row=4, col=2)
+        square_e1 = Square(row=5, col=4)
+
+        # Define the Baseclaim.
+        baseclaim_b1_c1_c2_f1 = Baseclaim(
+            first=square_b1,  # b1
+            second=square_c1,  # c1
+            third=square_e1,  # e1
+        )
+
+        # Verify that the correct Branch of a Fork is chosen.
+        pure_baseclaim_plan = plan.Plan(
+            rule_applications=[baseclaim_b1_c1_c2_f1],
+            directly_playable_squares={square_b1, square_c1, square_e1},
+        )
+        # Verify that if the first square is played by the opponent, the third square is the response.
+        got_response = pure_baseclaim_plan.execute(square=square_b1)
+        self.assertEqual(square_e1, got_response)
+        # Verify that after the Branch is chosen, a Claimeven is used for the second square.
+        got_response = pure_baseclaim_plan.execute(square=square_c1)
+        self.assertEqual(square_c2, got_response)
 
 
 if __name__ == '__main__':
