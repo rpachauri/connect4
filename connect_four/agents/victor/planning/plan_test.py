@@ -10,6 +10,7 @@ from connect_four.agents.victor.rules import Aftereven
 from connect_four.agents.victor.rules import Lowinverse
 from connect_four.agents.victor.rules import Highinverse
 from connect_four.agents.victor.rules import Baseclaim
+from connect_four.agents.victor.rules import Before
 
 from connect_four.agents.victor.planning import plan
 
@@ -276,6 +277,34 @@ class TestPlan(unittest.TestCase):
         # Verify that after the Branch is chosen, a Claimeven is used for the second square.
         got_response = pure_baseclaim_plan.execute(square=square_c1)
         self.assertEqual(square_c2, got_response)
+
+    def test_evaluate_diagram_6_8(self):
+        # Define all the Squares that will be used in the Before.
+        square_b3 = Square(row=3, col=1)
+        square_b4 = Square(row=2, col=1)
+        square_e1 = Square(row=5, col=4)
+        square_e2 = Square(row=4, col=4)
+        square_c4 = Square(row=2, col=2)
+
+        # Define the Before.
+        before_b4_e1 = Before(
+            threat=Threat(player=1, start=Square(row=2, col=1), end=Square(row=5, col=4)),  # Threat b4-e1
+            verticals=[
+                Vertical(upper=square_e2, lower=square_e1),  # Vertical e1-e2
+            ],
+            claimevens=[
+                Claimeven(upper=square_b4, lower=square_b3)  # Claimeven b3-b4
+            ]
+        )
+
+        # Verify that either of the lower
+        pure_before_plan = plan.Plan(
+            rule_applications=[before_b4_e1],
+            directly_playable_squares={square_b3, square_c4, square_e1},
+        )
+        # Verify that if there are no available squares except the lower of a Vertical, it is chosen.
+        got_response = pure_before_plan.execute(square=square_c4)
+        self.assertEqual(square_e1, got_response)
 
 
 if __name__ == '__main__':
