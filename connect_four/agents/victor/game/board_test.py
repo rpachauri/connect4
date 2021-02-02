@@ -5,7 +5,7 @@ import numpy as np
 
 from connect_four.agents.victor.game import Board
 from connect_four.agents.victor.game import Square
-from connect_four.agents.victor.game import Threat
+from connect_four.agents.victor.game import Group
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
 
@@ -78,7 +78,7 @@ class TestBoard(unittest.TestCase):
         }
         self.assertEqual(want_squares, board.playable_squares())
 
-    def test_is_potential_threat(self):
+    def test_is_potential_group(self):
         self.env.state = np.array([
             [
                 [0, 0, 0, 0, ],
@@ -98,9 +98,9 @@ class TestBoard(unittest.TestCase):
         self.assertTrue(board.is_valid(Square(row=1, col=3)))
         self.assertTrue(board.is_valid(Square(row=2, col=3)))
         self.assertTrue(board.is_valid(Square(row=3, col=3)))
-        self.assertTrue(board.is_potential_threat(player=0, row=0, col=3, row_diff=1, col_diff=0))
+        self.assertTrue(board.is_potential_group(player=0, row=0, col=3, row_diff=1, col_diff=0))
 
-    def test_potential_threats(self):
+    def test_potential_groups(self):
         self.env.state = np.array([
             [
                 [0, 0, 0, 0, ],
@@ -116,19 +116,19 @@ class TestBoard(unittest.TestCase):
             ],
         ])
         board = Board(self.env.env_variables)
-        want_threats_player0 = {
-            Threat(0, Square(0, 0), Square(0, 3)),
-            Threat(0, Square(0, 3), Square(3, 3)),
+        want_groups_player0 = {
+            Group(0, Square(0, 0), Square(0, 3)),
+            Group(0, Square(0, 3), Square(3, 3)),
         }
-        self.assertEqual(want_threats_player0, board.potential_threats(0))
-        want_threats_player1 = {
-            Threat(1, Square(0, 0), Square(0, 3)),
-            Threat(1, Square(0, 3), Square(3, 0)),
-            Threat(1, Square(0, 2), Square(3, 2)),
+        self.assertEqual(want_groups_player0, board.potential_groups(0))
+        want_groups_player1 = {
+            Group(1, Square(0, 0), Square(0, 3)),
+            Group(1, Square(0, 3), Square(3, 0)),
+            Group(1, Square(0, 2), Square(3, 2)),
         }
-        self.assertEqual(want_threats_player1, board.potential_threats(1))
+        self.assertEqual(want_groups_player1, board.potential_groups(1))
 
-    def test_potential_threats_by_square(self):
+    def test_potential_groups_by_square(self):
         self.env.state = np.array([
             [
                 [0, 0, 0, 0, ],
@@ -144,33 +144,33 @@ class TestBoard(unittest.TestCase):
             ],
         ])
         board = Board(self.env.env_variables)
-        threat_0_0_to_0_3 = Threat(0, Square(0, 0), Square(0, 3))
-        threat_0_3_to_3_3 = Threat(0, Square(0, 3), Square(3, 3))
+        group_0_0_to_0_3 = Group(0, Square(0, 0), Square(0, 3))
+        group_0_3_to_3_3 = Group(0, Square(0, 3), Square(3, 3))
 
-        want_threats_by_square = {
+        want_groups_by_square = {
             # Column 0.
-            Square(row=0, col=0): {threat_0_0_to_0_3},
+            Square(row=0, col=0): {group_0_0_to_0_3},
             Square(row=1, col=0): set(),
             Square(row=2, col=0): set(),
             Square(row=3, col=0): set(),
             # Column 1.
-            Square(row=0, col=1): {threat_0_0_to_0_3},
+            Square(row=0, col=1): {group_0_0_to_0_3},
             Square(row=1, col=1): set(),
             Square(row=2, col=1): set(),
             Square(row=3, col=1): set(),
             # Column 2.
-            Square(row=0, col=2): {threat_0_0_to_0_3},
+            Square(row=0, col=2): {group_0_0_to_0_3},
             Square(row=1, col=2): set(),
             Square(row=2, col=2): set(),
             Square(row=3, col=2): set(),
             # Column 3.
-            Square(row=0, col=3): {threat_0_0_to_0_3, threat_0_3_to_3_3},
-            Square(row=1, col=3): {threat_0_3_to_3_3},
-            Square(row=2, col=3): {threat_0_3_to_3_3},
-            Square(row=3, col=3): {threat_0_3_to_3_3},
+            Square(row=0, col=3): {group_0_0_to_0_3, group_0_3_to_3_3},
+            Square(row=1, col=3): {group_0_3_to_3_3},
+            Square(row=2, col=3): {group_0_3_to_3_3},
+            Square(row=3, col=3): {group_0_3_to_3_3},
         }
-        got_threats_by_square = board.potential_threats_by_square()
-        self.assertEqual(want_threats_by_square, got_threats_by_square)
+        got_groups_by_square = board.potential_groups_by_square()
+        self.assertEqual(want_groups_by_square, got_groups_by_square)
 
 
 if __name__ == '__main__':

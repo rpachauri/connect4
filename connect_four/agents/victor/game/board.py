@@ -1,5 +1,5 @@
 from connect_four.agents.victor.game import Square
-from connect_four.agents.victor.game import Threat
+from connect_four.agents.victor.game import Group
 from connect_four.envs import ConnectFourEnvVariables
 
 
@@ -64,14 +64,14 @@ class Board:
             if self.is_empty(square):
                 return square
 
-    def potential_threats(self, player):
-        """Returns a set of potential threats that this player has in this board state.
+    def potential_groups(self, player):
+        """Returns a set of potential groups that this player has in this board state.
 
         Args:
-            player (int): a player (0 or 1). Threats must belong to this player.
+            player (int): a player (0 or 1). groups must belong to this player.
 
         Returns:
-            threats (set<Threat>): a set of Threat instances. Each threat belongs to the given player.
+            groups (set<Group>): a set of Group instances. Each group belongs to the given player.
         """
         directions = [
             (-1, 1),  # up-right diagonal
@@ -79,32 +79,32 @@ class Board:
             (1, 1),  # down-right diagonal
             (1, 0),  # vertical
         ]
-        threats = set()
+        groups = set()
 
         for row in range(len(self.state[0])):
             for col in range(len(self.state[0][0])):
                 for row_diff, col_diff in directions:
-                    if self.is_potential_threat(player, row, col, row_diff, col_diff):
-                        threats.add(Threat(
+                    if self.is_potential_group(player, row, col, row_diff, col_diff):
+                        groups.add(Group(
                             player,
                             start=Square(row, col),
                             end=Square(row + 3 * row_diff, col + 3 * col_diff),
                         ))
 
-        return threats
+        return groups
 
-    def is_potential_threat(self, player: int, row: int, col: int, row_diff: int, col_diff: int):
-        """Returns whether or not the given group is a threat that belongs to the player.
+    def is_potential_group(self, player: int, row: int, col: int, row_diff: int, col_diff: int):
+        """Returns whether or not the given group is a group that belongs to the player.
 
         Args:
-            player (int): a player (0 or 1). Is the group a threat that belongs to this player?
+            player (int): a player (0 or 1). Is the group a group that belongs to this player?
             row (int): starting row
             col (int): starting column
             row_diff (int): direction in which to increment the row (-1, 0 or 1)
             col_diff (int): direction in which to increment the col (-1, 0 or 1)
 
         Returns:
-            is_threat (bool): True if the group is a valid potential threat that belongs to the player.
+            is_group (bool): True if the group is a valid potential group that belongs to the player.
                               Otherwise, false.
         """
         opponent = 1 - player
@@ -114,28 +114,28 @@ class Board:
                 return False
             if self.state[opponent][row][col]:
                 # If there is a token that belongs to the opponent in this group,
-                # then this group is not a potential threat that belongs to the given player.
+                # then this group is not a potential group that belongs to the given player.
                 return False
             row, col = row + row_diff, col + col_diff
         return True
 
-    def potential_threats_by_square(self):
-        """Returns a dictionary of Squares to all Threats that contain that Square.
-        Every Threat is a potential Threat that the current player has in this board state.
+    def potential_groups_by_square(self):
+        """Returns a dictionary of Squares to all groups that contain that Square.
+        Every Group is a potential Group that the current player has in this board state.
 
         Returns:
-            square_to_threats (Map<Square, Set<Threat>>):
-                A dictionary mapping each Square to all Threats that contain that Square.
+            square_to_groups (Map<Square, Set<Group>>):
+                A dictionary mapping each Square to all groups that contain that Square.
                 Every Square in Board will be in the key set.
         """
-        square_to_threats = {}
+        square_to_groups = {}
         for row in range(len(self.state[0])):
             for col in range(len(self.state[0][0])):
-                square_to_threats[Square(row=row, col=col)] = set()
+                square_to_groups[Square(row=row, col=col)] = set()
 
-        threats = self.potential_threats(self.player)
-        for threat in threats:
-            for square in threat.squares:
-                square_to_threats[square].add(threat)
+        groups = self.potential_groups(self.player)
+        for group in groups:
+            for square in group.squares:
+                square_to_groups[square].add(group)
 
-        return square_to_threats
+        return square_to_groups

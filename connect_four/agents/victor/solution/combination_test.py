@@ -9,10 +9,10 @@ from connect_four.agents.victor.solution import combination
 
 class TestCombination(unittest.TestCase):
     """Note that the combination module only cares about the set of Squares and
-    the type of Rule of two Solutions. The module is not concerned with which Threats
+    the type of Rule of two Solutions. The module is not concerned with which groups
     each Solution refutes.
 
-    For this reason, Solutions in this module will have an empty set of threats.
+    For this reason, Solutions in this module will have an empty set of groups.
     We want to emphasize that this is not normal but also not important for this module.
 
     In addition, it also doesn't matter what the board looks like. We can make any sort of

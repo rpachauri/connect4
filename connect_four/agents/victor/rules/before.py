@@ -1,33 +1,33 @@
 from connect_four.agents.victor.game import Board
 from connect_four.agents.victor.game import Square
-from connect_four.agents.victor.game import Threat
-from connect_four.agents.victor.game import ThreatDirection
+from connect_four.agents.victor.game import Group
+from connect_four.agents.victor.game import GroupDirection
 
 from connect_four.agents.victor.rules import Claimeven
 from connect_four.agents.victor.rules import Vertical
 
 
 class Before:
-    def __init__(self, threat: Threat, verticals, claimevens):
+    def __init__(self, group: Group, verticals, claimevens):
         """Initializes a Before instance.
 
         Args:
-            threat (Threat): a Threat representing the Before group.
+            group (Group): a group representing the Before group.
             verticals (iterable<Vertical>): an iterable of Verticals which are part of the Before.
             claimevens (iterable<Vertical>): an iterable of Claimevens which are part of the Before.
         """
-        self.threat = threat
+        self.group = group
         self.verticals = frozenset(verticals)
         self.claimevens = frozenset(claimevens)
 
     def __eq__(self, other):
         if isinstance(other, Before):
-            return (self.threat == other.threat and
+            return (self.group == other.group and
                     self.verticals == other.verticals and
                     self.claimevens == other.claimevens)
 
     def __hash__(self):
-        return self.threat.__hash__() * 41 + self.verticals.__hash__() * 31 + self.claimevens.__hash__()
+        return self.group.__hash__() * 41 + self.verticals.__hash__() * 31 + self.claimevens.__hash__()
 
     def empty_squares_of_before_group(self):
         """Returns the empty squares of the Before group of this Before.
@@ -38,7 +38,7 @@ class Before:
         empty_squares = set()
 
         for vertical in self.verticals:
-            if vertical.upper in self.threat.squares:
+            if vertical.upper in self.group.squares:
                 empty_squares.add(vertical.upper)
             else:
                 empty_squares.add(vertical.lower)
@@ -51,53 +51,53 @@ class Before:
         return frozenset(empty_squares)
 
 
-def find_all_befores(board: Board, threats):
-    """find_all_befores takes a Board and an iterable of Threats and returns an iterable of Befores for the Board.
+def find_all_befores(board: Board, groups):
+    """find_all_befores takes a Board and an iterable of groups and returns an iterable of Befores for the Board.
 
     Args:
         board (Board): a Board instance.
-        # TODO rename to opponent_threats to be more clear to clients.
-        threats (iterable<Threat>): an iterable of Threats belonging to the opponent of the player to move on board.
+        # TODO rename to opponent_groups to be more clear to clients.
+        groups (iterable<Group>): an iterable of groups belonging to the opponent of the player to move on board.
 
     Returns:
         befores (iterable<Before>): an iterable of Befores for board.
     """
     befores = set()
 
-    for threat in threats:
-        # Skip all Vertical threats.
-        if threat.direction == ThreatDirection.vertical:
+    for group in groups:
+        # Skip all Vertical groups.
+        if group.direction == GroupDirection.vertical:
             continue
 
-        # empty_squares is the set of all squares that belong to threat and are empty.
+        # empty_squares is the set of all squares that belong to group and are empty.
         # If there is a single square that belongs in the uppermost row of board, then len(empty_squares) == 0.
-        empty_squares = empty_squares_of_before_group(board, threat)
+        empty_squares = empty_squares_of_before_group(board, group)
 
         if empty_squares:  # Only create variations if empty_squares has at least one square.
-            # Add all Before variations with threat as the Before group to befores.
-            add_before_variations(board, befores, threat, empty_squares, [], [])
+            # Add all Before variations with group as the Before group to befores.
+            add_before_variations(board, befores, group, empty_squares, [], [])
 
     return befores
 
 
-def empty_squares_of_before_group(board: Board, threat: Threat):
-    """Retrieves the empty squares of a Before group if the given threat meets the conditions of a Before group.
-    Returns an empty list if the threat does not meet the conditions.
+def empty_squares_of_before_group(board: Board, group: Group):
+    """Retrieves the empty squares of a Before group if the given group meets the conditions of a Before group.
+    Returns an empty list if the group does not meet the conditions.
 
     Args:
         board (Board): a Board instance.
-        threat (Threat): a possible Before group.
+        group (Group): a possible Before group.
 
     Returns:
         empty_squares (list<Square>):
-            TODO: Should be -> If square.row == 0 for every square in threat.squares:
-            If there exists a square with square.row == 0 in threat:
+            TODO: Should be -> If square.row == 0 for every square in group.squares:
+            If there exists a square with square.row == 0 in group:
                 returns []
             Otherwise:
-                returns a list of empty Squares in threat.
+                returns a list of empty Squares in group.
     """
     empty_squares = []
-    for square in threat.squares:
+    for square in group.squares:
         if square.row == 0:
             return []
         if board.is_empty(square):
@@ -105,15 +105,15 @@ def empty_squares_of_before_group(board: Board, threat: Threat):
     return empty_squares
 
 
-def add_before_variations(board: Board, befores, threat: Threat, empty_squares, verticals, claimevens):
-    """Adds all Before variations with threat as the Before group to befores.
+def add_before_variations(board: Board, befores, group: Group, empty_squares, verticals, claimevens):
+    """Adds all Before variations with group as the Before group to befores.
 
     Args:
         board (Board): a Board instance.
         befores (set<Before>): a set of Befores we have accumulated so far for board.
-            Any new Befores we find with threat as the Before group will be added to befores.
-        threat (Threat): the Before group. Any new Befores we add to befores must use threat as their Before group.
-        empty_squares (list<Square>): a list of empty Squares in threat.
+            Any new Befores we find with group as the Before group will be added to befores.
+        group (Group): the Before group. Any new Befores we add to befores must use group as their Before group.
+        empty_squares (list<Square>): a list of empty Squares in group.
         verticals (set<Vertical>): a set of Verticals which are part of the Before we are building.
         claimevens (set<Claimeven>): a set of Claimevens which are part of the Before we are building.
 
@@ -125,7 +125,7 @@ def add_before_variations(board: Board, befores, threat: Threat, empty_squares, 
     if not empty_squares:
         if len(verticals) > 0:
             # Only add the Before if there is at least one Vertical; otherwise, an Aftereven is better.
-            befores.add(Before(threat=threat, verticals=verticals, claimevens=claimevens))
+            befores.add(Before(group=group, verticals=verticals, claimevens=claimevens))
         return
 
     # Recursive Case.
@@ -139,7 +139,7 @@ def add_before_variations(board: Board, befores, threat: Threat, empty_squares, 
         # Choose.
         verticals.append(vertical)
         # Recurse.
-        add_before_variations(board, befores, threat, empty_squares, verticals, claimevens)
+        add_before_variations(board, befores, group, empty_squares, verticals, claimevens)
         # Unchoose.
         verticals.remove(vertical)
 
@@ -151,7 +151,7 @@ def add_before_variations(board: Board, befores, threat: Threat, empty_squares, 
             # Choose.
             verticals.append(vertical)
             # Recurse.
-            add_before_variations(board, befores, threat, empty_squares, verticals, claimevens)
+            add_before_variations(board, befores, group, empty_squares, verticals, claimevens)
             # Unchoose.
             verticals.remove(vertical)
     else:  # square is even.
@@ -163,7 +163,7 @@ def add_before_variations(board: Board, befores, threat: Threat, empty_squares, 
             # Choose.
             claimevens.append(claimeven)
             # Recurse.
-            add_before_variations(board, befores, threat, empty_squares, verticals, claimevens)
+            add_before_variations(board, befores, group, empty_squares, verticals, claimevens)
             # Unchoose.
             claimevens.remove(claimeven)
 

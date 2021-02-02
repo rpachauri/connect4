@@ -1,5 +1,5 @@
 """
-Note that in this module, we use the term "Threat" and "Problem" interchangeably.
+Note that in this module, we use the term "Group" and "Problem" interchangeably.
 """
 from connect_four.agents.victor.game import Board
 from connect_four.agents.victor.solution import find_all_solutions, combination
@@ -7,26 +7,26 @@ from connect_four.agents.victor.solution import find_all_solutions, combination
 
 def evaluate(board: Board):
     """evaluate finds a set of Solutions the opponent can use to
-    refute all Threats belonging to the current player, if such a set of Solutions exists.
+    refute all groups belonging to the current player, if such a set of Solutions exists.
 
     Args:
         board (Board): a Board instance.
 
     Returns:
         chosen_set (Set<Solution>): a chosen set of Solutions the opponent can use that
-            refutes all Threats belonging to the current player, if one exists.
+            refutes all groups belonging to the current player, if one exists.
             None if no such set of Solutions exist.
     """
-    player_threats = board.potential_threats(player=board.player)
+    player_groups = board.potential_groups(player=board.player)
     all_solutions = find_all_solutions(board=board)
 
     if board.player == 0:  # Current player is White.
         node_graph = create_node_graph(solutions=all_solutions)
         # Only try to find a set that can solve all problems if every Problem has at least one Solution.
-        if player_threats.issubset(node_graph.keys()):
+        if player_groups.issubset(node_graph.keys()):
             return find_chosen_set(
                 node_graph=node_graph,
-                problems=player_threats,
+                problems=player_groups,
                 allowed_solutions=all_solutions,
                 used_solutions=set(),
             )
@@ -45,7 +45,7 @@ def create_node_graph(solutions):
         solutions (iterable<Solution>): an iterable of Solutions.
 
     Returns:
-        node_graph (dict<Threat|Solution, Set<Solution>>): a Dictionary of Threats or
+        node_graph (dict<Group|Solution, Set<Solution>>): a Dictionary of groups or
             Solutions to all Solutions they are connected to.
             Every Solution will at least be connected to itself.
     """
@@ -53,10 +53,10 @@ def create_node_graph(solutions):
 
     for solution in solutions:
         # Connect solution to all Problems it solves.
-        for threat in solution.threats:
-            if threat not in node_graph:
-                node_graph[threat] = set()
-            node_graph[threat].add(solution)
+        for group in solution.groups:
+            if group not in node_graph:
+                node_graph[group] = set()
+            node_graph[group].add(solution)
 
         # Connect all Solutions that cannot work with solution to solution.
         node_graph[solution] = set()
@@ -70,9 +70,9 @@ def find_chosen_set(node_graph, problems, allowed_solutions, used_solutions):
     """find_chosen_set finds a set of Solutions that solve all Problems.
 
     Args:
-        node_graph (dict<Threat|Solution, Set<Solution>>): a Dictionary of Threats or
+        node_graph (dict<Group|Solution, Set<Solution>>): a Dictionary of groups or
             Solutions to all Solutions they are connected to.
-        problems (Set<Threat>): a set of Threats.
+        problems (Set<Group>): a set of groups.
         allowed_solutions (Set<Solution>): a set of available Solutions to solve problems.
         used_solutions (Set<Solution>): a set of Solutions that have already been used
             to solve Problems outside problems.
@@ -97,7 +97,7 @@ def find_chosen_set(node_graph, problems, allowed_solutions, used_solutions):
         # Recurse.
         chosen_set = find_chosen_set(
             node_graph=node_graph,
-            problems=problems - solution.threats,
+            problems=problems - solution.groups,
             allowed_solutions=allowed_solutions - node_graph[solution],
             used_solutions=used_solutions,
         )

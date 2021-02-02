@@ -5,7 +5,7 @@ import numpy as np
 
 from connect_four.agents.victor.game import Board
 from connect_four.agents.victor.game import Square
-from connect_four.agents.victor.game import Threat
+from connect_four.agents.victor.game import Group
 
 from connect_four.agents.victor.evaluator.threat_combination import EvenThreat
 from connect_four.agents.victor.evaluator.threat_combination import OddThreat
@@ -43,8 +43,8 @@ class TestThreatCombination(unittest.TestCase):
             ],
         ])
         board = Board(self.env.env_variables)
-        want_even_threat = Threat(player=0, start=Square(row=5, col=3), end=Square(row=2, col=6))  # d1-g4
-        want_odd_threat = Threat(player=0, start=Square(row=3, col=3), end=Square(row=3, col=6))  # d3-g3
+        want_even_threat = Group(player=0, start=Square(row=5, col=3), end=Square(row=2, col=6))  # d1-g4
+        want_odd_threat = Group(player=0, start=Square(row=3, col=3), end=Square(row=3, col=6))  # d3-g3
         want_threat_combination = ThreatCombination(
             even_threat=want_even_threat,
             odd_threat=want_odd_threat,
@@ -76,8 +76,8 @@ class TestThreatCombination(unittest.TestCase):
             ],
         ])
         board = Board(self.env.env_variables)
-        want_even_threat = Threat(player=0, start=Square(row=1, col=3), end=Square(row=4, col=6))  # d5-g2
-        want_odd_threat = Threat(player=0, start=Square(row=3, col=3), end=Square(row=3, col=6))  # d3-d3
+        want_even_threat = Group(player=0, start=Square(row=1, col=3), end=Square(row=4, col=6))  # d5-g2
+        want_odd_threat = Group(player=0, start=Square(row=3, col=3), end=Square(row=3, col=6))  # d3-d3
         want_threat_combination = ThreatCombination(
             even_threat=want_even_threat,
             odd_threat=want_odd_threat,

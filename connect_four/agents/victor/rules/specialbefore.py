@@ -92,7 +92,7 @@ def find_all_specialbefores(board: Board, befores):
 
 
 def internal_directly_playable_squares(before: Before, directly_playable_squares):
-    """Returns a set of directly playable squares in before.threat.squares.
+    """Returns a set of directly playable squares in before.group.squares.
     If there are none, returns an empty set.
 
     Args:
@@ -101,6 +101,6 @@ def internal_directly_playable_squares(before: Before, directly_playable_squares
 
     Returns:
         squares (Set<Square>): a Set of all Squares that exist in both
-            before.threat.squares and directly_playable_squares.
+            before.group.squares and directly_playable_squares.
     """
-    return before.threat.squares.intersection(directly_playable_squares)
+    return before.group.squares.intersection(directly_playable_squares)

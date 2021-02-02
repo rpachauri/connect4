@@ -5,7 +5,7 @@ import numpy as np
 
 from connect_four.agents.victor.game import Board
 from connect_four.agents.victor.game import Square
-from connect_four.agents.victor.game import Threat
+from connect_four.agents.victor.game import Group
 
 from connect_four.agents.victor.rules import Claimeven
 from connect_four.agents.victor.rules import Vertical
@@ -29,9 +29,9 @@ class TestSpecialbefore(unittest.TestCase):
         directly_playable_square_4_4 = Square(row=4, col=4)
         square_above_directly_playable_square_4_4 = Square(row=3, col=4)
         vertical_3_4 = Vertical(upper=Square(row=3, col=4), lower=Square(row=4, col=4))
-        threat_4_3_to_4_6 = Threat(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6))
+        group_4_3_to_4_6 = Group(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6))
         before_4_3_to_4_6 = Before(
-            threat=threat_4_3_to_4_6,
+            group=group_4_3_to_4_6,
             verticals=[vertical_3_4],
             claimevens=[],
         )
@@ -69,8 +69,8 @@ class TestSpecialbefore(unittest.TestCase):
             ],
         ])
         board = Board(self.env.env_variables)
-        black_threats = board.potential_threats(player=1)
-        befores = find_all_befores(board=board, threats=black_threats)
+        black_groups = board.potential_groups(player=1)
+        befores = find_all_befores(board=board, groups=black_groups)
         got_specialbefores = find_all_specialbefores(board=board, befores=befores)
 
         # Directly playable squares.
@@ -78,9 +78,9 @@ class TestSpecialbefore(unittest.TestCase):
         directly_playable_square_3_3 = Square(row=3, col=3)
         directly_playable_square_4_4 = Square(row=4, col=4)
 
-        # Non-vertical threats for black that contain at least one directly playable square.
-        threat_3_1_to_3_4 = Threat(player=1, start=Square(row=3, col=1), end=Square(row=3, col=4))
-        threat_4_3_to_4_6 = Threat(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6))
+        # Non-vertical groups for black that contain at least one directly playable square.
+        group_3_1_to_3_4 = Group(player=1, start=Square(row=3, col=1), end=Square(row=3, col=4))
+        group_4_3_to_4_6 = Group(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6))
 
         # Verticals/Claimevens that can belong to Befores.
         vertical_2_3 = Vertical(upper=Square(row=2, col=3), lower=Square(row=3, col=3))
@@ -88,17 +88,17 @@ class TestSpecialbefore(unittest.TestCase):
         vertical_3_4 = Vertical(upper=Square(row=3, col=4), lower=Square(row=4, col=4))
 
         before_3_1_to_3_4_variation_1 = Before(
-            threat=threat_3_1_to_3_4,
+            group=group_3_1_to_3_4,
             verticals=[vertical_2_3, vertical_2_4],
             claimevens=[],
         )
         before_3_1_to_3_4_variation_2 = Before(
-            threat=threat_3_1_to_3_4,
+            group=group_3_1_to_3_4,
             verticals=[vertical_2_3, vertical_3_4],
             claimevens=[],
         )
         before_4_3_to_4_6 = Before(
-            threat=threat_4_3_to_4_6,
+            group=group_4_3_to_4_6,
             verticals=[vertical_3_4],
             claimevens=[],
         )
@@ -143,7 +143,7 @@ class TestSpecialbefore(unittest.TestCase):
     def test_before_diagram_6_10(self):
         # This test case tries to find all possible Specialbefores from Diagram 6.10 in the original paper.
         # The authors go through 1 example of a Specialbefore, but we find that there are in fact 216 possible
-        # Specialbefores. Not all of them may be useful (i.e. refute any new threats); however,
+        # Specialbefores. Not all of them may be useful (i.e. refute any new groups); however,
         # they do satisfy the formal requirements as specified in the original paper.
         # This test case is quite obscene; however, it did help in finding a few bugs.
         self.env.state = np.array([
@@ -165,8 +165,8 @@ class TestSpecialbefore(unittest.TestCase):
             ],
         ])
         board = Board(self.env.env_variables)
-        black_threats = board.potential_threats(player=1)
-        befores = find_all_befores(board=board, threats=black_threats)
+        black_groups = board.potential_groups(player=1)
+        befores = find_all_befores(board=board, groups=black_groups)
         got_specialbefores = find_all_specialbefores(board=board, befores=befores)
 
         # Directly playable squares for the board.
@@ -178,139 +178,139 @@ class TestSpecialbefore(unittest.TestCase):
         directly_playable_square_5_5 = Square(row=5, col=5)
         directly_playable_square_5_6 = Square(row=5, col=6)
 
-        # Threats for Black that meet the following conditions:
+        # groups for Black that meet the following conditions:
         # 1. Not vertical.
         # 2. Contain at least one directly playable square.
         # 3. Do not contain a square in the top row.
-        ## Threats for Black containing directly_playable_square_5_0.
-        threat_5_0_to_2_3 = Threat(player=1, start=directly_playable_square_5_0, end=Square(row=2, col=3))
-        ## Threats for Black containing directly_playable_square_3_3.
-        threat_3_0_to_3_3 = Threat(player=1, start=Square(row=3, col=0), end=directly_playable_square_3_3)
-        threat_3_1_to_3_4 = Threat(player=1, start=Square(row=3, col=1), end=Square(row=3, col=4))
-        threat_3_2_to_3_5 = Threat(player=1, start=Square(row=3, col=2), end=Square(row=3, col=5))
-        threat_3_3_to_3_6 = Threat(player=1, start=directly_playable_square_3_3, end=Square(row=3, col=6))
-        ## Threats for Black containing directly_playable_square_4_4.
-        threat_4_3_to_4_6 = Threat(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6))
-        ## Threats for Black containing directly_playable_square_5_6.
-        threat_2_3_to_5_6 = Threat(player=1, start=Square(row=2, col=3), end=Square(row=5, col=6))
+        ## groups for Black containing directly_playable_square_5_0.
+        group_5_0_to_2_3 = Group(player=1, start=directly_playable_square_5_0, end=Square(row=2, col=3))
+        ## groups for Black containing directly_playable_square_3_3.
+        group_3_0_to_3_3 = Group(player=1, start=Square(row=3, col=0), end=directly_playable_square_3_3)
+        group_3_1_to_3_4 = Group(player=1, start=Square(row=3, col=1), end=Square(row=3, col=4))
+        group_3_2_to_3_5 = Group(player=1, start=Square(row=3, col=2), end=Square(row=3, col=5))
+        group_3_3_to_3_6 = Group(player=1, start=directly_playable_square_3_3, end=Square(row=3, col=6))
+        ## groups for Black containing directly_playable_square_4_4.
+        group_4_3_to_4_6 = Group(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6))
+        ## groups for Black containing directly_playable_square_5_6.
+        group_2_3_to_5_6 = Group(player=1, start=Square(row=2, col=3), end=Square(row=5, col=6))
 
-        # All Verticals/Claimevens used in all Before variations of the threat (5, 0) to (2, 3).
+        # All Verticals/Claimevens used in all Before variations of the group (5, 0) to (2, 3).
         vertical_4_0 = Vertical(upper=Square(row=4, col=0), lower=Square(row=5, col=0))
         claimeven_4_1 = Claimeven(upper=Square(row=4, col=1), lower=Square(row=5, col=1))
         vertical_3_1 = Vertical(upper=Square(row=3, col=1), lower=Square(row=4, col=1))
         claimeven_2_3 = Claimeven(upper=Square(row=2, col=3), lower=Square(row=3, col=3))
         vertical_1_3 = Vertical(upper=Square(row=1, col=3), lower=Square(row=2, col=3))
 
-        # All Before variations of the threat (5, 0) to (2, 3).
+        # All Before variations of the group (5, 0) to (2, 3).
         before_5_0_to_2_3_variation_1 = Before(
-            threat=threat_5_0_to_2_3,
+            group=group_5_0_to_2_3,
             verticals=[vertical_4_0],
             claimevens=[claimeven_4_1, claimeven_2_3]
         )
         before_5_0_to_2_3_variation_2 = Before(
-            threat=threat_5_0_to_2_3,
+            group=group_5_0_to_2_3,
             verticals=[vertical_4_0, vertical_1_3],
             claimevens=[claimeven_4_1]
         )
         before_5_0_to_2_3_variation_3 = Before(
-            threat=threat_5_0_to_2_3,
+            group=group_5_0_to_2_3,
             verticals=[vertical_4_0, vertical_3_1],
             claimevens=[claimeven_2_3]
         )
         before_5_0_to_2_3_variation_4 = Before(
-            threat=threat_5_0_to_2_3,
+            group=group_5_0_to_2_3,
             verticals=[vertical_4_0, vertical_3_1, vertical_1_3],
             claimevens=[]
         )
 
-        # All Verticals/Claimevens used in all Before variations of the threat (3, 0) to (3, 3).
+        # All Verticals/Claimevens used in all Before variations of the group (3, 0) to (3, 3).
         vertical_2_0 = Vertical(upper=Square(row=2, col=0), lower=Square(row=3, col=0))
         vertical_3_0 = Vertical(upper=Square(row=3, col=0), lower=Square(row=4, col=0))
         vertical_2_1 = Vertical(upper=Square(row=2, col=1), lower=Square(row=3, col=1))
         vertical_3_1 = Vertical(upper=Square(row=3, col=1), lower=Square(row=4, col=1))
         vertical_2_3 = Vertical(upper=Square(row=2, col=3), lower=Square(row=3, col=3))
 
-        # All Before variations of the threat (3, 0) to (3, 3).
+        # All Before variations of the group (3, 0) to (3, 3).
         before_3_0_to_3_3_variation_1 = Before(
-            threat=threat_3_0_to_3_3,
+            group=group_3_0_to_3_3,
             verticals=[vertical_2_0, vertical_2_1, vertical_2_3],
             claimevens=[],
         )
         before_3_0_to_3_3_variation_2 = Before(
-            threat=threat_3_0_to_3_3,
+            group=group_3_0_to_3_3,
             verticals=[vertical_2_0, vertical_3_1, vertical_2_3],
             claimevens=[],
         )
         before_3_0_to_3_3_variation_3 = Before(
-            threat=threat_3_0_to_3_3,
+            group=group_3_0_to_3_3,
             verticals=[vertical_3_0, vertical_2_1, vertical_2_3],
             claimevens=[],
         )
         before_3_0_to_3_3_variation_4 = Before(
-            threat=threat_3_0_to_3_3,
+            group=group_3_0_to_3_3,
             verticals=[vertical_3_0, vertical_3_1, vertical_2_3],
             claimevens=[],
         )
 
-        # All Verticals/Claimevens used in all Before variations of the threat (3, 1) to (3, 4).
+        # All Verticals/Claimevens used in all Before variations of the group (3, 1) to (3, 4).
         vertical_2_1 = Vertical(upper=Square(row=2, col=1), lower=Square(row=3, col=1))
         vertical_3_1 = Vertical(upper=Square(row=3, col=1), lower=Square(row=4, col=1))
         vertical_2_3 = Vertical(upper=Square(row=2, col=3), lower=Square(row=3, col=3))
         vertical_2_4 = Vertical(upper=Square(row=2, col=4), lower=Square(row=3, col=4))
         vertical_3_4 = Vertical(upper=Square(row=3, col=4), lower=Square(row=4, col=4))
 
-        # All Before variations of the threat (3, 1) to (3, 4).
+        # All Before variations of the group (3, 1) to (3, 4).
         before_3_1_to_3_4_variation_1 = Before(
-            threat=threat_3_1_to_3_4,
+            group=group_3_1_to_3_4,
             verticals=[vertical_2_1, vertical_2_3, vertical_2_4],
             claimevens=[],
         )
         before_3_1_to_3_4_variation_2 = Before(
-            threat=threat_3_1_to_3_4,
+            group=group_3_1_to_3_4,
             verticals=[vertical_2_1, vertical_2_3, vertical_3_4],
             claimevens=[],
         )
         before_3_1_to_3_4_variation_3 = Before(
-            threat=threat_3_1_to_3_4,
+            group=group_3_1_to_3_4,
             verticals=[vertical_3_1, vertical_2_3, vertical_2_4],
             claimevens=[],
         )
         before_3_1_to_3_4_variation_4 = Before(
-            threat=threat_3_1_to_3_4,
+            group=group_3_1_to_3_4,
             verticals=[vertical_3_1, vertical_2_3, vertical_3_4],
             claimevens=[],
         )
 
-        # All Verticals/Claimevens used in all Before variations of the threat (3, 2) to (3, 5).
+        # All Verticals/Claimevens used in all Before variations of the group (3, 2) to (3, 5).
         vertical_2_3 = Vertical(upper=Square(row=2, col=3), lower=Square(row=3, col=3))
         vertical_2_4 = Vertical(upper=Square(row=2, col=4), lower=Square(row=3, col=4))
         vertical_3_4 = Vertical(upper=Square(row=3, col=4), lower=Square(row=4, col=4))
         vertical_2_5 = Vertical(upper=Square(row=2, col=5), lower=Square(row=3, col=5))
         vertical_3_5 = Vertical(upper=Square(row=3, col=5), lower=Square(row=4, col=5))
 
-        # All Before variations of the threat (3, 2) to (3, 5).
+        # All Before variations of the group (3, 2) to (3, 5).
         before_3_2_to_3_5_variation_1 = Before(
-            threat=threat_3_2_to_3_5,
+            group=group_3_2_to_3_5,
             verticals=[vertical_2_3, vertical_2_4, vertical_2_5],
             claimevens=[],
         )
         before_3_2_to_3_5_variation_2 = Before(
-            threat=threat_3_2_to_3_5,
+            group=group_3_2_to_3_5,
             verticals=[vertical_2_3, vertical_2_4, vertical_3_5],
             claimevens=[],
         )
         before_3_2_to_3_5_variation_3 = Before(
-            threat=threat_3_2_to_3_5,
+            group=group_3_2_to_3_5,
             verticals=[vertical_2_3, vertical_3_4, vertical_2_5],
             claimevens=[],
         )
         before_3_2_to_3_5_variation_4 = Before(
-            threat=threat_3_2_to_3_5,
+            group=group_3_2_to_3_5,
             verticals=[vertical_2_3, vertical_3_4, vertical_3_5],
             claimevens=[],
         )
 
-        # All Verticals/Claimevens used in all Before variations of the threat (3, 3) to (3, 6).
+        # All Verticals/Claimevens used in all Before variations of the group (3, 3) to (3, 6).
         vertical_2_3 = Vertical(upper=Square(row=2, col=3), lower=Square(row=3, col=3))
         vertical_2_4 = Vertical(upper=Square(row=2, col=4), lower=Square(row=3, col=4))
         vertical_3_4 = Vertical(upper=Square(row=3, col=4), lower=Square(row=4, col=4))
@@ -319,78 +319,78 @@ class TestSpecialbefore(unittest.TestCase):
         vertical_2_6 = Vertical(upper=Square(row=2, col=6), lower=Square(row=3, col=6))
         vertical_3_6 = Vertical(upper=Square(row=3, col=6), lower=Square(row=4, col=6))
 
-        # All Before variations of the threat (3, 3) to (3, 6).
+        # All Before variations of the group (3, 3) to (3, 6).
         before_3_3_to_3_6_variation_1 = Before(
-            threat=threat_3_3_to_3_6,
+            group=group_3_3_to_3_6,
             verticals=[vertical_2_3, vertical_2_4, vertical_2_5, vertical_2_6],
             claimevens=[],
         )
         before_3_3_to_3_6_variation_2 = Before(
-            threat=threat_3_3_to_3_6,
+            group=group_3_3_to_3_6,
             verticals=[vertical_2_3, vertical_2_4, vertical_2_5, vertical_3_6],
             claimevens=[],
         )
         before_3_3_to_3_6_variation_3 = Before(
-            threat=threat_3_3_to_3_6,
+            group=group_3_3_to_3_6,
             verticals=[vertical_2_3, vertical_2_4, vertical_3_5, vertical_2_6],
             claimevens=[],
         )
         before_3_3_to_3_6_variation_4 = Before(
-            threat=threat_3_3_to_3_6,
+            group=group_3_3_to_3_6,
             verticals=[vertical_2_3, vertical_2_4, vertical_3_5, vertical_3_6],
             claimevens=[],
         )
         before_3_3_to_3_6_variation_5 = Before(
-            threat=threat_3_3_to_3_6,
+            group=group_3_3_to_3_6,
             verticals=[vertical_2_3, vertical_3_4, vertical_2_5, vertical_2_6],
             claimevens=[],
         )
         before_3_3_to_3_6_variation_6 = Before(
-            threat=threat_3_3_to_3_6,
+            group=group_3_3_to_3_6,
             verticals=[vertical_2_3, vertical_3_4, vertical_2_5, vertical_3_6],
             claimevens=[],
         )
         before_3_3_to_3_6_variation_7 = Before(
-            threat=threat_3_3_to_3_6,
+            group=group_3_3_to_3_6,
             verticals=[vertical_2_3, vertical_3_4, vertical_3_5, vertical_2_6],
             claimevens=[],
         )
         before_3_3_to_3_6_variation_8 = Before(
-            threat=threat_3_3_to_3_6,
+            group=group_3_3_to_3_6,
             verticals=[vertical_2_3, vertical_3_4, vertical_3_5, vertical_3_6],
             claimevens=[],
         )
 
-        # All Verticals/Claimevens used in all Before variations of the threat (4, 3) to (4, 6).
+        # All Verticals/Claimevens used in all Before variations of the group (4, 3) to (4, 6).
         vertical_3_4 = Vertical(upper=Square(row=3, col=4), lower=Square(row=4, col=4))
         vertical_3_5 = Vertical(upper=Square(row=3, col=5), lower=Square(row=4, col=5))
         claimeven_4_5 = Claimeven(upper=Square(row=4, col=5), lower=Square(row=5, col=5))
         vertical_3_6 = Vertical(upper=Square(row=3, col=6), lower=Square(row=4, col=6))
         claimeven_4_6 = Claimeven(upper=Square(row=4, col=6), lower=Square(row=5, col=6))
 
-        # All Before variations of the threat (4, 3) to (4, 6).
+        # All Before variations of the group (4, 3) to (4, 6).
         before_4_3_to_4_6_variation_1 = Before(
-            threat=threat_4_3_to_4_6,
+            group=group_4_3_to_4_6,
             verticals=[vertical_3_4, vertical_3_5, vertical_3_6],
             claimevens=[],
         )
         before_4_3_to_4_6_variation_2 = Before(
-            threat=threat_4_3_to_4_6,
+            group=group_4_3_to_4_6,
             verticals=[vertical_3_4, vertical_3_5],
             claimevens=[claimeven_4_6],
         )
         before_4_3_to_4_6_variation_3 = Before(
-            threat=threat_4_3_to_4_6,
+            group=group_4_3_to_4_6,
             verticals=[vertical_3_4, vertical_3_6],
             claimevens=[claimeven_4_5],
         )
         before_4_3_to_4_6_variation_4 = Before(
-            threat=threat_4_3_to_4_6,
+            group=group_4_3_to_4_6,
             verticals=[vertical_3_4],
             claimevens=[claimeven_4_5, claimeven_4_6],
         )
 
-        # All Verticals/Claimevens used in all Before variations of the threat (2, 3) to (5, 6).
+        # All Verticals/Claimevens used in all Before variations of the group (2, 3) to (5, 6).
         vertical_1_3 = Vertical(upper=Square(row=1, col=3), lower=Square(row=2, col=3))
         claimeven_2_3 = Claimeven(upper=Square(row=2, col=3), lower=Square(row=3, col=3))
         vertical_2_4 = Vertical(upper=Square(row=2, col=4), lower=Square(row=3, col=4))
@@ -399,44 +399,44 @@ class TestSpecialbefore(unittest.TestCase):
         claimeven_4_5 = Claimeven(upper=Square(row=4, col=5), lower=Square(row=5, col=5))
         vertical_4_6 = Vertical(upper=Square(row=4, col=6), lower=Square(row=5, col=6))
 
-        # All Before variations of the threat (2, 3) to (5, 6).
+        # All Before variations of the group (2, 3) to (5, 6).
         before_2_3_to_5_6_variation_1 = Before(
-            threat=threat_2_3_to_5_6,
+            group=group_2_3_to_5_6,
             verticals=[vertical_1_3, vertical_2_4, vertical_3_5, vertical_4_6],
             claimevens=[],
         )
         before_2_3_to_5_6_variation_2 = Before(
-            threat=threat_2_3_to_5_6,
+            group=group_2_3_to_5_6,
             verticals=[vertical_1_3, vertical_2_4, vertical_4_6],
             claimevens=[claimeven_4_5],
         )
         before_2_3_to_5_6_variation_3 = Before(
-            threat=threat_2_3_to_5_6,
+            group=group_2_3_to_5_6,
             verticals=[vertical_1_3, vertical_3_4, vertical_3_5, vertical_4_6],
             claimevens=[],
         )
         before_2_3_to_5_6_variation_4 = Before(
-            threat=threat_2_3_to_5_6,
+            group=group_2_3_to_5_6,
             verticals=[vertical_1_3, vertical_3_4, vertical_4_6],
             claimevens=[claimeven_4_5],
         )
         before_2_3_to_5_6_variation_5 = Before(
-            threat=threat_2_3_to_5_6,
+            group=group_2_3_to_5_6,
             verticals=[vertical_2_4, vertical_3_5, vertical_4_6],
             claimevens=[claimeven_2_3],
         )
         before_2_3_to_5_6_variation_6 = Before(
-            threat=threat_2_3_to_5_6,
+            group=group_2_3_to_5_6,
             verticals=[vertical_2_4, vertical_4_6],
             claimevens=[claimeven_2_3, claimeven_4_5],
         )
         before_2_3_to_5_6_variation_7 = Before(
-            threat=threat_2_3_to_5_6,
+            group=group_2_3_to_5_6,
             verticals=[vertical_3_4, vertical_3_5, vertical_4_6],
             claimevens=[claimeven_2_3],
         )
         before_2_3_to_5_6_variation_8 = Before(
-            threat=threat_2_3_to_5_6,
+            group=group_2_3_to_5_6,
             verticals=[vertical_3_4, vertical_4_6],
             claimevens=[claimeven_2_3, claimeven_4_5],
         )

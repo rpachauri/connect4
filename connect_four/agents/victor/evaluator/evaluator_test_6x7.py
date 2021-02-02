@@ -135,78 +135,78 @@ class TestEvaluator6x7(unittest.TestCase):
             ],
         ])
         board = Board(self.env.env_variables)
-        white_threats = board.potential_threats(0)
-        square_to_threats = board.potential_threats_by_square()
+        white_groups = board.potential_groups(0)
+        square_to_groups = board.potential_groups_by_square()
 
         # Define all Solutions using Claimevens.
-        # A subset of these Claimevens can refute all of white_threats.
+        # A subset of these Claimevens can refute all of white_groups.
         claimeven_a1_a2 = solution.from_claimeven(
             claimeven=Claimeven(lower=Square(row=5, col=0), upper=Square(row=4, col=0)),
-            square_to_threats=square_to_threats,
+            square_to_groups=square_to_groups,
         )
         claimeven_a3_a4 = solution.from_claimeven(
             claimeven=Claimeven(lower=Square(row=3, col=0), upper=Square(row=2, col=0)),
-            square_to_threats=square_to_threats,
+            square_to_groups=square_to_groups,
         )
         claimeven_a5_a6 = solution.from_claimeven(
             claimeven=Claimeven(lower=Square(row=1, col=0), upper=Square(row=0, col=0)),
-            square_to_threats=square_to_threats,
+            square_to_groups=square_to_groups,
         )
         claimeven_b1_b2 = solution.from_claimeven(
             claimeven=Claimeven(lower=Square(row=5, col=1), upper=Square(row=4, col=1)),
-            square_to_threats=square_to_threats,
+            square_to_groups=square_to_groups,
         )
         claimeven_b3_b4 = solution.from_claimeven(
             claimeven=Claimeven(lower=Square(row=3, col=1), upper=Square(row=2, col=1)),
-            square_to_threats=square_to_threats,
+            square_to_groups=square_to_groups,
         )
         claimeven_b5_b6 = solution.from_claimeven(
             claimeven=Claimeven(lower=Square(row=1, col=1), upper=Square(row=0, col=1)),
-            square_to_threats=square_to_threats,
+            square_to_groups=square_to_groups,
         )
         claimeven_c3_c4 = solution.from_claimeven(
             claimeven=Claimeven(lower=Square(row=3, col=2), upper=Square(row=2, col=2)),
-            square_to_threats=square_to_threats,
+            square_to_groups=square_to_groups,
         )
         claimeven_c5_c6 = solution.from_claimeven(
             claimeven=Claimeven(lower=Square(row=1, col=2), upper=Square(row=0, col=2)),
-            square_to_threats=square_to_threats,
+            square_to_groups=square_to_groups,
         )
         claimeven_e3_e4 = solution.from_claimeven(
             claimeven=Claimeven(lower=Square(row=3, col=4), upper=Square(row=2, col=4)),
-            square_to_threats=square_to_threats,
+            square_to_groups=square_to_groups,
         )
         claimeven_e5_e6 = solution.from_claimeven(
             claimeven=Claimeven(lower=Square(row=1, col=4), upper=Square(row=0, col=4)),
-            square_to_threats=square_to_threats,
+            square_to_groups=square_to_groups,
         )
         claimeven_f1_f2 = solution.from_claimeven(
             claimeven=Claimeven(lower=Square(row=5, col=5), upper=Square(row=4, col=5)),
-            square_to_threats=square_to_threats,
+            square_to_groups=square_to_groups,
         )
         claimeven_f3_f4 = solution.from_claimeven(
             claimeven=Claimeven(lower=Square(row=3, col=5), upper=Square(row=2, col=5)),
-            square_to_threats=square_to_threats,
+            square_to_groups=square_to_groups,
         )
         claimeven_f5_f6 = solution.from_claimeven(
             claimeven=Claimeven(lower=Square(row=1, col=5), upper=Square(row=0, col=5)),
-            square_to_threats=square_to_threats,
+            square_to_groups=square_to_groups,
         )
         claimeven_g1_g2 = solution.from_claimeven(
             claimeven=Claimeven(lower=Square(row=5, col=6), upper=Square(row=4, col=6)),
-            square_to_threats=square_to_threats,
+            square_to_groups=square_to_groups,
         )
         claimeven_g3_g4 = solution.from_claimeven(
             claimeven=Claimeven(lower=Square(row=3, col=6), upper=Square(row=2, col=6)),
-            square_to_threats=square_to_threats,
+            square_to_groups=square_to_groups,
         )
         claimeven_g5_g6 = solution.from_claimeven(
             claimeven=Claimeven(lower=Square(row=1, col=6), upper=Square(row=0, col=6)),
-            square_to_threats=square_to_threats,
+            square_to_groups=square_to_groups,
         )
 
         # Note that typically, for a given set of Solutions, there may be multiple subsets of Solutions that
-        # solve all Threats.
+        # solve all groups.
         # In this test case, the given Solution set is the desired set so there is exactly one subset.
         solutions = {
             claimeven_a1_a2,
@@ -229,17 +229,17 @@ class TestEvaluator6x7(unittest.TestCase):
         node_graph = evaluator.create_node_graph(solutions=solutions)
         got_solutions = evaluator.find_chosen_set(
             node_graph=node_graph,
-            problems=white_threats,
+            problems=white_groups,
             allowed_solutions=solutions,
             used_solutions=set()
         )
         self.assertIsNotNone(got_solutions)
         self.assertTrue(got_solutions.issubset(solutions))
 
-        solved_threats = set()
+        solved_groups = set()
         for sol in got_solutions:
-            solved_threats.update(sol.threats)
-        self.assertEqual(white_threats, solved_threats)
+            solved_groups.update(sol.groups)
+        self.assertEqual(white_groups, solved_groups)
 
 
 if __name__ == '__main__':

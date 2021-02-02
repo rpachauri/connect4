@@ -1,7 +1,7 @@
 import unittest
 
 from connect_four.agents.victor.game import Square
-from connect_four.agents.victor.game import Threat
+from connect_four.agents.victor.game import Group
 
 from connect_four.agents.victor.rules import Claimeven
 from connect_four.agents.victor.rules import Baseinverse
@@ -62,7 +62,7 @@ class TestSimplePlan(unittest.TestCase):
         square_g1 = Square(row=5, col=6)
         square_g2 = Square(row=4, col=6)
         aftereven_d2_g2 = Aftereven(
-            threat=Threat(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6)),  # d2-g2
+            group=Group(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6)),  # d2-g2
             claimevens=[
                 Claimeven(upper=square_f2, lower=square_f1),  # Claimeven f1-f2
                 Claimeven(upper=square_g2, lower=square_g1),  # Claimeven g1-g2
@@ -86,7 +86,7 @@ class TestSimplePlan(unittest.TestCase):
         vertical_e1_e2 = Vertical(upper=square_e2, lower=square_e1)
         claimeven_b3_b4 = Claimeven(upper=square_b4, lower=square_b3)
         before_b4_e1 = Before(
-            threat=Threat(player=1, start=Square(row=2, col=1), end=Square(row=5, col=4)),  # Threat b4-e1
+            group=Group(player=1, start=Square(row=2, col=1), end=Square(row=5, col=4)),  # Group b4-e1
             verticals=[vertical_e1_e2],
             claimevens=[claimeven_b3_b4],
         )
@@ -114,7 +114,7 @@ class TestSimplePlan(unittest.TestCase):
 
         # Before d2-g2.
         before_d2_g2 = Before(
-            threat=Threat(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6)),  # d2-g2
+            group=Group(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6)),  # d2-g2
             verticals=[vertical_e2_e3],
             claimevens=[claimeven_f1_f2, claimeven_g1_g2],
         )
