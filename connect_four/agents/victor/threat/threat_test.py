@@ -72,34 +72,34 @@ class TestThreat(unittest.TestCase):
         self.assertEqual(want_threat, got_threat)
 
     def test_find_odd_threat_when_multiple_exist(self):
-        # This test is based on Diagram 3.9 from the original paper.
+        # There are two odd Threats in the 3rd row from the bottom.
         self.env.state = np.array([
             [
                 [0, 0, 0, 0, 0, 0, 0, ],
                 [0, 0, 0, 0, 0, 0, 0, ],
                 [0, 0, 0, 0, 0, 0, 0, ],
-                [0, 0, 0, 0, 0, 0, 0, ],
-                [0, 0, 0, 0, 0, 0, 0, ],
                 [0, 0, 1, 1, 1, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
             ],
             [
                 [0, 0, 0, 0, 0, 0, 0, ],
-                [0, 0, 0, 0, 0, 0, 0, ],
-                [0, 0, 0, 0, 0, 0, 0, ],
                 [0, 0, 0, 1, 0, 0, 0, ],
                 [0, 0, 0, 1, 0, 0, 0, ],
                 [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
             ],
         ])
         board = Board(self.env.env_variables)
         possible_threats = [
             threat.Threat(
-                group=Group(player=0, start=Square(row=5, col=1), end=Square(row=5, col=4)),  # b1-e1
-                empty_square=Square(row=5, col=1),  # b1
+                group=Group(player=0, start=Square(row=3, col=1), end=Square(row=3, col=4)),  # b3-e3
+                empty_square=Square(row=3, col=1),  # b3
             ),
             threat.Threat(
-                group=Group(player=0, start=Square(row=5, col=2), end=Square(row=5, col=5)),  # c1-f1
-                empty_square=Square(row=5, col=5),  # f1
+                group=Group(player=0, start=Square(row=3, col=2), end=Square(row=3, col=5)),  # c3-f3
+                empty_square=Square(row=3, col=5),  # f3
             ),
         ]
         got_threat = threat.find_odd_threat(board=board)
