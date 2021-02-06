@@ -31,8 +31,8 @@ class TestEvaluator4x5(unittest.TestCase):
             ],
         ])
         board = Board(self.env.env_variables)
-        got_solution_set = evaluator.evaluate(board=board)
-        self.assertIsNotNone(got_solution_set)
+        got_evaluation = evaluator.evaluate(board=board)
+        self.assertIsNotNone(got_evaluation)
 
 
 if __name__ == '__main__':

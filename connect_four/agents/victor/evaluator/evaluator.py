@@ -1,11 +1,32 @@
 """
 Note that in this module, we use the term "Group" and "Problem" interchangeably.
 """
+from collections import namedtuple
+
 from connect_four.agents.victor.game import Board
 from connect_four.agents.victor.solution import find_all_solutions, combination
 
 
-def evaluate(board: Board):
+Evaluation = namedtuple("Evaluation", ["chosen_set", "odd_threat_guarantor"])
+
+
+class EvaluationBuilder:
+    def __init__(self):
+        self.chosen_set = None
+        self.odd_threat_guarantor = None
+
+    def set_chosen_set(self, chosen_set):
+        self.chosen_set = chosen_set
+
+    def set_odd_threat_guarantor(self, odd_threat_guarantor):
+        self.odd_threat_guarantor = odd_threat_guarantor
+
+    def build(self) -> Evaluation:
+        if self.chosen_set is not None:
+            return Evaluation(chosen_set=self.chosen_set, odd_threat_guarantor=self.odd_threat_guarantor)
+
+
+def evaluate(board: Board) -> Evaluation:
     """evaluate finds a set of Solutions the opponent can use to
     refute all groups belonging to the current player, if such a set of Solutions exists.
 
@@ -20,16 +41,21 @@ def evaluate(board: Board):
     player_groups = board.potential_groups(player=board.player)
     all_solutions = find_all_solutions(board=board)
 
+    evaluation_builder = EvaluationBuilder()
+
     if board.player == 0:  # Current player is White.
         node_graph = create_node_graph(solutions=all_solutions)
         # Only try to find a set that can solve all problems if every Problem has at least one Solution.
         if player_groups.issubset(node_graph.keys()):
-            return find_chosen_set(
-                node_graph=node_graph,
-                problems=player_groups,
-                allowed_solutions=all_solutions,
-                used_solutions=set(),
+            evaluation_builder.set_chosen_set(
+                chosen_set=find_chosen_set(
+                    node_graph=node_graph,
+                    problems=player_groups,
+                    allowed_solutions=all_solutions,
+                    used_solutions=set(),
+                )
             )
+            return evaluation_builder.build()
     else:
         raise NotImplementedError()
     pass

@@ -39,8 +39,8 @@ class TestEvaluator6x7(unittest.TestCase):
             ],
         ])
         board = Board(self.env.env_variables)
-        got_solution_set = evaluator.evaluate(board=board)
-        self.assertIsNone(got_solution_set)
+        got_evaluation = evaluator.evaluate(board=board)
+        self.assertIsNone(got_evaluation)
 
     def test_evaluate_6x7_a1(self):
         # This test case is based on Appendix B: Situation after 1. a1.
@@ -63,8 +63,8 @@ class TestEvaluator6x7(unittest.TestCase):
             ],
         ])
         board = Board(self.env.env_variables)
-        got_solution_set = evaluator.evaluate(board=board)
-        self.assertIsNotNone(got_solution_set)
+        got_evaluation = evaluator.evaluate(board=board)
+        self.assertIsNotNone(got_evaluation)
 
     def test_evaluate_6x7_b1(self):
         # This test case is based on Appendix B: Situation after 1. b1.
@@ -87,8 +87,8 @@ class TestEvaluator6x7(unittest.TestCase):
             ],
         ])
         board = Board(self.env.env_variables)
-        got_solution_set = evaluator.evaluate(board=board)
-        self.assertIsNotNone(got_solution_set)
+        got_evaluation = evaluator.evaluate(board=board)
+        self.assertIsNotNone(got_evaluation)
 
     def test_evaluate_6x7_c1(self):
         # This test case is based on Appendix B: Situation after 1. c1.
@@ -111,8 +111,8 @@ class TestEvaluator6x7(unittest.TestCase):
             ],
         ])
         board = Board(self.env.env_variables)
-        got_solution_set = evaluator.evaluate(board=board)
-        self.assertIsNotNone(got_solution_set)
+        got_evaluation = evaluator.evaluate(board=board)
+        self.assertIsNotNone(got_evaluation)
 
     def test_evaluate_diagram_6_1(self):
         # This test case is based on Diagram 6.1.
