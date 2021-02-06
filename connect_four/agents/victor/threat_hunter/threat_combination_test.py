@@ -7,8 +7,8 @@ from connect_four.agents.victor.game import Board
 from connect_four.agents.victor.game import Square
 from connect_four.agents.victor.game import Group
 
-from connect_four.agents.victor.threat.threat_combination import ThreatCombination
-from connect_four.agents.victor.threat.threat_combination import find_threat_combination
+from connect_four.agents.victor.threat_hunter.threat_combination import ThreatCombination
+from connect_four.agents.victor.threat_hunter.threat_combination import find_threat_combination
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
 

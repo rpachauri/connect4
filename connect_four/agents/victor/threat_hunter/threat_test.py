@@ -7,7 +7,7 @@ from connect_four.agents.victor.game import Board
 from connect_four.agents.victor.game import Square
 from connect_four.agents.victor.game import Group
 
-from connect_four.agents.victor.threat import threat
+from connect_four.agents.victor.threat_hunter import threat
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
 

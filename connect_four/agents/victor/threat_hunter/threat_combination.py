@@ -4,8 +4,8 @@ from connect_four.agents.victor.game import Board
 from connect_four.agents.victor.game import Square
 
 
-EvenThreat = namedtuple("EvenThreat", ["threat", "odd_square", "even_square"])
-OddThreat = namedtuple("OddThreat", ["threat", "odd_square1", "odd_square2"])
+EvenThreat = namedtuple("EvenThreat", ["threat_hunter", "odd_square", "even_square"])
+OddThreat = namedtuple("OddThreat", ["threat_hunter", "odd_square1", "odd_square2"])
 
 """A ThreatCombination is a combination of two threats.
 
@@ -13,15 +13,15 @@ Both threats have exactly two squares filled by the player and two empty squares
 
 From Section 8.4 of the original paper:
 
-    A threat combination consists of two threats, which both are filled with two [tokens]. One threat needs two odd
-    squares, while the second threat needs one of the two squares of the first threat, and another even square, directly
-    above, or beneath the second odd square of the first threat. The square which both threats share should not be
+    A threat_hunter combination consists of two threats, which both are filled with two [tokens]. One threat_hunter needs two odd
+    squares, while the second threat_hunter needs one of the two squares of the first threat_hunter, and another even square, directly
+    above, or beneath the second odd square of the first threat_hunter. The square which both threats share should not be
     directly playable.
 
 Naming:
--   The threat with the even empty square (not the shared one) is known as the "even threat".
--   The threat with the odd empty square (not the shared one) is known as the "odd threat".
--   Despite the naming, either can be used as an odd threat depending on the opponent's moves.
+-   The threat_hunter with the even empty square (not the shared one) is known as the "even threat_hunter".
+-   The threat_hunter with the odd empty square (not the shared one) is known as the "odd threat_hunter".
+-   Despite the naming, either can be used as an odd threat_hunter depending on the opponent's moves.
 """
 ThreatCombination = namedtuple(
     "ThreatCombination",
@@ -53,11 +53,11 @@ def find_threat_combination(board: Board):
             continue
 
         square1, square2 = empty_squares[0], empty_squares[1]
-        if square1.row % 2 == 1 and square2.row % 2 == 1:  # odd threat.
+        if square1.row % 2 == 1 and square2.row % 2 == 1:  # odd threat_hunter.
             odd_threats.append(OddThreat(threat=threat, odd_square1=square1, odd_square2=square2))
-        elif square1.row % 2 == 0 and square2.row % 2 == 1:  # even threat with square1 as the even square.
+        elif square1.row % 2 == 0 and square2.row % 2 == 1:  # even threat_hunter with square1 as the even square.
             even_threats.append(EvenThreat(threat=threat, odd_square=square2, even_square=square1))
-        elif square1.row % 2 == 1 and square2.row % 2 == 0:  # even threat with square2 as the even square.
+        elif square1.row % 2 == 1 and square2.row % 2 == 0:  # even threat_hunter with square2 as the even square.
             even_threats.append(EvenThreat(threat=threat, odd_square=square1, even_square=square2))
 
     for even_threat in even_threats:
