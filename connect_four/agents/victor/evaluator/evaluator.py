@@ -8,7 +8,7 @@ from typing import Union
 
 from connect_four.agents.victor.game import Board, Group, Square
 from connect_four.agents.victor.solution import find_all_solutions, combination, Solution
-from connect_four.agents.victor.threat_hunter import Threat, ThreatCombination
+from connect_four.agents.victor.threat_hunter import Threat, ThreatCombination, ThreatCombinationType
 from connect_four.agents.victor.threat_hunter import find_odd_threat, find_threat_combination
 
 
@@ -66,10 +66,10 @@ def evaluate(board: Board) -> Optional[Evaluation]:
         if odd_threat_guarantor is None:
             return None
         evaluation_builder.set_odd_threat_guarantor(odd_threat_guarantor=odd_threat_guarantor)
-        player_groups = player_groups - problems_solved_by_guarantor(
+        player_groups = player_groups - problems_solved_by_odd_threat(
             board=board,
             problems=player_groups,
-            guarantor=odd_threat_guarantor,
+            odd_threat=odd_threat_guarantor,
         )
         all_solutions = all_solutions - unusable_solutions_with_guarantor(
             solutions=all_solutions,
@@ -183,31 +183,87 @@ def node_with_least_number_of_neighbors(node_graph, problems, allowed_solutions)
     raise ValueError("No problem in problems and node_graph")
 
 
-def find_odd_threat_guarantor(board: Board):
+def find_odd_threat_guarantor(board: Board) -> Union[Threat, ThreatCombination]:
+    threat_combination = find_threat_combination(board=board)
+    if threat_combination:
+        return threat_combination
     return find_odd_threat(board=board)
 
 
-def problems_solved_by_guarantor(board: Board, problems: Set[Group], guarantor: Threat) -> Set[Group]:
-    directly_playable_square_in_odd_threat_col = board.playable_square(col=guarantor.empty_square.col)
+def problems_solved_by_odd_threat_guarantor(
+        board: Board, problems: Set[Group], odd_threat_guarantor: Union[Threat, ThreatCombination]) -> Set[Group]:
+    if isinstance(odd_threat_guarantor, Threat):
+        return problems_solved_by_odd_threat(board=board, problems=problems, odd_threat=odd_threat_guarantor)
+    if isinstance(odd_threat_guarantor, ThreatCombination):
+        if odd_threat_guarantor.threat_combination_type == ThreatCombinationType.EvenAboveOdd:
+            return problems_solved_by_even_above_odd_threat_combination(
+                board=board, problems=problems, threat_combination=odd_threat_guarantor)
+        if odd_threat_guarantor.threat_combination_type == ThreatCombinationType.OddAboveDirectlyPlayableEven:
+            return problems_solved_by_odd_above_directly_playable_even_threat_combination(
+                board=board, problems=problems, threat_combination=odd_threat_guarantor)
+        if odd_threat_guarantor.threat_combination_type == ThreatCombinationType.OddAboveNotDirectlyPlayableEven:
+            return problems_solved_by_odd_above_not_directly_playable_even_threat_combination(
+                board=board, problems=problems, threat_combination=odd_threat_guarantor)
+
+
+def problems_solved_by_odd_threat(board: Board, problems: Set[Group], odd_threat: Threat) -> Set[Group]:
+    directly_playable_square_in_odd_threat_col = board.playable_square(col=odd_threat.empty_square.col)
     problems_solved = set()
-    if isinstance(guarantor, Threat):
-        for row in range(guarantor.empty_square.row, directly_playable_square_in_odd_threat_col.row, 2):
-            square = Square(row=row, col=guarantor.empty_square.col)
-            for problem in problems:
-                if square in problem.squares:
-                    problems_solved.add(problem)
-        for row in range(guarantor.empty_square.row, 0, -1):
-            square = Square(row=row, col=guarantor.empty_square.col)
-            for problem in problems:
-                if square in problem.squares:
-                    problems_solved.add(problem)
-        return problems_solved
+    # Add all odd Squares up to the Odd Threat that are not directly playable.
+    for row in range(odd_threat.empty_square.row, directly_playable_square_in_odd_threat_col.row, 2):
+        square = Square(row=row, col=odd_threat.empty_square.col)
+        for problem in problems:
+            if square in problem.squares:
+                problems_solved.add(problem)
+    # Add all Squares above the odd Threat.
+    for row in range(0, odd_threat.empty_square.row, 1):
+        square = Square(row=row, col=odd_threat.empty_square.col)
+        for problem in problems:
+            if square in problem.squares:
+                problems_solved.add(problem)
+    return problems_solved
 
 
-def unusable_solutions_with_guarantor(solutions: Set[Solution], guarantor: Threat) -> Set[Solution]:
+def problems_solved_by_even_above_odd_threat_combination(
+        board: Board, problems: Set[Group], threat_combination: ThreatCombination) -> Set[Group]:
+    if threat_combination.threat_combination_type != ThreatCombinationType.EvenAboveOdd:
+        raise ValueError(
+            "threat_combination.threat_combination_type =",
+            threat_combination.threat_combination_type,
+            "should be ThreatCombinationType.EvenAboveOdd",
+        )
+    raise NotImplementedError()
+
+
+def problems_solved_by_odd_above_directly_playable_even_threat_combination(
+        board: Board, problems: Set[Group], threat_combination: ThreatCombination) -> Set[Group]:
+    if threat_combination.threat_combination_type != ThreatCombinationType.OddAboveDirectlyPlayableEven:
+        raise ValueError(
+            "threat_combination.threat_combination_type =",
+            threat_combination.threat_combination_type,
+            "should be ThreatCombinationType.OddAboveDirectlyPlayableEven",
+        )
+    raise NotImplementedError()
+
+
+def problems_solved_by_odd_above_not_directly_playable_even_threat_combination(
+        board: Board, problems: Set[Group], threat_combination: ThreatCombination) -> Set[Group]:
+    if threat_combination.threat_combination_type != ThreatCombinationType.OddAboveNotDirectlyPlayableEven:
+        raise ValueError(
+            "threat_combination.threat_combination_type =",
+            threat_combination.threat_combination_type,
+            "should be ThreatCombinationType.OddAboveNotDirectlyPlayableEven",
+        )
+    raise NotImplementedError()
+
+
+def unusable_solutions_with_guarantor(
+        solutions: Set[Solution], guarantor: Union[Threat, ThreatCombination]) -> Set[Solution]:
     unusable_columns = []
     if isinstance(guarantor, Threat):
-        unusable_columns.append(guarantor.empty_square)
+        unusable_columns.append(guarantor.empty_square.col)
+    elif isinstance(guarantor, ThreatCombination):
+        raise NotImplementedError()
 
     unusable_solutions = set()
     for solution in solutions:
