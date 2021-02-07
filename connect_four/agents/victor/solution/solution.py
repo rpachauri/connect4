@@ -490,7 +490,9 @@ def from_before(before: Before, square_to_groups) -> Solution:
             squares.add(vertical.upper)
             squares.add(vertical.lower)
             # Add all groups refuted by Verticals which are part of the Before.
-            groups.update(from_vertical(vertical, square_to_groups).groups)
+            vertical_solution = from_vertical(vertical, square_to_groups)
+            if vertical_solution:
+                groups.update(vertical_solution.groups)
 
         claimeven_bottom_squares = []
         for claimeven in before.claimevens:
@@ -499,7 +501,9 @@ def from_before(before: Before, square_to_groups) -> Solution:
             squares.add(claimeven.lower)
             claimeven_bottom_squares.append(claimeven.lower)
             # Add all groups refuted by Claimevens which are part of the Before.
-            groups.update(from_claimeven(claimeven, square_to_groups).groups)
+            claimeven_solution = from_claimeven(claimeven, square_to_groups)
+            if claimeven_solution:
+                groups.update(claimeven_solution.groups)
 
         return Solution(
             rule=Rule.Before,
@@ -552,7 +556,9 @@ def from_specialbefore(specialbefore: Specialbefore, square_to_groups) -> Soluti
                 squares.add(vertical.upper)
                 squares.add(vertical.lower)
                 # Add all groups refuted by Verticals which are part of the Before.
-                groups.update(from_vertical(vertical, square_to_groups).groups)
+                vertical_solution = from_vertical(vertical, square_to_groups)
+                if vertical_solution:
+                    groups.update(vertical_solution.groups)
 
         claimeven_bottom_squares = []
         for claimeven in specialbefore.before.claimevens:
@@ -561,7 +567,9 @@ def from_specialbefore(specialbefore: Specialbefore, square_to_groups) -> Soluti
             squares.add(claimeven.lower)
             claimeven_bottom_squares.append(claimeven.lower)
             # Add all groups refuted by Claimevens which are part of the Before.
-            groups.update(from_claimeven(claimeven, square_to_groups).groups)
+            claimeven_solution = from_claimeven(claimeven, square_to_groups)
+            if claimeven_solution:
+                groups.update(claimeven_solution.groups)
 
         # The Specialbefore Solution includes all squares and groups that the Before Solution has.
         before_solution = from_before(before=specialbefore.before, square_to_groups=square_to_groups)

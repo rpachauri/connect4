@@ -2,9 +2,13 @@
 Note that in this module, we use the term "Group" and "Problem" interchangeably.
 """
 from collections import namedtuple
+from typing import Optional
+from typing import Set
 
-from connect_four.agents.victor.game import Board
-from connect_four.agents.victor.solution import find_all_solutions, combination
+from connect_four.agents.victor.game import Board, Group, Square
+from connect_four.agents.victor.solution import find_all_solutions, combination, Solution
+from connect_four.agents.victor.threat_hunter import Threat
+from connect_four.agents.victor.threat_hunter import find_odd_threat
 
 
 Evaluation = namedtuple("Evaluation", ["chosen_set", "odd_threat_guarantor"])
@@ -26,7 +30,7 @@ class EvaluationBuilder:
             return Evaluation(chosen_set=self.chosen_set, odd_threat_guarantor=self.odd_threat_guarantor)
 
 
-def evaluate(board: Board) -> Evaluation:
+def evaluate(board: Board) -> Optional[Evaluation]:
     """evaluate finds a set of Solutions the opponent can use to
     refute all groups belonging to the current player, if such a set of Solutions exists.
 
@@ -57,8 +61,32 @@ def evaluate(board: Board) -> Evaluation:
             )
             return evaluation_builder.build()
     else:
-        raise NotImplementedError()
-    pass
+        odd_threat_guarantor = find_odd_threat_guarantor(board=board)
+        if odd_threat_guarantor is None:
+            return None
+        evaluation_builder.set_odd_threat_guarantor(odd_threat_guarantor=odd_threat_guarantor)
+        player_groups = player_groups - problems_solved_by_guarantor(
+            board=board,
+            problems=player_groups,
+            guarantor=odd_threat_guarantor,
+        )
+        all_solutions = all_solutions - unusable_solutions_with_guarantor(
+            solutions=all_solutions,
+            guarantor=odd_threat_guarantor,
+        )
+
+        node_graph = create_node_graph(solutions=all_solutions)
+        # Only try to find a set that can solve all problems if every Problem has at least one Solution.
+        if player_groups.issubset(node_graph.keys()):
+            evaluation_builder.set_chosen_set(
+                chosen_set=find_chosen_set(
+                    node_graph=node_graph,
+                    problems=player_groups,
+                    allowed_solutions=all_solutions,
+                    used_solutions=set(),
+                )
+            )
+            return evaluation_builder.build()
 
 
 def create_node_graph(solutions):
@@ -152,3 +180,37 @@ def node_with_least_number_of_neighbors(node_graph, problems, allowed_solutions)
         return most_difficult_node
 
     raise ValueError("No problem in problems and node_graph")
+
+
+def find_odd_threat_guarantor(board: Board):
+    return find_odd_threat(board=board)
+
+
+def problems_solved_by_guarantor(board: Board, problems: Set[Group], guarantor: Threat) -> Set[Group]:
+    directly_playable_square_in_odd_threat_col = board.playable_square(col=guarantor.empty_square.col)
+    problems_solved = set()
+    if isinstance(guarantor, Threat):
+        for row in range(guarantor.empty_square.row, directly_playable_square_in_odd_threat_col.row, 2):
+            square = Square(row=row, col=guarantor.empty_square.col)
+            for problem in problems:
+                if square in problem.squares:
+                    problems_solved.add(problem)
+        for row in range(guarantor.empty_square.row, 0, -1):
+            square = Square(row=row, col=guarantor.empty_square.col)
+            for problem in problems:
+                if square in problem.squares:
+                    problems_solved.add(problem)
+        return problems_solved
+
+
+def unusable_solutions_with_guarantor(solutions: Set[Solution], guarantor: Threat) -> Set[Solution]:
+    unusable_columns = []
+    if isinstance(guarantor, Threat):
+        unusable_columns.append(guarantor.empty_square)
+
+    unusable_solutions = set()
+    for solution in solutions:
+        for square in solution.squares:
+            if square.col in unusable_columns:
+                unusable_solutions.add(solution)
+    return unusable_solutions
