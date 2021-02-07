@@ -3,38 +3,59 @@ from enum import Enum
 from typing import Optional, Set
 
 from connect_four.agents.victor.game import Board
+from connect_four.agents.victor.game import Group
 from connect_four.agents.victor.game import Square
 
 
 class ThreatCombinationType(Enum):
     EvenAboveOdd = 0
-    OddAboveDirectlyPlayableEven = 1
-    OddAboveNotDirectlyPlayableEven = 2
+    OddAboveNotDirectlyPlayableEven = 1
+    OddAboveDirectlyPlayableEven = 2
 
 
 EvenGroup = namedtuple("EvenGroup", ["group", "odd_square", "even_square"])
 OddGroup = namedtuple("OddGroup", ["group", "odd_square1", "odd_square2"])
 
-"""A ThreatCombination is a combination of two threats.
 
-Both threats have exactly two squares filled by the player and two empty squares.
+class ThreatCombination:
+    """A ThreatCombination is a combination of two threats.
 
-From Section 8.4 of the original paper:
+    Both threats have exactly two squares filled by the player and two empty squares.
 
-    A threat_hunter combination consists of two threats, which both are filled with two [tokens]. One threat_hunter needs two odd
-    squares, while the second threat_hunter needs one of the two squares of the first threat_hunter, and another even square, directly
-    above, or beneath the second odd square of the first threat_hunter. The square which both threats share should not be
-    directly playable.
+    From Section 8.4 of the original paper:
 
-Naming:
--   The threat_hunter with the even empty square (not the shared one) is known as the "even threat_hunter".
--   The threat_hunter with the odd empty square (not the shared one) is known as the "odd threat_hunter".
--   Despite the naming, either can be used as an odd threat_hunter depending on the opponent's moves.
-"""
-ThreatCombination = namedtuple(
-    "ThreatCombination",
-    ["even_threat", "odd_threat", "shared_square", "even_square", "odd_square", "threat_combination_type"],
-)
+        A threat_hunter combination consists of two threats, which both are filled with two [tokens]. One threat_hunter needs two odd
+        squares, while the second threat_hunter needs one of the two squares of the first threat_hunter, and another even square, directly
+        above, or beneath the second odd square of the first threat_hunter. The square which both threats share should not be
+        directly playable.
+
+    Naming:
+    -   The threat_hunter with the even empty square (not the shared one) is known as the "even threat_hunter".
+    -   The threat_hunter with the odd empty square (not the shared one) is known as the "odd threat_hunter".
+    -   Despite the naming, either can be used as an odd threat_hunter depending on the opponent's moves.
+    """
+    def __init__(self,
+                 even_threat: Group,
+                 odd_threat: Group,
+                 shared_square: Square,
+                 even_square: Square,
+                 odd_square: Square,
+                 threat_combination_type: ThreatCombinationType):
+        self.even_threat = even_threat
+        self.odd_threat = odd_threat
+        self.shared_square = shared_square
+        self.even_square = even_square
+        self.odd_square = odd_square
+        self.threat_combination_type = threat_combination_type
+
+    def __eq__(self, other):
+        if isinstance(other, ThreatCombination):
+            return (self.even_threat == other.even_threat and
+                    self.odd_threat == other.odd_threat and
+                    self.shared_square == other.shared_square and
+                    self.even_square == other.even_square and
+                    self.odd_square == other.odd_square and
+                    self.threat_combination_type == other.threat_combination_type)
 
 
 def find_threat_combination(board: Board):
