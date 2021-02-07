@@ -1,11 +1,19 @@
 from collections import namedtuple
+from enum import Enum
+from typing import Optional, Set
 
 from connect_four.agents.victor.game import Board
 from connect_four.agents.victor.game import Square
 
 
-EvenThreat = namedtuple("EvenThreat", ["threat_hunter", "odd_square", "even_square"])
-OddThreat = namedtuple("OddThreat", ["threat_hunter", "odd_square1", "odd_square2"])
+class ThreatCombinationType(Enum):
+    EvenAboveOdd = 0
+    OddAboveDirectlyPlayableEven = 1
+    OddAboveNotDirectlyPlayableEven = 2
+
+
+EvenGroup = namedtuple("EvenGroup", ["group", "odd_square", "even_square"])
+OddGroup = namedtuple("OddGroup", ["group", "odd_square1", "odd_square2"])
 
 """A ThreatCombination is a combination of two threats.
 
@@ -25,7 +33,7 @@ Naming:
 """
 ThreatCombination = namedtuple(
     "ThreatCombination",
-    ["even_threat", "odd_threat", "shared_square", "even_square", "odd_square"],
+    ["even_threat", "odd_threat", "shared_square", "even_square", "odd_square", "threat_combination_type"],
 )
 
 
@@ -39,13 +47,13 @@ def find_threat_combination(board: Board):
     Returns:
         threat_combination (ThreatCombination): a ThreatCombination for White if one exists. Otherwise, None.
     """
-    white_threats = board.potential_groups(0)
+    white_groups = board.potential_groups(0)
 
     even_threats = []
     odd_threats = []
-    for threat in white_threats:
+    for group in white_groups:
         empty_squares = []
-        for square in threat.squares:
+        for square in group.squares:
             if board.is_empty(square):
                 empty_squares.append(square)
 
@@ -54,30 +62,56 @@ def find_threat_combination(board: Board):
 
         square1, square2 = empty_squares[0], empty_squares[1]
         if square1.row % 2 == 1 and square2.row % 2 == 1:  # odd threat_hunter.
-            odd_threats.append(OddThreat(threat=threat, odd_square1=square1, odd_square2=square2))
+            odd_threats.append(OddGroup(group=group, odd_square1=square1, odd_square2=square2))
         elif square1.row % 2 == 0 and square2.row % 2 == 1:  # even threat_hunter with square1 as the even square.
-            even_threats.append(EvenThreat(threat=threat, odd_square=square2, even_square=square1))
+            even_threats.append(EvenGroup(group=group, odd_square=square2, even_square=square1))
         elif square1.row % 2 == 1 and square2.row % 2 == 0:  # even threat_hunter with square2 as the even square.
-            even_threats.append(EvenThreat(threat=threat, odd_square=square1, even_square=square2))
+            even_threats.append(EvenGroup(group=group, odd_square=square1, even_square=square2))
 
+    directly_playable_squares = board.playable_squares()
     for even_threat in even_threats:
         for odd_threat in odd_threats:
-            threats_share_a_square, odd_unshared_square = share_square(even_threat=even_threat, odd_threat=odd_threat)
-            if (threats_share_a_square and
-                    even_threat.even_square.col == odd_unshared_square.col and
-                    abs(even_threat.even_square.row - odd_unshared_square.row) == 1):
-                return ThreatCombination(
-                    even_threat=even_threat.threat,
-                    odd_threat=odd_threat.threat,
-                    shared_square=even_threat.odd_square,
-                    even_square=even_threat.even_square,
-                    odd_square=odd_unshared_square,
-                )
+            threat_combination = create_threat_combination(
+                even_threat=even_threat,
+                odd_threat=odd_threat,
+                directly_playable_squares=directly_playable_squares,
+            )
+            if threat_combination:
+                return threat_combination
 
 
-def share_square(even_threat: EvenThreat, odd_threat: OddThreat) -> (bool, Square):
+def create_threat_combination(
+        even_threat: EvenGroup,
+        odd_threat: OddGroup,
+        directly_playable_squares: Set[Square]) -> Optional[ThreatCombination]:
+    odd_unshared_square = shared_square(even_threat=even_threat, odd_threat=odd_threat)
+    if odd_unshared_square is None:
+        return None
+    if even_threat.even_square.col != odd_unshared_square.col:
+        return None
+
+    if even_threat.even_square.row - odd_unshared_square.row == -1:
+        threat_combination_type = ThreatCombinationType.EvenAboveOdd
+    elif even_threat.even_square.row - odd_unshared_square.row == 1:
+        if even_threat.even_square in directly_playable_squares:
+            threat_combination_type = ThreatCombinationType.OddAboveDirectlyPlayableEven
+        else:
+            threat_combination_type = ThreatCombinationType.OddAboveNotDirectlyPlayableEven
+    else:
+        return None
+
+    return ThreatCombination(
+        even_threat=even_threat.group,
+        odd_threat=odd_threat.group,
+        shared_square=even_threat.odd_square,
+        even_square=even_threat.even_square,
+        odd_square=odd_unshared_square,
+        threat_combination_type=threat_combination_type,
+    )
+
+
+def shared_square(even_threat: EvenGroup, odd_threat: OddGroup) -> Square:
     if even_threat.odd_square == odd_threat.odd_square1:
-        return True, odd_threat.odd_square2
+        return odd_threat.odd_square2
     if even_threat.odd_square == odd_threat.odd_square2:
-        return True, odd_threat.odd_square1
-    return False, None
+        return odd_threat.odd_square1
