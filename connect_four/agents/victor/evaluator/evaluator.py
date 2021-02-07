@@ -66,10 +66,10 @@ def evaluate(board: Board) -> Optional[Evaluation]:
         if odd_threat_guarantor is None:
             return None
         evaluation_builder.set_odd_threat_guarantor(odd_threat_guarantor=odd_threat_guarantor)
-        player_groups = player_groups - problems_solved_by_odd_threat(
+        player_groups = player_groups - problems_solved_by_odd_threat_guarantor(
             board=board,
             problems=player_groups,
-            odd_threat=odd_threat_guarantor,
+            odd_threat_guarantor=odd_threat_guarantor,
         )
         all_solutions = all_solutions - unusable_solutions_with_guarantor(
             solutions=all_solutions,
@@ -209,13 +209,13 @@ def problems_solved_by_odd_threat_guarantor(
 def problems_solved_by_odd_threat(board: Board, problems: Set[Group], odd_threat: Threat) -> Set[Group]:
     directly_playable_square_in_odd_threat_col = board.playable_square(col=odd_threat.empty_square.col)
     problems_solved = set()
-    # Add all odd Squares up to the Odd Threat that are not directly playable.
+    # Add Groups containing any odd Square up to the Odd Threat that are not directly playable.
     for row in range(odd_threat.empty_square.row, directly_playable_square_in_odd_threat_col.row, 2):
         square = Square(row=row, col=odd_threat.empty_square.col)
         for problem in problems:
             if square in problem.squares:
                 problems_solved.add(problem)
-    # Add all Squares above the odd Threat.
+    # Add Groups containing any Squares above the odd Threat.
     for row in range(0, odd_threat.empty_square.row, 1):
         square = Square(row=row, col=odd_threat.empty_square.col)
         for problem in problems:
@@ -232,7 +232,70 @@ def problems_solved_by_even_above_odd_threat_combination(
             threat_combination.threat_combination_type,
             "should be ThreatCombinationType.EvenAboveOdd",
         )
-    raise NotImplementedError()
+
+    directly_playable_square_in_shared_col = board.playable_square(col=threat_combination.shared_square.col)
+    problems_solved = set()
+
+    # Add Groups containing any odd Square in the crossing column that are not directly playable.
+    for row in range(threat_combination.shared_square.row, directly_playable_square_in_shared_col.row, 2):
+        square = Square(row=row, col=threat_combination.shared_square.col)
+        for problem in problems:
+            if square in problem.squares:
+                problems_solved.add(problem)
+
+    # Add Groups containing a Square above the crossing square and a Square above the odd Square in the stacked column.
+    for row_in_crossing_col in range(0, threat_combination.shared_square.row, 1):
+        square_above_crossing = Square(row=row_in_crossing_col, col=threat_combination.shared_square.col)
+        for row_in_stacked_col in range(0, threat_combination.odd_square.row, 1):
+            square_above_stacked = Square(row=row_in_stacked_col, col=threat_combination.odd_square.col)
+            for problem in problems:
+                if square_above_crossing in problem.squares and square_above_stacked in problem.squares:
+                    problems_solved.add(problem)
+
+    square_above_crossing = Square(
+        row=threat_combination.shared_square.row - 1,
+        col=threat_combination.shared_square.col,
+    )
+    # Add Groups containing the Square above the crossing square and the odd Square in the stacked column.
+    for problem in problems:
+        if square_above_crossing in problem.squares and threat_combination.odd_square in problem.squares:
+            problems_solved.add(problem)
+
+    directly_playable_square_in_stacked_col = board.playable_square(threat_combination.odd_square.col)
+    # If the odd square in the stacked column is playable:
+    if threat_combination.odd_square == directly_playable_square_in_stacked_col:
+        # Add Groups containing any Square above square_above_crossing.
+        for row in range(0, square_above_crossing.row, 1):
+            square = Square(row=row, col=square_above_crossing.col)
+            for problem in problems:
+                if square in problem.squares:
+                    problems_solved.add(problem)
+
+    rule_5_applied = 0
+
+    # If the first empty square in the crossing column is odd and
+    # the odd square in the stacked column is not directly playable:
+    if (directly_playable_square_in_shared_col.row % 2 == 1 and
+            threat_combination.odd_square != directly_playable_square_in_stacked_col):
+        # Add Groups containing the lowest squares of both columns.
+        for problem in problems:
+            if (directly_playable_square_in_shared_col in problem.squares and
+                    directly_playable_square_in_stacked_col in problem.squares):
+                problems_solved.add(problem)
+
+        rule_5_applied = 1
+
+    # In the stacked column, add Groups containing two Squares on top of each other
+    # up to and including the odd square in that column.
+    # If rule 5 is applied, this observation starts one square higher.
+    for upper_row in range(0, threat_combination.odd_square.row - rule_5_applied, 1):
+        upper = Square(row=upper_row, col=threat_combination.odd_square.col)
+        lower = Square(row=upper_row + 1, col=threat_combination.odd_square.col)
+        for problem in problems:
+            if upper in problem.squares and lower in problem.squares:
+                problems_solved.add(problem)
+
+    return problems_solved
 
 
 def problems_solved_by_odd_above_directly_playable_even_threat_combination(
@@ -263,7 +326,8 @@ def unusable_solutions_with_guarantor(
     if isinstance(guarantor, Threat):
         unusable_columns.append(guarantor.empty_square.col)
     elif isinstance(guarantor, ThreatCombination):
-        raise NotImplementedError()
+        unusable_columns.append(guarantor.shared_square.col)
+        unusable_columns.append(guarantor.even_square.col)
 
     unusable_solutions = set()
     for solution in solutions:
