@@ -75,6 +75,43 @@ class TestEvaluator6x4(unittest.TestCase):
         )
         self.assertEqual(want_odd_threat_guarantor, got_evaluation.odd_threat_guarantor)
 
+    def test_evaluate_6x7_odd_above_not_directly_playable_even_threat_combination(self):
+        # This test case is a modified version of Diagram 8.7.
+        # The even square of the ThreatCombination is NOT directly playable.
+        # Black is to move and White has a ThreatCombination at a5-d2 and a3-d3.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, ],
+                [1, 0, 0, 0, ],
+                [0, 1, 0, 0, ],
+                [1, 1, 0, 0, ],
+                [1, 0, 0, 0, ],
+                [1, 0, 0, 0, ],
+            ],
+            [
+                [1, 0, 0, 0, ],
+                [0, 1, 0, 0, ],
+                [1, 0, 0, 0, ],
+                [0, 0, 0, 0, ],
+                [0, 1, 0, 0, ],
+                [0, 1, 0, 0, ],
+            ],
+        ])
+        self.env.player_turn = 1  # Black to move.
+        board = Board(self.env.env_variables)
+        got_evaluation = evaluator.evaluate(board=board)
+        self.assertIsNotNone(got_evaluation)
+
+        want_odd_threat_guarantor = threat_combination.ThreatCombination(
+            even_threat=Group(player=0, start=Square(row=1, col=0), end=Square(row=4, col=3)),  # a5-d2
+            odd_threat=Group(player=0, start=Square(row=3, col=0), end=Square(row=3, col=3)),  # a3-d3
+            shared_square=Square(row=3, col=2),  # c3
+            even_square=Square(row=4, col=3),  # d2
+            odd_square=Square(row=3, col=3),  # d3
+            threat_combination_type=threat_combination.ThreatCombinationType.OddAboveNotDirectlyPlayableEven,
+        )
+        self.assertEqual(want_odd_threat_guarantor, got_evaluation.odd_threat_guarantor)
+
 
 if __name__ == '__main__':
     unittest.main()

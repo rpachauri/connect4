@@ -57,6 +57,17 @@ class ThreatCombination:
                     self.odd_square == other.odd_square and
                     self.threat_combination_type == other.threat_combination_type)
 
+    def crossing_column(self) -> int:
+        return self.shared_square.col
+
+    def stacked_column(self) -> int:
+        return self.even_square.col
+
+    def upper_square_in_stacked_column(self) -> Square:
+        if self.threat_combination_type == ThreatCombinationType.EvenAboveOdd:
+            return self.even_square
+        return self.odd_square
+
 
 def find_threat_combination(board: Board):
     """find_threat_combination returns a ThreatCombination for White if one exists. Otherwise, returns None.

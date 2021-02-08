@@ -195,6 +195,31 @@ class TestEvaluator6x6(unittest.TestCase):
         got_evaluation = evaluator.evaluate(board=board)
         self.assertIsNotNone(got_evaluation)
 
+    def test_evaluate_6x5_diagram_8_7_inverted(self):
+        # This test case is based on an inverted version of Diagram 8.7.
+        # White is to move and Black is trying to refute all of White's threats.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 1, ],
+                [0, 0, 0, 0, 1, 0, ],
+                [0, 0, 0, 1, 0, 1, ],
+                [0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 1, 1, ],
+                [0, 0, 1, 0, 1, 1, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 1, ],
+                [0, 0, 0, 0, 1, 0, ],
+                [0, 0, 0, 1, 1, 1, ],
+                [0, 0, 0, 1, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+        got_evaluation = evaluator.evaluate(board=board)
+        self.assertIsNotNone(got_evaluation)
+
 
 if __name__ == '__main__':
     unittest.main()
