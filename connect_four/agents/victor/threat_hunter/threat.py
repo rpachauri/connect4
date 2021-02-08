@@ -15,7 +15,7 @@ def find_odd_threat(board: Board) -> Threat:
         board (Board): a Board instance.
 
     Returns:
-        odd_threat (Threat): a Threat with a single empty square. The single empty square will be odd.
+        odd_group (Threat): a Threat with a single empty square. The single empty square will be odd.
             None if no such Threat exists for board.
     """
     # Iterate through all groups that belong to White.

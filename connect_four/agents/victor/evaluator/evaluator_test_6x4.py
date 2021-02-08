@@ -66,8 +66,8 @@ class TestEvaluator6x4(unittest.TestCase):
         self.assertIsNotNone(got_evaluation)
 
         want_odd_threat_guarantor = threat_combination.ThreatCombination(
-            even_threat=Group(player=0, start=Square(row=5, col=0), end=Square(row=2, col=3)),  # a1-d4
-            odd_threat=Group(player=0, start=Square(row=3, col=0), end=Square(row=3, col=3)),  # a3-d3
+            even_group=Group(player=0, start=Square(row=5, col=0), end=Square(row=2, col=3)),  # a1-d4
+            odd_group=Group(player=0, start=Square(row=3, col=0), end=Square(row=3, col=3)),  # a3-d3
             shared_square=Square(row=3, col=2),  # c3
             even_square=Square(row=2, col=3),  # d4
             odd_square=Square(row=3, col=3),  # d3
@@ -103,8 +103,8 @@ class TestEvaluator6x4(unittest.TestCase):
         self.assertIsNotNone(got_evaluation)
 
         want_odd_threat_guarantor = threat_combination.ThreatCombination(
-            even_threat=Group(player=0, start=Square(row=1, col=0), end=Square(row=4, col=3)),  # a5-d2
-            odd_threat=Group(player=0, start=Square(row=3, col=0), end=Square(row=3, col=3)),  # a3-d3
+            even_group=Group(player=0, start=Square(row=1, col=0), end=Square(row=4, col=3)),  # a5-d2
+            odd_group=Group(player=0, start=Square(row=3, col=0), end=Square(row=3, col=3)),  # a3-d3
             shared_square=Square(row=3, col=2),  # c3
             even_square=Square(row=4, col=3),  # d2
             odd_square=Square(row=3, col=3),  # d3

@@ -24,25 +24,25 @@ class ThreatCombination:
 
     From Section 8.4 of the original paper:
 
-        A threat_hunter combination consists of two threats, which both are filled with two [tokens]. One threat_hunter needs two odd
-        squares, while the second threat_hunter needs one of the two squares of the first threat_hunter, and another even square, directly
-        above, or beneath the second odd square of the first threat_hunter. The square which both threats share should not be
-        directly playable.
+        A ThreatCombination consists of two Groups, which both are filled with two [tokens].
+        One Group needs two odd squares, while the second Group needs one of the two squares of the
+        first Group, and another even square, directly above, or beneath the second odd square of the first Group.
+        The square which both Groups share should not be directly playable.
 
     Naming:
-    -   The threat_hunter with the even empty square (not the shared one) is known as the "even threat_hunter".
-    -   The threat_hunter with the odd empty square (not the shared one) is known as the "odd threat_hunter".
-    -   Despite the naming, either can be used as an odd threat_hunter depending on the opponent's moves.
+    -   The Group with the even empty square (not the shared one) is known as the "even group".
+    -   The Group with the odd empty square (not the shared one) is known as the "odd group".
+    -   Despite the naming, either can be used as an odd threat depending on the opponent's moves.
     """
     def __init__(self,
-                 even_threat: Group,
-                 odd_threat: Group,
+                 even_group: Group,
+                 odd_group: Group,
                  shared_square: Square,
                  even_square: Square,
                  odd_square: Square,
                  threat_combination_type: ThreatCombinationType):
-        self.even_threat = even_threat
-        self.odd_threat = odd_threat
+        self.even_threat = even_group
+        self.odd_threat = odd_group
         self.shared_square = shared_square
         self.even_square = even_square
         self.odd_square = odd_square
@@ -81,8 +81,8 @@ def find_threat_combination(board: Board):
     """
     white_groups = board.potential_groups(0)
 
-    even_threats = []
-    odd_threats = []
+    even_groups = []
+    odd_groups = []
     for group in white_groups:
         empty_squares = []
         for square in group.squares:
@@ -94,18 +94,18 @@ def find_threat_combination(board: Board):
 
         square1, square2 = empty_squares[0], empty_squares[1]
         if square1.row % 2 == 1 and square2.row % 2 == 1:  # odd threat_hunter.
-            odd_threats.append(OddGroup(group=group, odd_square1=square1, odd_square2=square2))
+            odd_groups.append(OddGroup(group=group, odd_square1=square1, odd_square2=square2))
         elif square1.row % 2 == 0 and square2.row % 2 == 1:  # even threat_hunter with square1 as the even square.
-            even_threats.append(EvenGroup(group=group, odd_square=square2, even_square=square1))
+            even_groups.append(EvenGroup(group=group, odd_square=square2, even_square=square1))
         elif square1.row % 2 == 1 and square2.row % 2 == 0:  # even threat_hunter with square2 as the even square.
-            even_threats.append(EvenGroup(group=group, odd_square=square1, even_square=square2))
+            even_groups.append(EvenGroup(group=group, odd_square=square1, even_square=square2))
 
     directly_playable_squares = board.playable_squares()
-    for even_threat in even_threats:
-        for odd_threat in odd_threats:
+    for even_threat in even_groups:
+        for odd_threat in odd_groups:
             threat_combination = create_threat_combination(
-                even_threat=even_threat,
-                odd_threat=odd_threat,
+                even_group=even_threat,
+                odd_group=odd_threat,
                 directly_playable_squares=directly_playable_squares,
             )
             if threat_combination:
@@ -113,19 +113,19 @@ def find_threat_combination(board: Board):
 
 
 def create_threat_combination(
-        even_threat: EvenGroup,
-        odd_threat: OddGroup,
+        even_group: EvenGroup,
+        odd_group: OddGroup,
         directly_playable_squares: Set[Square]) -> Optional[ThreatCombination]:
-    odd_unshared_square = shared_square(even_threat=even_threat, odd_threat=odd_threat)
+    odd_unshared_square = shared_square(even_group=even_group, odd_group=odd_group)
     if odd_unshared_square is None:
         return None
-    if even_threat.even_square.col != odd_unshared_square.col:
+    if even_group.even_square.col != odd_unshared_square.col:
         return None
 
-    if even_threat.even_square.row - odd_unshared_square.row == -1:
+    if even_group.even_square.row - odd_unshared_square.row == -1:
         threat_combination_type = ThreatCombinationType.EvenAboveOdd
-    elif even_threat.even_square.row - odd_unshared_square.row == 1:
-        if even_threat.even_square in directly_playable_squares:
+    elif even_group.even_square.row - odd_unshared_square.row == 1:
+        if even_group.even_square in directly_playable_squares:
             threat_combination_type = ThreatCombinationType.OddAboveDirectlyPlayableEven
         else:
             threat_combination_type = ThreatCombinationType.OddAboveNotDirectlyPlayableEven
@@ -133,17 +133,17 @@ def create_threat_combination(
         return None
 
     return ThreatCombination(
-        even_threat=even_threat.group,
-        odd_threat=odd_threat.group,
-        shared_square=even_threat.odd_square,
-        even_square=even_threat.even_square,
+        even_group=even_group.group,
+        odd_group=odd_group.group,
+        shared_square=even_group.odd_square,
+        even_square=even_group.even_square,
         odd_square=odd_unshared_square,
         threat_combination_type=threat_combination_type,
     )
 
 
-def shared_square(even_threat: EvenGroup, odd_threat: OddGroup) -> Square:
-    if even_threat.odd_square == odd_threat.odd_square1:
-        return odd_threat.odd_square2
-    if even_threat.odd_square == odd_threat.odd_square2:
-        return odd_threat.odd_square1
+def shared_square(even_group: EvenGroup, odd_group: OddGroup) -> Square:
+    if even_group.odd_square == odd_group.odd_square1:
+        return odd_group.odd_square2
+    if even_group.odd_square == odd_group.odd_square2:
+        return odd_group.odd_square1

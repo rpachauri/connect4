@@ -45,8 +45,8 @@ class TestThreatCombination(unittest.TestCase):
         want_even_threat = Group(player=0, start=Square(row=5, col=3), end=Square(row=2, col=6))  # d1-g4
         want_odd_threat = Group(player=0, start=Square(row=3, col=3), end=Square(row=3, col=6))  # d3-g3
         want_threat_combination = ThreatCombination(
-            even_threat=want_even_threat,
-            odd_threat=want_odd_threat,
+            even_group=want_even_threat,
+            odd_group=want_odd_threat,
             shared_square=Square(row=3, col=5),  # f3
             even_square=Square(row=2, col=6),  # g4
             odd_square=Square(row=3, col=6),  # g3
@@ -79,8 +79,8 @@ class TestThreatCombination(unittest.TestCase):
         want_even_group = Group(player=0, start=Square(row=1, col=3), end=Square(row=4, col=6))  # d5-g2
         want_odd_group = Group(player=0, start=Square(row=3, col=3), end=Square(row=3, col=6))  # d3-d3
         want_threat_combination = ThreatCombination(
-            even_threat=want_even_group,
-            odd_threat=want_odd_group,
+            even_group=want_even_group,
+            odd_group=want_odd_group,
             shared_square=Square(row=3, col=5),  # f3
             even_square=Square(row=4, col=6),  # g2
             odd_square=Square(row=3, col=6),  # g3
