@@ -48,20 +48,7 @@ def evaluate(board: Board) -> Optional[Evaluation]:
 
     evaluation_builder = EvaluationBuilder()
 
-    if board.player == 0:  # Current player is White.
-        node_graph = create_node_graph(solutions=all_solutions)
-        # Only try to find a set that can solve all problems if every Problem has at least one Solution.
-        if player_groups.issubset(node_graph.keys()):
-            evaluation_builder.set_chosen_set(
-                chosen_set=find_chosen_set(
-                    node_graph=node_graph,
-                    problems=player_groups,
-                    allowed_solutions=all_solutions,
-                    used_solutions=set(),
-                )
-            )
-            return evaluation_builder.build()
-    else:
+    if board.player == 1:  # Current player is Black.
         odd_threat_guarantor = find_odd_threat_guarantor(board=board)
         if odd_threat_guarantor is None:
             return None
@@ -76,18 +63,18 @@ def evaluate(board: Board) -> Optional[Evaluation]:
             guarantor=odd_threat_guarantor,
         )
 
-        node_graph = create_node_graph(solutions=all_solutions)
-        # Only try to find a set that can solve all problems if every Problem has at least one Solution.
-        if player_groups.issubset(node_graph.keys()):
-            evaluation_builder.set_chosen_set(
-                chosen_set=find_chosen_set(
-                    node_graph=node_graph,
-                    problems=player_groups,
-                    allowed_solutions=all_solutions,
-                    used_solutions=set(),
-                )
+    node_graph = create_node_graph(solutions=all_solutions)
+    # Only try to find a set that can solve all problems if every Problem has at least one Solution.
+    if player_groups.issubset(node_graph.keys()):
+        evaluation_builder.set_chosen_set(
+            chosen_set=find_chosen_set(
+                node_graph=node_graph,
+                problems=player_groups,
+                allowed_solutions=all_solutions,
+                used_solutions=set(),
             )
-            return evaluation_builder.build()
+        )
+        return evaluation_builder.build()
 
 
 def create_node_graph(solutions):
@@ -334,8 +321,32 @@ def problems_solved_by_odd_above_directly_playable_even_threat_combination(
             threat_combination.threat_combination_type,
             "should be ThreatCombinationType.OddAboveDirectlyPlayableEven",
         )
+    problems_solved = set()
 
-    raise NotImplementedError()
+    # Add Groups containing any odd Square in the crossing column that are not directly playable.
+    problems_solved.update(_no_odd_squares_in_crossing_column(
+        board=board, problems=problems, threat_combination=threat_combination,
+    ))
+
+    # Add Groups containing a Square above the crossing square and a Square above the odd Square in the stacked column.
+    problems_solved.update(_no_squares_above_crossing_and_above_odd(
+        problems=problems, threat_combination=threat_combination,
+    ))
+
+    # Add Groups containing the Square above the crossing square and the upper Square in the stacked column.
+    # Note that the logic in the below line is not included in the original paper.
+    problems_solved.update(_groups_containing_square_above_crossing_and_upper_stacked(
+        problems=problems, threat_combination=threat_combination,
+    ))
+
+    # Note that the logic in the below line is not included in the original paper.
+    problems_solved.update(_vertical_groups_in_stacked_column(
+        problems=problems,
+        threat_combination=threat_combination,
+        _threat_combination_baseinverse_applied=0,
+    ))
+
+    return problems_solved
 
 
 def _no_odd_squares_in_crossing_column(
