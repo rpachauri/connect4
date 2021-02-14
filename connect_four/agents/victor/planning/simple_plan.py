@@ -8,6 +8,7 @@ from connect_four.agents.victor.rules import Before
 from connect_four.agents.victor.rules import Specialbefore
 
 from connect_four.agents.victor.threat_hunter import Threat
+from connect_four.agents.victor.threat_hunter import ThreatCombination
 
 
 class SimplePlan:
@@ -139,5 +140,36 @@ def from_odd_threat(odd_threat: Threat, directly_playable_square: Square) -> Sim
         even_square = Square(row=even_row, col=odd_threat.empty_square.col)
         odd_square = Square(row=even_row - 1, col=odd_threat.empty_square.col)
         builder.add({even_square: odd_square})
+
+    return builder.build()
+
+
+def from_threat_combination(
+        threat_combination: ThreatCombination,
+        directly_playable_crossing_square: Square,
+        directly_playable_stacked_square: Square) -> SimplePlan:
+    builder = SimplePlanBuilder()
+
+    # Directly playable odd square in crossing column is an availability.
+    if directly_playable_crossing_square.row % 2 == 1:
+        builder.add(directly_playable_crossing_square)
+        lowest_even_row = directly_playable_crossing_square.row - 1
+    else:
+        lowest_even_row = directly_playable_crossing_square.row
+
+    # All even squares force the square above it in the crossing column.
+    for even_row in range(lowest_even_row, 0, -2):
+        even_square = Square(row=even_row, col=threat_combination.crossing_column())
+        odd_square = Square(row=even_row - 1, col=threat_combination.crossing_column())
+        builder.add({even_square: odd_square})
+
+    # Top even square in crossing column is an availability.
+    builder.add(Square(row=0, col=threat_combination.crossing_column()))
+
+    # All squares force the square above it in the stacked column.
+    for upper_row in range(directly_playable_stacked_square.row):
+        upper_square = Square(row=upper_row, col=threat_combination.stacked_column())
+        lower_square = Square(row=upper_row + 1, col=threat_combination.stacked_column())
+        builder.add({lower_square: upper_square})
 
     return builder.build()

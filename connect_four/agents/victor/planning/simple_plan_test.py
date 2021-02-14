@@ -11,6 +11,8 @@ from connect_four.agents.victor.rules import Before
 from connect_four.agents.victor.rules import Specialbefore
 
 from connect_four.agents.victor.threat_hunter import Threat
+from connect_four.agents.victor.threat_hunter import ThreatCombination
+from connect_four.agents.victor.threat_hunter import ThreatCombinationType
 
 from connect_four.agents.victor.planning import simple_plan
 
@@ -158,6 +160,54 @@ class TestSimplePlan(unittest.TestCase):
         got_plan = simple_plan.from_odd_threat(
             odd_threat=odd_threat_a3_d3,
             directly_playable_square=square_a1,
+        )
+        self.assertEqual(want_plan, got_plan)
+
+    def test_from_threat_combination(self):
+        # Example from Diagram 8.3.
+        square_f1 = Square(row=5, col=5)
+        square_f2 = Square(row=4, col=5)
+        square_f3 = Square(row=3, col=5)
+        square_f4 = Square(row=2, col=5)
+        square_f5 = Square(row=1, col=5)
+        square_f6 = Square(row=0, col=5)
+        square_g2 = Square(row=4, col=6)
+        square_g3 = Square(row=3, col=6)
+        square_g4 = Square(row=2, col=6)
+        square_g5 = Square(row=1, col=6)
+        square_g6 = Square(row=0, col=6)
+
+        # ThreatCombination {d1-g4, d3-g3}.
+        threat_combination_d1_g4_d3_g3 = ThreatCombination(
+            even_group=Group(player=0, start=Square(row=5, col=3), end=square_g4),  # d1-g4
+            odd_group=Group(player=0, start=Square(row=3, col=3), end=square_g3),  # d3-g3
+            shared_square=Square(row=3, col=5),  # f3
+            even_square=square_g4,
+            odd_square=square_g3,
+            threat_combination_type=ThreatCombinationType.EvenAboveOdd,
+        )
+        want_plan = simple_plan.SimplePlanBuilder([
+            # Directly playable odd square in the crossing column.
+            square_f1,
+            # Even squares in crossing column force the odd square above it.
+            {
+                square_f2: square_f3,
+                square_f4: square_f5,
+            },
+            # Top even square is an availability.
+            square_f6,
+            # Every empty square in the stacked column forces the square above it.
+            {
+                square_g2: square_g3,
+                square_g3: square_g4,
+                square_g4: square_g5,
+                square_g5: square_g6,
+            },
+        ]).build()
+        got_plan = simple_plan.from_threat_combination(
+            threat_combination=threat_combination_d1_g4_d3_g3,
+            directly_playable_crossing_square=square_f1,
+            directly_playable_stacked_square=square_g2,
         )
         self.assertEqual(want_plan, got_plan)
 
