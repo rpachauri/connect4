@@ -7,6 +7,8 @@ from connect_four.agents.victor.rules import Aftereven
 from connect_four.agents.victor.rules import Before
 from connect_four.agents.victor.rules import Specialbefore
 
+from connect_four.agents.victor.threat_hunter import Threat
+
 
 class SimplePlan:
     def __init__(self, responses=None, availabilities=None):
@@ -118,4 +120,24 @@ def from_specialbefore(specialbefore: Specialbefore) -> SimplePlan:
             builder.add(plan=from_vertical(vertical=vertical))
     for claimeven in specialbefore.before.claimevens:
         builder.add(plan=from_claimeven(claimeven=claimeven))
+    return builder.build()
+
+
+def from_odd_threat(odd_threat: Threat, directly_playable_square: Square) -> SimplePlan:
+    builder = SimplePlanBuilder()
+
+    # Directly playable odd square in odd threat column is an availability.
+    if directly_playable_square.row % 2 == 1:
+        builder.add(directly_playable_square)
+        lowest_even_row = directly_playable_square.row - 1
+    else:
+        lowest_even_row = directly_playable_square.row
+
+    # All even squares force the square above it in the odd threat column.
+    # Only need to add the even squares below the empty square of the odd threat.
+    for even_row in range(lowest_even_row, odd_threat.empty_square.row, -2):
+        even_square = Square(row=even_row, col=odd_threat.empty_square.col)
+        odd_square = Square(row=even_row - 1, col=odd_threat.empty_square.col)
+        builder.add({even_square: odd_square})
+
     return builder.build()

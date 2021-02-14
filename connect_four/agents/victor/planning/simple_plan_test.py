@@ -10,6 +10,8 @@ from connect_four.agents.victor.rules import Aftereven
 from connect_four.agents.victor.rules import Before
 from connect_four.agents.victor.rules import Specialbefore
 
+from connect_four.agents.victor.threat_hunter import Threat
+
 from connect_four.agents.victor.planning import simple_plan
 
 
@@ -135,6 +137,28 @@ class TestSimplePlan(unittest.TestCase):
             simple_plan.from_claimeven(claimeven=claimeven_g1_g2),
         ]).build()
         got_plan = simple_plan.from_specialbefore(specialbefore=specialbefore_d2_g2)
+        self.assertEqual(want_plan, got_plan)
+
+    def test_from_odd_threat(self):
+        # Example from Diagram 8.2.
+        square_a1 = Square(row=5, col=0)
+        square_a2 = Square(row=4, col=0)
+        square_a3 = Square(row=3, col=0)
+
+        # Odd Threat a3-d3.
+        odd_threat_a3_d3 = Threat(
+            group=Group(player=0, start=square_a3, end=Square(row=3, col=3)),
+            empty_square=square_a3,
+        )
+
+        want_plan = simple_plan.SimplePlanBuilder([
+            square_a1,
+            {square_a2: square_a3},
+        ]).build()
+        got_plan = simple_plan.from_odd_threat(
+            odd_threat=odd_threat_a3_d3,
+            directly_playable_square=square_a1,
+        )
         self.assertEqual(want_plan, got_plan)
 
 
