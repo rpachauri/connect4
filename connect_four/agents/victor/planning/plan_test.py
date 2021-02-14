@@ -14,12 +14,14 @@ from connect_four.agents.victor.rules import Before
 from connect_four.agents.victor.rules import Specialbefore
 
 from connect_four.agents.victor.threat_hunter import Threat
+from connect_four.agents.victor.threat_hunter import ThreatCombination
+from connect_four.agents.victor.threat_hunter import ThreatCombinationType
 
 from connect_four.agents.victor.planning import plan
 
 
 class TestPlan(unittest.TestCase):
-    def test_evaluate_diagram_6_1(self):
+    def test_execute_diagram_6_1(self):
         # This test case is based on Diagram 6.1.
 
         # Define all Squares that will be used in Claimevens.
@@ -87,7 +89,7 @@ class TestPlan(unittest.TestCase):
         self.assertEqual(square_a2, got_response)
         self.assertEqual({Square(row=3, col=0)}, pure_claimeven_plan.directly_playable_squares)  # a3
 
-    def test_evaluate_diagram_6_2(self):
+    def test_execute_diagram_6_2(self):
         # This test case is based on Diagram 6.2.
 
         # Define all the Squares that will be used in Baseinverses.
@@ -125,7 +127,7 @@ class TestPlan(unittest.TestCase):
         got_response = pure_baseinverse_plan.execute(square=square_a1)
         self.assertEqual(square_b1, got_response)
 
-    def test_evaluate_diagram_6_3(self):
+    def test_execute_diagram_6_3(self):
         # This test case is based on Diagram 6.3.
 
         # Define all the Squares that will be used in Verticals
@@ -153,7 +155,7 @@ class TestPlan(unittest.TestCase):
         got_response = play_lower_plan.execute(square=square_c6)
         self.assertEqual(square_e4, got_response)
 
-    def test_evaluate_diagram_6_4(self):
+    def test_execute_diagram_6_4(self):
         # This test case is based on Diagram 6.4.
 
         # Define all the Squares that will be used in Claimevens and Afterevens.
@@ -178,7 +180,7 @@ class TestPlan(unittest.TestCase):
         got_response = pure_aftereven_plan.execute(square=square_f1)
         self.assertEqual(square_f2, got_response)
 
-    def test_evaluate_diagram_6_6_lowinverse(self):
+    def test_execute_diagram_6_6_lowinverse(self):
         # This test case is based on Diagram 6.6.
 
         # Define all the Squares that will be used in the Lowinverse.
@@ -209,7 +211,7 @@ class TestPlan(unittest.TestCase):
         got_response = pure_lowinverse_plan.execute(square=square_d2)
         self.assertEqual(square_d3, got_response)
 
-    def test_evaluate_diagram_6_6_highinverse(self):
+    def test_execute_diagram_6_6_highinverse(self):
         # This test case is based on Diagram 6.6.
 
         # Define all the Squares that will be used in the Highinverse.
@@ -253,7 +255,7 @@ class TestPlan(unittest.TestCase):
         got_response = pure_highinverse_plan.execute(square=square_d3)
         self.assertEqual(square_d4, got_response)
 
-    def test_evaluate_diagram_6_7(self):
+    def test_execute_diagram_6_7(self):
         # This test case is based on Diagram 6.7.
 
         # Define all the Squares that will be used in the Baseclaim.
@@ -281,7 +283,7 @@ class TestPlan(unittest.TestCase):
         got_response = pure_baseclaim_plan.execute(square=square_c1)
         self.assertEqual(square_c2, got_response)
 
-    def test_evaluate_diagram_6_9(self):
+    def test_execute_diagram_6_9(self):
         # Define all the Squares that will be used in the Before.
         square_b3 = Square(row=3, col=1)
         square_b4 = Square(row=2, col=1)
@@ -308,7 +310,8 @@ class TestPlan(unittest.TestCase):
         got_response = pure_before_plan.execute(square=square_c4)
         self.assertEqual(square_e1, got_response)
 
-    def test_evaluate_diagram_6_10(self):
+    def test_execute_diagram_6_10(self):
+        # Define all the Squares that will be used in the Specialbefore.
         square_d3 = Square(row=3, col=3)
         square_e2 = Square(row=4, col=4)
         square_e3 = Square(row=3, col=4)
@@ -343,7 +346,8 @@ class TestPlan(unittest.TestCase):
         got_response = pure_specialbefore_plan.execute(square=square_e2)
         self.assertEqual(square_d3, got_response)
 
-    def test_evaluate_diagram_8_1(self):
+    def test_execute_diagram_8_1(self):
+        # Define all the Squares that will be used in the OddThreat.
         square_a2 = Square(row=4, col=0)
         square_a3 = Square(row=3, col=0)
 
@@ -362,7 +366,8 @@ class TestPlan(unittest.TestCase):
         got_response = pure_odd_threat_plan.execute(square=square_a2)
         self.assertEqual(square_a3, got_response)
 
-    def test_evaluate_diagram_8_2(self):
+    def test_execute_diagram_8_2(self):
+        # Define all the Squares that will be used in the Claimeven and the OddThreat.
         square_a1 = Square(row=5, col=0)
         square_a3 = Square(row=3, col=0)
         square_b4 = Square(row=2, col=1)
@@ -387,6 +392,124 @@ class TestPlan(unittest.TestCase):
         )
         got_response = odd_threat_and_claimeven_plan.execute(square=square_b4)
         self.assertEqual(square_a1, got_response)
+
+    def test_execute_threat_combination_even_forces_odd_crossing_column(self):
+        # This test case is based on a modification of Diagram 8.3.
+        # Instead of White playing g1, assume White played f1, making f2 directly playable.
+        square_f2 = Square(row=4, col=5)
+        square_f3 = Square(row=3, col=5)
+        square_f4 = Square(row=2, col=5)
+        square_f5 = Square(row=1, col=5)
+        square_g1 = Square(row=5, col=6)
+        square_g3 = Square(row=3, col=6)
+        square_g4 = Square(row=2, col=6)
+
+        # ThreatCombination {d1-g4, d3-g3}.
+        threat_combination_d1_g4_d3_g3 = ThreatCombination(
+            even_group=Group(player=0, start=Square(row=5, col=3), end=square_g4),  # d1-g4
+            odd_group=Group(player=0, start=Square(row=3, col=3), end=square_g3),  # d3-g3
+            shared_square=Square(row=3, col=5),  # f3
+            even_square=square_g4,
+            odd_square=square_g3,
+            threat_combination_type=ThreatCombinationType.EvenAboveOdd,
+        )
+
+        # Verify that even squares in the crossing column force the odd square above it.
+        threat_combination_plan = plan.Plan(
+            rule_applications=[],
+            odd_group_guarantor=threat_combination_d1_g4_d3_g3,
+            # Note that a ThreatCombination requires directly playable squares from
+            # both the crossing and stacked columns.
+            directly_playable_squares={square_f2, square_g1},
+        )
+        got_response = threat_combination_plan.execute(square=square_f2)
+        self.assertEqual(square_f3, got_response)
+        got_response = threat_combination_plan.execute(square=square_f4)
+        self.assertEqual(square_f5, got_response)
+
+    def test_execute_threat_combination_directly_playable_odd_crossing_column(self):
+        # This test case is based on a modification of Diagram 8.3.
+        # Assume that White has not played g1 and Black has not played e6.
+        square_e6 = Square(row=0, col=4)
+        square_f1 = Square(row=5, col=5)
+        square_g1 = Square(row=5, col=6)
+        square_g3 = Square(row=3, col=6)
+        square_g4 = Square(row=2, col=6)
+
+        # ThreatCombination {d1-g4, d3-g3}.
+        threat_combination_d1_g4_d3_g3 = ThreatCombination(
+            even_group=Group(player=0, start=Square(row=5, col=3), end=square_g4),  # d1-g4
+            odd_group=Group(player=0, start=Square(row=3, col=3), end=square_g3),  # d3-g3
+            shared_square=Square(row=3, col=5),  # f3
+            even_square=square_g4,
+            odd_square=square_g3,
+            threat_combination_type=ThreatCombinationType.EvenAboveOdd,
+        )
+
+        # Verify that f1 is used since it is an availability.
+        threat_combination_plan = plan.Plan(
+            rule_applications=[],
+            odd_group_guarantor=threat_combination_d1_g4_d3_g3,
+            # Note that a ThreatCombination requires directly playable squares from
+            # both the crossing and stacked columns.
+            directly_playable_squares={square_e6, square_f1, square_g1},
+        )
+        got_response = threat_combination_plan.execute(square=square_e6)
+        self.assertEqual(square_f1, got_response)
+
+    def test_execute_threat_combination_squares_in_stacked_col_forces_above(self):
+        # This test case is based on Diagram 8.3.
+        # If Black plays in the g-column, White must respond in the g-column.
+        square_f1 = Square(row=5, col=5)
+        square_g2 = Square(row=4, col=6)
+        square_g3 = Square(row=3, col=6)
+        square_g4 = Square(row=2, col=6)
+
+        # ThreatCombination {d1-g4, d3-g3}.
+        threat_combination_d1_g4_d3_g3 = ThreatCombination(
+            even_group=Group(player=0, start=Square(row=5, col=3), end=square_g4),  # d1-g4
+            odd_group=Group(player=0, start=Square(row=3, col=3), end=square_g3),  # d3-g3
+            shared_square=Square(row=3, col=5),  # f3
+            even_square=square_g4,
+            odd_square=square_g3,
+            threat_combination_type=ThreatCombinationType.EvenAboveOdd,
+        )
+        # Verify that f1 is used since it is an availability.
+        threat_combination_plan = plan.Plan(
+            rule_applications=[],
+            odd_group_guarantor=threat_combination_d1_g4_d3_g3,
+            # Note that a ThreatCombination requires directly playable squares from
+            # both the crossing and stacked columns.
+            directly_playable_squares={square_f1, square_g2},
+        )
+        got_response = threat_combination_plan.execute(square=square_g2)
+        self.assertEqual(square_g3, got_response)
+
+    def test_execute_threat_combination_stacked_col_last_resort(self):
+        # This test case is based on Diagram 8.3.
+        # White should only play in the g-column if there are no other options.
+        square_f1 = Square(row=5, col=5)
+        square_g2 = Square(row=4, col=6)
+        square_g3 = Square(row=3, col=6)
+        square_g4 = Square(row=2, col=6)
+
+        # ThreatCombination {d1-g4, d3-g3}.
+        threat_combination_d1_g4_d3_g3 = ThreatCombination(
+            even_group=Group(player=0, start=Square(row=5, col=3), end=square_g4),  # d1-g4
+            odd_group=Group(player=0, start=Square(row=3, col=3), end=square_g3),  # d3-g3
+            shared_square=Square(row=3, col=5),  # f3
+            even_square=square_g4,
+            odd_square=square_g3,
+            threat_combination_type=ThreatCombinationType.EvenAboveOdd,
+        )
+        # Verify that f1 is used since it is an availability.
+        threat_combination_plan = plan.Plan(
+            rule_applications=[],
+            odd_group_guarantor=threat_combination_d1_g4_d3_g3,
+            directly_playable_squares={square_f1, square_g2},
+        )
+        got_response = threat_combination_plan.execute(square=square_f1)
+        self.assertEqual(square_g2, got_response)
 
 
 if __name__ == '__main__':

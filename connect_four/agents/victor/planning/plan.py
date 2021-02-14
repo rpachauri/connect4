@@ -11,6 +11,7 @@ from connect_four.agents.victor.rules import Before
 from connect_four.agents.victor.rules import Specialbefore
 
 from connect_four.agents.victor.threat_hunter import Threat
+from connect_four.agents.victor.threat_hunter import ThreatCombination
 
 from connect_four.agents.victor.planning import simple_plan
 from connect_four.agents.victor.planning import forked_plan
@@ -48,39 +49,42 @@ class Plan:
         self.availabilities = set(availabilities)
         self.forks = []
         self.directly_playable_squares = set(directly_playable_squares)
+        self.stacked_column = -1
 
         for application in rule_applications:
             if isinstance(application, Claimeven):
-                plan = simple_plan.from_claimeven(claimeven=application)
+                self._add(plan=simple_plan.from_claimeven(claimeven=application))
             elif isinstance(application, Baseinverse):
-                plan = simple_plan.from_baseinverse(baseinverse=application)
+                self._add(plan=simple_plan.from_baseinverse(baseinverse=application))
             elif isinstance(application, Vertical):
-                plan = simple_plan.from_vertical(vertical=application)
+                self._add(plan=simple_plan.from_vertical(vertical=application))
             elif isinstance(application, Aftereven):
-                plan = simple_plan.from_aftereven(aftereven=application)
+                self._add(plan=simple_plan.from_aftereven(aftereven=application))
             elif isinstance(application, Lowinverse):
-                plan = forked_plan.from_lowinverse(lowinverse=application)
+                self.forks.append(forked_plan.from_lowinverse(lowinverse=application))
             elif isinstance(application, Highinverse):
-                plan = forked_plan.from_highinverse(highinverse=application)
+                self.forks.append(forked_plan.from_highinverse(highinverse=application))
             elif isinstance(application, Baseclaim):
-                plan = forked_plan.from_baseclaim(baseclaim=application)
+                self.forks.append(forked_plan.from_baseclaim(baseclaim=application))
             elif isinstance(application, Before):
-                plan = simple_plan.from_before(before=application)
+                self._add(plan=simple_plan.from_before(before=application))
             elif isinstance(application, Specialbefore):
-                plan = simple_plan.from_specialbefore(specialbefore=application)
+                self._add(plan=simple_plan.from_specialbefore(specialbefore=application))
             else:
                 raise TypeError("unsupported application type", application.__class__.__name__)
-
-            if isinstance(plan, simple_plan.SimplePlan):
-                self._add(plan=plan)
-            else:  # isinstance(plan, forked_plan.Fork):
-                self.forks.append(plan)
 
         if isinstance(odd_group_guarantor, Threat):
             self._add(plan=simple_plan.from_odd_threat(
                 odd_threat=odd_group_guarantor,
                 directly_playable_square=self._directly_playable_square(odd_group_guarantor.empty_square.col),
             ))
+        elif isinstance(odd_group_guarantor, ThreatCombination):
+            self._add(plan=simple_plan.from_threat_combination(
+                threat_combination=odd_group_guarantor,
+                directly_playable_crossing_square=self._directly_playable_square(odd_group_guarantor.crossing_column()),
+                directly_playable_stacked_square=self._directly_playable_square(odd_group_guarantor.stacked_column()),
+            ))
+            self.stacked_column = odd_group_guarantor.stacked_column()
 
     def _directly_playable_square(self, col) -> Square:
         for square in self.directly_playable_squares:
@@ -163,7 +167,14 @@ class Plan:
         """
         if square in self.forcing_to_forced:
             return self.forcing_to_forced[square]
-        return self.availabilities.intersection(self.directly_playable_squares).difference({square}).pop()
+
+        directly_playable_available_squares = self.availabilities.intersection(
+            self.directly_playable_squares).difference({square})
+        if len(directly_playable_available_squares) != 0:
+            return directly_playable_available_squares.pop()
+
+        # White has the option of resorting to the stacked column if there are no other availabilities.
+        return self._directly_playable_square(self.stacked_column)
 
     def _play(self, square: Square):
         """Internally "play" square and update Plan accordingly.
