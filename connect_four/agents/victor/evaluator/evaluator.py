@@ -2,9 +2,7 @@
 Note that in this module, we use the term "Group" and "Problem" interchangeably.
 """
 from collections import namedtuple
-from typing import Optional
-from typing import Set
-from typing import Union
+from typing import Dict, Optional, Set, Union
 
 from connect_four.agents.victor.game import Board, Group, Square
 from connect_four.agents.victor.solution import find_all_solutions, combination, Solution
@@ -17,6 +15,12 @@ Evaluation = namedtuple("Evaluation", ["chosen_set", "odd_threat_guarantor"])
 
 class EvaluationBuilder:
     def __init__(self):
+        """
+        Public Fields:
+            chosen_set (Set<Solution>): a chosen set of Solutions the opponent can use that
+                refutes all groups belonging to the current player.
+            odd_threat_guarantor (Threat | ThreatCombination): A Threat or ThreatCombination for White.
+        """
         self.chosen_set = None
         self.odd_threat_guarantor = None
 
@@ -32,16 +36,13 @@ class EvaluationBuilder:
 
 
 def evaluate(board: Board) -> Optional[Evaluation]:
-    """evaluate finds a set of Solutions the opponent can use to
-    refute all groups belonging to the current player, if such a set of Solutions exists.
+    """evaluate returns an Evaluation of the given Board instance.
 
     Args:
         board (Board): a Board instance.
 
     Returns:
-        chosen_set (Set<Solution>): a chosen set of Solutions the opponent can use that
-            refutes all groups belonging to the current player, if one exists.
-            None if no such set of Solutions exist.
+        evaluation (Evaluation): an Evaluation of board.
     """
     player_groups = board.potential_groups(player=board.player)
     all_solutions = find_all_solutions(board=board)
@@ -49,6 +50,9 @@ def evaluate(board: Board) -> Optional[Evaluation]:
     evaluation_builder = EvaluationBuilder()
 
     if board.player == 1:  # Current player is Black.
+        # TODO consider if finding all possible odd group guarantors would be worth it.
+        #  e.g. if an odd threat works even when a threat combination doesn't, we'd still use it.
+        #  e.g. if a higher odd threat can be refuted but a lower odd threat cannot, we'd still use it.
         odd_threat_guarantor = find_odd_threat_guarantor(board=board)
         if odd_threat_guarantor is None:
             return None
@@ -77,7 +81,7 @@ def evaluate(board: Board) -> Optional[Evaluation]:
         return evaluation_builder.build()
 
 
-def create_node_graph(solutions):
+def create_node_graph(solutions: Set[Solution]) -> Dict[Union[Group, Solution], Set[Solution]]:
     """create_node_graph accepts an iterable of Solutions and creates a graph connecting Problems and Solutions.
     Every Problem is connected to all Solutions that solve it.
     No Problem is connected to another Problem.
@@ -108,7 +112,11 @@ def create_node_graph(solutions):
     return node_graph
 
 
-def find_chosen_set(node_graph, problems, allowed_solutions, used_solutions):
+def find_chosen_set(
+        node_graph: Dict[Union[Group, Solution], Set[Solution]],
+        problems: Set[Group],
+        allowed_solutions: Set[Solution],
+        used_solutions: Set[Solution]) -> Set[Solution]:
     """find_chosen_set finds a set of Solutions that solve all Problems.
 
     Args:
@@ -150,7 +158,10 @@ def find_chosen_set(node_graph, problems, allowed_solutions, used_solutions):
             return chosen_set
 
 
-def node_with_least_number_of_neighbors(node_graph, problems, allowed_solutions):
+def node_with_least_number_of_neighbors(
+        node_graph: Dict[Union[Group, Solution], Set[Solution]],
+        problems: Set[Group],
+        allowed_solutions: Set[Solution]):
     most_difficult_node = None
     num_neighbors_of_most_difficult = len(allowed_solutions) + 1  # Set to an arbitrary high number.
 

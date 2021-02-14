@@ -75,6 +75,8 @@ def find_all_specialbefores(board: Board, befores):
     directly_playable_squares = board.playable_squares()
 
     for before in befores:
+        # TODO external_directly_playable_square should not be in the
+        #  same column as any empty square in the Before group.
         directly_playable_squares_in_before_group = internal_directly_playable_squares(
             before, directly_playable_squares)
         for internal_directly_playable_square in directly_playable_squares_in_before_group:
