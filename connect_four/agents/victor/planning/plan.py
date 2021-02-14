@@ -10,12 +10,17 @@ from connect_four.agents.victor.rules import Baseclaim
 from connect_four.agents.victor.rules import Before
 from connect_four.agents.victor.rules import Specialbefore
 
+from connect_four.agents.victor.threat_hunter import Threat
+
 from connect_four.agents.victor.planning import simple_plan
 from connect_four.agents.victor.planning import forked_plan
 
 
 class Plan:
-    def __init__(self, rule_applications, availabilities=None, directly_playable_squares=None):
+    def __init__(self, rule_applications,
+                 odd_group_guarantor=None,
+                 availabilities=None,
+                 directly_playable_squares=None):
         """Initializes a Plan instance.
 
         Requires:
@@ -29,6 +34,7 @@ class Plan:
         Args:
             rule_applications (Iterable): rule_applications is an iterable of Rule applications:
                 (Claimeven, Baseinverse, etc.).
+            odd_group_guarantor (Threat | ThreatCombination): A Threat or ThreatCombination for White.
             availabilities (Set<Square>): a set of available Squares.
                 availabilities should be disjoint from the set of squares from rule_applications.
             directly_playable_squares (Set<Square>): a set of directly playable Squares.
@@ -69,6 +75,18 @@ class Plan:
                 self._add(plan=plan)
             else:  # isinstance(plan, forked_plan.Fork):
                 self.forks.append(plan)
+
+        if isinstance(odd_group_guarantor, Threat):
+            self._add(plan=simple_plan.from_odd_threat(
+                odd_threat=odd_group_guarantor,
+                directly_playable_square=self._directly_playable_square(odd_group_guarantor.empty_square.col),
+            ))
+
+    def _directly_playable_square(self, col) -> Square:
+        for square in self.directly_playable_squares:
+            if square.col == col:
+                return square
+        raise ValueError("col", col, "not found in:", self.directly_playable_squares)
 
     def __eq__(self, other):
         if isinstance(other, Plan):

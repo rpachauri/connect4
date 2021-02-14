@@ -13,6 +13,8 @@ from connect_four.agents.victor.rules import Baseclaim
 from connect_four.agents.victor.rules import Before
 from connect_four.agents.victor.rules import Specialbefore
 
+from connect_four.agents.victor.threat_hunter import Threat
+
 from connect_four.agents.victor.planning import plan
 
 
@@ -340,6 +342,51 @@ class TestPlan(unittest.TestCase):
         )
         got_response = pure_specialbefore_plan.execute(square=square_e2)
         self.assertEqual(square_d3, got_response)
+
+    def test_evaluate_diagram_8_1(self):
+        square_a2 = Square(row=4, col=0)
+        square_a3 = Square(row=3, col=0)
+
+        # Odd Threat a3-d3.
+        odd_threat_a3_d3 = Threat(
+            group=Group(player=0, start=square_a3, end=Square(row=3, col=3)),
+            empty_square=square_a3,
+        )
+
+        # Verify that when a2 is played, the response is a3.
+        pure_odd_threat_plan = plan.Plan(
+            rule_applications=[],
+            odd_group_guarantor=odd_threat_a3_d3,
+            directly_playable_squares={square_a2},
+        )
+        got_response = pure_odd_threat_plan.execute(square=square_a2)
+        self.assertEqual(square_a3, got_response)
+
+    def test_evaluate_diagram_8_2(self):
+        square_a1 = Square(row=5, col=0)
+        square_a3 = Square(row=3, col=0)
+        square_b4 = Square(row=2, col=1)
+        square_b5 = Square(row=1, col=1)
+        square_b6 = Square(row=0, col=1)
+
+        claimeven_b5_b6 = Claimeven(lower=square_b5, upper=square_b6)
+
+        # Odd Threat a3-d3.
+        odd_threat_a3_d3 = Threat(
+            group=Group(player=0, start=square_a3, end=Square(row=3, col=3)),
+            empty_square=square_a3,
+        )
+
+        # Verify that when the available square b4 is played, the available square a1 is the response.
+        # Note that b5 should not be used because it is a Forcing square.
+        odd_threat_and_claimeven_plan = plan.Plan(
+            rule_applications=[claimeven_b5_b6],
+            odd_group_guarantor=odd_threat_a3_d3,
+            directly_playable_squares={square_a1, square_b4},
+            availabilities={square_a1, square_b4},
+        )
+        got_response = odd_threat_and_claimeven_plan.execute(square=square_b4)
+        self.assertEqual(square_a1, got_response)
 
 
 if __name__ == '__main__':
