@@ -22,27 +22,25 @@ class Aftereven:
         return self.group.__hash__() * 31 + self.claimevens.__hash__()
 
 
-def find_all_afterevens(board: Board, claimevens):
+def find_all_afterevens(board: Board, claimevens, opponent_groups):
     """find_all_afterevens takes a Board and a set of Claimevens and returns a set of Afterevens for the Board.
 
     Args:
         board (Board): a Board instance.
         claimevens (set<Claimeven>): a set of Claimevens for board.
+        opponent_groups (iterable<Group>): an iterable of Groups belonging to the
+            opponent of the player to move on board.
 
     Returns:
         afterevens (set<Aftereven>): a set of Afterevens for board.
     """
-    # TODO make groups_of_opponent be a parameter.
-    # Find all groups that belong to the opponent.
-    groups_of_opponent = board.potential_groups(1 - board.player)
-
     # Dictionary of the upper square of a Claimeven to the Claimeven itself.
     even_squares_to_claimevens = {}
     for claimeven in claimevens:
         even_squares_to_claimevens[claimeven.upper] = claimeven
 
     afterevens = set()
-    for group in groups_of_opponent:
+    for group in opponent_groups:
         aftereven_claimevens = get_aftereven_claimevens(board, even_squares_to_claimevens, group)
         if aftereven_claimevens is not None:
             afterevens.add(Aftereven(group, aftereven_claimevens))

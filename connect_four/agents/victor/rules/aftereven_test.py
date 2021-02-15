@@ -42,7 +42,12 @@ class TestAftereven(unittest.TestCase):
             ],
         ])
         board = Board(self.env.env_variables)
-        got_afterevens = find_all_afterevens(board=board, claimevens=find_all_claimevens(board))
+        black_groups = board.potential_groups(1)
+        got_afterevens = find_all_afterevens(
+            board=board,
+            claimevens=find_all_claimevens(board),
+            opponent_groups=black_groups,
+        )
 
         want_afterevens = {
             Aftereven(
@@ -76,7 +81,12 @@ class TestAftereven(unittest.TestCase):
             ],
         ])
         board = Board(self.env.env_variables)
-        got_afterevens = find_all_afterevens(board=board, claimevens=find_all_claimevens(board))
+        black_groups = board.potential_groups(1)
+        got_afterevens = find_all_afterevens(
+            board=board,
+            claimevens=find_all_claimevens(board),
+            opponent_groups=black_groups,
+        )
 
         want_afterevens = {
             Aftereven(
