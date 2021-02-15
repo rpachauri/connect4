@@ -219,10 +219,42 @@ class TestBefore(unittest.TestCase):
             ],
         ])
         board = Board(self.env.env_variables)
-        group_4_3_to_4_6 = Group(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6))
+        group_4_3_to_4_6 = Group(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6)
+                                 )
         want_empty_squares = [Square(row=4, col=4), Square(row=4, col=5), Square(row=4, col=6)]
-
         got_empty_squares = empty_squares_of_before_group(board=board, group=group_4_3_to_4_6)
+        self.assertCountEqual(want_empty_squares, got_empty_squares)
+
+    def test_empty_squares_of_before_group_top_row_taken(self):
+        # This test case validates that a Before group is still valid even when it contains
+        # a Square in the top row as long as that square is not empty.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+        group_a3_d6 = Group(player=1, start=Square(row=3, col=0), end=Square(row=0, col=3))  # a3-d6
+
+        want_empty_squares = [
+            Square(row=3, col=0),  # a3
+            Square(row=2, col=1),  # b4
+            Square(row=1, col=2),  # c5
+        ]
+        got_empty_squares = empty_squares_of_before_group(board=board, group=group_a3_d6)
         self.assertCountEqual(want_empty_squares, got_empty_squares)
 
 

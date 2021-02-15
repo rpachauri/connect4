@@ -70,7 +70,7 @@ class TestSpecialbefore(unittest.TestCase):
         ])
         board = Board(self.env.env_variables)
         black_groups = board.potential_groups(player=1)
-        befores = find_all_befores(board=board, groups=black_groups)
+        befores = find_all_befores(board=board, opponent_groups=black_groups)
         got_specialbefores = find_all_specialbefores(board=board, befores=befores)
 
         # Directly playable squares.
@@ -166,7 +166,7 @@ class TestSpecialbefore(unittest.TestCase):
         ])
         board = Board(self.env.env_variables)
         black_groups = board.potential_groups(player=1)
-        befores = find_all_befores(board=board, groups=black_groups)
+        befores = find_all_befores(board=board, opponent_groups=black_groups)
         got_specialbefores = find_all_specialbefores(board=board, befores=befores)
 
         # Directly playable squares for the board.

@@ -51,21 +51,21 @@ class Before:
         return frozenset(empty_squares)
 
 
-def find_all_befores(board: Board, groups):
-    """find_all_befores takes a Board and an iterable of groups and returns an iterable of Befores for the Board.
+def find_all_befores(board: Board, opponent_groups):
+    """find_all_befores takes a Board and an iterable of Groups and returns an iterable of Befores for the Board.
 
     Args:
         board (Board): a Board instance.
-        # TODO rename to opponent_groups to be more clear to clients.
-        groups (iterable<Group>): an iterable of groups belonging to the opponent of the player to move on board.
+        opponent_groups (iterable<Group>): an iterable of Groups belonging to the
+            opponent of the player to move on board.
 
     Returns:
         befores (iterable<Before>): an iterable of Befores for board.
     """
     befores = set()
 
-    for group in groups:
-        # Skip all Vertical groups.
+    for group in opponent_groups:
+        # Skip all Vertical Groups.
         if group.direction == GroupDirection.vertical:
             continue
 
@@ -90,17 +90,16 @@ def empty_squares_of_before_group(board: Board, group: Group):
 
     Returns:
         empty_squares (list<Square>):
-            TODO: Should be -> If square.row == 0 for every square in group.squares:
-            If there exists a square with square.row == 0 in group:
+            If there exists an empty square with square.row == 0 in group:
                 returns []
             Otherwise:
                 returns a list of empty Squares in group.
     """
     empty_squares = []
     for square in group.squares:
-        if square.row == 0:
-            return []
         if board.is_empty(square):
+            if square.row == 0:
+                return []
             empty_squares.append(square)
     return empty_squares
 

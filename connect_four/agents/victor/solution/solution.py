@@ -80,7 +80,7 @@ def find_all_solutions(board: Board):
     lowinverses = find_all_lowinverses(verticals=verticals)
     highinverses = find_all_highinverses(board=board, lowinverses=lowinverses)
     baseclaims = find_all_baseclaims(board=board)
-    befores = find_all_befores(board=board, groups=opponent_groups)
+    befores = find_all_befores(board=board, opponent_groups=opponent_groups)
     specialbefores = find_all_specialbefores(board=board, befores=befores)
 
     # square_to_player_groups is a dict of all Squares on board that map to
