@@ -75,15 +75,11 @@ def find_all_specialbefores(board: Board, befores):
     directly_playable_squares = board.playable_squares()
 
     for before in befores:
-        # TODO external_directly_playable_square should not be in the
-        #  same column as any empty square in the Before group.
         directly_playable_squares_in_before_group = internal_directly_playable_squares(
             before, directly_playable_squares)
         for internal_directly_playable_square in directly_playable_squares_in_before_group:
             for external_directly_playable_square in directly_playable_squares:
-                if external_directly_playable_square not in directly_playable_squares_in_before_group:
-                    # Recall that a requirement of the Specialbefore is that the directly playable square
-                    # must not be a part of the Before.
+                if can_be_used_with_before(external_directly_playable_square, before):
                     specialbefores.add(Specialbefore(
                         before=before,
                         internal_directly_playable_square=internal_directly_playable_square,
@@ -106,3 +102,14 @@ def internal_directly_playable_squares(before: Before, directly_playable_squares
             before.group.squares and directly_playable_squares.
     """
     return before.group.squares.intersection(directly_playable_squares)
+
+
+def can_be_used_with_before(external_directly_playable_square: Square, before: Before):
+    # A requirement of the Specialbefore is that the directly playable square
+    # must not be a part of the Before.
+    # A weaker condition is that the directly playable square does not belong in the same
+    # column as any empty square of the Before.
+    for square in before.empty_squares_of_before_group():
+        if external_directly_playable_square.col == square.col:
+            return False
+    return True
