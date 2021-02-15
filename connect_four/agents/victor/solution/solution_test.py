@@ -70,6 +70,7 @@ class TestSolution(unittest.TestCase):
                 Group(player=0, start=Square(row=3, col=4), end=Square(row=0, col=4)),  # e3-d6
             ]),
             claimeven_bottom_squares=[claimeven_2_4.lower],
+            rule_instance=claimeven_2_4,
         )
         self.assertEqual(want_solution, got_solution)
 
@@ -106,6 +107,7 @@ class TestSolution(unittest.TestCase):
             groups=frozenset([
                 Group(player=0, start=Square(row=5, col=0), end=Square(row=5, col=3)),  # a1-d1
             ]),
+            rule_instance=baseinverse_a1_b1,
         )
         self.assertEqual(want_solution, got_solution)
 
@@ -147,7 +149,8 @@ class TestSolution(unittest.TestCase):
             groups=frozenset([
                 Group(player=0, start=Square(row=4, col=4), end=Square(row=1, col=4)),  # e2-e5
                 Group(player=0, start=Square(row=3, col=4), end=Square(row=0, col=4)),  # e3-e6
-            ])
+            ]),
+            rule_instance=vertical_e4_e5,
         )
         self.assertEqual(want_solution, got_solution)
 
@@ -214,6 +217,7 @@ class TestSolution(unittest.TestCase):
                 Square(row=5, col=5),
                 Square(row=5, col=6),
             ],
+            rule_instance=aftereven_d2_g2,
         )
         self.assertEqual(want_solution, got_solution)
 
@@ -271,6 +275,7 @@ class TestSolution(unittest.TestCase):
                 Group(player=0, start=Square(row=1, col=3), end=Square(row=4, col=3)),  # d2-d5
                 Group(player=0, start=Square(row=2, col=3), end=Square(row=5, col=3)),  # d1-d4
             ]),
+            rule_instance=lowinverse_c2_c3_d2_d3,
         )
         self.assertEqual(want_solution, got_solution)
 
@@ -344,6 +349,7 @@ class TestSolution(unittest.TestCase):
                 Group(player=0, start=Square(row=1, col=3), end=Square(row=4, col=3)),  # d2-d5
                 Group(player=0, start=Square(row=2, col=3), end=Square(row=5, col=3)),  # d1-d4
             ]),
+            rule_instance=highinverse_c2_c3_c4_d2_d3_d4,
         )
         got_solution = solution.from_highinverse(
             highinverse=highinverse_c2_c3_c4_d2_d3_d4,
@@ -416,6 +422,7 @@ class TestSolution(unittest.TestCase):
                 # groups refuted by Vertical d5-d6.
                 Group(player=0, start=Square(row=0, col=3), end=Square(row=3, col=3)),  # d3-d6
             ]),
+            rule_instance=highinverse_c4_c5_c6_d4_d5_d6,
         )
         got_highinverse_solution = solution.from_highinverse(
             highinverse=highinverse_c4_c5_c6_d4_d5_d6,
@@ -574,6 +581,7 @@ class TestSolution(unittest.TestCase):
             claimeven_bottom_squares=[
                 Square(row=5, col=2),  # c1
             ],
+            rule_instance=baseclaim_b1_c1_c2_f1,
         )
         self.assertEqual(want_solution, got_solution)
 
@@ -638,6 +646,7 @@ class TestSolution(unittest.TestCase):
             claimeven_bottom_squares=[
                 Square(row=3, col=1),  # b3
             ],
+            rule_instance=before_b4_e1,
         )
         self.assertEqual(want_solution, got_solution)
 
@@ -724,6 +733,7 @@ class TestSolution(unittest.TestCase):
                 Square(row=5, col=5),  # f1 is the lower Square of Claimeven f1-f2.
                 Square(row=5, col=6),  # g1 is the lower Square of Claimeven g1-g2.
             ],
+            rule_instance=specialbefore_d2_g2,
         )
         self.assertEqual(want_solution, got_solution)
 
