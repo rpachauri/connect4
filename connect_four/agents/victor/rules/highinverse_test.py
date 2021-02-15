@@ -74,8 +74,6 @@ class TestHighinverse(unittest.TestCase):
 
         want_highinverses = {
             # All Lowinverses with vertical_1_0.
-            # TODO a Highinverse with both verticals in the same column doesn't make sense.
-            Highinverse(Lowinverse(first_vertical=vertical_1_0, second_vertical=vertical_3_0)),
             Highinverse(Lowinverse(first_vertical=vertical_1_0, second_vertical=vertical_1_1)),
             Highinverse(Lowinverse(first_vertical=vertical_1_0, second_vertical=vertical_3_1)),
             Highinverse(Lowinverse(first_vertical=vertical_1_0, second_vertical=vertical_1_2)),
@@ -106,7 +104,6 @@ class TestHighinverse(unittest.TestCase):
             Highinverse(Lowinverse(first_vertical=vertical_3_0, second_vertical=vertical_1_6)),
             Highinverse(Lowinverse(first_vertical=vertical_3_0, second_vertical=vertical_3_6)),
             # All Lowinverses with vertical_1_1.
-            Highinverse(Lowinverse(first_vertical=vertical_1_1, second_vertical=vertical_3_1)),
             Highinverse(Lowinverse(first_vertical=vertical_1_1, second_vertical=vertical_1_2)),
             Highinverse(Lowinverse(first_vertical=vertical_1_1, second_vertical=vertical_3_2),
                         directly_playable_squares=[Square(row=4, col=2)]),
@@ -133,8 +130,6 @@ class TestHighinverse(unittest.TestCase):
             Highinverse(Lowinverse(first_vertical=vertical_3_1, second_vertical=vertical_1_6)),
             Highinverse(Lowinverse(first_vertical=vertical_3_1, second_vertical=vertical_3_6)),
             # All Lowinverses with vertical_1_2.
-            Highinverse(Lowinverse(first_vertical=vertical_1_2, second_vertical=vertical_3_2),
-                        directly_playable_squares=[Square(row=4, col=2)]),
             Highinverse(Lowinverse(first_vertical=vertical_1_2, second_vertical=vertical_1_3)),
             Highinverse(Lowinverse(first_vertical=vertical_1_2, second_vertical=vertical_3_3),
                         directly_playable_squares=[Square(row=4, col=3)]),
@@ -162,8 +157,6 @@ class TestHighinverse(unittest.TestCase):
             Highinverse(Lowinverse(first_vertical=vertical_3_2, second_vertical=vertical_3_6),
                         directly_playable_squares=[Square(row=4, col=2)]),
             # All Lowinverses with vertical_1_3.
-            Highinverse(Lowinverse(first_vertical=vertical_1_3, second_vertical=vertical_3_3),
-                        directly_playable_squares=[Square(row=4, col=3)]),
             Highinverse(Lowinverse(first_vertical=vertical_1_3, second_vertical=vertical_1_4)),
             Highinverse(Lowinverse(first_vertical=vertical_1_3, second_vertical=vertical_3_4)),
             Highinverse(Lowinverse(first_vertical=vertical_1_3, second_vertical=vertical_1_5)),
@@ -184,7 +177,6 @@ class TestHighinverse(unittest.TestCase):
             Highinverse(Lowinverse(first_vertical=vertical_3_3, second_vertical=vertical_3_6),
                         directly_playable_squares=[Square(row=4, col=3)]),
             # All Lowinverses with vertical_1_4.
-            Highinverse(Lowinverse(first_vertical=vertical_1_4, second_vertical=vertical_3_4)),
             Highinverse(Lowinverse(first_vertical=vertical_1_4, second_vertical=vertical_1_5)),
             Highinverse(Lowinverse(first_vertical=vertical_1_4, second_vertical=vertical_3_5)),
             Highinverse(Lowinverse(first_vertical=vertical_1_4, second_vertical=vertical_1_6)),
@@ -195,14 +187,12 @@ class TestHighinverse(unittest.TestCase):
             Highinverse(Lowinverse(first_vertical=vertical_3_4, second_vertical=vertical_1_6)),
             Highinverse(Lowinverse(first_vertical=vertical_3_4, second_vertical=vertical_3_6)),
             # All Lowinverses with vertical_1_5.
-            Highinverse(Lowinverse(first_vertical=vertical_1_5, second_vertical=vertical_3_5)),
             Highinverse(Lowinverse(first_vertical=vertical_1_5, second_vertical=vertical_1_6)),
             Highinverse(Lowinverse(first_vertical=vertical_1_5, second_vertical=vertical_3_6)),
             # All Lowinverses with vertical_3_5.
             Highinverse(Lowinverse(first_vertical=vertical_3_5, second_vertical=vertical_1_6)),
             Highinverse(Lowinverse(first_vertical=vertical_3_5, second_vertical=vertical_3_6)),
             # All Lowinverses with vertical_1_6.
-            Highinverse(Lowinverse(first_vertical=vertical_1_6, second_vertical=vertical_3_6)),
         }
         self.assertEqual(want_highinverses, got_highinverses)
 

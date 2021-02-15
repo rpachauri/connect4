@@ -29,7 +29,7 @@ def find_all_lowinverses(verticals):
     lowinverses = set()
     for first_vertical in verticals:
         for second_vertical in verticals:
-            if first_vertical != second_vertical:
+            if first_vertical.upper.col != second_vertical.upper.col:
                 lowinverses.add(Lowinverse(first_vertical, second_vertical))
 
     return lowinverses

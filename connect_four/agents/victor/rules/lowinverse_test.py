@@ -68,8 +68,6 @@ class TestLowinverse(unittest.TestCase):
 
         want_lowinverses = {
             # All Lowinverses with vertical_1_0.
-            # TODO a Lowinverse with both verticals in the same column doesn't make sense.
-            Lowinverse(first_vertical=vertical_1_0, second_vertical=vertical_3_0),
             Lowinverse(first_vertical=vertical_1_0, second_vertical=vertical_1_1),
             Lowinverse(first_vertical=vertical_1_0, second_vertical=vertical_3_1),
             Lowinverse(first_vertical=vertical_1_0, second_vertical=vertical_1_2),
@@ -96,7 +94,6 @@ class TestLowinverse(unittest.TestCase):
             Lowinverse(first_vertical=vertical_3_0, second_vertical=vertical_1_6),
             Lowinverse(first_vertical=vertical_3_0, second_vertical=vertical_3_6),
             # All Lowinverses with vertical_1_1.
-            Lowinverse(first_vertical=vertical_1_1, second_vertical=vertical_3_1),
             Lowinverse(first_vertical=vertical_1_1, second_vertical=vertical_1_2),
             Lowinverse(first_vertical=vertical_1_1, second_vertical=vertical_3_2),
             Lowinverse(first_vertical=vertical_1_1, second_vertical=vertical_1_3),
@@ -119,7 +116,6 @@ class TestLowinverse(unittest.TestCase):
             Lowinverse(first_vertical=vertical_3_1, second_vertical=vertical_1_6),
             Lowinverse(first_vertical=vertical_3_1, second_vertical=vertical_3_6),
             # All Lowinverses with vertical_1_2.
-            Lowinverse(first_vertical=vertical_1_2, second_vertical=vertical_3_2),
             Lowinverse(first_vertical=vertical_1_2, second_vertical=vertical_1_3),
             Lowinverse(first_vertical=vertical_1_2, second_vertical=vertical_3_3),
             Lowinverse(first_vertical=vertical_1_2, second_vertical=vertical_1_4),
@@ -138,7 +134,6 @@ class TestLowinverse(unittest.TestCase):
             Lowinverse(first_vertical=vertical_3_2, second_vertical=vertical_1_6),
             Lowinverse(first_vertical=vertical_3_2, second_vertical=vertical_3_6),
             # All Lowinverses with vertical_1_3.
-            Lowinverse(first_vertical=vertical_1_3, second_vertical=vertical_3_3),
             Lowinverse(first_vertical=vertical_1_3, second_vertical=vertical_1_4),
             Lowinverse(first_vertical=vertical_1_3, second_vertical=vertical_3_4),
             Lowinverse(first_vertical=vertical_1_3, second_vertical=vertical_1_5),
@@ -153,7 +148,6 @@ class TestLowinverse(unittest.TestCase):
             Lowinverse(first_vertical=vertical_3_3, second_vertical=vertical_1_6),
             Lowinverse(first_vertical=vertical_3_3, second_vertical=vertical_3_6),
             # All Lowinverses with vertical_1_4.
-            Lowinverse(first_vertical=vertical_1_4, second_vertical=vertical_3_4),
             Lowinverse(first_vertical=vertical_1_4, second_vertical=vertical_1_5),
             Lowinverse(first_vertical=vertical_1_4, second_vertical=vertical_3_5),
             Lowinverse(first_vertical=vertical_1_4, second_vertical=vertical_1_6),
@@ -164,14 +158,12 @@ class TestLowinverse(unittest.TestCase):
             Lowinverse(first_vertical=vertical_3_4, second_vertical=vertical_1_6),
             Lowinverse(first_vertical=vertical_3_4, second_vertical=vertical_3_6),
             # All Lowinverses with vertical_1_5.
-            Lowinverse(first_vertical=vertical_1_5, second_vertical=vertical_3_5),
             Lowinverse(first_vertical=vertical_1_5, second_vertical=vertical_1_6),
             Lowinverse(first_vertical=vertical_1_5, second_vertical=vertical_3_6),
             # All Lowinverses with vertical_3_5.
             Lowinverse(first_vertical=vertical_3_5, second_vertical=vertical_1_6),
             Lowinverse(first_vertical=vertical_3_5, second_vertical=vertical_3_6),
             # All Lowinverses with vertical_1_6.
-            Lowinverse(first_vertical=vertical_1_6, second_vertical=vertical_3_6),
         }
         self.assertEqual(want_lowinverses, got_lowinverses)
 
