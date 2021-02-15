@@ -234,7 +234,7 @@ def from_aftereven(aftereven: Aftereven, square_to_groups) -> Solution:
     add_new_groups_from_aftereven(
         groups=groups,
         empty_squares_of_aftereven=empty_squares_of_aftereven,
-        groupening_squares=[],
+        threatening_squares=[],
         square_to_groups=square_to_groups,
     )
 
@@ -256,17 +256,17 @@ def from_aftereven(aftereven: Aftereven, square_to_groups) -> Solution:
         )
 
 
-def add_new_groups_from_aftereven(groups, empty_squares_of_aftereven, groupening_squares, square_to_groups):
+def add_new_groups_from_aftereven(groups, empty_squares_of_aftereven, threatening_squares, square_to_groups):
     """Adds any new groups that intersect squares above empty_squares_of_aftereven to groups.
     This is a recursive backtracking algorithm.
-    groupening_squares starts out as an empty list.
+    threatening_squares starts out as an empty list.
     empty_squares_of_aftereven starts out as a list of all empty squares of the aftereven.
 
     We select a square from empty_squares_of_aftereven and remove it from the list.
-    For every square above that square, we add it to groupening_squares, recurse, and then remove it from
-      groupening_squares.
+    For every square above that square, we add it to threatening_squares, recurse, and then remove it from
+      threatening_squares.
     The base case is when empty_squares_of_aftereven is empty. At that point, we find all groups that include
-      all squares in groupening_squares and add them to groups.
+      all squares in threatening_squares and add them to groups.
 
     Args:
         groups (set<Group>): a Set of groups this function will add to.
@@ -275,7 +275,7 @@ def add_new_groups_from_aftereven(groups, empty_squares_of_aftereven, groupening
             If two Squares from the Aftereven belong in the same column,
                 the Square from the higher row should be given.
             It is required that none of the Squares share the same column.
-        groupening_squares (list<Square>):
+        threatening_squares (list<Square>):
             A list of Squares that could belong to a group that the Aftereven refutes.
             It is required that none of the Squares share the same column.
         square_to_groups (Map<Square, Set<Group>>): A dictionary mapping each
@@ -286,8 +286,8 @@ def add_new_groups_from_aftereven(groups, empty_squares_of_aftereven, groupening
     """
     # Base case.
     if not empty_squares_of_aftereven:
-        new_groups_to_add = square_to_groups[groupening_squares[0]]
-        for square in groupening_squares[1:]:
+        new_groups_to_add = square_to_groups[threatening_squares[0]]
+        for square in threatening_squares[1:]:
             new_groups_to_add = new_groups_to_add.intersection(square_to_groups[square])
         groups.update(new_groups_to_add)
         return
@@ -297,11 +297,11 @@ def add_new_groups_from_aftereven(groups, empty_squares_of_aftereven, groupening
     for row in range(square.row - 1, -1, -1):
         square_above = Square(row=row, col=square.col)
         # Choose.
-        groupening_squares.append(square_above)
+        threatening_squares.append(square_above)
         # Recurse.
-        add_new_groups_from_aftereven(groups, empty_squares_of_aftereven, groupening_squares, square_to_groups)
+        add_new_groups_from_aftereven(groups, empty_squares_of_aftereven, threatening_squares, square_to_groups)
         # Unchoose.
-        groupening_squares.remove(square_above)
+        threatening_squares.remove(square_above)
     empty_squares_of_aftereven.append(square)
 
 
@@ -474,7 +474,6 @@ def from_before(before: Before, square_to_groups) -> Solution:
     empty_squares = before.empty_squares_of_before_group()
     empty_square_successors = []
     for square in empty_squares:
-        # TODO if square.row != 0:
         empty_square_successors.append(Square(row=square.row - 1, col=square.col))
 
     groups = square_to_groups[empty_square_successors[0]]
@@ -572,7 +571,6 @@ def from_specialbefore(specialbefore: Specialbefore, square_to_groups) -> Soluti
                 groups.update(claimeven_solution.groups)
 
         # The Specialbefore Solution includes all squares and groups that the Before Solution has.
-        before_solution = from_before(before=specialbefore.before, square_to_groups=square_to_groups)
         return Solution(
             rule=Rule.Specialbefore,
             squares=frozenset(squares),
