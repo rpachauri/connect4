@@ -257,6 +257,46 @@ class TestBefore(unittest.TestCase):
         got_empty_squares = empty_squares_of_before_group(board=board, group=group_a3_d6)
         self.assertCountEqual(want_empty_squares, got_empty_squares)
 
+    def test_empty_squares_of_before_group_top_row_empty(self):
+        # This test case validates that if a Group contains an empty square in the top row, no Befores use it.
+        # However, if that square is taken by a player, that player can use it in some Befores.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+        group_a3_d6 = Group(player=1, start=Square(row=3, col=0), end=Square(row=0, col=3))  # a3-d6
+
+        # Since d6 is an empty square in the top row, no Before groups containing d6 can be formed.
+        got_befores = find_all_befores(board=board, opponent_groups={group_a3_d6})
+        # Assert that got_befores is empty.
+        self.assertFalse(got_befores)
+
+        # Note that this isn't an ideal use of Board because a Board instance should ideally be immutable.
+        # White plays d5.
+        board.state[0][1][3] = 1
+        # Black plays d6.
+        board.state[1][0][3] = 1
+
+        # Now that d6 has been taken by White, White can use it in some Before groups.
+        got_befores = find_all_befores(board=board, opponent_groups={group_a3_d6})
+        # Assert that got_befores is not empty.
+        self.assertTrue(got_befores)
+
 
 if __name__ == '__main__':
     unittest.main()

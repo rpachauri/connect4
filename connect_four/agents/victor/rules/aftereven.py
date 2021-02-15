@@ -71,12 +71,11 @@ def get_aftereven_claimevens(board: Board, even_squares_to_claimevens, group: Gr
     claimevens = set()
 
     for square in group.squares:
-        # If a square is in the top row, then this would be a useless Aftereven.
-        if square.row == 0:
-            return None
-
         # If the square is not empty, we assume it already belongs to the player who owns the Group.
         if board.is_empty(square):
+            # If a square is in the top row, then this would be a useless Aftereven.
+            if square.row == 0:
+                return None
             if square in even_squares_to_claimevens:
                 claimevens.add(even_squares_to_claimevens[square])
             else:
