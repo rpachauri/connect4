@@ -21,6 +21,16 @@ class Aftereven:
     def __hash__(self):
         return self.group.__hash__() * 31 + self.claimevens.__hash__()
 
+    def empty_squares_of_aftereven_group(self):
+        empty_squares = []
+
+        for claimeven in self.claimevens:
+            # claimeven.upper should be an empty square part of the Aftereven group by definition.
+            # Otherwise, something is wrong.
+            empty_squares.append(claimeven.upper)
+
+        return empty_squares
+
 
 def find_all_afterevens(board: Board, claimevens, opponent_groups):
     """find_all_afterevens takes a Board and a set of Claimevens and returns a set of Afterevens for the Board.

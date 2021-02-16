@@ -214,26 +214,10 @@ def from_aftereven(aftereven: Aftereven, square_to_groups) -> Solution:
     Returns:
         solution (Solution): a Solution if aftereven can be converted into one. None if it can't.
     """
-    # columns_to_highest_rows is a dictionary mapping each column in the Aftereven group to the
-    # row with the highest empty Square in the Aftereven group.
-    columns_to_highest_rows = {}
-    for claimeven in aftereven.claimevens:
-        square = claimeven.upper
-        if square.col not in columns_to_highest_rows:
-            columns_to_highest_rows[square.col] = square.row
-        else:
-            columns_to_highest_rows[square.col] = min(columns_to_highest_rows[square], square.row)
-
-    # empty_squares_of_aftereven contains the empty Squares of the Aftereven group.
-    # If multiple Squares belonged to the same column, then only the Square in the highest row is included.
-    empty_squares_of_aftereven = []
-    for col in columns_to_highest_rows:
-        empty_squares_of_aftereven.append(Square(row=columns_to_highest_rows[col], col=col))
-
     groups = set()
     add_new_groups_from_aftereven(
         groups=groups,
-        empty_squares_of_aftereven=empty_squares_of_aftereven,
+        empty_squares_of_aftereven=aftereven.empty_squares_of_aftereven_group(),
         threatening_squares=[],
         square_to_groups=square_to_groups,
     )
