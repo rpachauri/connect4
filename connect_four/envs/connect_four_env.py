@@ -140,7 +140,7 @@ class ConnectFourEnv(gym.Env):
         return (self.state != 0).any(axis=0).all()
 
     @property
-    def env_variables(self):
+    def env_variables(self) -> ConnectFourEnvVariables:
         """
       Returns:
         env_variables (tuple): a tuple that can be passed to reset() to restore a state.
