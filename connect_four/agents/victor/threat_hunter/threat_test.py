@@ -105,6 +105,15 @@ class TestThreat(unittest.TestCase):
         got_threat = threat.find_odd_threat(board=board)
         self.assertIn(got_threat, possible_threats)
 
+    def test_threat_columns(self):
+        threat_b3_e3 = threat.Threat(
+            group=Group(player=0, start=Square(row=3, col=1), end=Square(row=3, col=4)),  # b3-e3
+            empty_square=Square(row=3, col=1),  # b3
+        )
+        want_columns = {1}
+        got_columns = threat_b3_e3.columns()
+        self.assertEqual(want_columns, got_columns)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -5,6 +5,7 @@ from typing import Optional, Set
 from connect_four.agents.victor.game import Board
 from connect_four.agents.victor.game import Group
 from connect_four.agents.victor.game import Square
+from connect_four.agents.victor.threat_hunter.odd_group_guarantor import OddGroupGuarantor
 
 
 class ThreatCombinationType(Enum):
@@ -17,7 +18,7 @@ EvenGroup = namedtuple("EvenGroup", ["group", "odd_square", "even_square"])
 OddGroup = namedtuple("OddGroup", ["group", "odd_square1", "odd_square2"])
 
 
-class ThreatCombination:
+class ThreatCombination(OddGroupGuarantor):
     """A ThreatCombination is a combination of two threats.
 
     Both threats have exactly two squares filled by the player and two empty squares.
@@ -67,6 +68,9 @@ class ThreatCombination:
         if self.threat_combination_type == ThreatCombinationType.EvenAboveOdd:
             return self.even_square
         return self.odd_square
+
+    def columns(self) -> Set[int]:
+        return {self.shared_square.col, self.even_square.col}
 
 
 def find_threat_combination(board: Board):

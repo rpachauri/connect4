@@ -1,3 +1,5 @@
+from typing import Set
+
 from connect_four.agents.victor.game import Square
 from connect_four.agents.victor.game import Group
 from connect_four.envs import ConnectFourEnvVariables
@@ -140,7 +142,7 @@ class Board:
 
         return square_to_groups
 
-    def empty_squares(self):
+    def empty_squares(self) -> Set[Square]:
         """Returns a set of empty squares in this board state.
 
         Returns:

@@ -1,10 +1,25 @@
-from collections import namedtuple
+from typing import Set
 
-from connect_four.agents.victor.game import Board
+from connect_four.agents.victor.game import Board, Square
 from connect_four.agents.victor.game import Group
+from connect_four.agents.victor.threat_hunter.odd_group_guarantor import OddGroupGuarantor
 
 
-Threat = namedtuple("Threat", ["group", "empty_square"])
+class Threat(OddGroupGuarantor):
+    def __init__(self, group: Group, empty_square: Square):
+        self.group = group
+        self.empty_square = empty_square
+
+    def __eq__(self, other):
+        if isinstance(other, Threat):
+            return self.group == other.group and self.empty_square == other.empty_square
+        return False
+
+    def __hash__(self):
+        return self.group.__hash__() * 97 + self.empty_square.__hash__() * 31
+
+    def columns(self) -> Set[int]:
+        return {self.empty_square.col}
 
 
 def find_odd_threat(board: Board) -> Threat:
