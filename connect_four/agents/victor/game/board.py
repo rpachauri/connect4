@@ -139,3 +139,16 @@ class Board:
                 square_to_groups[square].add(group)
 
         return square_to_groups
+
+    def empty_squares(self):
+        """Returns a set of empty squares in this board state.
+
+        Returns:
+            squares (Set<Square>): A set of squares.
+        """
+        squares = set()
+        for row in range(len(self.state[0])):
+            for col in range(len(self.state[0][0])):
+                if self.state[0][row][col] == 0 and self.state[1][row][col] == 0:
+                    squares.add(Square(row=row, col=col))
+        return squares

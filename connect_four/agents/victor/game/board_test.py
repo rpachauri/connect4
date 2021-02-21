@@ -172,6 +172,29 @@ class TestBoard(unittest.TestCase):
         got_groups_by_square = board.potential_groups_by_square()
         self.assertEqual(want_groups_by_square, got_groups_by_square)
 
+    def test_empty_squares(self):
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 1, ],
+                [1, 0, 0, 1, ],
+                [1, 0, 1, 0, ],
+                [0, 1, 0, 1, ],
+            ],
+            [
+                [0, 0, 1, 0, ],
+                [0, 1, 1, 0, ],
+                [0, 1, 0, 1, ],
+                [1, 0, 1, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+        want_empty_squares = {
+            Square(row=0, col=0),  # a4
+            Square(row=0, col=1),  # b4
+        }
+        got_empty_squares = board.empty_squares()
+        self.assertEqual(want_empty_squares, got_empty_squares)
+
 
 if __name__ == '__main__':
     unittest.main()
