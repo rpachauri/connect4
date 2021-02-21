@@ -3,11 +3,13 @@ import unittest
 
 import numpy as np
 
-from connect_four.agents.victor.game import Board
-from connect_four.agents.victor.game import Square
+from connect_four.agents.victor.game import Board, Group, Square
 from connect_four.agents.victor.planning.plan_initializer import PlanInitializer
 
 from connect_four.agents.victor.rules import Claimeven
+from connect_four.agents.victor.rules import Baseinverse
+
+from connect_four.agents.victor.threat_hunter import threat
 
 from connect_four.agents.victor.solution import solution
 from connect_four.agents.victor.evaluator import evaluator
@@ -185,6 +187,128 @@ class TestPlanInitializer(unittest.TestCase):
         self.assertEqual(want_rule_applications, plan_initializer.rule_applications)
         self.assertEqual(want_availabilities, plan_initializer.availabilities)
         self.assertIsNone(plan_initializer.odd_group_guarantor)
+        self.assertEqual(board.playable_squares(), plan_initializer.directly_playable_squares)
+
+    def test_plan_initializer_diagram_8_1(self):
+        # This test case is based on Diagram 8.1.
+        # Black is to move and White has an odd threat at a3.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
+                [0, 1, 1, 1, 0, 0, 0, ],
+                [0, 1, 0, 0, 0, 0, 0, ],
+                [1, 0, 1, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
+                [0, 0, 1, 1, 1, 0, 0, ],
+                [0, 1, 0, 0, 1, 0, 0, ],
+            ],
+        ])
+        self.env.player_turn = 1  # Black to move.
+        board = Board(self.env.env_variables)
+
+        claimeven_b5_b6 = Claimeven(lower=Square(row=1, col=1), upper=Square(row=0, col=1))
+        claimeven_c5_c6 = Claimeven(lower=Square(row=1, col=2), upper=Square(row=0, col=2))
+        claimeven_f1_f2 = Claimeven(lower=Square(row=5, col=5), upper=Square(row=4, col=5))
+        claimeven_f3_f4 = Claimeven(lower=Square(row=3, col=5), upper=Square(row=2, col=5))
+        claimeven_f5_f6 = Claimeven(lower=Square(row=1, col=5), upper=Square(row=0, col=5))
+        claimeven_g3_g4 = Claimeven(lower=Square(row=3, col=6), upper=Square(row=2, col=6))
+        claimeven_g5_g6 = Claimeven(lower=Square(row=1, col=6), upper=Square(row=0, col=6))
+        baseinverse_d5_e5 = Baseinverse(playable1=Square(row=1, col=3), playable2=Square(row=1, col=4))
+
+        square_to_groups = board.potential_groups_by_square()
+        # Define all Solutions using Claimevens.
+        # A subset of these Claimevens can refute all of Black's groups not in the 0th column.
+        claimeven_b5_b6_solution = solution.from_claimeven(
+            claimeven=claimeven_b5_b6,
+            square_to_groups=square_to_groups,
+        )
+        claimeven_c5_c6_solution = solution.from_claimeven(
+            claimeven=claimeven_c5_c6,
+            square_to_groups=square_to_groups,
+        )
+        claimeven_f1_f2_solution = solution.from_claimeven(
+            claimeven=claimeven_f1_f2,
+            square_to_groups=square_to_groups,
+        )
+        claimeven_f3_f4_solution = solution.from_claimeven(
+            claimeven=claimeven_f3_f4,
+            square_to_groups=square_to_groups,
+        )
+        claimeven_f5_f6_solution = solution.from_claimeven(
+            claimeven=claimeven_f5_f6,
+            square_to_groups=square_to_groups,
+        )
+        claimeven_g3_g4_solution = solution.from_claimeven(
+            claimeven=claimeven_g3_g4,
+            square_to_groups=square_to_groups,
+        )
+        claimeven_g5_g6_solution = solution.from_claimeven(
+            claimeven=claimeven_g5_g6,
+            square_to_groups=square_to_groups,
+        )
+        baseinverse_d5_e5_solution = solution.from_baseinverse(
+            baseinverse=baseinverse_d5_e5,
+            square_to_groups=square_to_groups,
+        )
+
+        want_odd_group_guarantor = threat.Threat(
+            group=Group(player=0, start=Square(row=3, col=0), end=Square(row=3, col=3)),
+            empty_square=Square(row=3, col=0),
+        )
+
+        # Note that typically, for a given set of Solutions, there may be multiple subsets of Solutions that
+        # solve all groups.
+        # In this test case, the given Solution set is the desired set so there is exactly one subset.
+        solutions = {
+            claimeven_b5_b6_solution,
+            claimeven_c5_c6_solution,
+            claimeven_f1_f2_solution,
+            claimeven_f3_f4_solution,
+            claimeven_f5_f6_solution,
+            claimeven_g3_g4_solution,
+            claimeven_g5_g6_solution,
+            baseinverse_d5_e5_solution,
+        }
+        plan_initializer = PlanInitializer(
+            board=board,
+            evaluation=evaluator.Evaluation(
+                chosen_set=solutions,
+                odd_threat_guarantor=want_odd_group_guarantor,
+            ),
+        )
+
+        want_rule_applications = {
+            claimeven_b5_b6,
+            claimeven_c5_c6,
+            claimeven_f1_f2,
+            claimeven_f3_f4,
+            claimeven_f5_f6,
+            claimeven_g3_g4,
+            claimeven_g5_g6,
+            baseinverse_d5_e5,
+        }
+        # Note that in Section 8.2, the authors suggest that d5 and e5 are available squares.
+        # This doesn't fit with how we've implemented the Plan, however, so we do not include them.
+        want_availabilities = {
+            Square(row=2, col=1),  # b4
+            Square(row=2, col=2),  # c4
+            # Square(row=1, col=3),  # d5
+            Square(row=0, col=3),  # d6
+            # Square(row=1, col=4),  # e5
+            Square(row=0, col=4),  # e6
+            Square(row=5, col=6),  # g1
+            Square(row=4, col=6),  # g2
+        }
+        self.assertEqual(want_rule_applications, plan_initializer.rule_applications)
+        self.assertEqual(want_availabilities, plan_initializer.availabilities)
+        self.assertEqual(want_odd_group_guarantor, plan_initializer.odd_group_guarantor)
         self.assertEqual(board.playable_squares(), plan_initializer.directly_playable_squares)
 
 
