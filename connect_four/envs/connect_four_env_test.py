@@ -39,7 +39,7 @@ class TestConnectFourEnv(unittest.TestCase):
         # the highest token should be at the highest row.
         self.assertEqual(self.env._find_highest_token(1), 0)
         # when the column is empty,
-        # the highest token should be -1.
+        # the highest token should be ConnectFourEnv.M.
         self.assertEqual(self.env._find_highest_token(2), ConnectFourEnv.M)
 
     def test_place_token_in_full_column(self):
@@ -189,11 +189,67 @@ class TestConnectFourEnv(unittest.TestCase):
         obs, _, _, _ = self.env.step(0)
 
         # Verify that the state has changed.
-        np.testing.assert_raises(AssertionError,
-                                 np.testing.assert_array_equal,
-                                 obs,
-                                 env_variables[0],
-                                 )
+        np.testing.assert_raises(
+            AssertionError, np.testing.assert_array_equal, obs, env_variables[0])
+
+        # reset the state to previously saved env_variables.
+        obs = self.env.reset(env_variables=env_variables)
+        # verify that the state is back to what it was after Player 2 moved.
+        self.assertIsNone(np.testing.assert_array_equal(
+            obs,
+            env_variables[0],
+        ))
+        # verify it is currently Player 1's turn.
+        self.assertEqual(self.env.player_turn, env_variables[1])
+
+    def test_undo_last_action_initial_state(self):
+        # This test validates that undo_last_action does not work on the initial state.
+        raises = False
+        try:
+            self.env.undo_last_action(0)
+        except ValueError:
+            raises = True
+        self.assertTrue(raises)
+
+    def test_undo_last_action_empty_column(self):
+        # This test validates that undo_last_action does not work on an empty column.
+        # Seed the environment so it doesn't fail undoing the initial state.
+        self.env.step(0)
+
+        raises = False
+        try:
+            # Undo an action on an empty column.
+            self.env.undo_last_action(1)
+        except ValueError:
+            raises = True
+        self.assertTrue(raises)
+
+    def test_undo_last_action_same_player(self):
+        # This test validates that undo_last_action does not work on a column where the top
+        # token belongs to the current player.
+        # Seed the environment.
+        self.env.step(0)
+        self.env.step(1)
+        # It is currently White's turn.
+
+        raises = False
+        try:
+            # Undo an action on a column in which White has the top token.
+            self.env.undo_last_action(0)
+        except ValueError:
+            raises = True
+        self.assertTrue(raises)
+
+    def test_undo_last_action_after_single_move(self):
+        # This test validates that undo_last_action works after a single move.
+
+        # Retrieve the env variables.
+        env_variables = self.env.env_variables
+
+        # Modify the environment.
+        self.env.step(0)
+        # It is currently Black's turn.
+        self.env.undo_last_action(0)
 
         # reset the state to previously saved env_variables.
         obs = self.env.reset(env_variables=env_variables)

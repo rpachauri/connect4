@@ -10,8 +10,8 @@ ConnectFourEnvVariables = namedtuple("ConnectFourEnvVariables", ["state", "playe
 class ConnectFourEnv(gym.Env):
     """Implements the gym.Env interface.
   
-  https://github.com/openai/gym/blob/master/gym/core.py.
-  """
+    https://github.com/openai/gym/blob/master/gym/core.py.
+    """
     # Dimension of the ConnectFour environment.
     M = 6
     N = 7
@@ -61,12 +61,12 @@ class ConnectFourEnv(gym.Env):
     def _find_highest_token(self, column):
         """ Finds the highest token belonging to either player in the selected column.
 
-      Args:
-        column (int): 0 ≤ column < ConnectFourEnv.N
-      Returns:
-        row (int): 0 ≤ row < ConnectFourEnv.M if there exist at least 1 token belonging to either player.
-                   -1 if there are no tokens in the column
-    """
+        Args:
+            column (int): 0 ≤ column < ConnectFourEnv.N
+        Returns:
+            row (int): 0 ≤ row < ConnectFourEnv.M if there exist at least 1 token belonging to either player.
+                ConnectFourEnv.M if there are no tokens in the column
+        """
         # mask is a boolean array. It is true if there is a token in the given column and false otherwise.
         mask = (self.state[:, :, column] != 0).any(axis=0)
         # get the highest row in the given column belonging to either player.
@@ -74,18 +74,18 @@ class ConnectFourEnv(gym.Env):
 
     def _connected_four(self, player, row, col):
         """
-      Args:
-        player (int): 0 or 1. The player we are checking.
-        row (int): the starting row
-        col (int): the starting column
+        Args:
+            player (int): 0 or 1. The player we are checking.
+            row (int): the starting row
+            col (int): the starting column
 
-      Requires:
-        self.state[player, row, col] == 1
+        Requires:
+            self.state[player, row, col] == 1
 
-      Returns:
-        connected_four (bool): True if the player connected at least 4 using (row, col);
+        Returns:
+            connected_four (bool): True if the player connected at least 4 using (row, col);
                                otherwise, False
-    """
+        """
         row_and_col_adds = [
             (-1, 0),  # up
             (-1, 1),  # up-right
@@ -105,20 +105,20 @@ class ConnectFourEnv(gym.Env):
 
     def _num_tokens_in_direction(self, player, row, col, row_add, col_add):
         """ Finds the number of tokens belonging to the given player starting
-          from the given location and continuing in the given direction.
+        from the given location and continuing in the given direction.
 
-      Args:
-        player (int): 0 or 1. The player we are checking.
-        row (int): the starting row
-        col (int): the starting column
-        row_add (int): the increment for row
-        col_add (int): the increment for col
+        Args:
+            player (int): 0 or 1. The player we are checking.
+            row (int): the starting row
+            col (int): the starting column
+            row_add (int): the increment for row
+            col_add (int): the increment for col
 
-      Returns:
-        The number of tokens belonging to the player in the given direction.
-        The starting location is not included.
-        E.g. If there is only 1 token belonging to the player
-             adjacent to the given location, returns 1.
+        Returns:
+            The number of tokens belonging to the player in the given direction.
+            The starting location is not included.
+            E.g. If there is only 1 token belonging to the player
+            adjacent to the given location, returns 1.
     """
         player_tokens = self.state[player]
         r, c = row, col
@@ -134,35 +134,36 @@ class ConnectFourEnv(gym.Env):
 
     def _is_full(self):
         """
-      Returns:
-        True if there is a token belonging to either player for every possible location.
-    """
+        Returns:
+            True if there is a token belonging to either player for every possible location.
+        """
         return (self.state != 0).any(axis=0).all()
 
     @property
     def env_variables(self) -> ConnectFourEnvVariables:
         """
-      Returns:
-        env_variables (tuple): a tuple that can be passed to reset() to restore a state.
-        - env_variables[0] contains "obs", the observable variable for that state.
-        - env_variables[1] contains "player_turn", indicating whose turn it is in that state.
-    """
+        Returns:
+            env_variables (tuple): a tuple that can be passed to reset() to restore a state.
+            - env_variables[0] contains "obs", the observable variable for that state.
+            - env_variables[1] contains "player_turn", indicating whose turn it is in that state.
+        """
         return ConnectFourEnvVariables(self.state.copy(), self.player_turn)
 
     def reset(self, env_variables=None):
         """Resets the state of the environment and returns an initial observation.
 
-      Args:
-        env_variables (tuple) (optional):
-          env_variables[0] (ndarray): should be a a numpy ndarray of shape (2, M, N)
-          env_variables[1] (int): whose turn it should be (0 or 1)
-      Example Usage:
-        env_variables = env.env_variables()
-        env.step(action)
-        .
-        .
-        .
-        env.reset(env_variables)
+        Args:
+            env_variables (tuple) (optional):
+                env_variables[0] (ndarray): should be a a numpy ndarray of shape (2, M, N)
+                env_variables[1] (int): whose turn it should be (0 or 1)
+
+        Example Usage:
+            env_variables = env.env_variables()
+            env.step(action)
+            .
+            .
+            .
+            env.reset(env_variables)
       Returns:
         observation (object): the initial observation.
     """
@@ -175,12 +176,46 @@ class ConnectFourEnv(gym.Env):
 
         return self.state.copy()
 
+    def undo_last_action(self, action):
+        """
+
+        Args:
+            action (int): an Action
+
+        Raises:
+            ValuerError if:
+            1. The environment is in the initial state.
+            2. There must be at least one token in the given column (i.e. action)
+            3. The top token in the given column must belong to the opponent of the current player.
+
+        Modifies:
+            - this ConnectFourEnv instance will have undone the given action.
+        """
+        # If there are no tokens in the state:
+        if np.sum(self.state) == 0:
+            raise ValueError("Cannot undo action for initial state")
+
+        # Find the highest token that belongs to either player in the given column.
+        highest_row = self._find_highest_token(column=action)
+
+        # If the given column is empty:
+        if highest_row == ConnectFourEnv.M:
+            raise ValueError("Cannot undo action for empty column")
+
+        # If the highest token belongs to the current player:
+        if self.state[self.player_turn][highest_row][action] == 1:
+            raise ValueError("Cannot undo action that belongs to the current player")
+
+        # Remove the token and switch play to the other player.
+        self.state[1 - self.player_turn][highest_row][action] = 0
+        self.player_turn = 1 - self.player_turn
+
     def render(self, mode='human'):
         """Renders the current state of the environment.
 
-    Args:
-      mode (str): Supported modes: {'human'}
-    """
+        Args:
+          mode (str): Supported modes: {'human'}
+        """
         horizontal_wall = self._create_horizontal_wall()
         print(horizontal_wall)
 
@@ -201,9 +236,9 @@ class ConnectFourEnv(gym.Env):
     @staticmethod
     def _create_horizontal_wall():
         """Used to help render the top or bottom wall in human mode.
-    Returns:
-      str: a string that can be printed when rendering in human mode.
-    """
+        Returns:
+          str: a string that can be printed when rendering in human mode.
+        """
         wall = "*"
         for i in range(ConnectFourEnv.N):
             wall += "="
