@@ -172,7 +172,7 @@ class MCPNS(Agent):
         self.num_rollouts = num_rollouts
         self.root_num_visits = 1  # number of times we've visited the root node
 
-    def action(self, env, last_action):
+    def action(self, env, last_action=None):
         """Returns an action.
 
     Args:

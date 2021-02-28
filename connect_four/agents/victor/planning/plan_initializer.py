@@ -1,3 +1,5 @@
+import copy
+
 from connect_four.agents.victor.game import Board
 from connect_four.agents.victor.evaluator import evaluator
 from connect_four.agents.victor.planning import plan
@@ -12,6 +14,24 @@ def env_to_plan(env_variables: ConnectFourEnvVariables) -> plan.Plan:
 
     plan_initializer = PlanInitializer(board=board, evaluation=evaluation)
     return plan_initializer.to_plan()
+
+
+class PlanWrapper:
+    def __init__(self, env):
+        self.env = copy.deepcopy(env)
+        self.plan = env_to_plan(self.env.env_variables)
+
+    def execute(self, last_action) -> int:
+        board = Board(self.env.env_variables)
+        last_square = board.playable_square(last_action)
+        responding_square = self.plan.execute(square=last_square)
+        responding_action = responding_square.col
+
+        # Move the internal model to the next step.
+        self.env.step(last_action)
+        self.env.step(responding_action)
+
+        return responding_action
 
 
 class PlanInitializer:
