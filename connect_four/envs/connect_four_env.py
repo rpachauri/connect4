@@ -207,7 +207,7 @@ class ConnectFourEnv(gym.Env):
             raise ValueError("Cannot undo action that belongs to the current player")
 
         # Remove the token and switch play to the other player.
-        self.state[1 - self.player_turn][highest_row][action] = 0
+        self.state[1 - self.player_turn, highest_row, action] = 0
         self.player_turn = 1 - self.player_turn
 
     def render(self, mode='human'):

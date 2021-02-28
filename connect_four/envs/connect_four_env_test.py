@@ -243,23 +243,24 @@ class TestConnectFourEnv(unittest.TestCase):
     def test_undo_last_action_after_single_move(self):
         # This test validates that undo_last_action works after a single move.
 
-        # Retrieve the env variables.
-        env_variables = self.env.env_variables
+        # Retrieve the desired env variables.
+        want_env_variables = self.env.env_variables
 
-        # Modify the environment.
+        # Seed the environment.
         self.env.step(0)
         # It is currently Black's turn.
-        self.env.undo_last_action(0)
+        self.env.undo_last_action(action=0)
 
-        # reset the state to previously saved env_variables.
-        obs = self.env.reset(env_variables=env_variables)
+        # Retrieve the env variables after undoing the move.
+        got_env_variables = self.env.env_variables
+
         # verify that the state is back to what it was after Player 2 moved.
         self.assertIsNone(np.testing.assert_array_equal(
-            obs,
-            env_variables[0],
+            want_env_variables[0],
+            got_env_variables[0],
         ))
         # verify it is currently Player 1's turn.
-        self.assertEqual(self.env.player_turn, env_variables[1])
+        self.assertEqual(want_env_variables[1], got_env_variables[1])
 
 
 if __name__ == '__main__':
