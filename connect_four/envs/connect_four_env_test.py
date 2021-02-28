@@ -246,9 +246,9 @@ class TestConnectFourEnv(unittest.TestCase):
         # Retrieve the desired env variables.
         want_env_variables = self.env.env_variables
 
-        # Seed the environment.
+        # Make a move.
         self.env.step(0)
-        # It is currently Black's turn.
+        # Undo the move.
         self.env.undo_last_action(action=0)
 
         # Retrieve the env variables after undoing the move.

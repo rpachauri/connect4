@@ -1,7 +1,10 @@
 from enum import Enum
 
 from connect_four.agents.agent import Agent
+from connect_four.agents.victor.game import Board
 from connect_four.agents.victor.planning import plan_initializer
+from connect_four.agents.victor.evaluator import evaluator
+from connect_four.envs import ConnectFourEnv
 
 
 class ProofStatus(Enum):
@@ -34,8 +37,78 @@ class VictorNode:
         return list(self.actions_to_children.keys())[0]
 
 
-def proof_number_search(node: VictorNode):
-    node.solution_found = True
+def proof_number_search(node: VictorNode, env):
+    env_variables = env.env_variables
+    for action in range(env.action_space):
+        _, reward, done, _ = env.step(action=action)  # env is now at child.
+        env.reset(env_variables=env_variables)  # Immediately reset the environment.
+
+        if done:
+            status = player_goal_to_status(reward=reward, player=env.player_turn)
+            if status != ProofStatus.exploring:  # Player has found an outcome they're happy with.
+                node.status = status
+                return
+
+    board = Board(env_variables=env_variables)
+    evaluation = evaluator.evaluate(board=board)
+    if evaluation is not None:
+        node.solution_found = True
+        if board.player == 0:  # White to move. Black has found a solution, guaranteeing themselves a draw.
+            node.status = ProofStatus.drawing
+        else:  # Black to move. White has found a solution, guaranteeing themselves a win.
+            node.status = ProofStatus.losing
+        return
+
+    # Assumes node.children is empty.
+    for action in range(env.action_space):
+        child = VictorNode()
+        node.actions_to_children[action] = child
+
+        _, reward, done, _ = env.step(action=action)  # env is now at child.
+        proof_number_search(child, env)  # Explore child.
+        env.reset(env_variables=env_variables)
+        # child now has a status in {winning, drawing, losing}.
+
+        # If the action leads to a loss for the other player,
+        # then this state is solved because we only need to pick that action.
+        if child.status == ProofStatus.losing:
+            node.status = ProofStatus.winning
+            return
+
+        # If the action leads to a draw and the current player is Black, then this state is solved.
+        if board.player == 1 and child.status == ProofStatus.drawing:
+            node.status = ProofStatus.drawing
+            return
+
+    # At this point, all children have been explored.
+    # For White, every child has a status in {winning, drawing}.
+    # For Black, every child has a status of {winning}.
+    for action in node.actions_to_children:
+        child = node.actions_to_children[action]
+        if child.status == ProofStatus.drawing:
+            node.status = ProofStatus.drawing
+            return
+
+    # At this point, all children have a status of {winning}, meaning that no matter what
+    # the current player plays, the opponent is guaranteed to win.
+    node.status = ProofStatus.losing
+    return
+
+
+def player_goal_to_status(reward, player):
+    # Assumptions:
+    #   1. In a given state, there is at least one action that does not lead to an immediate loss for the player.
+    #      (i.e. by "immediate loss", we mean a terminal state indicating a loss for the player).
+
+    # Both players are happy winning.
+    if reward == ConnectFourEnv.CONNECTED_FOUR:
+        return ProofStatus.winning
+
+    if player == 1 and reward == ConnectFourEnv.DRAW:  # Black is happy with a draw.
+        return ProofStatus.drawing
+
+    # If the player hasn't found an outcome they're happy with, they should keep exploring.
+    return ProofStatus.exploring
 
 
 class Victor(Agent):
@@ -44,9 +117,15 @@ class Victor(Agent):
         self.plan = None
 
     def action(self, env, last_action=None):
+        # If we already have a plan, execute according to the plan.
+        if self.plan is not None:
+            return self.plan.execute(last_action)
+
         if self.root is None:
+            env.undo_last_action(action=last_action)
             self.root = VictorNode()
-            proof_number_search(self.root)
+            proof_number_search(self.root, env)
+            env.step(action=last_action)
 
         # Execute the "Search-Tree" mode.
         if not self.root.solution_found:

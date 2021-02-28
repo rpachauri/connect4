@@ -70,7 +70,7 @@ class ConnectFourEnv(gym.Env):
         # mask is a boolean array. It is true if there is a token in the given column and false otherwise.
         mask = (self.state[:, :, column] != 0).any(axis=0)
         # get the highest row in the given column belonging to either player.
-        return np.where(mask.any(axis=0), mask.argmax(axis=0), ConnectFourEnv.M)
+        return int(np.where(mask.any(axis=0), mask.argmax(axis=0), ConnectFourEnv.M))
 
     def _connected_four(self, player, row, col):
         """
