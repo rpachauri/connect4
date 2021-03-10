@@ -3,7 +3,8 @@ import unittest
 import gym
 import numpy as np
 
-from connect_four.envs.connect_four_env import ConnectFourEnv
+from connect_four.envs import TwoPlayerGameEnv
+from connect_four.envs import ConnectFourEnv
 
 np.set_printoptions(threshold=np.inf)
 
@@ -157,7 +158,7 @@ class TestConnectFourEnv(unittest.TestCase):
             expected_state,
         ))
         # verify the expected reward.
-        self.assertEqual(reward, ConnectFourEnv.DEFAULT_REWARD)
+        self.assertEqual(reward, TwoPlayerGameEnv.DEFAULT_REWARD)
         # verify the environment is done.
         self.assertFalse(done)
         # verify it is Player 2's turn.
@@ -172,7 +173,7 @@ class TestConnectFourEnv(unittest.TestCase):
             expected_state,
         ))
         # verify the expected reward.
-        self.assertEqual(reward, ConnectFourEnv.DEFAULT_REWARD)
+        self.assertEqual(reward, TwoPlayerGameEnv.DEFAULT_REWARD)
         # verify the environment is done.
         self.assertFalse(done)
         # verify it is Player 2's turn.

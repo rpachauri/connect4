@@ -8,6 +8,7 @@ from connect_four.agents import MCTS
 from connect_four.agents import Minimax
 from connect_four.agents import RandomAgent
 from connect_four.agents import UCT
+from connect_four.envs import TwoPlayerGameEnv
 from connect_four.envs import ConnectFourEnv
 
 # Make the environment, replace this string with any
@@ -38,11 +39,11 @@ for i in range(10):
         _, reward, done, info = env.step(last_action)
 
         if done:
-            if reward == ConnectFourEnv.CONNECTED_FOUR:
+            if reward == TwoPlayerGameEnv.CONNECTED_FOUR:
                 agents_record[env.player_turn] += 1
-            elif reward == ConnectFourEnv.INVALID_MOVE:
+            elif reward == TwoPlayerGameEnv.INVALID_MOVE:
                 agents_record[1 - env.player_turn] += 1
-            else:  # reward == ConnectFourEnv.DRAW
+            else:  # reward == TwoPlayerGameEnv.DRAW
                 agents_record[2] += 1
 
     print("Record after game", i, "-", agents_record)

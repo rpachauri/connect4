@@ -1,13 +1,15 @@
-import gym
 import numpy as np
 
 from collections import namedtuple
+
+from connect_four.envs import TwoPlayerGameEnv
+from connect_four.envs import TwoPlayerGameEnvVariables
 
 
 ConnectFourEnvVariables = namedtuple("ConnectFourEnvVariables", ["state", "player_turn"])
 
 
-class ConnectFourEnv(gym.Env):
+class ConnectFourEnv(TwoPlayerGameEnv):
     """Implements the gym.Env interface.
   
     https://github.com/openai/gym/blob/master/gym/core.py.
@@ -17,11 +19,6 @@ class ConnectFourEnv(gym.Env):
     N = 7
 
     action_space = N
-
-    INVALID_MOVE = -1
-    CONNECTED_FOUR = 1
-    DRAW = 0
-    DEFAULT_REWARD = 0
 
     def __init__(self):
         self.reset()
@@ -40,23 +37,23 @@ class ConnectFourEnv(gym.Env):
 
         # Placing a token in a full column is an invalid move.
         if new_token_row == -1:
-            return self.state.copy(), ConnectFourEnv.INVALID_MOVE, True, None
+            return self.state.copy(), TwoPlayerGameEnv.INVALID_MOVE, True, None
 
         # Place a token.
         self.state[self.player_turn, new_token_row, action] = 1
 
         # Check if the player has connected four.
         if self._connected_four(self.player_turn, new_token_row, action):
-            return self.state.copy(), ConnectFourEnv.CONNECTED_FOUR, True, None
+            return self.state.copy(), TwoPlayerGameEnv.CONNECTED_FOUR, True, None
 
         # If all locations have been used and neither player has won,
         # this results in a draw.
         if self._is_full():
-            return self.state.copy(), ConnectFourEnv.DRAW, True, None
+            return self.state.copy(), TwoPlayerGameEnv.DRAW, True, None
 
         # Continue play with it now being the other player's turn.
         self.player_turn = 1 - self.player_turn
-        return self.state.copy(), ConnectFourEnv.DEFAULT_REWARD, False, None
+        return self.state.copy(), TwoPlayerGameEnv.DEFAULT_REWARD, False, None
 
     def _find_highest_token(self, column):
         """ Finds the highest token belonging to either player in the selected column.
@@ -140,14 +137,14 @@ class ConnectFourEnv(gym.Env):
         return (self.state != 0).any(axis=0).all()
 
     @property
-    def env_variables(self) -> ConnectFourEnvVariables:
+    def env_variables(self) -> TwoPlayerGameEnvVariables:
         """
         Returns:
             env_variables (tuple): a tuple that can be passed to reset() to restore a state.
             - env_variables[0] contains "obs", the observable variable for that state.
             - env_variables[1] contains "player_turn", indicating whose turn it is in that state.
         """
-        return ConnectFourEnvVariables(self.state.copy(), self.player_turn)
+        return TwoPlayerGameEnvVariables(self.state.copy(), self.player_turn)
 
     def reset(self, env_variables=None):
         """Resets the state of the environment and returns an initial observation.
@@ -164,9 +161,10 @@ class ConnectFourEnv(gym.Env):
             .
             .
             env.reset(env_variables)
-      Returns:
-        observation (object): the initial observation.
-    """
+
+        Returns:
+            observation (object): the initial observation.
+        """
         if env_variables is not None:
             self.state = env_variables[0].copy()
             self.player_turn = env_variables[1]

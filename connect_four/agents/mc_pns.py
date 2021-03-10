@@ -1,7 +1,7 @@
 import numpy as np
 
 from connect_four.agents.agent import Agent
-from connect_four.envs.connect_four_env import ConnectFourEnv
+from connect_four.envs import TwoPlayerGameEnv
 from enum import Enum
 
 np.seterr(divide='ignore', invalid='ignore')
@@ -18,9 +18,9 @@ class MCPNSNodeStatus(Enum):
 # TERMINAL_REWARDS are the reward given upon arriving at a terminal state.
 # assumes that each of these rewards are distinct.
 TERMINAL_REWARDS_TO_STATUSES = {
-    ConnectFourEnv.INVALID_MOVE: MCPNSNodeStatus.losing,
-    ConnectFourEnv.CONNECTED_FOUR: MCPNSNodeStatus.winning,
-    ConnectFourEnv.DRAW: MCPNSNodeStatus.drawing,
+    TwoPlayerGameEnv.INVALID_MOVE: MCPNSNodeStatus.losing,
+    TwoPlayerGameEnv.CONNECTED_FOUR: MCPNSNodeStatus.winning,
+    TwoPlayerGameEnv.DRAW: MCPNSNodeStatus.drawing,
 }
 
 STATUSES_TO_VALUES = {

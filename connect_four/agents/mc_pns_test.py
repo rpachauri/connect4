@@ -7,6 +7,7 @@ from connect_four.agents import mc_pns
 from connect_four.agents.mc_pns import MCPNS
 from connect_four.agents.mc_pns import MCPNSNode
 from connect_four.agents.mc_pns import MCPNSNodeStatus
+from connect_four.envs import TwoPlayerGameEnv
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
 
@@ -41,13 +42,13 @@ class TestMCST(unittest.TestCase):
 
         env_variables = self.env.env_variables
         _, reward, done, _ = self.env.step(0)
-        self.assertEqual(reward, ConnectFourEnv.INVALID_MOVE)
-        self.assertEqual(mc_pns.TERMINAL_REWARDS_TO_STATUSES[ConnectFourEnv.INVALID_MOVE], MCPNSNodeStatus.losing)
+        self.assertEqual(reward, TwoPlayerGameEnv.INVALID_MOVE)
+        self.assertEqual(mc_pns.TERMINAL_REWARDS_TO_STATUSES[TwoPlayerGameEnv.INVALID_MOVE], MCPNSNodeStatus.losing)
 
         self.env.reset(env_variables)
         _, reward, done, _ = self.env.step(3)
-        self.assertEqual(reward, ConnectFourEnv.CONNECTED_FOUR)
-        self.assertEqual(mc_pns.TERMINAL_REWARDS_TO_STATUSES[ConnectFourEnv.CONNECTED_FOUR], MCPNSNodeStatus.winning)
+        self.assertEqual(reward, TwoPlayerGameEnv.CONNECTED_FOUR)
+        self.assertEqual(mc_pns.TERMINAL_REWARDS_TO_STATUSES[TwoPlayerGameEnv.CONNECTED_FOUR], MCPNSNodeStatus.winning)
 
     def test_update_tree(self):
         self.env.state = np.array([

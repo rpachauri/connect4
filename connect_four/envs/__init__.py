@@ -1,2 +1,5 @@
+from connect_four.envs.two_player_game_env import TwoPlayerGameEnvVariables
+from connect_four.envs.two_player_game_env import TwoPlayerGameEnv
+
 from connect_four.envs.connect_four_env import ConnectFourEnvVariables
 from connect_four.envs.connect_four_env import ConnectFourEnv

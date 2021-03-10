@@ -1,7 +1,7 @@
 import numpy as np
 
 from connect_four.agents.agent import Agent
-from connect_four.envs.connect_four_env import ConnectFourEnv
+from connect_four.envs import TwoPlayerGameEnv
 
 
 class Minimax(Agent):
@@ -11,16 +11,16 @@ class Minimax(Agent):
     # TERMINAL_REWARDS are the reward given upon arriving at a terminal state.
     # assumes that each of these rewards are distinct.
     TERMINAL_REWARDS = {
-        ConnectFourEnv.INVALID_MOVE: -1000000,
-        ConnectFourEnv.CONNECTED_FOUR: 100000,  # We'd rather let the opponent win than play an invalid move.
-        ConnectFourEnv.DRAW: 0,
+        TwoPlayerGameEnv.INVALID_MOVE: -1000000,
+        TwoPlayerGameEnv.CONNECTED_FOUR: 100000,  # We'd rather let the opponent win than play an invalid move.
+        TwoPlayerGameEnv.DRAW: 0,
     }
 
     def __init__(self, max_depth=4):
         self.max_depth = max_depth
         pass
 
-    def action(self, env, last_action):
+    def action(self, env, last_action=None):
         # last_action gets ignored
         return self._minimax(env, self.max_depth)[0]
 
@@ -30,7 +30,7 @@ class Minimax(Agent):
 
         action_values = []
 
-        for action in range(ConnectFourEnv.action_space):
+        for action in range(env.action_space):
             # apply move
             _, reward, done, _ = env.step(action)
             if done:
@@ -59,8 +59,8 @@ class Minimax(Agent):
       This function assumes that it will not be called for a terminal state.
 
       Args:
-        env (ConnectFourEnv): right now, Minimax only supports the
-          ConnectFourEnv because the _estimate() function is handwritten for
+        env (TwoPlayerGameEnv): right now, Minimax only supports the
+          TwoPlayerGameEnv because the _estimate() function is handwritten for
           each environment.
       Returns:
         estimate (float): an estimate of how valuable the current state is to the current player.
