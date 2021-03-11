@@ -1,12 +1,8 @@
 import numpy as np
 
-from collections import namedtuple
-
 from connect_four.envs import TwoPlayerGameEnv
 from connect_four.envs import TwoPlayerGameEnvVariables
-
-
-ConnectFourEnvVariables = namedtuple("ConnectFourEnvVariables", ["state", "player_turn"])
+from connect_four.envs import connect_utils
 
 
 class ConnectFourEnv(TwoPlayerGameEnv):
@@ -15,6 +11,7 @@ class ConnectFourEnv(TwoPlayerGameEnv):
     https://github.com/openai/gym/blob/master/gym/core.py.
     """
     # Dimension of the ConnectFour environment.
+    # TODO move to TwoPlayerGameEnv.
     M = 6
     N = 7
 
@@ -55,7 +52,7 @@ class ConnectFourEnv(TwoPlayerGameEnv):
         self.player_turn = 1 - self.player_turn
         return self.state.copy(), TwoPlayerGameEnv.DEFAULT_REWARD, False, None
 
-    def _find_highest_token(self, column):
+    def _find_highest_token(self, column) -> int:
         """ Finds the highest token belonging to either player in the selected column.
 
         Args:
@@ -83,51 +80,7 @@ class ConnectFourEnv(TwoPlayerGameEnv):
             connected_four (bool): True if the player connected at least 4 using (row, col);
                                otherwise, False
         """
-        row_and_col_adds = [
-            (-1, 0),  # up
-            (-1, 1),  # up-right
-            (0, 1),  # right
-            (1, 1),  # down-right
-        ]
-        for row_add, col_add in row_and_col_adds:
-            num_tokens_in_pos_direction = self._num_tokens_in_direction(player, row, col, row_add, col_add)
-            num_tokens_in_neg_direction = self._num_tokens_in_direction(player, row, col, -row_add, -col_add)
-            num_tokens_in_line = num_tokens_in_pos_direction + 1 + num_tokens_in_neg_direction
-
-            if num_tokens_in_line >= 4:
-                return True
-
-        # Player did not connect four in any direction.
-        return False
-
-    def _num_tokens_in_direction(self, player, row, col, row_add, col_add):
-        """ Finds the number of tokens belonging to the given player starting
-        from the given location and continuing in the given direction.
-
-        Args:
-            player (int): 0 or 1. The player we are checking.
-            row (int): the starting row
-            col (int): the starting column
-            row_add (int): the increment for row
-            col_add (int): the increment for col
-
-        Returns:
-            The number of tokens belonging to the player in the given direction.
-            The starting location is not included.
-            E.g. If there is only 1 token belonging to the player
-            adjacent to the given location, returns 1.
-    """
-        player_tokens = self.state[player]
-        r, c = row, col
-        num_tokens = -1
-
-        # while we are still in bounds and the location belongs to the player.
-        while (0 <= r < len(player_tokens) and 0 <= c < len(player_tokens[0]) and
-               player_tokens[r, c] == 1):
-            r += row_add
-            c += col_add
-            num_tokens += 1
-        return num_tokens
+        return connect_utils.connected(state=self.state, num_to_connect=4, player=player, row=row, col=col)
 
     def _is_full(self):
         """
@@ -136,6 +89,7 @@ class ConnectFourEnv(TwoPlayerGameEnv):
         """
         return (self.state != 0).any(axis=0).all()
 
+    # TODO Move to TwoPlayerGameEnv.
     @property
     def env_variables(self) -> TwoPlayerGameEnvVariables:
         """
@@ -146,6 +100,7 @@ class ConnectFourEnv(TwoPlayerGameEnv):
         """
         return TwoPlayerGameEnvVariables(self.state.copy(), self.player_turn)
 
+    # TODO Move to TwoPlayerGameEnv.
     def reset(self, env_variables=None):
         """Resets the state of the environment and returns an initial observation.
 

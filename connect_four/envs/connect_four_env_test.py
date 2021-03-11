@@ -59,44 +59,6 @@ class TestConnectFourEnv(unittest.TestCase):
         # verify the environment is done.
         self.assertTrue(done)
 
-    def test_num_tokens_in_direction(self):
-        # fill the entire 1st column with tokens belonging to Player 1.
-        self.env.state[0, :, 0] = 1
-        # how many tokens belonging to Player 1 are on top of (ConnectFourEnv.M - 1, 0)?
-        num_tokens = self.env._num_tokens_in_direction(
-            player=0,
-            row=ConnectFourEnv.M - 1,
-            col=0,
-            row_add=-1,
-            col_add=0,
-        )
-        # since the entire column has been filled, there should be ConnectFourEnv.M - 1 tokens.
-        self.assertEqual(num_tokens, ConnectFourEnv.M - 1)
-
-    def test_connected_four_vertically(self):
-        # fill the entire 1st column with tokens belonging to Player 1.
-        self.env.state[0, :, 0] = 1
-        self.assertTrue(self.env._connected_four(0, 0, 0))
-
-    def test_connected_four_left_diagonally(self):
-        # Place a token for Player 1 left-diagonally starting from (0, 0).
-        for i in range(min(ConnectFourEnv.M, ConnectFourEnv.N)):
-            self.env.state[0, i, i] = 1
-        self.assertTrue(self.env._connected_four(0, 0, 0))
-
-    def test_connected_four_horizontally(self):
-        # fill the entire bottom row with tokens belonging to Player 1.
-        self.env.state[0, ConnectFourEnv.M - 1, :] = 1
-        # If starting from the bottom-right token,
-        # verify that Player 1 has connected four.
-        self.assertTrue(
-            self.env._connected_four(0, ConnectFourEnv.M - 1, ConnectFourEnv.N - 1)
-        )
-
-    def test_has_not_connected_four(self):
-        self.env.state[0, 3, 4] = 1
-        self.assertFalse(self.env._connected_four(0, 3, 4))
-
     def test_place_token_and_connected_four(self):
         self.env.state[0, -3:, 0] = 1
         expected_state = self.env.state.copy()
