@@ -3,10 +3,10 @@ import copy
 from connect_four.agents.victor.game import Board
 from connect_four.agents.victor.evaluator import evaluator
 from connect_four.agents.victor.planning import plan
-from connect_four.envs import ConnectFourEnvVariables
+from connect_four.envs import TwoPlayerGameEnvVariables
 
 
-def env_to_plan(env_variables: ConnectFourEnvVariables) -> plan.Plan:
+def env_to_plan(env_variables: TwoPlayerGameEnvVariables) -> plan.Plan:
     board = Board(env_variables=env_variables)
     evaluation = evaluator.evaluate(board=board)
     if evaluation is None:

@@ -2,14 +2,14 @@ from typing import Set
 
 from connect_four.agents.victor.game import Square
 from connect_four.agents.victor.game import Group
-from connect_four.envs import ConnectFourEnvVariables
+from connect_four.envs import TwoPlayerGameEnvVariables
 
 
 class Board:
     """Board is essentially a wrapper around the state of a ConnectFourEnv. It does not keep in sync with the
     environment's board. This means that if the state of the environment changes, this board will be out of date.
     """
-    def __init__(self, env_variables: ConnectFourEnvVariables):
+    def __init__(self, env_variables: TwoPlayerGameEnvVariables):
         """
 
         Args:
