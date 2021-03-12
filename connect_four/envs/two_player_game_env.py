@@ -1,7 +1,6 @@
-from abc import ABC, abstractmethod
-
 import gym
 
+from abc import ABC, abstractmethod
 from collections import namedtuple
 
 TwoPlayerGameEnvVariables = namedtuple("TicTacToeEnvVariables", ["state", "player_turn"])
@@ -9,7 +8,7 @@ TwoPlayerGameEnvVariables = namedtuple("TicTacToeEnvVariables", ["state", "playe
 
 class TwoPlayerGameEnv(gym.Env, ABC):
     INVALID_MOVE = -1
-    CONNECTED_FOUR = 1
+    CONNECTED = 1
     DRAW = 0
     DEFAULT_REWARD = 0
 

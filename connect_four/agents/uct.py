@@ -6,7 +6,7 @@ from connect_four.agents.agent import Agent
 class UCTNode:
     EXPLORATION_CONSTANT = 4
 
-    def __init__(self, num_actions=7):
+    def __init__(self, num_actions):
         self.children = {}  # dictionary of moves to UCTNodes
 
         self.action_total_values = np.zeros(num_actions)
@@ -56,7 +56,8 @@ class UCTNode:
     def select_action_for_rollout(self):
         # Select an action from the environment's action space using bandit-based selection.
         action_values = np.divide(self.action_total_values, self.action_visits)
-        exploration_values = UCTNode.EXPLORATION_CONSTANT * np.sqrt(2 * np.log(np.sum(self.action_visits)) / self.action_visits)
+        exploration_values = (UCTNode.EXPLORATION_CONSTANT * np.sqrt(
+            2 * np.log(np.sum(self.action_visits)) / self.action_visits))
         return np.argmax(action_values + exploration_values)
 
     @staticmethod
@@ -118,7 +119,7 @@ class UCT(Agent):
         elif last_action is not None:
             # Move down a node to record the opponent's move.
             # If this tree has just been initialized, pass since there is no node to move to.
-            self._move_root_to_action(last_action)
+            self._move_root_to_action(last_action, env.action_space)
 
         # Perform rollouts.
         env_variables = env.env_variables
@@ -133,11 +134,11 @@ class UCT(Agent):
         # Select action with the highest number of visits.
         most_visited_action = np.argmax(self.root.action_visits)
 
-        self._move_root_to_action(most_visited_action)
+        self._move_root_to_action(most_visited_action, env.action_space)
         return most_visited_action
 
-    def _move_root_to_action(self, child):
+    def _move_root_to_action(self, child, num_actions):
         # Move the root node of this tree to the state resulting from action.
         self.root_num_visits = self.root.action_visits[child]
-        self.root = self.root.children[child] if child in self.root.children else UCTNode()
+        self.root = self.root.children[child] if child in self.root.children else UCTNode(num_actions=num_actions)
         return child

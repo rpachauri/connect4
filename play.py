@@ -10,11 +10,13 @@ from connect_four.agents import RandomAgent
 
 # Make the environment, replace this string with any
 # from the docs. (Some environments have dependencies)
-env = gym.make('connect_four-v0')
+# env = gym.make('connect_four-v0')
+env = gym.make('tic_tac_toe-v0')
 
 # Initialize the agents
-agent1 = FlatUCB(num_rollouts=1000)
-agent2 = MCTS(num_rollouts=1000)
+agent1 = FlatUCB(num_rollouts=200)
+# agent2 = MCPNS(num_rollouts=30)
+agent2 = Minimax(max_depth=9)
 
 # Reset the environment to default beginning
 # Default observation variable

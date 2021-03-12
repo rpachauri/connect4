@@ -39,7 +39,7 @@ for i in range(10):
         _, reward, done, info = env.step(last_action)
 
         if done:
-            if reward == TwoPlayerGameEnv.CONNECTED_FOUR:
+            if reward == TwoPlayerGameEnv.CONNECTED:
                 agents_record[env.player_turn] += 1
             elif reward == TwoPlayerGameEnv.INVALID_MOVE:
                 agents_record[1 - env.player_turn] += 1

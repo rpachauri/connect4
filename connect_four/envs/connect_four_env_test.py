@@ -71,7 +71,7 @@ class TestConnectFourEnv(unittest.TestCase):
             expected_state,
         ))
         # verify the expected reward.
-        self.assertEqual(reward, ConnectFourEnv.CONNECTED_FOUR)
+        self.assertEqual(reward, ConnectFourEnv.CONNECTED)
         # verify the environment is done.
         self.assertTrue(done)
 

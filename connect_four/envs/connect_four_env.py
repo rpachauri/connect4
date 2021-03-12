@@ -11,7 +11,6 @@ class ConnectFourEnv(TwoPlayerGameEnv):
     https://github.com/openai/gym/blob/master/gym/core.py.
     """
     # Dimension of the ConnectFour environment.
-    # TODO move to TwoPlayerGameEnv.
     M = 6
     N = 7
 
@@ -40,8 +39,8 @@ class ConnectFourEnv(TwoPlayerGameEnv):
         self.state[self.player_turn, new_token_row, action] = 1
 
         # Check if the player has connected four.
-        if self._connected_four(self.player_turn, new_token_row, action):
-            return self.state.copy(), TwoPlayerGameEnv.CONNECTED_FOUR, True, None
+        if self._connected_four(row=new_token_row, col=action):
+            return self.state.copy(), TwoPlayerGameEnv.CONNECTED, True, None
 
         # If all locations have been used and neither player has won,
         # this results in a draw.
@@ -66,10 +65,9 @@ class ConnectFourEnv(TwoPlayerGameEnv):
         # get the highest row in the given column belonging to either player.
         return int(np.where(mask.any(axis=0), mask.argmax(axis=0), ConnectFourEnv.M))
 
-    def _connected_four(self, player, row, col):
+    def _connected_four(self, row: int, col: int) -> bool:
         """
         Args:
-            player (int): 0 or 1. The player we are checking.
             row (int): the starting row
             col (int): the starting column
 
@@ -80,7 +78,7 @@ class ConnectFourEnv(TwoPlayerGameEnv):
             connected_four (bool): True if the player connected at least 4 using (row, col);
                                otherwise, False
         """
-        return connect_utils.connected(state=self.state, num_to_connect=4, player=player, row=row, col=col)
+        return connect_utils.connected(state=self.state, num_to_connect=4, player=self.player_turn, row=row, col=col)
 
     def _is_full(self):
         """
@@ -89,7 +87,6 @@ class ConnectFourEnv(TwoPlayerGameEnv):
         """
         return (self.state != 0).any(axis=0).all()
 
-    # TODO Move to TwoPlayerGameEnv.
     @property
     def env_variables(self) -> TwoPlayerGameEnvVariables:
         """
@@ -100,7 +97,6 @@ class ConnectFourEnv(TwoPlayerGameEnv):
         """
         return TwoPlayerGameEnvVariables(self.state.copy(), self.player_turn)
 
-    # TODO Move to TwoPlayerGameEnv.
     def reset(self, env_variables=None):
         """Resets the state of the environment and returns an initial observation.
 
@@ -130,7 +126,7 @@ class ConnectFourEnv(TwoPlayerGameEnv):
         return self.state.copy()
 
     def undo_last_action(self, action):
-        """
+        """ TODO Deprecate.
 
         Args:
             action (int): an Action
@@ -177,9 +173,9 @@ class ConnectFourEnv(TwoPlayerGameEnv):
             line = "|"
             for n in range(ConnectFourEnv.N):
                 if self.state[0, m, n] == 1:  # token belongs to Player 1
-                    line += "o"
-                elif self.state[1, m, n] == 1:  # token belongs to Player 2
                     line += "x"
+                elif self.state[1, m, n] == 1:  # token belongs to Player 2
+                    line += "o"
                 else:  # location belongs to neither player
                     line += " "
             print(line + "|")

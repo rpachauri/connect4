@@ -47,8 +47,8 @@ class TestMCST(unittest.TestCase):
 
         self.env.reset(env_variables)
         _, reward, done, _ = self.env.step(3)
-        self.assertEqual(reward, TwoPlayerGameEnv.CONNECTED_FOUR)
-        self.assertEqual(mc_pns.TERMINAL_REWARDS_TO_STATUSES[TwoPlayerGameEnv.CONNECTED_FOUR], MCPNSNodeStatus.winning)
+        self.assertEqual(reward, TwoPlayerGameEnv.CONNECTED)
+        self.assertEqual(mc_pns.TERMINAL_REWARDS_TO_STATUSES[TwoPlayerGameEnv.CONNECTED], MCPNSNodeStatus.winning)
 
     def test_update_tree(self):
         self.env.state = np.array([

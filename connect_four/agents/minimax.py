@@ -12,7 +12,7 @@ class Minimax(Agent):
     # assumes that each of these rewards are distinct.
     TERMINAL_REWARDS = {
         TwoPlayerGameEnv.INVALID_MOVE: -1000000,
-        TwoPlayerGameEnv.CONNECTED_FOUR: 100000,  # We'd rather let the opponent win than play an invalid move.
+        TwoPlayerGameEnv.CONNECTED: 100000,  # We'd rather let the opponent win than play an invalid move.
         TwoPlayerGameEnv.DRAW: 0,
     }
 
