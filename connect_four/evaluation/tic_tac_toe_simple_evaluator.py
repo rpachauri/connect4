@@ -53,4 +53,23 @@ class TicTacToeSimpleEvaluator(Evaluator):
             self.node_type = NodeType.OR
 
     def evaluate(self) -> ProofType:
-        pass
+        if not self.done:
+            # The game is not yet done.
+            return ProofType.Unknown
+
+        # The game has ended, so we must be able to either Prove or Disprove this node.
+        if self.node_type == NodeType.AND:
+            # Player OR has connected three, indicating this node is proven.
+            if self.reward == TwoPlayerGameEnv.CONNECTED:
+                return ProofType.Proven
+
+            # The game has ended without player OR connecting three. This node is disproven.
+            return ProofType.Disproven
+
+        # self.node_type == NodeType.OR
+        # Player AND has played an invalid move, resulting in a win for OR, indicating this node is proven.
+        if self.reward == TwoPlayerGameEnv.INVALID_MOVE:
+            return ProofType.Proven
+
+        # The game has ended without AND losing, so OR has failed to prove this node.
+        return ProofType.Disproven

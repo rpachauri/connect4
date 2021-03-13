@@ -1,7 +1,10 @@
 import gym
 import unittest
 
+import numpy as np
+
 from connect_four.envs import TwoPlayerGameEnv
+from connect_four.evaluation.evaluator import ProofType
 from connect_four.evaluation.tic_tac_toe_simple_evaluator import NodeType
 from connect_four.evaluation.tic_tac_toe_simple_evaluator import TicTacToeSimpleEvaluator
 
@@ -21,6 +24,8 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
         self.assertFalse(evaluator.done)
         # The NodeType should be the given NodeType.
         self.assertEqual(NodeType.OR, evaluator.node_type)
+        # Evaluation at initialization should return Unknown.
+        self.assertEqual(ProofType.Unknown, evaluator.evaluate())
 
     def test_single_move(self):
         evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
@@ -34,6 +39,8 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
         self.assertFalse(evaluator.done)
         # Play should always switch to the opponent.
         self.assertEqual(NodeType.AND, evaluator.node_type)
+        # Evaluation should return Unknown.
+        self.assertEqual(ProofType.Unknown, evaluator.evaluate())
 
     def test_undo_move(self):
         evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
@@ -50,6 +57,131 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
         self.assertFalse(evaluator.done)
         # The NodeType should be the given NodeType.
         self.assertEqual(NodeType.OR, evaluator.node_type)
+        # Evaluation should return Unknown.
+        self.assertEqual(ProofType.Unknown, evaluator.evaluate())
+
+    ###
+    # The following test cases follow somewhat unintuitive naming conventions.
+    # {AND, OR} indicates the terminal node.
+    # {CONNECTED, DRAW, INVALID_MOVE} indicates the reward returned upon arriving at the terminal node.
+    # This reward is given to the *opponent* of the player at the terminal node.
+    ###
+
+    def test_evaluate_AND_CONNECTED(self):
+        # This tests for when OR has connected three.
+        # The terminal state will be at AND.
+        self.env.state = np.array([
+            [
+                [1, 1, 0, ],
+                [0, 0, 0, ],
+                [0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, ],
+                [1, 1, 0, ],
+                [0, 0, 0, ],
+            ],
+        ])
+
+        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
+
+        # A single move is made. X plays in the top-right corner.
+        evaluator.move(action=2)
+
+        # The evaluator's internal model should be at a terminal state.
+        # The reward should just be the result of connecting three.
+        self.assertEqual(TwoPlayerGameEnv.CONNECTED, evaluator.reward)
+        # The game should have ended.
+        self.assertTrue(evaluator.done)
+        # NodeType should always switch to the opponent.
+        self.assertEqual(NodeType.AND, evaluator.node_type)
+        # Evaluation should return Proven.
+        self.assertEqual(ProofType.Proven, evaluator.evaluate())
+
+    def test_evaluate_AND_DRAW(self):
+        # This tests for when OR has drawn the game.
+        # The terminal state will be at AND.
+        self.env.state = np.array([
+            [
+                [0, 1, 0, ],
+                [0, 1, 1, ],
+                [1, 0, 0, ],
+            ],
+            [
+                [1, 0, 1, ],
+                [1, 0, 0, ],
+                [0, 1, 0, ],
+            ],
+        ])
+
+        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
+
+        # A single move is made. X plays in the bottom-right corner.
+        evaluator.move(action=8)
+
+        # The evaluator's internal model should be at a terminal state.
+        # The reward should just be the result of connecting three.
+        self.assertEqual(TwoPlayerGameEnv.DRAW, evaluator.reward)
+        # The game should have ended.
+        self.assertTrue(evaluator.done)
+        # NodeType should always switch to the opponent.
+        self.assertEqual(NodeType.AND, evaluator.node_type)
+        # Evaluation should return Proven.
+        self.assertEqual(ProofType.Disproven, evaluator.evaluate())
+
+    def test_evaluate_OR_INVALID_MOVE(self):
+        # This tests for when AND plays an invalid move.
+        # The terminal state will be at OR.
+
+        # A single move is made. X plays in the top-left corner.
+        self.env.step(action=0)
+
+        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.AND)
+
+        # A second move is made. O plays in the top-left corner.
+        evaluator.move(action=0)
+
+        # The evaluator's internal model should be at a terminal state.
+        # The reward should just be the result of connecting three.
+        self.assertEqual(TwoPlayerGameEnv.INVALID_MOVE, evaluator.reward)
+        # The game should have ended.
+        self.assertTrue(evaluator.done)
+        # NodeType should always switch to the opponent.
+        self.assertEqual(NodeType.OR, evaluator.node_type)
+        # Evaluation should return Proven.
+        self.assertEqual(ProofType.Proven, evaluator.evaluate())
+
+    def test_evaluate_OR_CONNECTED(self):
+        # This tests for when AND connects three.
+        # The terminal state will be at OR.
+        self.env.state = np.array([
+            [
+                [1, 0, 0, ],
+                [0, 0, 0, ],
+                [1, 0, 0, ],
+            ],
+            [
+                [1, 0, 1, ],
+                [1, 0, 0, ],
+                [0, 1, 0, ],
+            ],
+        ])
+        self.env.player_turn = 1
+
+        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.AND)
+
+        # A single move is made. X plays in the bottom-right corner.
+        evaluator.move(action=8)
+
+        # The evaluator's internal model should be at a terminal state.
+        # The reward should just be the result of connecting three.
+        self.assertEqual(TwoPlayerGameEnv.DRAW, evaluator.reward)
+        # The game should have ended.
+        self.assertTrue(evaluator.done)
+        # NodeType should always switch to the opponent.
+        self.assertEqual(NodeType.AND, evaluator.node_type)
+        # Evaluation should return Proven.
+        self.assertEqual(ProofType.Disproven, evaluator.evaluate())
 
 
 if __name__ == '__main__':
