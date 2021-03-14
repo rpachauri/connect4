@@ -41,6 +41,23 @@ class TestPNSTicTacToe(unittest.TestCase):
         # Any created children should be AND Nodes.
         self.assertEqual(node.children[0], PNSNode(node_type=NodeType.AND))
 
+    def test_OR_PNSNode_update_tree_base_case(self):
+        # The TicTacToeSimpleEvaluator should return ProofStatus.Unknown for all children of the root.
+        # This means we'll need a child node for every action in the action space.
+        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
+        node = PNSNode(node_type=NodeType.OR)
+
+        node.update_tree(evaluator=evaluator)
+
+        # There should be a child for every action in the action space.
+        self.assertEqual(evaluator.action_space, len(node.children))
+
+        # Since all children were just created, they should each have a proof and disproof number of 1.
+        # The proof number of an OR node is the smallest proof number of any child.
+        self.assertEqual(1, node.proof)
+        # The disproof number of an OR node is the sum disproof number of all children.
+        self.assertEqual(evaluator.action_space, node.disproof)
+
 
 if __name__ == '__main__':
     unittest.main()
