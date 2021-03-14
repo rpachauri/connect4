@@ -85,7 +85,23 @@ class PNSNode:
         return self.children[action]
 
     def select_most_proving_child(self) -> (int, PNSNode):
-        pass
+        value = float('inf')
+        best_action = -1
+        if self.node_type == NodeType.OR:
+            # Select the child with the smallest proof number.
+            for action in self.children:
+                child = self.children[action]
+                if value > child.proof:
+                    best_action = action
+                    value = child.proof
+        else:  # self.node_type == NodeType.AND
+            # Select the child with the smallest disproof number.
+            for action in self.children:
+                child = self.children[action]
+                if value > child.disproof:
+                    best_action = action
+                    value = child.disproof
+        return best_action, self.children[best_action]
 
 
 class PNS(Agent):

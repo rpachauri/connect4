@@ -15,19 +15,6 @@ class TestPNSTicTacToe(unittest.TestCase):
         self.env = gym.make('tic_tac_toe-v0')
         self.env.reset()
 
-    def test_PNSNode_initialization(self):
-        node = PNSNode(NodeType.OR)
-        self.assertEqual(1, node.proof)
-        self.assertEqual(1, node.disproof)
-        self.assertEqual(ProofStatus.Unknown, node.status)
-        self.assertFalse(node.children)  # assert that node.children is empty.
-
-    def test_PNSNode_equals(self):
-        self.assertEqual(PNSNode(NodeType.OR), PNSNode(NodeType.OR))
-
-    def test_PNSNode_not_equals(self):
-        self.assertNotEqual(PNSNode(NodeType.OR), PNSNode(NodeType.AND))
-
     def test_PNSNode_expand_all_children(self):
         # The TicTacToeSimpleEvaluator should return ProofStatus.Unknown for all children of the root.
         # This means we'll need a child node for every action in the action space.
