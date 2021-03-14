@@ -1,7 +1,7 @@
 from enum import Enum
 
 from connect_four.envs import TwoPlayerGameEnv
-from connect_four.evaluation import Evaluator, ProofType
+from connect_four.evaluation import Evaluator, ProofStatus
 
 
 class NodeType(Enum):
@@ -52,24 +52,24 @@ class TicTacToeSimpleEvaluator(Evaluator):
         else:  # self.node_type == NodeType.AND
             self.node_type = NodeType.OR
 
-    def evaluate(self) -> ProofType:
+    def evaluate(self) -> ProofStatus:
         if not self.done:
             # The game is not yet done.
-            return ProofType.Unknown
+            return ProofStatus.Unknown
 
         # The game has ended, so we must be able to either Prove or Disprove this node.
         if self.node_type == NodeType.AND:
             # Player OR has connected three, indicating this node is proven.
             if self.reward == TwoPlayerGameEnv.CONNECTED:
-                return ProofType.Proven
+                return ProofStatus.Proven
 
             # The game has ended without player OR connecting three. This node is disproven.
-            return ProofType.Disproven
+            return ProofStatus.Disproven
 
         # self.node_type == NodeType.OR
         # Player AND has played an invalid move, resulting in a win for OR, indicating this node is proven.
         if self.reward == TwoPlayerGameEnv.INVALID_MOVE:
-            return ProofType.Proven
+            return ProofStatus.Proven
 
         # The game has ended without AND losing, so OR has failed to prove this node.
-        return ProofType.Disproven
+        return ProofStatus.Disproven

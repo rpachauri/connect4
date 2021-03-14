@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 
 from connect_four.envs import TwoPlayerGameEnv
-from connect_four.evaluation.evaluator import ProofType
+from connect_four.evaluation.evaluator import ProofStatus
 from connect_four.evaluation.tic_tac_toe_simple_evaluator import NodeType
 from connect_four.evaluation.tic_tac_toe_simple_evaluator import TicTacToeSimpleEvaluator
 
@@ -25,7 +25,7 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
         # The NodeType should be the given NodeType.
         self.assertEqual(NodeType.OR, evaluator.node_type)
         # Evaluation at initialization should return Unknown.
-        self.assertEqual(ProofType.Unknown, evaluator.evaluate())
+        self.assertEqual(ProofStatus.Unknown, evaluator.evaluate())
 
     def test_single_move(self):
         evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
@@ -40,7 +40,7 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
         # Play should always switch to the opponent.
         self.assertEqual(NodeType.AND, evaluator.node_type)
         # Evaluation should return Unknown.
-        self.assertEqual(ProofType.Unknown, evaluator.evaluate())
+        self.assertEqual(ProofStatus.Unknown, evaluator.evaluate())
 
     def test_undo_move(self):
         evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
@@ -58,7 +58,7 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
         # The NodeType should be the given NodeType.
         self.assertEqual(NodeType.OR, evaluator.node_type)
         # Evaluation should return Unknown.
-        self.assertEqual(ProofType.Unknown, evaluator.evaluate())
+        self.assertEqual(ProofStatus.Unknown, evaluator.evaluate())
 
     ###
     # The following test cases follow somewhat unintuitive naming conventions.
@@ -96,7 +96,7 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
         # NodeType should always switch to the opponent.
         self.assertEqual(NodeType.AND, evaluator.node_type)
         # Evaluation should return Proven.
-        self.assertEqual(ProofType.Proven, evaluator.evaluate())
+        self.assertEqual(ProofStatus.Proven, evaluator.evaluate())
 
     def test_evaluate_AND_DRAW(self):
         # This tests for when OR has drawn the game.
@@ -127,7 +127,7 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
         # NodeType should always switch to the opponent.
         self.assertEqual(NodeType.AND, evaluator.node_type)
         # Evaluation should return Proven.
-        self.assertEqual(ProofType.Disproven, evaluator.evaluate())
+        self.assertEqual(ProofStatus.Disproven, evaluator.evaluate())
 
     def test_evaluate_OR_INVALID_MOVE(self):
         # This tests for when AND plays an invalid move.
@@ -149,7 +149,7 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
         # NodeType should always switch to the opponent.
         self.assertEqual(NodeType.OR, evaluator.node_type)
         # Evaluation should return Proven.
-        self.assertEqual(ProofType.Proven, evaluator.evaluate())
+        self.assertEqual(ProofStatus.Proven, evaluator.evaluate())
 
     def test_evaluate_OR_CONNECTED(self):
         # This tests for when AND connects three.
@@ -181,7 +181,7 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
         # NodeType should always switch to the opponent.
         self.assertEqual(NodeType.AND, evaluator.node_type)
         # Evaluation should return Proven.
-        self.assertEqual(ProofType.Disproven, evaluator.evaluate())
+        self.assertEqual(ProofStatus.Disproven, evaluator.evaluate())
 
 
 if __name__ == '__main__':

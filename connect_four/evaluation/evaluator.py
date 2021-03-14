@@ -4,7 +4,7 @@ from enum import Enum
 from connect_four.envs import TwoPlayerGameEnv
 
 
-class ProofType(Enum):
+class ProofStatus(Enum):
     Unknown = 0
     Proven = 1
     Disproven = 2
@@ -25,5 +25,5 @@ class Evaluator(ABC):
         pass
 
     @abstractmethod
-    def evaluate(self) -> ProofType:
+    def evaluate(self) -> ProofStatus:
         pass
