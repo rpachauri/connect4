@@ -27,3 +27,8 @@ class Evaluator(ABC):
     @abstractmethod
     def evaluate(self) -> ProofStatus:
         pass
+
+    @property
+    @abstractmethod
+    def action_space(self) -> int:
+        pass

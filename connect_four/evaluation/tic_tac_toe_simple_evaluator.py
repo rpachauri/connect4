@@ -73,3 +73,7 @@ class TicTacToeSimpleEvaluator(Evaluator):
 
         # The game has ended without AND losing, so OR has failed to prove this node.
         return ProofStatus.Disproven
+
+    @property
+    def action_space(self) -> int:
+        return self.model.action_space
