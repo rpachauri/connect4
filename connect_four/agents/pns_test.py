@@ -1,8 +1,7 @@
 import unittest
 
 from connect_four.agents.pns import PNSNode
-from connect_four.evaluation.evaluator import ProofStatus
-from connect_four.evaluation.tic_tac_toe_simple_evaluator import NodeType
+from connect_four.evaluation.evaluator import ProofStatus, NodeType
 
 
 class TestPNS(unittest.TestCase):

@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
 
-from connect_four.envs import TwoPlayerGameEnv
-
 
 class ProofStatus(Enum):
     Unknown = 0
@@ -10,19 +8,28 @@ class ProofStatus(Enum):
     Disproven = 2
 
 
+class NodeType(Enum):
+    OR = 0
+    AND = 1
+
+
 class Evaluator(ABC):
 
     @abstractmethod
-    def __init__(self, model: TwoPlayerGameEnv):
-        pass
+    def __init__(self, node_type: NodeType):
+        self.node_type = node_type
 
-    @abstractmethod
     def move(self, action: int):
-        pass
+        self._switch_play()
 
-    @abstractmethod
     def undo_move(self):
-        pass
+        self._switch_play()
+
+    def _switch_play(self):
+        if self.node_type == NodeType.OR:
+            self.node_type = NodeType.AND
+        else:  # self.node_type == NodeType.AND
+            self.node_type = NodeType.OR
 
     @abstractmethod
     def evaluate(self) -> ProofStatus:
@@ -32,3 +39,4 @@ class Evaluator(ABC):
     @abstractmethod
     def action_space(self) -> int:
         pass
+

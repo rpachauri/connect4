@@ -4,8 +4,7 @@ import unittest
 import numpy as np
 
 from connect_four.envs import TwoPlayerGameEnv
-from connect_four.evaluation.evaluator import ProofStatus
-from connect_four.evaluation.tic_tac_toe_simple_evaluator import NodeType
+from connect_four.evaluation.evaluator import ProofStatus, NodeType
 from connect_four.evaluation.tic_tac_toe_simple_evaluator import TicTacToeSimpleEvaluator
 
 

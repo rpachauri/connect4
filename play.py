@@ -7,6 +7,10 @@ from connect_four.agents import MCPNS
 from connect_four.agents import MCTS
 from connect_four.agents import Minimax
 from connect_four.agents import RandomAgent
+from connect_four.agents import PNS
+
+from connect_four.evaluation.evaluator import NodeType
+from connect_four.evaluation.tic_tac_toe_simple_evaluator import TicTacToeSimpleEvaluator
 
 # Make the environment, replace this string with any
 # from the docs. (Some environments have dependencies)
@@ -14,9 +18,10 @@ from connect_four.agents import RandomAgent
 env = gym.make('tic_tac_toe-v0')
 
 # Initialize the agents
-agent1 = FlatUCB(num_rollouts=200)
+agent1 = MCPNS(num_rollouts=30)  # Minimax(max_depth=9)
 # agent2 = MCPNS(num_rollouts=30)
-agent2 = Minimax(max_depth=9)
+evaluator = TicTacToeSimpleEvaluator(model=env, node_type=NodeType.OR)
+agent2 = PNS(evaluator=evaluator)
 
 # Reset the environment to default beginning
 # Default observation variable

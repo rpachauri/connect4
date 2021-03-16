@@ -1,12 +1,7 @@
-from enum import Enum
-
+import copy
 from connect_four.envs import TwoPlayerGameEnv
 from connect_four.evaluation import Evaluator, ProofStatus
-
-
-class NodeType(Enum):
-    OR = 0
-    AND = 1
+from connect_four.evaluation.evaluator import NodeType
 
 
 class TicTacToeSimpleEvaluator(Evaluator):
@@ -18,8 +13,8 @@ class TicTacToeSimpleEvaluator(Evaluator):
         Args:
             model (TwoPlayerGameEnv): a TwoPlayerGameEnv instance that can be modified.
         """
-        super().__init__(model)
-        self.model = model
+        super().__init__(node_type=node_type)
+        self.model = copy.deepcopy(model)
         self.list_of_env_variables = []
         self.reward = TwoPlayerGameEnv.DEFAULT_REWARD
         self.done = False
@@ -33,24 +28,20 @@ class TicTacToeSimpleEvaluator(Evaluator):
         Args:
             action (int): an action that can be applied in the current state of this evaluator's model environment.
         """
+        super().move(action=action)
+
         assert not self.done
 
         self.list_of_env_variables.append(self.model.env_variables)
         _, self.reward, self.done, _ = self.model.step(action=action)
-        self._switch_play()
 
     def undo_move(self):
+        super().undo_move()
+
         env_variables = self.list_of_env_variables.pop()
         self.model.reset(env_variables=env_variables)
         self.reward = TwoPlayerGameEnv.DEFAULT_REWARD
         self.done = False
-        self._switch_play()
-
-    def _switch_play(self):
-        if self.node_type == NodeType.OR:
-            self.node_type = NodeType.AND
-        else:  # self.node_type == NodeType.AND
-            self.node_type = NodeType.OR
 
     def evaluate(self) -> ProofStatus:
         if not self.done:
