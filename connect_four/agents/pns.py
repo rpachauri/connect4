@@ -137,11 +137,11 @@ class PNS(Agent):
             1. env is not currently at a terminal state.
 
         Args:
-            env:
-            last_action:
+            env (TwoPlayerGameEnv): a TwoPlayerGameEnv instance. It will not be modified.
+            last_action (int): The last action that occurred in env. None if env is in the initial state.
 
         Returns:
-
+            best_action (int): an action.
         """
         if last_action is not None:
             # Assumes:
