@@ -1,0 +1,1 @@
+from connect_four.transposition.transposition_table import TranspositionTable
