@@ -178,18 +178,6 @@ class TestDFPNTicTacToe(unittest.TestCase):
     #     self.assertEqual(want_delta, got_tt_delta)
 
     def test_generate_children_initial_state(self):
-        self.env.state = np.array([
-            [
-                [0, 0, 0, ],
-                [0, 0, 0, ],
-                [0, 0, 0, ],
-            ],
-            [
-                [0, 0, 0, ],
-                [0, 0, 0, ],
-                [0, 0, 0, ],
-            ],
-        ])
         evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
         tt = TicTacToeSimpleTranspositionTable()
         agent = DFPN(evaluator, tt)
@@ -213,7 +201,7 @@ class TestDFPNTicTacToe(unittest.TestCase):
         self.assertEqual(1, phi)
         self.assertEqual(1, delta)
 
-    def test_generate_children_OR(self):
+    def test_generate_children_winning_OR(self):
         self.env.state = np.array([
             [
                 [1, 1, 0, ],
@@ -274,6 +262,57 @@ class TestDFPNTicTacToe(unittest.TestCase):
         # Since child_2 is an AND node, the phi number is 0 because it is impossible to disprove the node.
         self.assertEqual(1, phi)
         self.assertEqual(1, delta)
+
+    def test_calculate_phi_delta_initial_state(self):
+        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
+        tt = TicTacToeSimpleTranspositionTable()
+        agent = DFPN(evaluator, tt)
+
+        agent.generate_children()
+        untouched_env_variables = self.env.env_variables
+        phi, delta = agent.calculate_phi_delta(env=self.env)
+
+        # Verify the environment is reset back to what it was originally.
+        self.assertIsNone(np.testing.assert_array_equal(
+            untouched_env_variables[0],
+            self.env.env_variables[0],
+        ))
+        self.assertEqual(untouched_env_variables[1], self.env.env_variables[1])
+
+        # The phi number should be the smallest delta number of all of node's children.
+        self.assertEqual(1, phi)
+        # The delta number should be sum of the phi numbers of all of node's children.
+        self.assertEqual(len(evaluator.actions()), delta)
+
+    def test_calculate_phi_delta_proving_OR(self):
+        self.env.state = np.array([
+            [
+                [1, 1, 0, ],
+                [0, 0, 0, ],
+                [0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, ],
+                [1, 1, 0, ],
+                [0, 0, 0, ],
+            ],
+        ])
+        # OR is X and AND is O.
+        # Any moves that lead to X winning will be considered "Proven".
+        # Any moves that cause X to lose or draw the game will be considered "Disproven".
+        # Any moves that allow the game to continue will be considered "Unknown".
+        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
+        tt = TicTacToeSimpleTranspositionTable()
+        agent = DFPN(evaluator, tt)
+        agent.generate_children()
+
+        phi, delta = agent.calculate_phi_delta(env=self.env)
+        # The phi number should be the smallest delta number of all of node's children.
+        # Child 2 should have a delta number of 0 because X wins in that state.
+        self.assertEqual(0, phi)
+        # The delta number should be sum of the phi numbers of all of node's children.
+        # Child 2 should have a phi number of INF, so the delta number should be at least INF.
+        self.assertGreaterEqual(delta, DFPN.INF)
 
 
 if __name__ == '__main__':

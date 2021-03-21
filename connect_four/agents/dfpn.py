@@ -92,7 +92,20 @@ class DFPN(Agent):
             phi (int): The phi number for the state env is currently in, calculated from its children.
             delta (int): The delta number for the state env is currently in, calculated from its children.
         """
-        pass
+        min_delta_of_children = DFPN.INF
+        sum_phi_of_children = 0
+
+        env_variables = env.env_variables
+        for action in env.actions():
+            obs, _, _, _ = env.step(action=action)
+
+            child_phi, child_delta = self.tt.retrieve(state=obs)
+            sum_phi_of_children += child_phi
+            min_delta_of_children = min(min_delta_of_children, child_delta)
+
+            env.reset(env_variables=env_variables)
+
+        return min_delta_of_children, sum_phi_of_children
 
     def select_child(self, env: TwoPlayerGameEnv) -> (int, int, int):
         """Selects the best action from the given state along with some metadata.
