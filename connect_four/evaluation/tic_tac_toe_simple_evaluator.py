@@ -2,6 +2,7 @@ import copy
 from connect_four.envs import TwoPlayerGameEnv
 from connect_four.evaluation import Evaluator, ProofStatus
 from connect_four.evaluation.evaluator import NodeType
+from typing import Sequence
 
 
 class TicTacToeSimpleEvaluator(Evaluator):
@@ -49,22 +50,16 @@ class TicTacToeSimpleEvaluator(Evaluator):
             return ProofStatus.Unknown
 
         # The game has ended, so we must be able to either Prove or Disprove this node.
-        if self.node_type == NodeType.AND:
-            # Player OR has connected three, indicating this node is proven.
-            if self.reward == TwoPlayerGameEnv.CONNECTED:
-                return ProofStatus.Proven
-
-            # The game has ended without player OR connecting three. This node is disproven.
-            return ProofStatus.Disproven
-
-        # self.node_type == NodeType.OR
-        # Player AND has played an invalid move, resulting in a win for OR, indicating this node is proven.
-        if self.reward == TwoPlayerGameEnv.INVALID_MOVE:
+        # Player OR has connected three, indicating this node is proven.
+        if self.node_type == NodeType.AND and self.reward == TwoPlayerGameEnv.CONNECTED:
             return ProofStatus.Proven
 
-        # The game has ended without AND losing, so OR has failed to prove this node.
+        # The game has ended without OR winning, so OR has failed to prove this node.
         return ProofStatus.Disproven
 
+    def actions(self) -> Sequence[int]:
+        return self.model.actions()
+
     @property
-    def action_space(self) -> int:
-        return self.model.action_space
+    def state(self):
+        return self.model.state

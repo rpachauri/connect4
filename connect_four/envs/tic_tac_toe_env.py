@@ -1,5 +1,7 @@
 import numpy as np
 
+from typing import Sequence
+
 from connect_four.envs import TwoPlayerGameEnv
 from connect_four.envs import TwoPlayerGameEnvVariables
 from connect_four.envs import connect_utils
@@ -26,12 +28,15 @@ class TicTacToeEnv(TwoPlayerGameEnv):
         Args:
           action (int):
         """
+        if action not in self.actions():
+            raise ValueError(action, "not in", self.actions())
+
         # Convert the action to a row and col in the TicTacToeEnv.
         row, col = self._action_to_square(action=action)
 
-        # Placing a token in a square that already contains a token is an invalid move.
-        if self._contains_token(row=row, col=col):
-            return self.state.copy(), TwoPlayerGameEnv.INVALID_MOVE, True, None
+        # # Placing a token in a square that already contains a token is an invalid move.
+        # if self._contains_token(row=row, col=col):
+        #     return self.state.copy(), TwoPlayerGameEnv.INVALID_MOVE, True, None
 
         # Place a token.
         self.state[self.player_turn, row, col] = 1
@@ -163,3 +168,11 @@ class TicTacToeEnv(TwoPlayerGameEnv):
     @staticmethod
     def _create_horizontal_divider():
         return "-*-*-\n"
+
+    def actions(self) -> Sequence[int]:
+        list_of_actions = []
+        for row in range(len(self.state[0])):
+            for col in range(len(self.state[0][0])):
+                if self.state[0][row][col] == 0 and self.state[1][row][col] == 0:
+                    list_of_actions.append(row * 3 + col)
+        return list_of_actions

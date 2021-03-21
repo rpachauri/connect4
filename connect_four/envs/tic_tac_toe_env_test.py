@@ -47,9 +47,9 @@ class TestTicTacToeEnv(unittest.TestCase):
         self.assertEqual(TwoPlayerGameEnv.DEFAULT_REWARD, reward)
         self.assertFalse(done)
 
-        _, reward, done, _ = self.env.step(action=0)
-        self.assertEqual(TwoPlayerGameEnv.INVALID_MOVE, reward)
-        self.assertTrue(done)
+        # Don't accept invalid moves.
+        with self.assertRaises(ValueError):
+            self.env.step(action=0)
 
     def test_step_connected_three(self):
         self.env.state = np.array([

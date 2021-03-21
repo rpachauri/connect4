@@ -1,3 +1,5 @@
+from typing import Sequence
+
 import numpy as np
 
 from connect_four.envs import TwoPlayerGameEnv
@@ -10,6 +12,7 @@ class ConnectFourEnv(TwoPlayerGameEnv):
   
     https://github.com/openai/gym/blob/master/gym/core.py.
     """
+
     # Dimension of the ConnectFour environment.
     M = 6
     N = 7
@@ -192,3 +195,6 @@ class ConnectFourEnv(TwoPlayerGameEnv):
         for i in range(ConnectFourEnv.N):
             wall += "="
         return wall + "*"
+
+    def actions(self) -> Sequence[int]:
+        pass

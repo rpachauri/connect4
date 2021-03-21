@@ -62,7 +62,7 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
     ###
     # The following test cases follow somewhat unintuitive naming conventions.
     # {AND, OR} indicates the terminal node.
-    # {CONNECTED, DRAW, INVALID_MOVE} indicates the reward returned upon arriving at the terminal node.
+    # {CONNECTED, DRAW} indicates the reward returned upon arriving at the terminal node.
     # This reward is given to the *opponent* of the player at the terminal node.
     ###
 
@@ -128,35 +128,13 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
         # Evaluation should return Proven.
         self.assertEqual(ProofStatus.Disproven, evaluator.evaluate())
 
-    def test_evaluate_OR_INVALID_MOVE(self):
-        # This tests for when AND plays an invalid move.
-        # The terminal state will be at OR.
-
-        # A single move is made. X plays in the top-left corner.
-        self.env.step(action=0)
-
-        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.AND)
-
-        # A second move is made. O plays in the top-left corner.
-        evaluator.move(action=0)
-
-        # The evaluator's internal model should be at a terminal state.
-        # The reward should just be the result of connecting three.
-        self.assertEqual(TwoPlayerGameEnv.INVALID_MOVE, evaluator.reward)
-        # The game should have ended.
-        self.assertTrue(evaluator.done)
-        # NodeType should always switch to the opponent.
-        self.assertEqual(NodeType.OR, evaluator.node_type)
-        # Evaluation should return Proven.
-        self.assertEqual(ProofStatus.Proven, evaluator.evaluate())
-
-    def test_evaluate_OR_CONNECTED(self):
-        # This tests for when AND connects three.
+    def test_evaluate_OR_DRAW(self):
+        # This tests for when AND has drawn the game.
         # The terminal state will be at OR.
         self.env.state = np.array([
             [
-                [1, 0, 0, ],
-                [0, 0, 0, ],
+                [0, 1, 0, ],
+                [0, 1, 1, ],
                 [1, 0, 0, ],
             ],
             [
@@ -165,7 +143,6 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
                 [0, 1, 0, ],
             ],
         ])
-        self.env.player_turn = 1
 
         evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.AND)
 
@@ -178,8 +155,40 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
         # The game should have ended.
         self.assertTrue(evaluator.done)
         # NodeType should always switch to the opponent.
-        self.assertEqual(NodeType.AND, evaluator.node_type)
-        # Evaluation should return Proven.
+        self.assertEqual(NodeType.OR, evaluator.node_type)
+        # Evaluation should return Disproven.
+        self.assertEqual(ProofStatus.Disproven, evaluator.evaluate())
+
+    def test_evaluate_OR_CONNECTED(self):
+        # Note that if AND wins or draws the game, then the node is Disproven because OR has not won the game.
+        # This tests for when AND connects three.
+        # The terminal state will be at OR.
+        self.env.state = np.array([
+            [
+                [1, 1, 0, ],
+                [0, 0, 0, ],
+                [0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, ],
+                [1, 1, 0, ],
+                [0, 0, 0, ],
+            ],
+        ])
+
+        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.AND)
+
+        # A single move is made. X plays in the top-right corner.
+        evaluator.move(action=2)
+
+        # The evaluator's internal model should be at a terminal state.
+        # The reward should just be the result of connecting three.
+        self.assertEqual(TwoPlayerGameEnv.CONNECTED, evaluator.reward)
+        # The game should have ended.
+        self.assertTrue(evaluator.done)
+        # NodeType should always switch to the opponent.
+        self.assertEqual(NodeType.OR, evaluator.node_type)
+        # Evaluation should return Disproven.
         self.assertEqual(ProofStatus.Disproven, evaluator.evaluate())
 
 

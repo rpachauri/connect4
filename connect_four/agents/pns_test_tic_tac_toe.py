@@ -26,7 +26,7 @@ class TestPNSTicTacToe(unittest.TestCase):
         node.expand(evaluator=evaluator)
 
         # There should be a child for every action in the action space.
-        self.assertEqual(evaluator.action_space, len(node.children))
+        self.assertEqual(len(evaluator.actions()), len(node.children))
         # Any created children should be AND Nodes.
         self.assertEqual(node.children[0], PNSNode(node_type=NodeType.AND))
 
@@ -39,13 +39,13 @@ class TestPNSTicTacToe(unittest.TestCase):
         node.update_tree(evaluator=evaluator)
 
         # There should be a child for every action in the action space.
-        self.assertEqual(evaluator.action_space, len(node.children))
+        self.assertEqual(len(evaluator.actions()), len(node.children))
 
         # Since all children were just created, they should each have a proof and disproof number of 1.
         # The proof number of an OR node is the smallest proof number of any child.
         self.assertEqual(1, node.proof)
         # The disproof number of an OR node is the sum disproof number of all children.
-        self.assertEqual(evaluator.action_space, node.disproof)
+        self.assertEqual(len(evaluator.actions()), node.disproof)
 
     def test_OR_PNSNode_update_tree_base_case_02_11_20_22(self):
         self.env.state = np.array([

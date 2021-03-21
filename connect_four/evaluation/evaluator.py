@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
+from typing import Sequence
 
 
 class ProofStatus(Enum):
@@ -37,6 +38,10 @@ class Evaluator(ABC):
 
     @property
     @abstractmethod
-    def action_space(self) -> int:
+    def actions(self) -> Sequence[int]:
         pass
 
+    @property
+    @abstractmethod
+    def state(self) -> int:
+        pass

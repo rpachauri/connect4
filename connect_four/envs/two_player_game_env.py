@@ -2,6 +2,7 @@ import gym
 
 from abc import ABC, abstractmethod
 from collections import namedtuple
+from typing import Sequence
 
 TwoPlayerGameEnvVariables = namedtuple("TwoPlayerGameEnvVariables", ["state", "player_turn"])
 
@@ -19,4 +20,8 @@ class TwoPlayerGameEnv(gym.Env, ABC):
 
     @abstractmethod
     def reset(self, env_variables: TwoPlayerGameEnvVariables = None):
+        pass
+
+    @abstractmethod
+    def actions(self) -> Sequence[int]:
         pass
