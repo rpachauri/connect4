@@ -1,12 +1,17 @@
+from typing import Union
+
 from connect_four.agents.agent import Agent
 from connect_four.envs import TwoPlayerGameEnv
-from connect_four.evaluation import ProofStatus, NodeType
+from connect_four.evaluation import ProofStatus, NodeType, Evaluator
+from connect_four.transposition import TranspositionTable
 
 
 class DFPN(Agent):
+    INF = 100000000000000
 
-    def __init__(self):
-        pass
+    def __init__(self, evaluator: Evaluator, tt: TranspositionTable):
+        self.evaluator = evaluator
+        self.tt = tt
 
     def depth_first_proof_number_search(self, env: TwoPlayerGameEnv) -> ProofStatus:
         """Performs depth-first proof-number search on the state env is currently in to (dis)prove the state.
@@ -27,13 +32,22 @@ class DFPN(Agent):
 
         Args:
             env (TwoPlayerGameEnv): a TwoPlayerGameEnv instance. It will be left in its given state.
-            phi_threshold (int): The maximum phi number of the current state before we start searching a sibling node.
-            delta_threshold: The maximum delta number of the current state before we start searching a sibling node.
+            phi_threshold (int): Maximum phi number of the current state before we start searching a sibling node.
+            delta_threshold (int): Maximum delta number of the current state before we start searching a sibling node.
 
         Returns:
             phi (int): the most recent phi number of the state at env.
             delta (int): the most recent delta number of the state at env.
         """
+        state = env.env_variables[0]
+
+        # Base case.
+        status = self.evaluator.evaluate()
+        if status != ProofStatus.Unknown:
+            phi, delta = self.determine_phi_delta(node_type=self.evaluator.node_type, status=status)
+            self.tt.save(state=state, phi=phi, delta=delta)
+            return phi, delta
+
         pass
 
     @staticmethod
@@ -51,10 +65,10 @@ class DFPN(Agent):
         if ((node_type == NodeType.OR and status == ProofStatus.Proven) or
                 (node_type == NodeType.AND and status == ProofStatus.Disproven)):
             # If an OR node has been proven or an AND node has been disproven, it has reached its goal.
-            return 0, float('inf')
+            return 0, DFPN.INF
 
         # If an OR node has been disproven or an AND node has been proven, it will never reach its goal.
-        return float('inf'), 0
+        return DFPN.INF, 0
 
     def calculate_phi_delta(self, env: TwoPlayerGameEnv) -> (int, int):
         """Calculates the phi/delta numbers of the state env is currently in base on the phi/delta numbers of
