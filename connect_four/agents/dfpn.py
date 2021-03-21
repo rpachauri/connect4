@@ -1,5 +1,3 @@
-from typing import Union
-
 from connect_four.agents.agent import Agent
 from connect_four.envs import TwoPlayerGameEnv
 from connect_four.evaluation import ProofStatus, NodeType, Evaluator
@@ -69,6 +67,19 @@ class DFPN(Agent):
 
         # If an OR node has been disproven or an AND node has been proven, it will never reach its goal.
         return DFPN.INF, 0
+
+    def generate_children(self):
+        for action in self.evaluator.actions():
+            self.evaluator.move(action=action)
+            status = self.evaluator.evaluate()
+
+            if status != ProofStatus.Unknown:
+                phi, delta = self.determine_phi_delta(node_type=self.evaluator.node_type, status=status)
+                self.tt.save(state=self.evaluator.state, phi=phi, delta=delta)
+            elif self.evaluator.state not in self.tt:  # ProofStatus is unknown and the state isn't already in the TT.
+                self.tt.save(state=self.evaluator.state, phi=1, delta=1)
+
+            self.evaluator.undo_move()
 
     def calculate_phi_delta(self, env: TwoPlayerGameEnv) -> (int, int):
         """Calculates the phi/delta numbers of the state env is currently in base on the phi/delta numbers of

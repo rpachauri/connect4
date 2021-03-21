@@ -26,3 +26,15 @@ class TranspositionTable(ABC):
             delta: the delta number of the state to retrieve.
         """
         pass
+
+    @abstractmethod
+    def __contains__(self, item):
+        """
+
+        Args:
+            item (State): a state in the state space of a TwoPlayerGameEnv.
+
+        Returns:
+            contained (bool): true if the state is contained in this TranspositionTable; otherwise, false.
+        """
+        pass

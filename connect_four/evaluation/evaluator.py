@@ -36,7 +36,6 @@ class Evaluator(ABC):
     def evaluate(self) -> ProofStatus:
         pass
 
-    @property
     @abstractmethod
     def actions(self) -> Sequence[int]:
         pass

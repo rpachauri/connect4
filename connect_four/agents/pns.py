@@ -81,7 +81,6 @@ class PNSNode:
                 self.disproof = 1
 
     def expand(self, evaluator: Evaluator):
-        # noinspection PyCallingNonCallable
         for action in evaluator.actions():
             # Create the child node.
             child = self._create_child(action=action)

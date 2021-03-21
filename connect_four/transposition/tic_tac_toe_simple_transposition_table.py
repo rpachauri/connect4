@@ -32,3 +32,15 @@ class TicTacToeSimpleTranspositionTable(TranspositionTable):
         """
         transposition = hash_position(state=state)
         return self.transposition_to_phi_delta_numbers[transposition]
+
+    def __contains__(self, item):
+        """
+
+        Args:
+            item (State): a state in the state space of a TwoPlayerGameEnv.
+
+        Returns:
+            contained (bool): true if the state is contained in this TranspositionTable; otherwise, false.
+        """
+        transposition = hash_position(state=item)
+        return transposition in self.transposition_to_phi_delta_numbers
