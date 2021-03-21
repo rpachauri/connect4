@@ -5,7 +5,9 @@ class TranspositionTable(ABC):
 
     @abstractmethod
     def save(self, state, proof: int, disproof: int):
-        """
+        """Saves state with the given proof and disproof numbers. Overwrites the proof/disproof numbers if
+        state is already saved in this TranspositionTable.
+
         Args:
             state (State): a state in the state space of a TwoPlayerGameEnv.
             proof (int): the proof number of the state to save.
