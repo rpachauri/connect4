@@ -20,11 +20,11 @@ class TestTicTacToeSimpleTranspositionTable(unittest.TestCase):
             ],
         ])
         tt = tic_tac_toe_simple_transposition_table.TicTacToeSimpleTranspositionTable()
-        want_proof, want_disproof = 1, 1
-        tt.save(state=state, proof=want_proof, disproof=want_disproof)
-        got_proof, got_disproof = tt.retrieve(state=state)
-        self.assertEqual(want_proof, got_proof)
-        self.assertEqual(want_disproof, got_disproof)
+        want_phi, want_delta = 1, 1
+        tt.save(state=state, phi=want_phi, delta=want_delta)
+        got_phi, got_delta = tt.retrieve(state=state)
+        self.assertEqual(want_phi, got_phi)
+        self.assertEqual(want_delta, got_delta)
 
     def test_overwrite_save(self):
         state = np.array([
@@ -40,13 +40,13 @@ class TestTicTacToeSimpleTranspositionTable(unittest.TestCase):
             ],
         ])
         tt = tic_tac_toe_simple_transposition_table.TicTacToeSimpleTranspositionTable()
-        tt.save(state=state, proof=1, disproof=1)
+        tt.save(state=state, phi=1, delta=1)
 
-        want_proof, want_disproof = 2, 2
-        tt.save(state=state, proof=want_proof, disproof=want_disproof)
-        got_proof, got_disproof = tt.retrieve(state=state)
-        self.assertEqual(want_proof, got_proof)
-        self.assertEqual(want_disproof, got_disproof)
+        want_phi, want_delta = 2, 2
+        tt.save(state=state, phi=want_phi, delta=want_delta)
+        got_phi, got_delta = tt.retrieve(state=state)
+        self.assertEqual(want_phi, got_phi)
+        self.assertEqual(want_delta, got_delta)
 
 
 if __name__ == '__main__':
