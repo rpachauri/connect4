@@ -1,7 +1,6 @@
 from connect_four.agents.agent import Agent
 from connect_four.envs import TwoPlayerGameEnv
-from connect_four.evaluation import ProofStatus
-from connect_four.evaluation.evaluator import NodeType
+from connect_four.evaluation import ProofStatus, NodeType
 
 
 class DFPN(Agent):
@@ -37,7 +36,8 @@ class DFPN(Agent):
         """
         pass
 
-    def determine_phi_delta(self, node_type: NodeType, status: ProofStatus) -> (int, int):
+    @staticmethod
+    def determine_phi_delta(node_type: NodeType, status: ProofStatus) -> (int, int):
         """Determines the phi/delta numbers of a (dis)proven AND/OR Node.
 
         Args:
@@ -48,7 +48,13 @@ class DFPN(Agent):
             phi (int): The phi number.
             delta (int): The delta number.
         """
-        pass
+        if ((node_type == NodeType.OR and status == ProofStatus.Proven) or
+                (node_type == NodeType.AND and status == ProofStatus.Disproven)):
+            # If an OR node has been proven or an AND node has been disproven, it has reached its goal.
+            return 0, float('inf')
+
+        # If an OR node has been disproven or an AND node has been proven, it will never reach its goal.
+        return float('inf'), 0
 
     def calculate_phi_delta(self, env: TwoPlayerGameEnv) -> (int, int):
         """Calculates the phi/delta numbers of the state env is currently in base on the phi/delta numbers of

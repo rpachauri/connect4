@@ -6,3 +6,4 @@ from connect_four.agents.minimax import Minimax
 from connect_four.agents.random_agent import RandomAgent
 from connect_four.agents.uct import UCT
 from connect_four.agents.pns import PNS
+from connect_four.agents.dfpn import DFPN
