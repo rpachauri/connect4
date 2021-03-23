@@ -5,6 +5,9 @@ from connect_four.transposition import TranspositionTable
 
 
 class DFPN(Agent):
+    # Python 3 doesn't have an infinity for ints. It does have one for floats, but that led to messy
+    # code (in terms of type hints). This constant is a large enough int that no node should ever reach
+    # a (dis)proof number this high.
     INF = 100000000000000
 
     def __init__(self, evaluator: Evaluator, tt: TranspositionTable):
@@ -37,16 +40,33 @@ class DFPN(Agent):
             phi (int): the most recent phi number of the state at env.
             delta (int): the most recent delta number of the state at env.
         """
-        state = env.env_variables[0]
+        env_variables = env.env_variables
+        state = env_variables[0]
 
-        # Base case.
-        status = self.evaluator.evaluate()
-        if status != ProofStatus.Unknown:
-            phi, delta = self.determine_phi_delta(node_type=self.evaluator.node_type, status=status)
-            self.tt.save(state=state, phi=phi, delta=delta)
-            return phi, delta
+        self.generate_children()
+        phi, delta = self.calculate_phi_delta(env=env)
 
-        pass
+        while phi_threshold > phi and delta_threshold > delta:
+            best_action, phi_c, delta_2 = self.select_child(env=env)
+
+            env.step(action=best_action)
+            self.evaluator.move(action=best_action)
+
+            child_phi_threshold = delta_threshold - delta + phi_c
+            child_delta_threshold = min(phi_threshold, delta_2 + 1)
+            self.multiple_iterative_deepening(
+                env=env,
+                phi_threshold=child_phi_threshold,
+                delta_threshold=child_delta_threshold,
+            )
+
+            env.reset(env_variables=env_variables)
+            self.evaluator.undo_move()
+
+            phi, delta = self.calculate_phi_delta(env=env)
+
+        self.tt.save(state=state, phi=phi, delta=delta)
+        return phi, delta
 
     @staticmethod
     def determine_phi_delta(node_type: NodeType, status: ProofStatus) -> (int, int):
@@ -118,7 +138,27 @@ class DFPN(Agent):
             phi_c (int): The phi number of the best child.
             delta_2 (int): The second smallest delta number that belongs to a child of the given state.
         """
-        pass
+        best_action = -1
+        best_child_phi = DFPN.INF
+        second_best_child_delta = DFPN.INF
+        best_child_delta = DFPN.INF
+
+        env_variables = env.env_variables
+        for action in env.actions():
+            obs, _, _, _ = env.step(action=action)
+
+            child_phi, child_delta = self.tt.retrieve(state=obs)
+            if child_delta < best_child_delta:
+                best_action = action
+                best_child_phi = child_phi
+                second_best_child_delta = best_child_delta
+                best_child_delta = child_delta
+            elif child_delta < second_best_child_delta:
+                second_best_child_delta = child_delta
+
+            env.reset(env_variables=env_variables)
+
+        return best_action, best_child_phi, second_best_child_delta
 
     def action(self, env, last_action=None):
         """
