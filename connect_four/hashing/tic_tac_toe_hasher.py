@@ -1,4 +1,19 @@
+from collections import namedtuple
 from connect_four.hashing import Hasher
+
+Square = namedtuple("Square", ["row", "col"])
+Group = namedtuple("Group", ["squares"])
+
+ALL_GROUPS = [
+    frozenset([Square(row=0, col=0), Square(row=0, col=1), Square(row=0, col=2)]),
+    frozenset([Square(row=1, col=0), Square(row=1, col=1), Square(row=1, col=2)]),
+    frozenset([Square(row=2, col=0), Square(row=2, col=1), Square(row=2, col=2)]),
+    frozenset([Square(row=0, col=0), Square(row=1, col=0), Square(row=2, col=0)]),
+    frozenset([Square(row=0, col=1), Square(row=1, col=1), Square(row=2, col=1)]),
+    frozenset([Square(row=0, col=2), Square(row=1, col=2), Square(row=2, col=2)]),
+    frozenset([Square(row=0, col=0), Square(row=1, col=1), Square(row=2, col=2)]),
+    frozenset([Square(row=2, col=0), Square(row=1, col=1), Square(row=0, col=2)]),
+]
 
 
 class TicTacToeHasher(Hasher):
