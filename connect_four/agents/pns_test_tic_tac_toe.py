@@ -152,6 +152,13 @@ class TestPNSTicTacToe(unittest.TestCase):
         action = pns.action(env=self.env, last_action=8)
         self.assertEqual(0, action)
 
+    def test_update_tree_initial_state(self):
+        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
+        pns = PNS(evaluator=evaluator)
+        while pns.root.proof != 0 and pns.root.disproof != 0:
+            pns.root.update_tree(evaluator=pns.evaluator)
+        self.assertEqual(0, pns.root.disproof)
+
 
 if __name__ == '__main__':
     unittest.main()

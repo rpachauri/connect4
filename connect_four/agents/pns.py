@@ -107,7 +107,7 @@ class PNSNode:
 
     def select_most_proving_child(self) -> (int, PNSNode):
         value = float('inf')
-        best_action = -1
+        best_action = 0
         if self.node_type == NodeType.OR:
             # Select the child with the smallest proof number.
             for action in self.children:
