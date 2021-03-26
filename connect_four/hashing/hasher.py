@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 
 
-# noinspection SpellCheckingInspection
 class Hasher(ABC):
 
     @abstractmethod
