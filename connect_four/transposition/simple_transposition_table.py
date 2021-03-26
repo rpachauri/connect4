@@ -2,7 +2,7 @@ from connect_four.transposition import TranspositionTable
 from connect_four.transposition import hash_position
 
 
-class TicTacToeSimpleTranspositionTable(TranspositionTable):
+class SimpleTranspositionTable(TranspositionTable):
     def __init__(self):
         self.transposition_to_phi_delta_numbers = {}
 

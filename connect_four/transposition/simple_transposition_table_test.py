@@ -2,10 +2,10 @@ import unittest
 
 import numpy as np
 
-from connect_four.transposition import tic_tac_toe_simple_transposition_table
+from connect_four.transposition import simple_transposition_table
 
 
-class TestTicTacToeSimpleTranspositionTable(unittest.TestCase):
+class TestSimpleTranspositionTable(unittest.TestCase):
     def test_save_and_retrieve_initial_state_1_and_1(self):
         state = np.array([
             [
@@ -19,7 +19,7 @@ class TestTicTacToeSimpleTranspositionTable(unittest.TestCase):
                 [0, 0, 0, ],
             ],
         ])
-        tt = tic_tac_toe_simple_transposition_table.TicTacToeSimpleTranspositionTable()
+        tt = simple_transposition_table.SimpleTranspositionTable()
         want_phi, want_delta = 1, 1
         tt.save(state=state, phi=want_phi, delta=want_delta)
         got_phi, got_delta = tt.retrieve(state=state)
@@ -39,7 +39,7 @@ class TestTicTacToeSimpleTranspositionTable(unittest.TestCase):
                 [0, 0, 0, ],
             ],
         ])
-        tt = tic_tac_toe_simple_transposition_table.TicTacToeSimpleTranspositionTable()
+        tt = simple_transposition_table.SimpleTranspositionTable()
         tt.save(state=state, phi=1, delta=1)
 
         want_phi, want_delta = 2, 2

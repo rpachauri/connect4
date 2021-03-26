@@ -6,7 +6,7 @@ import numpy as np
 from connect_four.agents import DFPN
 from connect_four.evaluation import NodeType
 from connect_four.evaluation.tic_tac_toe_simple_evaluator import TicTacToeSimpleEvaluator
-from connect_four.transposition.tic_tac_toe_simple_transposition_table import TicTacToeSimpleTranspositionTable
+from connect_four.transposition.simple_transposition_table import SimpleTranspositionTable
 
 
 class TestDFPNTicTacToe(unittest.TestCase):
@@ -19,7 +19,7 @@ class TestDFPNTicTacToe(unittest.TestCase):
 
     def test_generate_children_initial_state(self):
         evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
-        tt = TicTacToeSimpleTranspositionTable()
+        tt = SimpleTranspositionTable()
         agent = DFPN(evaluator, tt)
 
         agent.generate_children()
@@ -59,7 +59,7 @@ class TestDFPNTicTacToe(unittest.TestCase):
         # Any moves that cause X to lose or draw the game will be considered "Disproven".
         # Any moves that allow the game to continue will be considered "Unknown".
         evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
-        tt = TicTacToeSimpleTranspositionTable()
+        tt = SimpleTranspositionTable()
         agent = DFPN(evaluator, tt)
 
         agent.generate_children()
@@ -105,7 +105,7 @@ class TestDFPNTicTacToe(unittest.TestCase):
 
     def test_calculate_phi_delta_initial_state(self):
         evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
-        tt = TicTacToeSimpleTranspositionTable()
+        tt = SimpleTranspositionTable()
         agent = DFPN(evaluator, tt)
 
         agent.generate_children()
@@ -142,7 +142,7 @@ class TestDFPNTicTacToe(unittest.TestCase):
         # Any moves that cause X to lose or draw the game will be considered "Disproven".
         # Any moves that allow the game to continue will be considered "Unknown".
         evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
-        tt = TicTacToeSimpleTranspositionTable()
+        tt = SimpleTranspositionTable()
         agent = DFPN(evaluator, tt)
 
         agent.generate_children()
@@ -176,7 +176,7 @@ class TestDFPNTicTacToe(unittest.TestCase):
         # Any moves that cause X to lose or draw the game will be considered "Disproven".
         # Any moves that allow the game to continue will be considered "Unknown".
         evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
-        tt = TicTacToeSimpleTranspositionTable()
+        tt = SimpleTranspositionTable()
         agent = DFPN(evaluator, tt)
 
         # The given node should be easily proven even with phi/delta thresholds of 1.
@@ -207,7 +207,7 @@ class TestDFPNTicTacToe(unittest.TestCase):
         ])
         self.env.player_turn = 1
         evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.AND)
-        tt = TicTacToeSimpleTranspositionTable()
+        tt = SimpleTranspositionTable()
         agent = DFPN(evaluator, tt)
 
         # The given node should be easily proven even with phi/delta thresholds of 1.
@@ -223,7 +223,7 @@ class TestDFPNTicTacToe(unittest.TestCase):
     def test_multiple_iterative_deepening_OR_Disproven_initial_state(self):
         # The initial state of Tic-Tac-Toe is a known draw, which means it is disproven for OR.
         evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
-        tt = TicTacToeSimpleTranspositionTable()
+        tt = SimpleTranspositionTable()
         agent = DFPN(evaluator, tt)
 
         # The given node should be easily proven even with phi/delta thresholds of 1.
