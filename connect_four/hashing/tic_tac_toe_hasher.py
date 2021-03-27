@@ -1,5 +1,6 @@
 from collections import namedtuple
 from connect_four.hashing import Hasher
+from enum import Enum
 
 Square = namedtuple("Square", ["row", "col"])
 Group = namedtuple("Group", ["squares"])
@@ -14,6 +15,21 @@ ALL_GROUPS = [
     Group(squares=frozenset([Square(row=0, col=0), Square(row=1, col=1), Square(row=2, col=2)])),
     Group(squares=frozenset([Square(row=2, col=0), Square(row=1, col=1), Square(row=0, col=2)])),
 ]
+
+
+class SquareType(Enum):
+    Empty = 0
+    Indifferent = 1
+    Player1 = 2
+    Player2 = 3
+
+
+SQUARE_TYPE_TO_SQUARE_CHAR = {
+    SquareType.Empty: "0",
+    SquareType.Indifferent: "3",
+    SquareType.Player1: "1",
+    SquareType.Player2: "2",
+}
 
 
 class TicTacToeHasher(Hasher):
@@ -39,8 +55,14 @@ class TicTacToeHasher(Hasher):
                 player_squares.append(rows)
             self.groups_by_squares.append(player_squares)
 
-        # TODO define self.square_types.
-        pass
+        self.square_types = []
+        for row in range(3):
+            rows = []
+            for col in range(3):
+                rows.append(SquareType.Empty)
+            self.square_types.append(rows)
+
+        self.player = 0
 
     def move(self, action: int):
         """

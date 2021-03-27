@@ -3,6 +3,7 @@ import unittest
 from connect_four.hashing import TicTacToeHasher
 from connect_four.hashing.tic_tac_toe_hasher import Square
 from connect_four.hashing.tic_tac_toe_hasher import Group
+from connect_four.hashing.tic_tac_toe_hasher import SquareType
 
 
 class TestTicTacToeHasher(unittest.TestCase):
@@ -19,6 +20,7 @@ class TestTicTacToeHasher(unittest.TestCase):
         self.hasher = TicTacToeHasher()
 
     def test_init(self):
+        # Validate expected groups.
         want_player_0_groups_at_00 = {
             TestTicTacToeHasher.GROUP_00_TO_02,
             TestTicTacToeHasher.GROUP_00_TO_22,
@@ -35,6 +37,12 @@ class TestTicTacToeHasher(unittest.TestCase):
         }
         got_player_0_groups_at_11 = self.hasher.groups_by_squares[0][1][1]
         self.assertEqual(want_player_0_groups_at_11, got_player_0_groups_at_11)
+
+        # Validate expected square types.
+        self.assertEqual(SquareType.Empty, self.hasher.square_types[0][0])
+
+        # Validate current player.
+        self.assertEqual(0, self.hasher.player)
 
 
 if __name__ == '__main__':
