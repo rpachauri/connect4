@@ -1,5 +1,6 @@
-from collections import namedtuple
+import numpy as np
 
+from collections import namedtuple
 from connect_four.envs import TicTacToeEnv
 from connect_four.hashing import Hasher
 from enum import Enum
@@ -101,7 +102,7 @@ class TicTacToeHasher(Hasher):
             for s in g.squares:
                 self.groups_by_squares[opponent][s.row][s.col].discard(g)
                 if (not self.groups_by_squares[opponent][s.row][s.col]) and \
-                        (not self.groups_by_squares[self.player][s.row][s.col]):
+                        (not self.groups_by_squares[player][s.row][s.col]):
                     indifferent_squares.add(s)
 
         # Change the square types of indifferent squares.
@@ -128,4 +129,38 @@ class TicTacToeHasher(Hasher):
             hash (str): a unique hash of the current state.
                         The encoding is a perfect hash (meaning there will be no collisions).
         """
-        pass
+        transposition_arr = self._convert_square_types_to_transposition_arr()
+        transposition = self._get_transposition(transposition_arr=transposition_arr)
+
+        for k in range(3):
+            rotated_transposition = self._get_transposition(transposition_arr=np.rot90(m=transposition_arr, k=k))
+            if rotated_transposition < transposition:
+                transposition = rotated_transposition
+        flipped = np.fliplr(m=transposition_arr)
+        for k in range(4):
+            flipped_rotated_transposition = self._get_transposition(transposition_arr=np.rot90(m=flipped, k=k))
+            if flipped_rotated_transposition < transposition:
+                transposition = flipped_rotated_transposition
+
+        return transposition
+
+    def _convert_square_types_to_transposition_arr(self):
+        transposition_arr = []
+        for row in range(3):
+            cols = []
+            for col in range(3):
+                cols.append(SQUARE_TYPE_TO_SQUARE_CHAR[self.square_types[row][col]])
+            transposition_arr.append(cols)
+        return np.array(transposition_arr)
+
+    @staticmethod
+    def _get_transposition(transposition_arr):
+        return f'{transposition_arr[0][0]}' + \
+               f'{transposition_arr[0][1]}' + \
+               f'{transposition_arr[0][2]}' + \
+               f'{transposition_arr[1][0]}' + \
+               f'{transposition_arr[1][1]}' + \
+               f'{transposition_arr[1][2]}' + \
+               f'{transposition_arr[2][0]}' + \
+               f'{transposition_arr[2][1]}' + \
+               f'{transposition_arr[2][2]}'
