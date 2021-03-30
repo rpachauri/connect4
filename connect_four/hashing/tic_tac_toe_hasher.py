@@ -59,6 +59,10 @@ class TicTacToeHasher(Hasher):
                 player_squares.append(rows)
             self.groups_by_squares.append(player_squares)
 
+        assert len(self.groups_by_squares) == 2, "number of players = %d" % len(self.groups_by_squares)
+        assert len(self.groups_by_squares[0]) == 3, "number of rows = %d" % len(self.groups_by_squares[0])
+        assert len(self.groups_by_squares[0][0]) == 3, "number of cols = %d" % len(self.groups_by_squares[0][0])
+
         self.square_types = []
         for row in range(3):
             rows = []
@@ -87,7 +91,7 @@ class TicTacToeHasher(Hasher):
             action (int): a valid action in the current state of Tic-Tac-Toe.
         """
         # Convert action into (row, col).
-        row, col = action // 2, action % 2
+        row, col = action // 3, action % 3
 
         groups_removed_by_squares, previous_square_types = self._play_square(player=self.player, row=row, col=col)
         self.groups_removed_by_squares_by_move.append(groups_removed_by_squares)
@@ -117,9 +121,16 @@ class TicTacToeHasher(Hasher):
         groups = self.groups_by_squares[opponent][row][col].copy()
         groups_removed_by_square = {}
 
+        if player == 0:
+            self.square_types[row][col] = SquareType.Player1
+        else:
+            self.square_types[row][col] = SquareType.Player2
+
         # Change groups_by_squares to reflect that the opponent cannot win using any group in groups.
         # Also, find all indifferent squares.
         indifferent_squares = set()
+        if not groups:
+            indifferent_squares.add(Square(row=row, col=col))
         for g in groups:
             for s in g.squares:
                 # If the opponent could win using this group, they no longer can.
@@ -134,7 +145,8 @@ class TicTacToeHasher(Hasher):
                     groups_removed_by_square[s].add(g)
 
                 # If neither player can win any groups at this square, this square is indifferent.
-                if (not self.groups_by_squares[opponent][s.row][s.col]) and \
+                if (self.square_types[s.row][s.col] != SquareType.Empty) and \
+                        (not self.groups_by_squares[opponent][s.row][s.col]) and \
                         (not self.groups_by_squares[player][s.row][s.col]):
                     indifferent_squares.add(s)
 
@@ -143,13 +155,6 @@ class TicTacToeHasher(Hasher):
         for s in indifferent_squares:
             previous_square_types[s] = self.square_types[s.row][s.col]
             self.square_types[s.row][s.col] = SquareType.Indifferent
-
-        # If the played square does not immediately become an indifferent square, it belongs to the player.
-        if Square(row=row, col=col) not in indifferent_squares:
-            if player == 0:
-                self.square_types[row][col] = SquareType.Player1
-            else:
-                self.square_types[row][col] = SquareType.Player2
 
         previous_square_types[Square(row=row, col=col)] = SquareType.Empty
 
@@ -205,12 +210,4 @@ class TicTacToeHasher(Hasher):
 
     @staticmethod
     def _get_transposition(transposition_arr):
-        return f'{transposition_arr[0][0]}' + \
-               f'{transposition_arr[0][1]}' + \
-               f'{transposition_arr[0][2]}' + \
-               f'{transposition_arr[1][0]}' + \
-               f'{transposition_arr[1][1]}' + \
-               f'{transposition_arr[1][2]}' + \
-               f'{transposition_arr[2][0]}' + \
-               f'{transposition_arr[2][1]}' + \
-               f'{transposition_arr[2][2]}'
+        return f'{transposition_arr[0][0]}{transposition_arr[0][1]}{transposition_arr[0][2]}{transposition_arr[1][0]}{transposition_arr[1][1]}{transposition_arr[1][2]}{transposition_arr[2][0]}{transposition_arr[2][1]}{transposition_arr[2][2]}'

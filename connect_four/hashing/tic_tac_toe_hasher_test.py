@@ -282,6 +282,30 @@ class TestTicTacToeHasher(unittest.TestCase):
         self.assertFalse(self.hasher.groups_removed_by_squares_by_move)
         self.assertFalse(self.hasher.previous_square_types_by_move)
 
+    def test_move_to_drawn_terminal_state(self):
+        self.env.state = np.array([
+            [
+                [1, 1, 0, ],
+                [0, 0, 1, ],
+                [1, 0, 0, ],
+            ],
+            [
+                [0, 0, 1, ],
+                [1, 0, 0, ],
+                [0, 1, 1, ],
+            ],
+        ])
+        self.hasher = TicTacToeHasher(env=self.env)
+
+        want_transposition = "333303333"
+        got_transposition = self.hasher.hash()
+        self.assertEqual(want_transposition, got_transposition)
+
+        self.hasher.move(action=4)
+        want_transposition = "333333333"
+        got_transposition = self.hasher.hash()
+        self.assertEqual(want_transposition, got_transposition)
+
 
 if __name__ == '__main__':
     unittest.main()

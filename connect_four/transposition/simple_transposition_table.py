@@ -1,5 +1,4 @@
 from connect_four.transposition import TranspositionTable
-from connect_four.transposition import hash_position
 
 
 class SimpleTranspositionTable(TranspositionTable):

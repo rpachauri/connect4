@@ -1,6 +1,7 @@
 from connect_four.agents.agent import Agent
 from connect_four.envs import TwoPlayerGameEnv
 from connect_four.evaluation import ProofStatus, NodeType, Evaluator
+from connect_four.hashing import Hasher
 from connect_four.transposition import TranspositionTable
 
 
@@ -10,8 +11,9 @@ class DFPN(Agent):
     # a (dis)proof number this high.
     INF = 100000000000000
 
-    def __init__(self, evaluator: Evaluator, tt: TranspositionTable):
+    def __init__(self, evaluator: Evaluator, hasher: Hasher, tt: TranspositionTable):
         self.evaluator = evaluator
+        self.hasher = hasher
         self.tt = tt
 
     def depth_first_proof_number_search(self, env: TwoPlayerGameEnv) -> ProofStatus:
@@ -41,16 +43,17 @@ class DFPN(Agent):
             delta (int): the most recent delta number of the state at env.
         """
         env_variables = env.env_variables
-        state = env_variables[0]
+        # state = env_variables[0]
 
         self.generate_children()
-        phi, delta = self.calculate_phi_delta(env=env)
+        phi, delta = self.calculate_phi_delta()
 
         while phi_threshold > phi and delta_threshold > delta:
             best_action, phi_c, delta_2 = self.select_child(env=env)
 
             env.step(action=best_action)
             self.evaluator.move(action=best_action)
+            self.hasher.move(action=best_action)
 
             child_phi_threshold = delta_threshold - delta + phi_c
             child_delta_threshold = min(phi_threshold, delta_2 + 1)
@@ -62,10 +65,12 @@ class DFPN(Agent):
 
             env.reset(env_variables=env_variables)
             self.evaluator.undo_move()
+            self.hasher.undo_move()
 
-            phi, delta = self.calculate_phi_delta(env=env)
+            phi, delta = self.calculate_phi_delta()
 
-        self.tt.save(transposition=state, phi=phi, delta=delta)
+        transposition = self.hasher.hash()
+        self.tt.save(transposition=transposition, phi=phi, delta=delta)
         return phi, delta
 
     @staticmethod
@@ -91,22 +96,24 @@ class DFPN(Agent):
     def generate_children(self):
         for action in self.evaluator.actions():
             self.evaluator.move(action=action)
+            self.hasher.move(action=action)
             status = self.evaluator.evaluate()
+            transposition = self.hasher.hash()
 
             if status != ProofStatus.Unknown:
                 phi, delta = self.determine_phi_delta(node_type=self.evaluator.node_type, status=status)
-                self.tt.save(transposition=self.evaluator.state, phi=phi, delta=delta)
-            elif self.evaluator.state not in self.tt:  # ProofStatus is unknown and the state isn't already in the TT.
-                self.tt.save(transposition=self.evaluator.state, phi=1, delta=1)
+                self.tt.save(transposition=transposition, phi=phi, delta=delta)
+            elif transposition not in self.tt:  # ProofStatus is unknown and the state isn't already in the TT.
+                self.tt.save(transposition=transposition, phi=1, delta=1)
 
             self.evaluator.undo_move()
+            self.hasher.undo_move()
 
-    def calculate_phi_delta(self, env: TwoPlayerGameEnv) -> (int, int):
+    def calculate_phi_delta(self) -> (int, int):
         """Calculates the phi/delta numbers of the state env is currently in base on the phi/delta numbers of
         the state's children.
 
         Args:
-            env (TwoPlayerGameEnv): a TwoPlayerGameEnv instance. It will be left in its given state.
 
         Returns:
             phi (int): The phi number for the state env is currently in, calculated from its children.
@@ -115,15 +122,18 @@ class DFPN(Agent):
         min_delta_of_children = DFPN.INF
         sum_phi_of_children = 0
 
-        env_variables = env.env_variables
-        for action in env.actions():
-            obs, _, _, _ = env.step(action=action)
+        # env_variables = env.env_variables
+        for action in self.evaluator.actions():
+            # env.step(action=action)
+            self.hasher.move(action=action)
 
-            child_phi, child_delta = self.tt.retrieve(transposition=obs)
+            transposition = self.hasher.hash()
+            child_phi, child_delta = self.tt.retrieve(transposition=transposition)
             sum_phi_of_children += child_phi
             min_delta_of_children = min(min_delta_of_children, child_delta)
 
-            env.reset(env_variables=env_variables)
+            # env.reset(env_variables=env_variables)
+            self.hasher.undo_move()
 
         return min_delta_of_children, sum_phi_of_children
 
@@ -146,8 +156,9 @@ class DFPN(Agent):
         env_variables = env.env_variables
         for action in env.actions():
             obs, _, _, _ = env.step(action=action)
+            self.hasher.move(action=action)
 
-            child_phi, child_delta = self.tt.retrieve(transposition=obs)
+            child_phi, child_delta = self.tt.retrieve(transposition=self.hasher.hash())
             if child_delta < best_child_delta:
                 best_action = action
                 best_child_phi = child_phi
@@ -157,6 +168,7 @@ class DFPN(Agent):
                 second_best_child_delta = child_delta
 
             env.reset(env_variables=env_variables)
+            self.hasher.undo_move()
 
         return best_action, best_child_phi, second_best_child_delta
 

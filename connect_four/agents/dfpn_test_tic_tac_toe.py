@@ -6,6 +6,7 @@ import numpy as np
 from connect_four.agents import DFPN
 from connect_four.evaluation import NodeType
 from connect_four.evaluation.tic_tac_toe_simple_evaluator import TicTacToeSimpleEvaluator
+from connect_four.hashing import TicTacToeHasher
 from connect_four.transposition.simple_transposition_table import SimpleTranspositionTable
 
 
@@ -19,25 +20,15 @@ class TestDFPNTicTacToe(unittest.TestCase):
 
     def test_generate_children_initial_state(self):
         evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
+        hasher = TicTacToeHasher(env=self.env)
         tt = SimpleTranspositionTable()
-        agent = DFPN(evaluator, tt)
+        agent = DFPN(evaluator, hasher, tt)
 
         agent.generate_children()
         # Make sure at least one of the children is in the TT.
         # Looping isn't ideal for testing and manually testing all 9 children would lead to a long test.
-        child_0 = np.array([
-            [
-                [1, 0, 0, ],
-                [0, 0, 0, ],
-                [0, 0, 0, ],
-            ],
-            [
-                [0, 0, 0, ],
-                [0, 0, 0, ],
-                [0, 0, 0, ],
-            ],
-        ])
-        phi, delta = tt.retrieve()
+        hasher.move(action=0)
+        phi, delta = tt.retrieve(transposition=hasher.hash())
         self.assertEqual(1, phi)
         self.assertEqual(1, delta)
 
@@ -59,8 +50,9 @@ class TestDFPNTicTacToe(unittest.TestCase):
         # Any moves that cause X to lose or draw the game will be considered "Disproven".
         # Any moves that allow the game to continue will be considered "Unknown".
         evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
+        hasher = TicTacToeHasher(env=self.env)
         tt = SimpleTranspositionTable()
-        agent = DFPN(evaluator, tt)
+        agent = DFPN(evaluator, hasher, tt)
 
         agent.generate_children()
 
@@ -68,49 +60,29 @@ class TestDFPNTicTacToe(unittest.TestCase):
         # so their phi/delta numbers will be the opposite of what you'd expect for an OR node.
 
         # Verify that any moves that lead to X winning will be considered "Proven".
-        child_2 = np.array([
-            [
-                [1, 1, 1, ],
-                [0, 0, 0, ],
-                [0, 0, 0, ],
-            ],
-            [
-                [0, 0, 0, ],
-                [1, 1, 0, ],
-                [0, 0, 0, ],
-            ],
-        ])
-        phi, delta = tt.retrieve()
+        hasher.move(action=2)
+        phi, delta = tt.retrieve(transposition=hasher.hash())
+        hasher.undo_move()
         # Since child_2 is an AND node, the phi number is INF because it is impossible to disprove the node.
         self.assertEqual(DFPN.INF, phi)
         self.assertEqual(0, delta)
 
         # Verify that any moves that allow the game to continue will be considered "Unknown".
-        child_5 = np.array([
-            [
-                [1, 1, 0, ],
-                [0, 0, 1, ],
-                [0, 0, 0, ],
-            ],
-            [
-                [0, 0, 0, ],
-                [1, 1, 0, ],
-                [0, 0, 0, ],
-            ],
-        ])
-        phi, delta = tt.retrieve()
-        # Since child_2 is an AND node, the phi number is 0 because it is impossible to disprove the node.
+        hasher.move(action=5)
+        phi, delta = tt.retrieve(transposition=hasher.hash())
+        # Since child_2 is an AND node, the phi number is 0 because it disproved the node.
         self.assertEqual(1, phi)
         self.assertEqual(1, delta)
 
     def test_calculate_phi_delta_initial_state(self):
         evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
+        hasher = TicTacToeHasher(env=self.env)
         tt = SimpleTranspositionTable()
-        agent = DFPN(evaluator, tt)
+        agent = DFPN(evaluator, hasher, tt)
 
         agent.generate_children()
         untouched_env_variables = self.env.env_variables
-        phi, delta = agent.calculate_phi_delta(env=self.env)
+        phi, delta = agent.calculate_phi_delta()
 
         # Verify the environment is reset back to what it was originally.
         self.assertIsNone(np.testing.assert_array_equal(
@@ -142,11 +114,12 @@ class TestDFPNTicTacToe(unittest.TestCase):
         # Any moves that cause X to lose or draw the game will be considered "Disproven".
         # Any moves that allow the game to continue will be considered "Unknown".
         evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
+        hasher = TicTacToeHasher(env=self.env)
         tt = SimpleTranspositionTable()
-        agent = DFPN(evaluator, tt)
+        agent = DFPN(evaluator, hasher, tt)
 
         agent.generate_children()
-        phi, delta = agent.calculate_phi_delta(env=self.env)
+        phi, delta = agent.calculate_phi_delta()
         # The phi number should be the smallest delta number of all of node's children.
         # Child 2 should have a delta number of 0 because X wins in that state.
         # This means the phi number of the OR node should be 0.
@@ -176,8 +149,9 @@ class TestDFPNTicTacToe(unittest.TestCase):
         # Any moves that cause X to lose or draw the game will be considered "Disproven".
         # Any moves that allow the game to continue will be considered "Unknown".
         evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
+        hasher = TicTacToeHasher(env=self.env)
         tt = SimpleTranspositionTable()
-        agent = DFPN(evaluator, tt)
+        agent = DFPN(evaluator, hasher, tt)
 
         # The given node should be easily proven even with phi/delta thresholds of 1.
         phi, delta = agent.multiple_iterative_deepening(env=self.env, phi_threshold=1, delta_threshold=1)
@@ -207,8 +181,9 @@ class TestDFPNTicTacToe(unittest.TestCase):
         ])
         self.env.player_turn = 1
         evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.AND)
+        hasher = TicTacToeHasher(env=self.env)
         tt = SimpleTranspositionTable()
-        agent = DFPN(evaluator, tt)
+        agent = DFPN(evaluator, hasher, tt)
 
         # The given node should be easily proven even with phi/delta thresholds of 1.
         phi, delta = agent.multiple_iterative_deepening(env=self.env, phi_threshold=DFPN.INF, delta_threshold=DFPN.INF)
@@ -223,8 +198,9 @@ class TestDFPNTicTacToe(unittest.TestCase):
     def test_multiple_iterative_deepening_OR_Disproven_initial_state(self):
         # The initial state of Tic-Tac-Toe is a known draw, which means it is disproven for OR.
         evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
+        hasher = TicTacToeHasher(env=self.env)
         tt = SimpleTranspositionTable()
-        agent = DFPN(evaluator, tt)
+        agent = DFPN(evaluator, hasher, tt)
 
         # The given node should be easily proven even with phi/delta thresholds of 1.
         phi, delta = agent.multiple_iterative_deepening(env=self.env, phi_threshold=DFPN.INF, delta_threshold=DFPN.INF)
@@ -235,6 +211,36 @@ class TestDFPNTicTacToe(unittest.TestCase):
         # Since we are currently at an OR node and this node should have been disproven,
         # delta should be 0.
         self.assertEqual(0, delta)
+
+    def test_multiple_iterative_deepening_AND_Disproven_near_terminal_state(self):
+        # In this state, AND is to move but the game is a draw.
+        self.env.state = np.array([
+            [
+                [1, 1, 0, ],
+                [0, 0, 1, ],
+                [1, 0, 0, ],
+            ],
+            [
+                [0, 0, 1, ],
+                [0, 0, 0, ],
+                [0, 1, 1, ],
+            ],
+        ])
+        self.env.player_turn = 1
+        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.AND)
+        hasher = TicTacToeHasher(env=self.env)
+        tt = SimpleTranspositionTable()
+        agent = DFPN(evaluator, hasher, tt)
+
+        # The given node should be disproven with phi/delta thresholds of 4.
+        phi, delta = agent.multiple_iterative_deepening(env=self.env, phi_threshold=4, delta_threshold=4)
+
+        # Since we are currently at an AND node and this node should have been disproven,
+        # phi should be 0.
+        self.assertEqual(0, phi)
+        # Since we are currently at an OR node and this node should have been disproven,
+        # delta should be at least INF.
+        self.assertGreaterEqual(delta, DFPN.INF)
 
 
 if __name__ == '__main__':
