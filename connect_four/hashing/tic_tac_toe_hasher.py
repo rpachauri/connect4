@@ -169,6 +169,10 @@ class TicTacToeHasher(Hasher):
             for group in groups_removed_by_squares[square]:
                 self.groups_by_squares[opponent][square.row][square.col].add(group)
 
+        previous_square_types = self.previous_square_types_by_move.pop()
+        for square in previous_square_types:
+            self.square_types[square.row][square.col] = previous_square_types[square]
+
     def hash(self) -> str:
         """
         Returns:

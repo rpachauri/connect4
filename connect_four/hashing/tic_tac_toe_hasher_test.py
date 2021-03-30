@@ -274,6 +274,14 @@ class TestTicTacToeHasher(unittest.TestCase):
         transposition_of_flipped = self.hasher.hash()
         self.assertEqual(transposition_of_original, transposition_of_flipped)
 
+    def test_play_move_undo_move_initial_state(self):
+        self.hasher.move(action=0)
+        self.assertTrue(self.hasher.groups_removed_by_squares_by_move)
+        self.assertTrue(self.hasher.previous_square_types_by_move)
+        self.hasher.undo_move()
+        self.assertFalse(self.hasher.groups_removed_by_squares_by_move)
+        self.assertFalse(self.hasher.previous_square_types_by_move)
+
 
 if __name__ == '__main__':
     unittest.main()
