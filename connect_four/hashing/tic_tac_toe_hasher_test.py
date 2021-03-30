@@ -56,6 +56,90 @@ class TestTicTacToeHasher(unittest.TestCase):
         # Since Player 1 has played at 00, it is not possible for Player 2 to win using Group 00-02.
         self.assertNotIn(TestTicTacToeHasher.GROUP_00_TO_02, self.hasher.groups_by_squares[1][0][2])
 
+    def test_play_square_initial_state(self):
+        self.hasher = TicTacToeHasher(env=self.env)
+        want_groups_removed_by_square = {
+            Square(row=0, col=0): {
+                TestTicTacToeHasher.GROUP_00_TO_02,
+                TestTicTacToeHasher.GROUP_00_TO_22,
+                TestTicTacToeHasher.GROUP_00_TO_20,
+            },
+            Square(row=0, col=1): {
+                TestTicTacToeHasher.GROUP_00_TO_02,
+            },
+            Square(row=0, col=2): {
+                TestTicTacToeHasher.GROUP_00_TO_02,
+            },
+            Square(row=1, col=1): {
+                TestTicTacToeHasher.GROUP_00_TO_22,
+            },
+            Square(row=2, col=2): {
+                TestTicTacToeHasher.GROUP_00_TO_22,
+            },
+            Square(row=1, col=0): {
+                TestTicTacToeHasher.GROUP_00_TO_20,
+            },
+            Square(row=2, col=0): {
+                TestTicTacToeHasher.GROUP_00_TO_20,
+            },
+        }
+        want_previous_square_types = {
+            Square(row=0, col=0): SquareType.Empty,
+        }
+        got_groups_removed_by_square, got_previous_square_types = self.hasher._play_square(player=0, row=0, col=0)
+        self.assertEqual(want_groups_removed_by_square, got_groups_removed_by_square)
+        self.assertEqual(want_previous_square_types, got_previous_square_types)
+
+    def test_play_square_groups_removed_by_square_groups_already_removed(self):
+        self.env.state = np.array([
+            [
+                [1, 0, 0, ],
+                [0, 0, 0, ],
+                [0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, ],
+                [0, 0, 1, ],
+                [0, 0, 0, ],
+            ],
+        ])
+        self.hasher = TicTacToeHasher(env=self.env)
+
+        # Since Player 1 has played at 00, Player 2 cannot win Group 00-22.
+        # This should already be reflected at 22.
+        self.assertNotIn(TestTicTacToeHasher.GROUP_00_TO_22, self.hasher.groups_by_squares[1][2][2])
+
+        # Make Player 1 play in the center square.
+        got_groups_removed_by_square, _ = self.hasher._play_square(player=0, row=1, col=1)
+
+        # Since Group 00-22 was already not winnable before, Square 22 should not be in got_groups_removed_by_square.
+        self.assertNotIn(Square(row=2, col=2), got_groups_removed_by_square)
+
+    def test_play_square_previous_square_types_indifferent_squares(self):
+        self.env.state = np.array([
+            [
+                [1, 0, 1, ],
+                [1, 0, 0, ],
+                [0, 0, 0, ],
+            ],
+            [
+                [0, 1, 0, ],
+                [0, 1, 0, ],
+                [1, 0, 0, ],
+            ],
+        ])
+        self.hasher = TicTacToeHasher(env=self.env)
+
+        # Player 1 plays in the bottom-middle square.
+        _, got_previous_square_types = self.hasher._play_square(player=0, row=2, col=1)
+        want_previous_square_types = {
+            Square(row=0, col=1): SquareType.Player2,  # top-middle
+            Square(row=1, col=1): SquareType.Player2,  # center
+            Square(row=2, col=0): SquareType.Player2,  # bottom-left
+            Square(row=2, col=1): SquareType.Empty,
+        }
+        self.assertEqual(want_previous_square_types, got_previous_square_types)
+
     def test_init_with_indifferent_squares(self):
         self.env.state = np.array([
             [

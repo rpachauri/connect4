@@ -4,6 +4,7 @@ from collections import namedtuple
 from connect_four.envs import TicTacToeEnv
 from connect_four.hashing import Hasher
 from enum import Enum
+from typing import Dict, Set
 
 Square = namedtuple("Square", ["row", "col"])
 Group = namedtuple("Group", ["squares"])
@@ -74,6 +75,9 @@ class TicTacToeHasher(Hasher):
                 elif state[1][row][col] == 1:
                     self._play_square(player=1, row=row, col=col)
 
+        self.groups_removed_by_squares_by_move = []
+        self.previous_square_types_by_move = []
+
     def move(self, action: int):
         """
         Assumptions:
@@ -85,28 +89,59 @@ class TicTacToeHasher(Hasher):
         # Convert action into (row, col).
         row, col = action // 2, action % 2
 
-        self._play_square(player=self.player, row=row, col=col)
+        groups_removed_by_squares, previous_square_types = self._play_square(player=self.player, row=row, col=col)
+        self.groups_removed_by_squares_by_move.append(groups_removed_by_squares)
+        self.previous_square_types_by_move.append(previous_square_types)
 
         # Switch play.
         self.player = 1 - self.player
 
-    def _play_square(self, player: int, row: int, col: int):
+    def _play_square(self, player: int, row: int, col: int) -> (Dict[Square, Set[Group]], Dict[Square, SquareType]):
+        """
+
+        Args:
+            player (int): the player making the move.
+            row (int): the row to make the move in.
+            col (int): the column to make the move in.
+
+        Returns:
+            groups_removed_by_squares (Dict[Square, Set[Group]]):
+                A Dictionary mapping Squares to all Groups that were removed.
+                For every square in groups_removed_by_squares, the opponent can no longer win using that Group.
+            previous_square_types (Dict[Square, SquareType]):
+                A Dictionary mapping Squares to the SquareType they were before this move was played.
+                Only Squares that had their SquareType changed are included.
+        """
         # Find all Groups that belong to the opponent at that square
         opponent = 1 - player
         groups = self.groups_by_squares[opponent][row][col].copy()
+        groups_removed_by_square = {}
 
         # Change groups_by_squares to reflect that the opponent cannot win using any group in groups.
         # Also, find all indifferent squares.
         indifferent_squares = set()
         for g in groups:
             for s in g.squares:
-                self.groups_by_squares[opponent][s.row][s.col].discard(g)
+                # If the opponent could win using this group, they no longer can.
+                if g in self.groups_by_squares[opponent][s.row][s.col]:
+                    self.groups_by_squares[opponent][s.row][s.col].remove(g)
+
+                    # If groups_removed_by_square doesn't already contain this square, add it.
+                    if s not in groups_removed_by_square:
+                        groups_removed_by_square[s] = set()
+
+                    # Add g as one of the groups removed.
+                    groups_removed_by_square[s].add(g)
+
+                # If neither player can win any groups at this square, this square is indifferent.
                 if (not self.groups_by_squares[opponent][s.row][s.col]) and \
                         (not self.groups_by_squares[player][s.row][s.col]):
                     indifferent_squares.add(s)
 
+        previous_square_types = {}
         # Change the square types of indifferent squares.
         for s in indifferent_squares:
+            previous_square_types[s] = self.square_types[s.row][s.col]
             self.square_types[s.row][s.col] = SquareType.Indifferent
 
         # If the played square does not immediately become an indifferent square, it belongs to the player.
@@ -116,12 +151,23 @@ class TicTacToeHasher(Hasher):
             else:
                 self.square_types[row][col] = SquareType.Player2
 
+        previous_square_types[Square(row=row, col=col)] = SquareType.Empty
+
+        return groups_removed_by_square, previous_square_types
+
     def undo_move(self):
         """
         Assumptions:
             1. The current state of Tic-Tac-Toe is not the initial state.
         """
-        pass
+        # Switch play.
+        opponent = self.player
+        self.player = 1 - self.player
+
+        groups_removed_by_squares = self.groups_removed_by_squares_by_move.pop()
+        for square in groups_removed_by_squares:
+            for group in groups_removed_by_squares[square]:
+                self.groups_by_squares[opponent][square.row][square.col].add(group)
 
     def hash(self) -> str:
         """
