@@ -1,2 +1,1 @@
 from connect_four.transposition.transposition_table import TranspositionTable
-from connect_four.transposition.tic_tac_toe_hashing import hash_position

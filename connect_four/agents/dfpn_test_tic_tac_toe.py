@@ -37,7 +37,7 @@ class TestDFPNTicTacToe(unittest.TestCase):
                 [0, 0, 0, ],
             ],
         ])
-        phi, delta = tt.retrieve(state=child_0)
+        phi, delta = tt.retrieve()
         self.assertEqual(1, phi)
         self.assertEqual(1, delta)
 
@@ -80,7 +80,7 @@ class TestDFPNTicTacToe(unittest.TestCase):
                 [0, 0, 0, ],
             ],
         ])
-        phi, delta = tt.retrieve(state=child_2)
+        phi, delta = tt.retrieve()
         # Since child_2 is an AND node, the phi number is INF because it is impossible to disprove the node.
         self.assertEqual(DFPN.INF, phi)
         self.assertEqual(0, delta)
@@ -98,7 +98,7 @@ class TestDFPNTicTacToe(unittest.TestCase):
                 [0, 0, 0, ],
             ],
         ])
-        phi, delta = tt.retrieve(state=child_5)
+        phi, delta = tt.retrieve()
         # Since child_2 is an AND node, the phi number is 0 because it is impossible to disprove the node.
         self.assertEqual(1, phi)
         self.assertEqual(1, delta)

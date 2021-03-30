@@ -65,7 +65,7 @@ class DFPN(Agent):
 
             phi, delta = self.calculate_phi_delta(env=env)
 
-        self.tt.save(state=state, phi=phi, delta=delta)
+        self.tt.save(transposition=state, phi=phi, delta=delta)
         return phi, delta
 
     @staticmethod
@@ -95,9 +95,9 @@ class DFPN(Agent):
 
             if status != ProofStatus.Unknown:
                 phi, delta = self.determine_phi_delta(node_type=self.evaluator.node_type, status=status)
-                self.tt.save(state=self.evaluator.state, phi=phi, delta=delta)
+                self.tt.save(transposition=self.evaluator.state, phi=phi, delta=delta)
             elif self.evaluator.state not in self.tt:  # ProofStatus is unknown and the state isn't already in the TT.
-                self.tt.save(state=self.evaluator.state, phi=1, delta=1)
+                self.tt.save(transposition=self.evaluator.state, phi=1, delta=1)
 
             self.evaluator.undo_move()
 
@@ -119,7 +119,7 @@ class DFPN(Agent):
         for action in env.actions():
             obs, _, _, _ = env.step(action=action)
 
-            child_phi, child_delta = self.tt.retrieve(state=obs)
+            child_phi, child_delta = self.tt.retrieve(transposition=obs)
             sum_phi_of_children += child_phi
             min_delta_of_children = min(min_delta_of_children, child_delta)
 
@@ -147,7 +147,7 @@ class DFPN(Agent):
         for action in env.actions():
             obs, _, _, _ = env.step(action=action)
 
-            child_phi, child_delta = self.tt.retrieve(state=obs)
+            child_phi, child_delta = self.tt.retrieve(transposition=obs)
             if child_delta < best_child_delta:
                 best_action = action
                 best_child_phi = child_phi
