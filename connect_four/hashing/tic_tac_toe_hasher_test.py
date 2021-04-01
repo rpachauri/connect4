@@ -30,7 +30,7 @@ class TestTicTacToeHasher(unittest.TestCase):
             TestTicTacToeHasher.GROUP_00_TO_22,
             TestTicTacToeHasher.GROUP_00_TO_20,
         }
-        got_player_0_groups_at_00 = self.hasher.groups_by_squares[0][0][0]
+        got_player_0_groups_at_00 = self.hasher.groups_by_square_by_player[0][0][0]
         self.assertEqual(want_player_0_groups_at_00, got_player_0_groups_at_00)
 
         want_player_0_groups_at_11 = {
@@ -39,7 +39,7 @@ class TestTicTacToeHasher(unittest.TestCase):
             TestTicTacToeHasher.GROUP_10_TO_12,
             TestTicTacToeHasher.GROUP_20_TO_02,
         }
-        got_player_0_groups_at_11 = self.hasher.groups_by_squares[0][1][1]
+        got_player_0_groups_at_11 = self.hasher.groups_by_square_by_player[0][1][1]
         self.assertEqual(want_player_0_groups_at_11, got_player_0_groups_at_11)
 
         # Validate expected square types.
@@ -51,10 +51,10 @@ class TestTicTacToeHasher(unittest.TestCase):
     def test_play_square(self):
         self.hasher = TicTacToeHasher(env=self.env)
         # Since no squares have been played, it is possible for Player 2 to win using Group 00-02.
-        self.assertIn(TestTicTacToeHasher.GROUP_00_TO_02, self.hasher.groups_by_squares[1][0][2])
+        self.assertIn(TestTicTacToeHasher.GROUP_00_TO_02, self.hasher.groups_by_square_by_player[1][0][2])
         self.hasher._play_square(player=0, row=0, col=0)
         # Since Player 1 has played at 00, it is not possible for Player 2 to win using Group 00-02.
-        self.assertNotIn(TestTicTacToeHasher.GROUP_00_TO_02, self.hasher.groups_by_squares[1][0][2])
+        self.assertNotIn(TestTicTacToeHasher.GROUP_00_TO_02, self.hasher.groups_by_square_by_player[1][0][2])
 
     def test_play_square_initial_state(self):
         self.hasher = TicTacToeHasher(env=self.env)
@@ -107,7 +107,7 @@ class TestTicTacToeHasher(unittest.TestCase):
 
         # Since Player 1 has played at 00, Player 2 cannot win Group 00-22.
         # This should already be reflected at 22.
-        self.assertNotIn(TestTicTacToeHasher.GROUP_00_TO_22, self.hasher.groups_by_squares[1][2][2])
+        self.assertNotIn(TestTicTacToeHasher.GROUP_00_TO_22, self.hasher.groups_by_square_by_player[1][2][2])
 
         # Make Player 1 play in the center square.
         got_groups_removed_by_square, _ = self.hasher._play_square(player=0, row=1, col=1)
@@ -156,19 +156,19 @@ class TestTicTacToeHasher(unittest.TestCase):
         self.hasher = TicTacToeHasher(env=self.env)
 
         # Validate expected groups at 00. Neither player should be able to win.
-        self.assertFalse(self.hasher.groups_by_squares[0][0][0])
+        self.assertFalse(self.hasher.groups_by_square_by_player[0][0][0])
         self.assertEqual(SquareType.Indifferent, self.hasher.square_types[0][0])
 
         # Validate expected groups at 01. Player 2 should be able to win 01-21.
-        self.assertIn(TestTicTacToeHasher.GROUP_01_TO_21, self.hasher.groups_by_squares[1][0][1])
+        self.assertIn(TestTicTacToeHasher.GROUP_01_TO_21, self.hasher.groups_by_square_by_player[1][0][1])
         self.assertEqual(SquareType.Player2, self.hasher.square_types[0][1])
 
     def test_move(self):
         # Since no squares have been played, it is possible for Player 2 to win using Group 00-02.
-        self.assertIn(TestTicTacToeHasher.GROUP_00_TO_02, self.hasher.groups_by_squares[1][0][2])
+        self.assertIn(TestTicTacToeHasher.GROUP_00_TO_02, self.hasher.groups_by_square_by_player[1][0][2])
         self.hasher.move(action=0)
         # Since Player 1 has played at 00, it is not possible for Player 2 to win using Group 00-02.
-        self.assertNotIn(TestTicTacToeHasher.GROUP_00_TO_02, self.hasher.groups_by_squares[1][0][2])
+        self.assertNotIn(TestTicTacToeHasher.GROUP_00_TO_02, self.hasher.groups_by_square_by_player[1][0][2])
         # It should now be Player 2's turn.
         self.assertEqual(1, self.hasher.player)
 
@@ -192,7 +192,7 @@ class TestTicTacToeHasher(unittest.TestCase):
             ["3", "2", "0", ],
             ["2", "0", "0", ],
         ])
-        got_transposition_arr = self.hasher._convert_square_types_to_transposition_arr()
+        got_transposition_arr = self.hasher._convert_square_types_to_transposition_arr(square_types=self.hasher.square_types)
         self.assertIsNone(np.testing.assert_array_equal(
             want_transposition_arr,
             got_transposition_arr,
