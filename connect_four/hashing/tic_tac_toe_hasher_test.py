@@ -3,6 +3,7 @@ import unittest
 
 import numpy as np
 
+from connect_four.hashing import hasher_utils
 from connect_four.hashing import TicTacToeHasher
 from connect_four.hashing.tic_tac_toe_hasher import Square
 from connect_four.hashing.tic_tac_toe_hasher import Group
@@ -52,7 +53,13 @@ class TestTicTacToeHasher(unittest.TestCase):
         self.hasher = TicTacToeHasher(env=self.env)
         # Since no squares have been played, it is possible for Player 2 to win using Group 00-02.
         self.assertIn(TestTicTacToeHasher.GROUP_00_TO_02, self.hasher.groups_by_square_by_player[1][0][2])
-        self.hasher._play_square(player=0, row=0, col=0)
+        self.hasher.play_square(
+            player=0,
+            row=0,
+            col=0,
+            groups_by_square_by_player=self.hasher.groups_by_square_by_player,
+            square_types=self.hasher.square_types,
+        )
         # Since Player 1 has played at 00, it is not possible for Player 2 to win using Group 00-02.
         self.assertNotIn(TestTicTacToeHasher.GROUP_00_TO_02, self.hasher.groups_by_square_by_player[1][0][2])
 
@@ -86,7 +93,13 @@ class TestTicTacToeHasher(unittest.TestCase):
         want_previous_square_types = {
             Square(row=0, col=0): SquareType.Empty,
         }
-        got_groups_removed_by_square, got_previous_square_types = self.hasher._play_square(player=0, row=0, col=0)
+        got_groups_removed_by_square, got_previous_square_types = self.hasher.play_square(
+            player=0,
+            row=0,
+            col=0,
+            groups_by_square_by_player=self.hasher.groups_by_square_by_player,
+            square_types=self.hasher.square_types,
+        )
         self.assertEqual(want_groups_removed_by_square, got_groups_removed_by_square)
         self.assertEqual(want_previous_square_types, got_previous_square_types)
 
@@ -110,7 +123,13 @@ class TestTicTacToeHasher(unittest.TestCase):
         self.assertNotIn(TestTicTacToeHasher.GROUP_00_TO_22, self.hasher.groups_by_square_by_player[1][2][2])
 
         # Make Player 1 play in the center square.
-        got_groups_removed_by_square, _ = self.hasher._play_square(player=0, row=1, col=1)
+        got_groups_removed_by_square, _ = self.hasher.play_square(
+            player=0,
+            row=1,
+            col=1,
+            groups_by_square_by_player=self.hasher.groups_by_square_by_player,
+            square_types=self.hasher.square_types,
+        )
 
         # Since Group 00-22 was already not winnable before, Square 22 should not be in got_groups_removed_by_square.
         self.assertNotIn(Square(row=2, col=2), got_groups_removed_by_square)
@@ -131,7 +150,13 @@ class TestTicTacToeHasher(unittest.TestCase):
         self.hasher = TicTacToeHasher(env=self.env)
 
         # Player 1 plays in the bottom-middle square.
-        _, got_previous_square_types = self.hasher._play_square(player=0, row=2, col=1)
+        _, got_previous_square_types = self.hasher.play_square(
+            player=0,
+            row=2,
+            col=1,
+            groups_by_square_by_player=self.hasher.groups_by_square_by_player,
+            square_types=self.hasher.square_types,
+        )
         want_previous_square_types = {
             Square(row=0, col=1): SquareType.Player2,  # top-middle
             Square(row=1, col=1): SquareType.Player2,  # center
@@ -192,7 +217,9 @@ class TestTicTacToeHasher(unittest.TestCase):
             ["3", "2", "0", ],
             ["2", "0", "0", ],
         ])
-        got_transposition_arr = self.hasher._convert_square_types_to_transposition_arr(square_types=self.hasher.square_types)
+        got_transposition_arr = hasher_utils.convert_square_types_to_transposition_arr(
+            square_types=self.hasher.square_types,
+        )
         self.assertIsNone(np.testing.assert_array_equal(
             want_transposition_arr,
             got_transposition_arr,
@@ -205,7 +232,7 @@ class TestTicTacToeHasher(unittest.TestCase):
             ["2", "0", "0", ],
         ])
         want_transposition = "321320200"
-        got_transposition = self.hasher._get_transposition(transposition_arr=transposition_arr)
+        got_transposition = hasher_utils.get_transposition(transposition_arr=transposition_arr)
         self.assertEqual(want_transposition, got_transposition)
 
     def test_hash_rotated_position(self):

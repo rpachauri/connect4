@@ -3,7 +3,9 @@ import numpy as np
 from collections import namedtuple
 from connect_four.envs import TicTacToeEnv
 from connect_four.hashing import Hasher
-from enum import Enum
+from connect_four.hashing import hasher_utils
+from connect_four.hashing.hasher_utils import SquareType
+# from enum import Enum
 from typing import Dict, Set, List, Sequence
 
 Square = namedtuple("Square", ["row", "col"])
@@ -21,19 +23,19 @@ ALL_GROUPS = [
 ]
 
 
-class SquareType(Enum):
-    Empty = 0
-    Indifferent = 1
-    Player1 = 2
-    Player2 = 3
+# class SquareType(Enum):
+#     Empty = 0
+#     Indifferent = 1
+#     Player1 = 2
+#     Player2 = 3
 
 
-SQUARE_TYPE_TO_SQUARE_CHAR = {
-    SquareType.Empty: "0",
-    SquareType.Indifferent: "3",
-    SquareType.Player1: "1",
-    SquareType.Player2: "2",
-}
+# SQUARE_TYPE_TO_SQUARE_CHAR = {
+#     SquareType.Empty: "0",
+#     SquareType.Indifferent: "3",
+#     SquareType.Player1: "1",
+#     SquareType.Player2: "2",
+# }
 
 
 class TicTacToeHasher(Hasher):
@@ -62,13 +64,11 @@ class TicTacToeHasher(Hasher):
         self.square_types = self.create_initial_square_types(num_rows=3, num_cols=3)
 
         state, self.player = env.env_variables
-
-        for row in range(3):
-            for col in range(3):
-                if state[0][row][col] == 1:
-                    self._play_square(player=0, row=row, col=col)
-                elif state[1][row][col] == 1:
-                    self._play_square(player=1, row=row, col=col)
+        self.play_squares_from_state(
+            state=state,
+            groups_by_square_by_player=self.groups_by_square_by_player,
+            square_types=self.square_types,
+        )
 
         self.groups_removed_by_squares_by_move = []
         self.previous_square_types_by_move = []
@@ -112,20 +112,47 @@ class TicTacToeHasher(Hasher):
         # Convert action into (row, col).
         row, col = action // 3, action % 3
 
-        groups_removed_by_squares, previous_square_types = self._play_square(player=self.player, row=row, col=col)
+        groups_removed_by_squares, previous_square_types = self.play_square(
+            player=self.player,
+            row=row,
+            col=col,
+            groups_by_square_by_player=self.groups_by_square_by_player,
+            square_types=self.square_types,
+        )
         self.groups_removed_by_squares_by_move.append(groups_removed_by_squares)
         self.previous_square_types_by_move.append(previous_square_types)
 
         # Switch play.
         self.player = 1 - self.player
 
-    def _play_square(self, player: int, row: int, col: int) -> (Dict[Square, Set[Group]], Dict[Square, SquareType]):
+    @staticmethod
+    def play_squares_from_state(state,
+                                groups_by_square_by_player: List[List[List[Set[Group]]]],
+                                square_types: List[List[SquareType]]):
+        for player in range(len(state)):
+            for row in range(len(state[0])):
+                for col in range(len(state[0][0])):
+                    if state[player][row][col] == 1:
+                        TicTacToeHasher.play_square(
+                            player=player,
+                            row=row,
+                            col=col,
+                            groups_by_square_by_player=groups_by_square_by_player,
+                            square_types=square_types,
+                        )
+
+    @staticmethod
+    def play_square(player: int, row: int, col: int,
+                    groups_by_square_by_player: List[List[List[Set[Group]]]],
+                    square_types: List[List[SquareType]]) -> (Dict[Square, Set[Group]], Dict[Square, SquareType]):
         """
 
         Args:
             player (int): the player making the move.
             row (int): the row to make the move in.
             col (int): the column to make the move in.
+            groups_by_square_by_player (List[List[List[Set[Group]]]]): The possible Groups a player can win at a square.
+            square_types (List[List[SquareType]]): The SquareType for each square.
 
         Returns:
             groups_removed_by_squares (Dict[Square, Set[Group]]):
@@ -137,29 +164,29 @@ class TicTacToeHasher(Hasher):
         """
         # Change groups_by_square_by_player to reflect that the opponent cannot win using any group in groups.
         # Also, retrieve groups_removed_by_square.
-        groups_removed_by_square = self.remove_groups(
+        groups_removed_by_square = TicTacToeHasher.remove_groups(
             row=row,
             col=col,
-            existing_groups_by_square=self.groups_by_square_by_player[1 - player],
+            existing_groups_by_square=groups_by_square_by_player[1 - player],
         )
 
         # Find all indifferent squares.
-        indifferent_squares = self.find_indifferent_squares(
+        indifferent_squares = TicTacToeHasher.find_indifferent_squares(
             player=player,
             row=row,
             col=col,
             groups_removed_by_square=groups_removed_by_square,
-            square_types=self.square_types,
-            existing_groups_by_square_by_player=self.groups_by_square_by_player,
+            square_types=square_types,
+            existing_groups_by_square_by_player=groups_by_square_by_player,
         )
 
         # Change the square types of indifferent squares.
         # Also, find the SquareType of all squares that are being changed.
-        previous_square_types = self.update_square_types(
+        previous_square_types = TicTacToeHasher.update_square_types(
             row=row,
             col=col,
             indifferent_squares=indifferent_squares,
-            square_types=self.square_types,
+            square_types=square_types,
         )
 
         return groups_removed_by_square, previous_square_types
@@ -302,31 +329,31 @@ class TicTacToeHasher(Hasher):
             hash (str): a unique hash of the current state.
                         The encoding is a perfect hash (meaning there will be no collisions).
         """
-        transposition_arr = self._convert_square_types_to_transposition_arr(square_types=self.square_types)
-        transposition = self._get_transposition(transposition_arr=transposition_arr)
+        transposition_arr = hasher_utils.convert_square_types_to_transposition_arr(square_types=self.square_types)
+        transposition = hasher_utils.get_transposition(transposition_arr=transposition_arr)
 
         for k in range(3):
-            rotated_transposition = self._get_transposition(transposition_arr=np.rot90(m=transposition_arr, k=k))
+            rotated_transposition = hasher_utils.get_transposition(transposition_arr=np.rot90(m=transposition_arr, k=k))
             if rotated_transposition < transposition:
                 transposition = rotated_transposition
         flipped = np.fliplr(m=transposition_arr)
         for k in range(4):
-            flipped_rotated_transposition = self._get_transposition(transposition_arr=np.rot90(m=flipped, k=k))
+            flipped_rotated_transposition = hasher_utils.get_transposition(transposition_arr=np.rot90(m=flipped, k=k))
             if flipped_rotated_transposition < transposition:
                 transposition = flipped_rotated_transposition
 
         return transposition
 
-    @staticmethod
-    def _convert_square_types_to_transposition_arr(square_types: List[List[SquareType]]):
-        transposition_arr = []
-        for row in range(len(square_types)):
-            cols = []
-            for col in range(len(square_types[0])):
-                cols.append(SQUARE_TYPE_TO_SQUARE_CHAR[square_types[row][col]])
-            transposition_arr.append(cols)
-        return np.array(transposition_arr)
-
-    @staticmethod
-    def _get_transposition(transposition_arr):
-        return ''.join(transposition_arr.flatten())
+    # @staticmethod
+    # def _convert_square_types_to_transposition_arr(square_types: List[List[SquareType]]):
+    #     transposition_arr = []
+    #     for row in range(len(square_types)):
+    #         cols = []
+    #         for col in range(len(square_types[0])):
+    #             cols.append(SQUARE_TYPE_TO_SQUARE_CHAR[square_types[row][col]])
+    #         transposition_arr.append(cols)
+    #     return np.array(transposition_arr)
+    #
+    # @staticmethod
+    # def _get_transposition(transposition_arr):
+    #     return ''.join(transposition_arr.flatten())
