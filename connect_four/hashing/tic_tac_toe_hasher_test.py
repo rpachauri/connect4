@@ -3,11 +3,9 @@ import unittest
 
 import numpy as np
 
-from connect_four.hashing import hasher_hash_utils
+from connect_four.hashing import hasher_hash_utils, hasher_move_utils
 from connect_four.hashing import TicTacToeHasher
-from connect_four.hashing.tic_tac_toe_hasher import Square
-from connect_four.hashing.tic_tac_toe_hasher import Group
-from connect_four.hashing.tic_tac_toe_hasher import SquareType
+from connect_four.hashing.data_structures import Square, Group, SquareType
 
 
 class TestTicTacToeHasher(unittest.TestCase):
@@ -53,7 +51,7 @@ class TestTicTacToeHasher(unittest.TestCase):
         self.hasher = TicTacToeHasher(env=self.env)
         # Since no squares have been played, it is possible for Player 2 to win using Group 00-02.
         self.assertIn(TestTicTacToeHasher.GROUP_00_TO_02, self.hasher.groups_by_square_by_player[1][0][2])
-        self.hasher.play_square(
+        hasher_move_utils.play_square(
             player=0,
             row=0,
             col=0,
@@ -93,7 +91,7 @@ class TestTicTacToeHasher(unittest.TestCase):
         want_previous_square_types = {
             Square(row=0, col=0): SquareType.Empty,
         }
-        got_groups_removed_by_square, got_previous_square_types = self.hasher.play_square(
+        got_groups_removed_by_square, got_previous_square_types = hasher_move_utils.play_square(
             player=0,
             row=0,
             col=0,
@@ -123,7 +121,7 @@ class TestTicTacToeHasher(unittest.TestCase):
         self.assertNotIn(TestTicTacToeHasher.GROUP_00_TO_22, self.hasher.groups_by_square_by_player[1][2][2])
 
         # Make Player 1 play in the center square.
-        got_groups_removed_by_square, _ = self.hasher.play_square(
+        got_groups_removed_by_square, _ = hasher_move_utils.play_square(
             player=0,
             row=1,
             col=1,
@@ -150,7 +148,7 @@ class TestTicTacToeHasher(unittest.TestCase):
         self.hasher = TicTacToeHasher(env=self.env)
 
         # Player 1 plays in the bottom-middle square.
-        _, got_previous_square_types = self.hasher.play_square(
+        _, got_previous_square_types = hasher_move_utils.play_square(
             player=0,
             row=2,
             col=1,
