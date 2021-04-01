@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from connect_four.hashing import hasher_utils
+from connect_four.hashing import hasher_hash_utils
 from connect_four.hashing import TicTacToeHasher
 from connect_four.hashing.tic_tac_toe_hasher import Square
 from connect_four.hashing.tic_tac_toe_hasher import Group
@@ -217,7 +217,7 @@ class TestTicTacToeHasher(unittest.TestCase):
             ["3", "2", "0", ],
             ["2", "0", "0", ],
         ])
-        got_transposition_arr = hasher_utils.convert_square_types_to_transposition_arr(
+        got_transposition_arr = hasher_hash_utils.convert_square_types_to_transposition_arr(
             square_types=self.hasher.square_types,
         )
         self.assertIsNone(np.testing.assert_array_equal(
@@ -232,7 +232,7 @@ class TestTicTacToeHasher(unittest.TestCase):
             ["2", "0", "0", ],
         ])
         want_transposition = "321320200"
-        got_transposition = hasher_utils.get_transposition(transposition_arr=transposition_arr)
+        got_transposition = hasher_hash_utils.get_transposition(transposition_arr=transposition_arr)
         self.assertEqual(want_transposition, got_transposition)
 
     def test_hash_rotated_position(self):

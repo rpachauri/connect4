@@ -2,7 +2,7 @@ import numpy as np
 
 from connect_four.envs import TicTacToeEnv
 from connect_four.hashing import Hasher
-from connect_four.hashing import hasher_utils
+from connect_four.hashing import hasher_init_utils, hasher_hash_utils
 from connect_four.hashing.data_structures import Square, Group, SquareType
 from typing import Dict, Set, List
 
@@ -27,7 +27,7 @@ class TicTacToeHasher(Hasher):
                 where neither player has made a move.
         """
         # Initialize groups_by_square_by_player.
-        self.groups_by_square_by_player = hasher_utils.create_initial_groups_by_squares(
+        self.groups_by_square_by_player = hasher_init_utils.create_initial_groups_by_squares(
             num_rows=3,
             num_cols=3,
             all_groups=ALL_GROUPS,
@@ -41,7 +41,7 @@ class TicTacToeHasher(Hasher):
             "number of cols = %d" % len(self.groups_by_square_by_player[0][0])
 
         # Initialize square_types.
-        self.square_types = hasher_utils.create_initial_square_types(num_rows=3, num_cols=3)
+        self.square_types = hasher_init_utils.create_initial_square_types(num_rows=3, num_cols=3)
 
         state, self.player = env.env_variables
         self.play_squares_from_state(
@@ -281,16 +281,20 @@ class TicTacToeHasher(Hasher):
             hash (str): a unique hash of the current state.
                         The encoding is a perfect hash (meaning there will be no collisions).
         """
-        transposition_arr = hasher_utils.convert_square_types_to_transposition_arr(square_types=self.square_types)
-        transposition = hasher_utils.get_transposition(transposition_arr=transposition_arr)
+        transposition_arr = hasher_hash_utils.convert_square_types_to_transposition_arr(square_types=self.square_types)
+        transposition = hasher_hash_utils.get_transposition(transposition_arr=transposition_arr)
 
         for k in range(3):
-            rotated_transposition = hasher_utils.get_transposition(transposition_arr=np.rot90(m=transposition_arr, k=k))
+            rotated_transposition = hasher_hash_utils.get_transposition(
+                transposition_arr=np.rot90(m=transposition_arr, k=k),
+            )
             if rotated_transposition < transposition:
                 transposition = rotated_transposition
         flipped = np.fliplr(m=transposition_arr)
         for k in range(4):
-            flipped_rotated_transposition = hasher_utils.get_transposition(transposition_arr=np.rot90(m=flipped, k=k))
+            flipped_rotated_transposition = hasher_hash_utils.get_transposition(
+                transposition_arr=np.rot90(m=flipped, k=k),
+            )
             if flipped_rotated_transposition < transposition:
                 transposition = flipped_rotated_transposition
 
