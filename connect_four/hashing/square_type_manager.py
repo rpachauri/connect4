@@ -15,6 +15,15 @@ class SquareTypeManager:
         Args:
             env_variables (TwoPlayerGameEnvVariables): a TwoPlayerGame's env_variables.
         """
+        state, self.player = env_variables
+        num_rows, num_cols = len(state[0]), len(state[0][0])
+
+        all_groups = self._create_all_groups(
+            num_rows=num_rows,
+            num_cols=num_cols,
+            num_to_connect=num_to_connect,
+        )
+
         pass
 
     @staticmethod
@@ -27,7 +36,7 @@ class SquareTypeManager:
             num_to_connect (int): The number of squares that need to be connected for a win.
 
         Returns:
-            all_groups (Set[Group]): the set of all Groups that can be used for a win.
+            all_groups (Set[Group]): the set of all Groups that can be used by either player in an empty board.
                 Each Group can be used by either player.
         """
         directions = [
@@ -52,7 +61,54 @@ class SquareTypeManager:
 
     @staticmethod
     def _is_valid(row: int, col: int, num_rows: int, num_cols: int) -> bool:
+        """
+
+        Args:
+            row (int): the row to validate
+            col (int): the column to validate
+            num_rows (int): the upper bound of valid rows (exclusive)
+            num_cols (int): the upper bound of valid columns (exclusive)
+
+        Returns:
+            is_valid (bool): whether or not the given (row, col) pair is valid.
+        """
         return 0 <= row < num_rows and 0 <= col < num_cols
+
+    @staticmethod
+    def _create_all_groups_by_square_by_player(
+            num_rows: int, num_cols: int, all_groups: Set[Group]) -> List[List[List[Set[Group]]]]:
+        """
+
+        Args:
+            num_rows (int): the number of rows in the board.
+            num_cols (int): the number of columns in the board.
+            all_groups (Set[Group]): the set of all Groups that can be used by either player in an empty board.
+
+        Returns:
+            groups_by_square_by_player (List[List[List[Set[Group]]]]): a 3D array of a Set of Groups.
+                1. The first dimension is the player.
+                2. The second dimension is the row.
+                3. The third dimension is the col.
+
+                For a given player and a given Square, you can retrieve all Groups that player can win from that Square
+                with:
+                    set_of_possible_winning_groups_at_player_row_col = groups_by_square_by_player[player][row][col]
+        """
+        groups_by_square_by_player = []
+        for player in range(2):
+            player_squares = []
+            for row in range(num_rows):
+                rows = []
+                for col in range(num_cols):
+                    groups_at_square = set()
+                    square = Square(row=row, col=col)
+                    for group in all_groups:
+                        if square in group.squares:
+                            groups_at_square.add(group)
+                    rows.append(groups_at_square)
+                player_squares.append(rows)
+            groups_by_square_by_player.append(player_squares)
+        return groups_by_square_by_player
 
     def move(self, row: int, col: int):
         """Plays a move at the given row and column.
