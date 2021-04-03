@@ -1,4 +1,4 @@
-from typing import List, Set
+from typing import List, Set, Dict
 
 from connect_four.envs import TwoPlayerGameEnvVariables
 from connect_four.hashing.data_structures import SquareType, Group, Square
@@ -143,6 +143,40 @@ class SquareTypeManager:
             col (int): the column to play
         """
         pass
+
+    def _remove_groups(self, opponent: int, row: int, col: int,) -> Dict[Square, Set[Group]]:
+        """
+        Args:
+            opponent (int): the player whose Groups we are removing.
+            row (int): the row being played
+            col (int): the column being played
+
+        Modifies:
+            self.groups_by_square_by_player: For every square in groups_removed_by_squares,
+                every group in groups_removed_by_squares[square] will be removed from
+                self.groups_by_square_by_player[opponent][square.row][square.col].
+
+        Returns:
+            groups_removed_by_square (Dict[Square, Set[Group]]):
+                A Dictionary mapping Squares to all Groups that were removed.
+                For every square in groups_removed_by_squares, the opponent can no longer win using that Group.
+        """
+        groups_to_remove = self.groups_by_square_by_player[opponent][row][col].copy()
+        # Change existing_groups_by_square to reflect that the opponent cannot win using any group in groups.
+        groups_removed_by_square = {}
+        for g in groups_to_remove:
+            for s in g.squares:
+                # If the opponent could win using this group, they no longer can.
+                if g in self.groups_by_square_by_player[opponent][s.row][s.col]:
+                    self.groups_by_square_by_player[opponent][s.row][s.col].remove(g)
+
+                    # If groups_removed_by_square doesn't already contain this square, add it.
+                    if s not in groups_removed_by_square:
+                        groups_removed_by_square[s] = set()
+
+                    # Add g as one of the groups removed.
+                    groups_removed_by_square[s].add(g)
+        return groups_removed_by_square
 
     def undo_move(self):
         """Undoes the most recent move.
