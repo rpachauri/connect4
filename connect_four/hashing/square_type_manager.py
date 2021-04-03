@@ -9,9 +9,6 @@ class SquareTypeManager:
     def __init__(self, env_variables: TwoPlayerGameEnvVariables, num_to_connect: int):
         """Initializes the SquareTypeManager with the given env_variables.
 
-        Constraints:
-            -
-
         Args:
             env_variables (TwoPlayerGameEnvVariables): a TwoPlayerGame's env_variables.
         """
@@ -23,6 +20,12 @@ class SquareTypeManager:
             num_cols=num_cols,
             num_to_connect=num_to_connect,
         )
+        self.groups_by_square_by_player = self._create_all_groups_by_square_by_player(
+            num_rows=num_rows,
+            num_cols=num_cols,
+            all_groups=all_groups,
+        )
+        self.square_types = self._create_initial_square_types(num_rows=num_rows, num_cols=num_cols)
 
         pass
 
@@ -109,6 +112,25 @@ class SquareTypeManager:
                 player_squares.append(rows)
             groups_by_square_by_player.append(player_squares)
         return groups_by_square_by_player
+
+    @staticmethod
+    def _create_initial_square_types(num_rows: int, num_cols: int) -> List[List[SquareType]]:
+        """
+
+        Args:
+            num_rows (int): the number of rows in the board.
+            num_cols (int): the number of columns in the board.
+
+        Returns:
+            square_types (List[List[SquareType]]): a 2D array of SquareTypes all with SquareType.Empty
+        """
+        square_types = []
+        for row in range(num_rows):
+            rows = []
+            for col in range(num_cols):
+                rows.append(SquareType.Empty)
+            square_types.append(rows)
+        return square_types
 
     def move(self, row: int, col: int):
         """Plays a move at the given row and column.
