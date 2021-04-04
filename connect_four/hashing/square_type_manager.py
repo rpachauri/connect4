@@ -37,7 +37,8 @@ class SquareTypeManager:
                     if state[player][row][col] == 1:
                         self._play_square(player=player, row=row, col=col)
 
-        pass
+        self.groups_removed_by_squares_by_move = []
+        self.previous_square_types_by_move = []
 
     @staticmethod
     def _create_all_groups(num_rows: int, num_cols: int, num_to_connect: int) -> Set[Group]:
@@ -152,10 +153,23 @@ class SquareTypeManager:
             row (int): the row to play
             col (int): the column to play
         """
-        pass
+        # Play the given square with the current player.
+        groups_removed_by_squares, previous_square_types = self._play_square(
+            player=self.player,
+            row=row,
+            col=col,
+        )
+
+        # Add the dictionary of squares to set of groups removed to the stack so we can undo later.
+        self.groups_removed_by_squares_by_move.append(groups_removed_by_squares)
+        # Add the dictionary of squares to previous SquareType to the stack so we can undo later.
+        self.previous_square_types_by_move.append(previous_square_types)
+
+        # Switch play.
+        self.player = 1 - self.player
 
     def _play_square(self, player: int, row: int, col: int) -> (Dict[Square, Set[Group]], Dict[Square, SquareType]):
-        """
+        """Plays the given square for the given player.
 
         Args:
             player (int): the player playing the square
@@ -170,7 +184,12 @@ class SquareTypeManager:
                 2. May also change other squares to Indifferent. Those squares must be one of {Player1, Player2}.
 
         Returns:
-
+            groups_removed_by_squares (Dict[Square, Set[Group]]):
+                A Dictionary mapping Squares to the Set of Groups that were removed from that Square.
+                For every square in groups_removed_by_squares, the opponent can no longer win using that Group.
+            previous_square_types (Dict[Square, SquareType]):
+                A Dictionary mapping each Square to the SquareType it was before this move was played.
+                Only Squares that had their SquareType changed are included.
         """
         opponent = 1 - player
         groups_removed_by_square = self._remove_groups(opponent=opponent, row=row, col=col)

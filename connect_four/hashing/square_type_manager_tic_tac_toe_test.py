@@ -96,6 +96,15 @@ class TestSquareTypeManagerTicTacToe(unittest.TestCase):
         }
         self.assertEqual(want_previous_square_types, got_previous_square_types)
 
+    def test_move(self):
+        stm = SquareTypeManager(env_variables=self.env.env_variables, num_to_connect=3)
+        stm.move(row=0, col=0)
+        # Validate that play has switched to the opponent.
+        self.assertEqual(1, stm.player)
+        # Validate that the stack of moves is of length 1.
+        self.assertEqual(1, len(stm.groups_removed_by_squares_by_move))
+        self.assertEqual(1, len(stm.previous_square_types_by_move))
+
 
 if __name__ == '__main__':
     unittest.main()
