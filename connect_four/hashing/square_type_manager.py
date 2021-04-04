@@ -322,11 +322,3 @@ class SquareTypeManager:
         previous_square_types = self.previous_square_types_by_move.pop()
         for square in previous_square_types:
             self.square_types[square.row][square.col] = previous_square_types[square]
-
-    def get_square_types(self) -> List[List[SquareType]]:
-        """Retrieves the square types.
-
-        Returns:
-            square_types (List[List[SquareType]]): 2D array of SquareTypes summarizing the current state.
-        """
-        pass
