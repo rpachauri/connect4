@@ -27,6 +27,16 @@ class SquareTypeManager:
         )
         self.square_types = self._create_initial_square_types(num_rows=num_rows, num_cols=num_cols)
 
+        # Play squares that have already been played.
+        # Change self.groups_by_square_by_player and self.square_types accordingly.
+        # Note that the order of the play does not matter because groups in self.groups_by_square_by_player() can only
+        # be removed by self._play_square() and the transition graph of SquareTypes has no cycles.
+        for player in range(len(state)):
+            for row in range(len(state[0])):
+                for col in range(len(state[0][0])):
+                    if state[player][row][col] == 1:
+                        self._play_square(player=player, row=row, col=col)
+
         pass
 
     @staticmethod
@@ -144,7 +154,34 @@ class SquareTypeManager:
         """
         pass
 
-    def _remove_groups(self, opponent: int, row: int, col: int,) -> Dict[Square, Set[Group]]:
+    def _play_square(self, player: int, row: int, col: int):
+        """
+
+        Args:
+            player (int): the player playing the square
+            row (int): the row of the square
+            col (int): the column of the square
+
+        Modifies:
+            self.groups_by_square_by_player: Removes any groups the opponent of player cannot win with after this
+                square is played.
+            self.square_types:
+                1. Change the given square into one of {Player1, Player2, Indifferent}.
+                2. May also change other squares to Indifferent. Those squares must be one of {Player1, Player2}.
+
+        Returns:
+
+        """
+        opponent = 1 - player
+        groups_removed_by_square = self._remove_groups(opponent=opponent, row=row, col=col)
+        indifferent_squares = self._find_indifferent_squares(
+            row=row,
+            col=col,
+            groups_removed_by_square=groups_removed_by_square,
+        )
+        pass
+
+    def _remove_groups(self, opponent: int, row: int, col: int) -> Dict[Square, Set[Group]]:
         """
         Args:
             opponent (int): the player whose Groups we are removing.
@@ -177,6 +214,44 @@ class SquareTypeManager:
                     # Add g as one of the groups removed.
                     groups_removed_by_square[s].add(g)
         return groups_removed_by_square
+
+    def _find_indifferent_squares(self, row: int, col: int,
+                                  groups_removed_by_square: Dict[Square, Set[Group]]) -> Set[Square]:
+        """
+
+        Args:
+            row (int): the row being played
+            col (int): the column being played
+            groups_removed_by_square (Dict[Square, Set[Group]]):
+                A Dictionary mapping Squares to all Groups that were removed.
+                For every square in groups_removed_by_squares, the opponent can no longer win using that Group.
+
+        Modifies:
+            self.square_types: If the square at the given row and col is not indifferent,
+                assigns a SquareType corresponding with the given player.
+                Updates all squares that are indifferent to SquareType.Indifferent.
+
+        Returns:
+            indifferent_squares (Set[Square]): a Set of Squares that can no longer be used to
+                complete any Groups for either player.
+        """
+        # Assign the played square a non-empty SquareType. This allows it be included when finding indifferent_squares.
+        if self.player == 0:
+            self.square_types[row][col] = SquareType.Player1
+        else:
+            self.square_types[row][col] = SquareType.Player2
+
+        # Find all indifferent squares.
+        indifferent_squares = set()
+        if not groups_removed_by_square:
+            indifferent_squares.add(Square(row=row, col=col))
+        for s in groups_removed_by_square:
+            # If neither player can win any groups at this square, this square is indifferent.
+            if (self.square_types[s.row][s.col] != SquareType.Empty) and \
+                    (not self.groups_by_square_by_player[0][s.row][s.col]) and \
+                    (not self.groups_by_square_by_player[1][s.row][s.col]):
+                indifferent_squares.add(s)
+        return indifferent_squares
 
     def undo_move(self):
         """Undoes the most recent move.
