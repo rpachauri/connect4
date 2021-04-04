@@ -26,7 +26,7 @@ class TicTacToeHasher(Hasher):
     def undo_move(self):
         """
         Assumptions:
-            1. The current state of Tic-Tac-Toe is not the initial state.
+            1. The current state of Tic-Tac-Toe is not in the state given upon initialization.
         """
         self.stm.undo_move()
 
