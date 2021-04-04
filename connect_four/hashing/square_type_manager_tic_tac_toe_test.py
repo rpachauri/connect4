@@ -96,6 +96,37 @@ class TestSquareTypeManagerTicTacToe(unittest.TestCase):
         }
         self.assertEqual(want_previous_square_types, got_previous_square_types)
 
+    def test_play_square_groups_removed_by_square_groups_already_removed(self):
+        self.env.state = np.array([
+            [
+                [1, 0, 0, ],
+                [0, 0, 0, ],
+                [0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, ],
+                [0, 0, 1, ],
+                [0, 0, 0, ],
+            ],
+        ])
+        stm = SquareTypeManager(env_variables=self.env.env_variables, num_to_connect=3)
+
+        group_00_to_22 = Group(squares=frozenset([Square(row=0, col=0), Square(row=1, col=1), Square(row=2, col=2)]))
+
+        # Since Player 1 has played at 00, Player 2 cannot win Group 00-22.
+        # This should already be reflected at 22.
+        self.assertNotIn(group_00_to_22, stm.groups_by_square_by_player[1][2][2])
+
+        # Player 1 plays in the center square.
+        got_groups_removed_by_square, _ = stm._play_square(
+            player=0,
+            row=1,
+            col=1,
+        )
+
+        # Since Group 00-22 was already not winnable before, Square 22 should not be in got_groups_removed_by_square.
+        self.assertNotIn(Square(row=2, col=2), got_groups_removed_by_square)
+
     def test_move(self):
         stm = SquareTypeManager(env_variables=self.env.env_variables, num_to_connect=3)
         stm.move(row=0, col=0)
