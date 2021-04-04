@@ -154,7 +154,7 @@ class SquareTypeManager:
         """
         pass
 
-    def _play_square(self, player: int, row: int, col: int):
+    def _play_square(self, player: int, row: int, col: int) -> (Dict[Square, Set[Group]], Dict[Square, SquareType]):
         """
 
         Args:
@@ -175,11 +175,13 @@ class SquareTypeManager:
         opponent = 1 - player
         groups_removed_by_square = self._remove_groups(opponent=opponent, row=row, col=col)
         indifferent_squares = self._find_indifferent_squares(
+            player=player,
             row=row,
             col=col,
             groups_removed_by_square=groups_removed_by_square,
         )
-        pass
+        previous_square_types = self._update_square_types(row=row, col=col, indifferent_squares=indifferent_squares)
+        return groups_removed_by_square, previous_square_types
 
     def _remove_groups(self, opponent: int, row: int, col: int) -> Dict[Square, Set[Group]]:
         """
@@ -215,7 +217,7 @@ class SquareTypeManager:
                     groups_removed_by_square[s].add(g)
         return groups_removed_by_square
 
-    def _find_indifferent_squares(self, row: int, col: int,
+    def _find_indifferent_squares(self, player: int, row: int, col: int,
                                   groups_removed_by_square: Dict[Square, Set[Group]]) -> Set[Square]:
         """
 
@@ -236,7 +238,7 @@ class SquareTypeManager:
                 complete any Groups for either player.
         """
         # Assign the played square a non-empty SquareType. This allows it be included when finding indifferent_squares.
-        if self.player == 0:
+        if player == 0:
             self.square_types[row][col] = SquareType.Player1
         else:
             self.square_types[row][col] = SquareType.Player2
@@ -252,6 +254,33 @@ class SquareTypeManager:
                     (not self.groups_by_square_by_player[1][s.row][s.col]):
                 indifferent_squares.add(s)
         return indifferent_squares
+
+    def _update_square_types(self, row: int, col: int, indifferent_squares: Set[Square]) -> Dict[Square, SquareType]:
+        """
+
+        Args:
+            row (int): the row being played
+            col (int): the column being played
+            indifferent_squares (Set[Square]): a Set of Squares that can no longer be used to
+                complete any Groups for either player.
+
+        Modifies:
+            self.square_types: For every square in indifferent_squares, updates to SquareType.Indifferent.
+
+        Returns:
+            previous_square_types (Dict[Square, SquareType]): a dictionary mapping each Square to the SquareType it was
+                before it was changed.
+        """
+        # Find the SquareType of all squares that are being changed.
+        previous_square_types = {}
+        # Change the square types of indifferent squares.
+        for s in indifferent_squares:
+            previous_square_types[s] = self.square_types[s.row][s.col]
+            self.square_types[s.row][s.col] = SquareType.Indifferent
+
+        previous_square_types[Square(row=row, col=col)] = SquareType.Empty
+
+        return previous_square_types
 
     def undo_move(self):
         """Undoes the most recent move.

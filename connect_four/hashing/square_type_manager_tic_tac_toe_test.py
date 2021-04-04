@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from connect_four.hashing.data_structures import Group, Square
+from connect_four.hashing.data_structures import Group, Square, SquareType
 from connect_four.hashing.square_type_manager import SquareTypeManager
 
 
@@ -60,11 +60,41 @@ class TestSquareTypeManagerTicTacToe(unittest.TestCase):
             Square(row=2, col=1),  # bottom-middle
         }
         got_indifferent_squares = stm._find_indifferent_squares(
+            player=0,
             row=2,
             col=1,
             groups_removed_by_square=groups_removed_by_square,
         )
         self.assertEqual(want_indifferent_squares, got_indifferent_squares)
+
+    def test_play_square_previous_square_types_indifferent_squares(self):
+        self.env.state = np.array([
+            [
+                [1, 0, 1, ],
+                [1, 0, 0, ],
+                [0, 0, 0, ],
+            ],
+            [
+                [0, 1, 0, ],
+                [0, 1, 0, ],
+                [1, 0, 0, ],
+            ],
+        ])
+        stm = SquareTypeManager(env_variables=self.env.env_variables, num_to_connect=3)
+
+        # Player 1 plays in the bottom-middle square.
+        _, got_previous_square_types = stm._play_square(
+            player=0,
+            row=2,
+            col=1,
+        )
+        want_previous_square_types = {
+            Square(row=0, col=1): SquareType.Player2,  # top-middle
+            Square(row=1, col=1): SquareType.Player2,  # center
+            Square(row=2, col=0): SquareType.Player2,  # bottom-left
+            Square(row=2, col=1): SquareType.Empty,
+        }
+        self.assertEqual(want_previous_square_types, got_previous_square_types)
 
 
 if __name__ == '__main__':
