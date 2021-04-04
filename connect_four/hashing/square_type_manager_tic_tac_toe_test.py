@@ -105,6 +105,25 @@ class TestSquareTypeManagerTicTacToe(unittest.TestCase):
         self.assertEqual(1, len(stm.groups_removed_by_squares_by_move))
         self.assertEqual(1, len(stm.previous_square_types_by_move))
 
+    def test_undo_move_raises_assertion_error(self):
+        # undo_move() should raise an assertion error if the STM is at the given state.
+        stm = SquareTypeManager(env_variables=self.env.env_variables, num_to_connect=3)
+        with self.assertRaises(AssertionError):
+            stm.undo_move()
+
+    def test_play_move_undo_move_initial_state(self):
+        stm = SquareTypeManager(env_variables=self.env.env_variables, num_to_connect=3)
+
+        stm.move(row=0, col=0)
+        self.assertEqual(1, stm.player)
+        self.assertTrue(stm.groups_removed_by_squares_by_move)
+        self.assertTrue(stm.previous_square_types_by_move)
+
+        stm.undo_move()
+        self.assertEqual(0, stm.player)
+        self.assertFalse(stm.groups_removed_by_squares_by_move)
+        self.assertFalse(stm.previous_square_types_by_move)
+
 
 if __name__ == '__main__':
     unittest.main()

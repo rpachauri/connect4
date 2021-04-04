@@ -305,9 +305,23 @@ class SquareTypeManager:
         """Undoes the most recent move.
 
         Raises:
-            (AssertionError): if the internal state of the SquareTypeManager is at the given state upon initialization.
+            (AssertionError): if the internal state of the SquareTypeManager is at the state given upon initialization.
         """
-        pass
+        assert self.groups_removed_by_squares_by_move
+        assert self.previous_square_types_by_move
+
+        # Switch play.
+        opponent = self.player
+        self.player = 1 - self.player
+
+        groups_removed_by_squares = self.groups_removed_by_squares_by_move.pop()
+        for square in groups_removed_by_squares:
+            for group in groups_removed_by_squares[square]:
+                self.groups_by_square_by_player[opponent][square.row][square.col].add(group)
+
+        previous_square_types = self.previous_square_types_by_move.pop()
+        for square in previous_square_types:
+            self.square_types[square.row][square.col] = previous_square_types[square]
 
     def get_square_types(self) -> List[List[SquareType]]:
         """Retrieves the square types.
