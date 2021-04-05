@@ -33,10 +33,11 @@ def find_odd_threat(board: Board) -> Threat:
         odd_group (Threat): a Threat with a single empty square. The single empty square will be odd.
             None if no such Threat exists for board.
     """
+    directly_playable_squares = board.playable_squares()
     # Iterate through all groups that belong to White.
     for group in board.potential_groups(player=0):
         empty_squares = empty_squares_of_group(board, group)
-        if len(empty_squares) == 1:
+        if len(empty_squares) == 1 and empty_squares[0] not in directly_playable_squares:
             return Threat(group, empty_squares[0])
 
 
