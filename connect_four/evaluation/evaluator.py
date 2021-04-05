@@ -17,20 +17,12 @@ class NodeType(Enum):
 class Evaluator(ABC):
 
     @abstractmethod
-    def __init__(self, node_type: NodeType):
-        self.node_type = node_type
-
     def move(self, action: int):
-        self._switch_play()
+        pass
 
+    @abstractmethod
     def undo_move(self):
-        self._switch_play()
-
-    def _switch_play(self):
-        if self.node_type == NodeType.OR:
-            self.node_type = NodeType.AND
-        else:  # self.node_type == NodeType.AND
-            self.node_type = NodeType.OR
+        pass
 
     @abstractmethod
     def evaluate(self) -> ProofStatus:

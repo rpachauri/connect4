@@ -15,7 +15,7 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
 
     def test_init(self):
         # TicTacToeSimpleEvaluator requires that model IS NOT at a terminal state when given.
-        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
+        evaluator = TicTacToeSimpleEvaluator(model=self.env)
 
         # Since we know the given state is not a terminal state, the reward should just be the default reward.
         self.assertEqual(TwoPlayerGameEnv.DEFAULT_REWARD, evaluator.reward)
@@ -27,7 +27,7 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
         self.assertEqual(ProofStatus.Unknown, evaluator.evaluate())
 
     def test_single_move(self):
-        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
+        evaluator = TicTacToeSimpleEvaluator(model=self.env)
 
         # A single move is made. X plays in the top-left corner.
         evaluator.move(action=0)
@@ -42,7 +42,7 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
         self.assertEqual(ProofStatus.Unknown, evaluator.evaluate())
 
     def test_undo_move(self):
-        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
+        evaluator = TicTacToeSimpleEvaluator(model=self.env)
 
         # A single move is made. X plays in the top-left corner.
         evaluator.move(action=0)
@@ -81,8 +81,7 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
                 [0, 0, 0, ],
             ],
         ])
-
-        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
+        evaluator = TicTacToeSimpleEvaluator(model=self.env)
 
         # A single move is made. X plays in the top-right corner.
         evaluator.move(action=2)
@@ -113,7 +112,7 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
             ],
         ])
 
-        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
+        evaluator = TicTacToeSimpleEvaluator(model=self.env)
 
         # A single move is made. X plays in the bottom-right corner.
         evaluator.move(action=8)
@@ -128,46 +127,16 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
         # Evaluation should return Proven.
         self.assertEqual(ProofStatus.Disproven, evaluator.evaluate())
 
-    def test_evaluate_OR_DRAW(self):
-        # This tests for when AND has drawn the game.
-        # The terminal state will be at OR.
-        self.env.state = np.array([
-            [
-                [0, 1, 0, ],
-                [0, 1, 1, ],
-                [1, 0, 0, ],
-            ],
-            [
-                [1, 0, 1, ],
-                [1, 0, 0, ],
-                [0, 1, 0, ],
-            ],
-        ])
-
-        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.AND)
-
-        # A single move is made. X plays in the bottom-right corner.
-        evaluator.move(action=8)
-
-        # The evaluator's internal model should be at a terminal state.
-        # The reward should just be the result of connecting three.
-        self.assertEqual(TwoPlayerGameEnv.DRAW, evaluator.reward)
-        # The game should have ended.
-        self.assertTrue(evaluator.done)
-        # NodeType should always switch to the opponent.
-        self.assertEqual(NodeType.OR, evaluator.node_type)
-        # Evaluation should return Disproven.
-        self.assertEqual(ProofStatus.Disproven, evaluator.evaluate())
-
     def test_evaluate_OR_CONNECTED(self):
         # Note that if AND wins or draws the game, then the node is Disproven because OR has not won the game.
+        # For Tic-Tac-Toe, it is not possible for AND to draw the game because only Player 1 can draw the game.
         # This tests for when AND connects three.
         # The terminal state will be at OR.
         self.env.state = np.array([
             [
                 [1, 1, 0, ],
                 [0, 0, 0, ],
-                [0, 0, 0, ],
+                [1, 0, 0, ],
             ],
             [
                 [0, 0, 0, ],
@@ -175,11 +144,12 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
                 [0, 0, 0, ],
             ],
         ])
+        self.env.player_turn = 1
 
-        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.AND)
+        evaluator = TicTacToeSimpleEvaluator(model=self.env)
 
-        # A single move is made. X plays in the top-right corner.
-        evaluator.move(action=2)
+        # A single move is made. O plays on the right-middle edge.
+        evaluator.move(action=5)
 
         # The evaluator's internal model should be at a terminal state.
         # The reward should just be the result of connecting three.

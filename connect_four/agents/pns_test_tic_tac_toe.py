@@ -20,7 +20,7 @@ class TestPNSTicTacToe(unittest.TestCase):
     def test_PNSNode_expand_all_children(self):
         # The TicTacToeSimpleEvaluator should return ProofStatus.Unknown for all children of the root.
         # This means we'll need a child node for every action in the action space.
-        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
+        evaluator = TicTacToeSimpleEvaluator(model=self.env)
         node = PNSNode(node_type=NodeType.OR)
 
         node.expand(evaluator=evaluator)
@@ -33,7 +33,7 @@ class TestPNSTicTacToe(unittest.TestCase):
     def test_OR_PNSNode_update_tree_base_case_initial_state(self):
         # The TicTacToeSimpleEvaluator should return ProofStatus.Unknown for all children of the root.
         # This means we'll need a child node for every action in the action space.
-        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
+        evaluator = TicTacToeSimpleEvaluator(model=self.env)
         node = PNSNode(node_type=NodeType.OR)
 
         node.update_tree(evaluator=evaluator)
@@ -61,7 +61,7 @@ class TestPNSTicTacToe(unittest.TestCase):
             ],
         ])
         # X can win by playing 0.
-        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
+        evaluator = TicTacToeSimpleEvaluator(model=self.env)
         node = PNSNode(node_type=NodeType.OR)
 
         node.update_tree(evaluator=evaluator)
@@ -88,7 +88,7 @@ class TestPNSTicTacToe(unittest.TestCase):
             ],
         ])
         self.env.player_turn = 1
-        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.AND)
+        evaluator = TicTacToeSimpleEvaluator(model=self.env)
         node = PNSNode(node_type=NodeType.AND)
 
         node.update_tree(evaluator=evaluator)
@@ -122,7 +122,7 @@ class TestPNSTicTacToe(unittest.TestCase):
             ],
         ])
         # X can win by playing 0.
-        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
+        evaluator = TicTacToeSimpleEvaluator(model=self.env)
         pns = PNS(evaluator=evaluator)
 
         action = pns.action(env=self.env)
@@ -142,7 +142,7 @@ class TestPNSTicTacToe(unittest.TestCase):
             ],
         ])
         self.env.player_turn = 1
-        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.AND)
+        evaluator = TicTacToeSimpleEvaluator(model=self.env)
         pns = PNS(evaluator=evaluator)
 
         # O plays in the bottom-right corner.
@@ -153,7 +153,7 @@ class TestPNSTicTacToe(unittest.TestCase):
         self.assertEqual(0, action)
 
     def test_update_tree_initial_state(self):
-        evaluator = TicTacToeSimpleEvaluator(model=self.env, node_type=NodeType.OR)
+        evaluator = TicTacToeSimpleEvaluator(model=self.env)
         pns = PNS(evaluator=evaluator)
         while pns.root.proof != 0 and pns.root.disproof != 0:
             pns.root.update_tree(evaluator=pns.evaluator)

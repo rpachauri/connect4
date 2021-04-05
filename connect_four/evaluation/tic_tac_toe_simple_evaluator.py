@@ -6,7 +6,8 @@ from typing import Sequence
 
 
 class TicTacToeSimpleEvaluator(Evaluator):
-    def __init__(self, model: TwoPlayerGameEnv, node_type: NodeType):
+
+    def __init__(self, model: TwoPlayerGameEnv):
         """
         Requires:
             model's current state cannot be a terminal state.
@@ -14,12 +15,14 @@ class TicTacToeSimpleEvaluator(Evaluator):
         Args:
             model (TwoPlayerGameEnv): a TwoPlayerGameEnv instance that can be modified.
         """
-        super().__init__(node_type=node_type)
         self.model = copy.deepcopy(model)
         self.list_of_env_variables = []
         self.reward = TwoPlayerGameEnv.DEFAULT_REWARD
         self.done = False
-        self.node_type = node_type
+        if model.env_variables.player_turn == 0:
+            self.node_type = NodeType.OR
+        else:
+            self.node_type = NodeType.AND
 
     def move(self, action: int):
         """
@@ -29,15 +32,21 @@ class TicTacToeSimpleEvaluator(Evaluator):
         Args:
             action (int): an action that can be applied in the current state of this evaluator's model environment.
         """
-        super().move(action=action)
+        self._switch_play()
 
         assert not self.done
 
         self.list_of_env_variables.append(self.model.env_variables)
         _, self.reward, self.done, _ = self.model.step(action=action)
 
+    def _switch_play(self):
+        if self.node_type == NodeType.OR:
+            self.node_type = NodeType.AND
+        else:  # self.node_type == NodeType.AND
+            self.node_type = NodeType.OR
+
     def undo_move(self):
-        super().undo_move()
+        self._switch_play()
 
         env_variables = self.list_of_env_variables.pop()
         self.model.reset(env_variables=env_variables)
@@ -45,6 +54,14 @@ class TicTacToeSimpleEvaluator(Evaluator):
         self.done = False
 
     def evaluate(self) -> ProofStatus:
+        """Returns a ProofStatus for the current state.
+
+        Returns:
+            status (ProofStatus):
+                Proven: If the current state is a terminal state indicating a win for White.
+                Disproven: If the current state is a terminal state indicating a draw or loss for White.
+                Unknown: If the current state is non-terminal.
+        """
         if not self.done:
             # The game is not yet done.
             return ProofStatus.Unknown
