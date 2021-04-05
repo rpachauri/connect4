@@ -5,7 +5,7 @@ import numpy as np
 
 from connect_four.envs import TwoPlayerGameEnv
 from connect_four.evaluation.evaluator import ProofStatus, NodeType
-from connect_four.evaluation.tic_tac_toe_simple_evaluator import TicTacToeSimpleEvaluator
+from connect_four.evaluation.simple_evaluator import SimpleEvaluator
 
 
 class TestTicTacToeSimpleEvaluator(unittest.TestCase):
@@ -14,8 +14,8 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
         self.env.reset()
 
     def test_init(self):
-        # TicTacToeSimpleEvaluator requires that model IS NOT at a terminal state when given.
-        evaluator = TicTacToeSimpleEvaluator(model=self.env)
+        # SimpleEvaluator requires that model IS NOT at a terminal state when given.
+        evaluator = SimpleEvaluator(model=self.env)
 
         # Since we know the given state is not a terminal state, the reward should just be the default reward.
         self.assertEqual(TwoPlayerGameEnv.DEFAULT_REWARD, evaluator.reward)
@@ -27,7 +27,7 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
         self.assertEqual(ProofStatus.Unknown, evaluator.evaluate())
 
     def test_single_move(self):
-        evaluator = TicTacToeSimpleEvaluator(model=self.env)
+        evaluator = SimpleEvaluator(model=self.env)
 
         # A single move is made. X plays in the top-left corner.
         evaluator.move(action=0)
@@ -42,7 +42,7 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
         self.assertEqual(ProofStatus.Unknown, evaluator.evaluate())
 
     def test_undo_move(self):
-        evaluator = TicTacToeSimpleEvaluator(model=self.env)
+        evaluator = SimpleEvaluator(model=self.env)
 
         # A single move is made. X plays in the top-left corner.
         evaluator.move(action=0)
@@ -81,7 +81,7 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
                 [0, 0, 0, ],
             ],
         ])
-        evaluator = TicTacToeSimpleEvaluator(model=self.env)
+        evaluator = SimpleEvaluator(model=self.env)
 
         # A single move is made. X plays in the top-right corner.
         evaluator.move(action=2)
@@ -112,7 +112,7 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
             ],
         ])
 
-        evaluator = TicTacToeSimpleEvaluator(model=self.env)
+        evaluator = SimpleEvaluator(model=self.env)
 
         # A single move is made. X plays in the bottom-right corner.
         evaluator.move(action=8)
@@ -146,7 +146,7 @@ class TestTicTacToeSimpleEvaluator(unittest.TestCase):
         ])
         self.env.player_turn = 1
 
-        evaluator = TicTacToeSimpleEvaluator(model=self.env)
+        evaluator = SimpleEvaluator(model=self.env)
 
         # A single move is made. O plays on the right-middle edge.
         evaluator.move(action=5)

@@ -10,7 +10,7 @@ from connect_four.agents import RandomAgent
 from connect_four.agents import PNS
 
 from connect_four.evaluation.evaluator import NodeType
-from connect_four.evaluation.tic_tac_toe_simple_evaluator import TicTacToeSimpleEvaluator
+from connect_four.evaluation.simple_evaluator import SimpleEvaluator
 
 # Make the environment, replace this string with any
 # from the docs. (Some environments have dependencies)
@@ -20,7 +20,7 @@ env = gym.make('tic_tac_toe-v0')
 # Initialize the agents
 agent1 = MCPNS(num_rollouts=30)  # Minimax(max_depth=9)
 # agent2 = MCPNS(num_rollouts=30)
-evaluator = TicTacToeSimpleEvaluator(model=env, node_type=NodeType.OR)
+evaluator = SimpleEvaluator(model=env)
 agent2 = PNS(evaluator=evaluator)
 
 # Reset the environment to default beginning

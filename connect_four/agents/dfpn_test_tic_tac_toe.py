@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 
 from connect_four.agents import DFPN
-from connect_four.evaluation.tic_tac_toe_simple_evaluator import TicTacToeSimpleEvaluator
+from connect_four.evaluation.simple_evaluator import SimpleEvaluator
 from connect_four.hashing import TicTacToeHasher
 from connect_four.transposition.simple_transposition_table import SimpleTranspositionTable
 
@@ -18,7 +18,7 @@ class TestDFPNTicTacToe(unittest.TestCase):
         self.env.reset()
 
     def test_generate_children_initial_state(self):
-        evaluator = TicTacToeSimpleEvaluator(model=self.env)
+        evaluator = SimpleEvaluator(model=self.env)
         hasher = TicTacToeHasher(env=self.env)
         tt = SimpleTranspositionTable()
         agent = DFPN(evaluator, hasher, tt)
@@ -48,7 +48,7 @@ class TestDFPNTicTacToe(unittest.TestCase):
         # Any moves that lead to X winning will be considered "Proven".
         # Any moves that cause X to lose or draw the game will be considered "Disproven".
         # Any moves that allow the game to continue will be considered "Unknown".
-        evaluator = TicTacToeSimpleEvaluator(model=self.env)
+        evaluator = SimpleEvaluator(model=self.env)
         hasher = TicTacToeHasher(env=self.env)
         tt = SimpleTranspositionTable()
         agent = DFPN(evaluator, hasher, tt)
@@ -74,7 +74,7 @@ class TestDFPNTicTacToe(unittest.TestCase):
         self.assertEqual(1, delta)
 
     def test_calculate_phi_delta_initial_state(self):
-        evaluator = TicTacToeSimpleEvaluator(model=self.env)
+        evaluator = SimpleEvaluator(model=self.env)
         hasher = TicTacToeHasher(env=self.env)
         tt = SimpleTranspositionTable()
         agent = DFPN(evaluator, hasher, tt)
@@ -112,7 +112,7 @@ class TestDFPNTicTacToe(unittest.TestCase):
         # Any moves that lead to X winning will be considered "Proven".
         # Any moves that cause X to lose or draw the game will be considered "Disproven".
         # Any moves that allow the game to continue will be considered "Unknown".
-        evaluator = TicTacToeSimpleEvaluator(model=self.env)
+        evaluator = SimpleEvaluator(model=self.env)
         hasher = TicTacToeHasher(env=self.env)
         tt = SimpleTranspositionTable()
         agent = DFPN(evaluator, hasher, tt)
@@ -147,7 +147,7 @@ class TestDFPNTicTacToe(unittest.TestCase):
         # Any moves that lead to X winning will be considered "Proven".
         # Any moves that cause X to lose or draw the game will be considered "Disproven".
         # Any moves that allow the game to continue will be considered "Unknown".
-        evaluator = TicTacToeSimpleEvaluator(model=self.env)
+        evaluator = SimpleEvaluator(model=self.env)
         hasher = TicTacToeHasher(env=self.env)
         tt = SimpleTranspositionTable()
         agent = DFPN(evaluator, hasher, tt)
@@ -179,7 +179,7 @@ class TestDFPNTicTacToe(unittest.TestCase):
             ],
         ])
         self.env.player_turn = 1
-        evaluator = TicTacToeSimpleEvaluator(model=self.env)
+        evaluator = SimpleEvaluator(model=self.env)
         hasher = TicTacToeHasher(env=self.env)
         tt = SimpleTranspositionTable()
         agent = DFPN(evaluator, hasher, tt)
@@ -196,7 +196,7 @@ class TestDFPNTicTacToe(unittest.TestCase):
 
     def test_multiple_iterative_deepening_OR_Disproven_initial_state(self):
         # The initial state of Tic-Tac-Toe is a known draw, which means it is disproven for OR.
-        evaluator = TicTacToeSimpleEvaluator(model=self.env)
+        evaluator = SimpleEvaluator(model=self.env)
         hasher = TicTacToeHasher(env=self.env)
         tt = SimpleTranspositionTable()
         agent = DFPN(evaluator, hasher, tt)
@@ -226,7 +226,7 @@ class TestDFPNTicTacToe(unittest.TestCase):
             ],
         ])
         self.env.player_turn = 1
-        evaluator = TicTacToeSimpleEvaluator(model=self.env)
+        evaluator = SimpleEvaluator(model=self.env)
         hasher = TicTacToeHasher(env=self.env)
         tt = SimpleTranspositionTable()
         agent = DFPN(evaluator, hasher, tt)

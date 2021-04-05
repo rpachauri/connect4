@@ -5,7 +5,7 @@ from connect_four.evaluation.evaluator import NodeType
 from typing import Sequence
 
 
-class TicTacToeSimpleEvaluator(Evaluator):
+class SimpleEvaluator(Evaluator):
 
     def __init__(self, model: TwoPlayerGameEnv):
         """
