@@ -1,5 +1,5 @@
-from connect_four.agents.victor.game import Board
-from connect_four.agents.victor.evaluator import evaluator
+from connect_four.evaluation.victor import Board
+from connect_four.evaluation.victor.evaluator import evaluator
 from connect_four.envs import ConnectFourEnv
 from connect_four.evaluation import ProofStatus, NodeType
 from connect_four.evaluation.simple_evaluator import SimpleEvaluator
