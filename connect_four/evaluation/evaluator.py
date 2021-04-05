@@ -34,5 +34,9 @@ class Evaluator(ABC):
 
     @property
     @abstractmethod
-    def state(self) -> int:
+    def state(self):
+        pass
+
+    @abstractmethod
+    def get_node_type(self) -> NodeType:
         pass

@@ -19,9 +19,10 @@ class SimpleEvaluator(Evaluator):
         self.list_of_env_variables = []
         self.reward = TwoPlayerGameEnv.DEFAULT_REWARD
         self.done = False
-        if model.env_variables.player_turn == 0:
-            self.node_type = NodeType.OR
-        else:
+
+        # Default node_type to OR. Set it to AND if applicable.
+        self.node_type = NodeType.OR
+        if model.env_variables.player_turn == 1:
             self.node_type = NodeType.AND
 
     def move(self, action: int):
@@ -80,3 +81,6 @@ class SimpleEvaluator(Evaluator):
     @property
     def state(self):
         return self.model.state
+
+    def get_node_type(self) -> NodeType:
+        return self.node_type
