@@ -3,13 +3,15 @@ import unittest
 
 import numpy as np
 
-from connect_four.agents import PNS
+from connect_four.agents import DFPN
 from connect_four.evaluation.victor import Victor
+from connect_four.hashing import ConnectFourHasher
+from connect_four.transposition.simple_transposition_table import SimpleTranspositionTable
 
 
-class TestPNSConnectFour(unittest.TestCase):
+class TestDFPNConnectFour(unittest.TestCase):
     """
-    TestPNSTicTacToe tests the Proof-Number Search algorithm for the Connect Four environment.
+    TestDFPNTicTacToe tests the df-pn search algorithm for the Connect Four environment.
     """
     def setUp(self):
         self.env = gym.make('connect_four-v0')
@@ -36,13 +38,19 @@ class TestPNSConnectFour(unittest.TestCase):
             ],
         ])
         evaluator = Victor(model=self.env)
-        pns = PNS(evaluator=evaluator)
+        hasher = ConnectFourHasher(env=self.env)
+        tt = SimpleTranspositionTable()
+        agent = DFPN(evaluator, hasher, tt)
 
-        # Conduct Proof-Number Search.
-        pns.proof_number_search()
+        # The given node should be easily proven even with phi/delta thresholds of 1.
+        phi, delta = agent.multiple_iterative_deepening(env=self.env, phi_threshold=DFPN.INF, delta_threshold=DFPN.INF)
 
-        got_proof_number = pns.root.proof
-        self.assertEqual(0, got_proof_number)
+        # Since we are currently at an OR node and this node should have been proven,
+        # phi should be 0.
+        self.assertEqual(0, phi)
+        # Since we are currently at an OR node and this node should have been disproven,
+        # delta should be at least INF.
+        self.assertGreaterEqual(delta, DFPN.INF)
 
 
 if __name__ == '__main__':

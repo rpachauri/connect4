@@ -201,7 +201,7 @@ class TestDFPNTicTacToe(unittest.TestCase):
         tt = SimpleTranspositionTable()
         agent = DFPN(evaluator, hasher, tt)
 
-        # The given node should be easily proven even with phi/delta thresholds of 1.
+        # The given node should be easily disproven even with phi/delta thresholds of 1.
         phi, delta = agent.multiple_iterative_deepening(env=self.env, phi_threshold=DFPN.INF, delta_threshold=DFPN.INF)
 
         # Since we are currently at an OR node and this node should have been disproven,
