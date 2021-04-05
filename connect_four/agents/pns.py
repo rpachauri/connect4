@@ -128,8 +128,14 @@ class PNSNode:
 class PNS(Agent):
     def __init__(self, evaluator: Evaluator):
         self.evaluator = evaluator
-        self.root = PNSNode(evaluator.node_type)
+        self.root = PNSNode(node_type=evaluator.get_node_type())
         self.root.update_tree(evaluator=self.evaluator)
+
+    def proof_number_search(self):
+        while self.root.proof != 0 and self.root.disproof != 0:
+            self.root.update_tree(evaluator=self.evaluator)
+            print("self.root.proof =", self.root.proof)
+            print("self.root.disproof =", self.root.disproof)
 
     def action(self, env, last_action=None):
         """
@@ -150,8 +156,7 @@ class PNS(Agent):
             self.evaluator.move(action=last_action)
             self.root = self.root.children[last_action]
 
-        while self.root.proof != 0 and self.root.disproof != 0:
-            self.root.update_tree(evaluator=self.evaluator)
+        self.proof_number_search()
 
         best_action, best_child = self.root.select_most_proving_child()
         self.evaluator.move(action=best_action)
