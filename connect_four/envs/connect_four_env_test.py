@@ -225,6 +225,17 @@ class TestConnectFourEnv(unittest.TestCase):
         # verify it is currently Player 1's turn.
         self.assertEqual(want_env_variables[1], got_env_variables[1])
 
+    def test_actions_initial_state(self):
+        want_actions = list(range(7))
+        self.assertEqual(want_actions, self.env.actions())
+
+    def test_actions_full_column(self):
+        # fill the entire 4th column with tokens belonging to Player 2.
+        self.env.state[1, :, 3] = 1
+        # Column 3 is full so it should not be available.
+        want_actions = [0, 1, 2, 4, 5, 6]
+        self.assertEqual(want_actions, self.env.actions())
+
 
 if __name__ == '__main__':
     unittest.main()

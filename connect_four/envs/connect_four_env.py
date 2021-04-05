@@ -197,4 +197,8 @@ class ConnectFourEnv(TwoPlayerGameEnv):
         return wall + "*"
 
     def actions(self) -> Sequence[int]:
-        pass
+        available_actions = []
+        for col in range(ConnectFourEnv.N):
+            if self._find_highest_token(column=col) > 0:
+                available_actions.append(col)
+        return available_actions
