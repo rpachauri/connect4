@@ -75,7 +75,7 @@ def evaluate(board: Board) -> Optional[Evaluation]:
             chosen_set=find_chosen_set(
                 node_graph=node_graph,
                 problems=player_groups,
-                allowed_solutions=all_solutions,
+                disallowed_solutions=set(),
                 used_solutions=set(),
             )
         )
@@ -116,7 +116,7 @@ def create_node_graph(solutions: Set[Solution]) -> Dict[Union[Group, Solution], 
 def find_chosen_set(
         node_graph: Dict[Union[Group, Solution], Set[Solution]],
         problems: Set[Group],
-        allowed_solutions: Set[Solution],
+        disallowed_solutions: Set[Solution],
         used_solutions: Set[Solution]) -> Set[Solution]:
     """find_chosen_set finds a set of Solutions that solve all Problems.
 
@@ -124,7 +124,7 @@ def find_chosen_set(
         node_graph (dict<Group|Solution, Set<Solution>>): a Dictionary of groups or
             Solutions to all Solutions they are connected to.
         problems (Set<Group>): a set of groups.
-        allowed_solutions (Set<Solution>): a set of available Solutions to solve problems.
+        disallowed_solutions (Set<Solution>): a set of available Solutions to solve problems.
         used_solutions (Set<Solution>): a set of Solutions that have already been used
             to solve Problems outside problems.
 
@@ -139,8 +139,8 @@ def find_chosen_set(
 
     # Recursive Case.
     most_difficult_node = node_with_least_number_of_neighbors(
-        node_graph=node_graph, problems=problems, allowed_solutions=allowed_solutions)
-    most_difficult_node_usable_solutions = node_graph[most_difficult_node].intersection(allowed_solutions)
+        node_graph=node_graph, problems=problems, disallowed_solutions=disallowed_solutions)
+    most_difficult_node_usable_solutions = node_graph[most_difficult_node].difference(disallowed_solutions)
 
     for solution in most_difficult_node_usable_solutions:
         # Choose.
@@ -149,7 +149,7 @@ def find_chosen_set(
         chosen_set = find_chosen_set(
             node_graph=node_graph,
             problems=problems - solution.groups,
-            allowed_solutions=allowed_solutions - node_graph[solution],
+            disallowed_solutions=disallowed_solutions.union(node_graph[solution]),
             used_solutions=used_solutions,
         )
         # Unchoose.
@@ -162,14 +162,14 @@ def find_chosen_set(
 def node_with_least_number_of_neighbors(
         node_graph: Dict[Union[Group, Solution], Set[Solution]],
         problems: Set[Group],
-        allowed_solutions: Set[Solution]):
+        disallowed_solutions: Set[Solution]):
     most_difficult_node = None
-    num_neighbors_of_most_difficult = len(allowed_solutions) + 1  # Set to an arbitrary high number.
+    num_neighbors_of_most_difficult = len(node_graph) + 1  # Set to an arbitrary high number.
 
     # Find the Problem in problems with the fewest neighbors in node_graph.
     # Only allowed_solutions are counted.
     for problem in problems:
-        num_nodes = len(node_graph[problem].intersection(allowed_solutions))
+        num_nodes = len(node_graph[problem].difference(disallowed_solutions))
         if num_nodes < num_neighbors_of_most_difficult:
             most_difficult_node = problem
             num_neighbors_of_most_difficult = num_nodes

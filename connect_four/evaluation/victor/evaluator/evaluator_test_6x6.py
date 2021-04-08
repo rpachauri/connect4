@@ -167,7 +167,7 @@ class TestEvaluator6x6(unittest.TestCase):
         got_solutions = evaluator.find_chosen_set(
             node_graph=node_graph,
             problems=white_groups,
-            allowed_solutions=solutions,
+            disallowed_solutions=set(),
             used_solutions=set()
         )
         self.assertEqual(solutions, got_solutions)
