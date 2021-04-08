@@ -1,6 +1,6 @@
 from connect_four.evaluation.victor.rules import Rule
 
-from connect_four.evaluation.victor import Solution
+from connect_four.evaluation.victor.solution import Solution
 
 
 def allowed(s1: Solution, s2: Solution) -> bool:

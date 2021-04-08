@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 
 from connect_four.agents import PNS
-from connect_four.evaluation.victor import Victor
+from connect_four.evaluation.victor_evaluator import Victor
 
 
 class TestPNSConnectFour(unittest.TestCase):

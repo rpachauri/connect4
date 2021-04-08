@@ -68,8 +68,8 @@ class DFPN(Agent):
             self.hasher.undo_move()
 
             phi, delta = self.calculate_phi_delta()
-            print("phi =", phi)
-            print("delta =", delta)
+            # print("phi =", phi)
+            # print("delta =", delta)
 
         transposition = self.hasher.hash()
         self.tt.save(transposition=transposition, phi=phi, delta=delta)

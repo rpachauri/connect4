@@ -3,16 +3,16 @@ import unittest
 
 import numpy as np
 
-from connect_four.evaluation.victor import Board
-from connect_four.evaluation.victor import Square
-from connect_four.evaluation.victor import Group
+from connect_four.evaluation.victor.game import Board
+from connect_four.evaluation.victor.game import Square
+from connect_four.evaluation.victor.game import Group
 
 from connect_four.evaluation.victor.rules import Claimeven
 from connect_four.evaluation.victor.rules import Vertical
 from connect_four.evaluation.victor.rules import Before
 from connect_four.evaluation.victor.rules import find_all_befores
-from connect_four.evaluation.victor.rules import add_before_variations
-from connect_four.evaluation.victor.rules import empty_squares_of_before_group
+from connect_four.evaluation.victor.rules.before import add_before_variations
+from connect_four.evaluation.victor.rules.before import empty_squares_of_before_group
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
 

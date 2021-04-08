@@ -1,4 +1,4 @@
-from connect_four.evaluation.victor import Square
+from connect_four.evaluation.victor.game import Square
 
 from connect_four.evaluation.victor.rules import Claimeven
 from connect_four.evaluation.victor.rules import Baseinverse
@@ -10,8 +10,8 @@ from connect_four.evaluation.victor.rules import Baseclaim
 from connect_four.evaluation.victor.rules import Before
 from connect_four.evaluation.victor.rules import Specialbefore
 
-from connect_four.evaluation.victor import Threat
-from connect_four.evaluation.victor import ThreatCombination
+from connect_four.evaluation.victor.threat_hunter import Threat
+from connect_four.evaluation.victor.threat_hunter import ThreatCombination
 
 from connect_four.evaluation.victor.planning import simple_plan
 from connect_four.evaluation.victor.planning import forked_plan

@@ -1,1 +1,5 @@
+from connect_four.evaluation.victor.threat_hunter.threat import Threat
+from connect_four.evaluation.victor.threat_hunter.threat import find_odd_threat
 
+from connect_four.evaluation.victor.threat_hunter.threat_combination import ThreatCombination, ThreatCombinationType
+from connect_four.evaluation.victor.threat_hunter.threat_combination import find_threat_combination

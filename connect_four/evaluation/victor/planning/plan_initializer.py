@@ -1,6 +1,6 @@
 import copy
 
-from connect_four.evaluation.victor import Board
+from connect_four.evaluation.victor.game import Board
 from connect_four.evaluation.victor.evaluator import evaluator
 from connect_four.evaluation.victor.planning import plan
 from connect_four.envs import TwoPlayerGameEnvVariables

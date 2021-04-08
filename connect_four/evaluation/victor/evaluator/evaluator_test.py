@@ -1,9 +1,9 @@
 import unittest
 
-from connect_four.evaluation.victor import Square
-from connect_four.evaluation.victor import Group
+from connect_four.evaluation.victor.game import Square
+from connect_four.evaluation.victor.game import Group
 from connect_four.evaluation.victor.rules import Rule
-from connect_four.evaluation.victor import Solution
+from connect_four.evaluation.victor.solution import Solution
 
 from connect_four.evaluation.victor.evaluator.evaluator import create_node_graph
 

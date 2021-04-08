@@ -1,5 +1,5 @@
-from connect_four.evaluation.victor import Board
-from connect_four.evaluation.victor import Square
+from connect_four.evaluation.victor.game import Board
+from connect_four.evaluation.victor.game import Square
 
 
 class Claimeven:

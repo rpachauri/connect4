@@ -1,7 +1,6 @@
 from typing import Set
 
-from connect_four.evaluation.victor import Board, Square
-from connect_four.evaluation.victor import Group
+from connect_four.evaluation.victor.game import Board, Square, Group
 from connect_four.evaluation.victor.threat_hunter.odd_group_guarantor import OddGroupGuarantor
 
 

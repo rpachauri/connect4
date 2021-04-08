@@ -3,16 +3,16 @@ import unittest
 
 import numpy as np
 
-from connect_four.evaluation.victor import Board
-from connect_four.evaluation.victor import Group
-from connect_four.evaluation.victor import Square
+from connect_four.evaluation.victor.game import Board
+from connect_four.evaluation.victor.game import Group
+from connect_four.evaluation.victor.game import Square
 
 from connect_four.evaluation.victor.rules import Claimeven
 from connect_four.evaluation.victor.rules import Baseinverse
 
 from connect_four.evaluation.victor.evaluator import evaluator
-from connect_four.evaluation.victor import solution
-from connect_four.evaluation.victor import threat, threat_combination
+from connect_four.evaluation.victor.solution import solution
+from connect_four.evaluation.victor.threat_hunter import threat, threat_combination
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
 

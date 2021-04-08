@@ -5,7 +5,7 @@ import numpy as np
 
 from connect_four.envs import ConnectFourEnv
 from connect_four.evaluation import ProofStatus
-from connect_four.evaluation.victor import Victor
+from connect_four.evaluation.victor_evaluator import Victor
 
 
 class TestVictor(unittest.TestCase):

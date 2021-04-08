@@ -134,8 +134,8 @@ class PNS(Agent):
     def proof_number_search(self):
         while self.root.proof != 0 and self.root.disproof != 0:
             self.root.update_tree(evaluator=self.evaluator)
-            print("self.root.proof =", self.root.proof)
-            print("self.root.disproof =", self.root.disproof)
+            # print("self.root.proof =", self.root.proof)
+            # print("self.root.disproof =", self.root.disproof)
 
     def action(self, env, last_action=None):
         """

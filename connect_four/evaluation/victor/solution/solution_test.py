@@ -3,9 +3,9 @@ import unittest
 
 import numpy as np
 
-from connect_four.evaluation.victor import Board
-from connect_four.evaluation.victor import Square
-from connect_four.evaluation.victor import Group
+from connect_four.evaluation.victor.game import Board
+from connect_four.evaluation.victor.game import Square
+from connect_four.evaluation.victor.game import Group
 
 from connect_four.evaluation.victor.rules import Rule
 from connect_four.evaluation.victor.rules import Claimeven
@@ -18,8 +18,8 @@ from connect_four.evaluation.victor.rules import Baseclaim
 from connect_four.evaluation.victor.rules import Before
 from connect_four.evaluation.victor.rules import Specialbefore
 
-from connect_four.evaluation.victor import Solution
-from connect_four.evaluation.victor import solution
+from connect_four.evaluation.victor.solution import Solution
+from connect_four.evaluation.victor.solution import solution
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
 

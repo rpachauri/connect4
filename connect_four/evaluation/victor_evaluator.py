@@ -1,4 +1,4 @@
-from connect_four.evaluation.victor import Board
+from connect_four.evaluation.victor.game import Board
 from connect_four.evaluation.victor.evaluator import evaluator
 from connect_four.envs import ConnectFourEnv
 from connect_four.evaluation import ProofStatus, NodeType

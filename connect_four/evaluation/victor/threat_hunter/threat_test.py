@@ -3,11 +3,11 @@ import unittest
 
 import numpy as np
 
-from connect_four.evaluation.victor import Board
-from connect_four.evaluation.victor import Square
-from connect_four.evaluation.victor import Group
+from connect_four.evaluation.victor.game import Board
+from connect_four.evaluation.victor.game import Square
+from connect_four.evaluation.victor.game import Group
 
-from connect_four.evaluation.victor import threat
+from connect_four.evaluation.victor.threat_hunter import threat
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
 

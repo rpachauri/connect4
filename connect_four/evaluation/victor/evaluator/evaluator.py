@@ -4,11 +4,11 @@ Note that in this module, we use the term "Group" and "Problem" interchangeably.
 from collections import namedtuple
 from typing import Dict, Optional, Set, Union
 
-from connect_four.evaluation.victor import Board, Group, Square
-from connect_four.evaluation.victor import find_all_solutions, Solution
+from connect_four.evaluation.victor.game import Board, Group, Square
+from connect_four.evaluation.victor.solution import find_all_solutions, Solution
 from connect_four.evaluation.victor.solution import combination
-from connect_four.evaluation.victor import Threat, ThreatCombination, ThreatCombinationType
-from connect_four.evaluation.victor import find_odd_threat, find_threat_combination
+from connect_four.evaluation.victor.threat_hunter import Threat, ThreatCombination, ThreatCombinationType
+from connect_four.evaluation.victor.threat_hunter import find_odd_threat, find_threat_combination
 
 
 Evaluation = namedtuple("Evaluation", ["chosen_set", "odd_threat_guarantor"])
