@@ -3,8 +3,8 @@ import unittest
 
 import numpy as np
 
-from connect_four.hashing.data_structures import Group, Square, SquareType
-from connect_four.hashing.square_type_manager import SquareTypeManager
+from connect_four.game.data_structures import Group, Square
+from connect_four.hashing.square_type_manager import SquareTypeManager, SquareType
 
 
 class TestSquareTypeManagerTicTacToe(unittest.TestCase):

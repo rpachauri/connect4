@@ -1,6 +1,6 @@
 import numpy as np
 
-from connect_four.hashing.data_structures import SquareType
+from connect_four.hashing.square_type_manager import SquareType
 from typing import List
 
 
