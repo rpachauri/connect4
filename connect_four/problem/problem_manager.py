@@ -27,9 +27,9 @@ class ProblemManager:
         )
 
         # Play squares that have already been played.
-        # Change self.groups_by_square_by_player and self.square_types accordingly.
+        # Change self.groups_by_square_by_player accordingly.
         # Note that the order of the play does not matter because groups in self.groups_by_square_by_player() can only
-        # be removed by self._play_square() and the transition graph of SquareTypes has no cycles.
+        # be removed by self._play_square().
         for player in range(len(state)):
             for row in range(len(state[0])):
                 for col in range(len(state[0][0])):

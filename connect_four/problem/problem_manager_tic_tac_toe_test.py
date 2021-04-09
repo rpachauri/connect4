@@ -1,6 +1,8 @@
 import gym
 import unittest
 
+import numpy as np
+
 from connect_four.game import Square
 from connect_four.problem import Group
 from connect_four.problem.problem_manager import ProblemManager
@@ -32,6 +34,37 @@ class TestProblemManagerTicTacToe(unittest.TestCase):
         # Remove groups that contain 00 for Player 2.
         got_groups_removed_by_square = pm._remove_groups(opponent=1, row=0, col=0)
         self.assertEqual(want_groups_removed_by_square, got_groups_removed_by_square)
+
+    def test_move_groups_removed_by_square_groups_already_removed(self):
+        self.env.state = np.array([
+            [
+                [1, 0, 0, ],
+                [0, 0, 0, ],
+                [0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, ],
+                [0, 0, 1, ],
+                [0, 0, 0, ],
+            ],
+        ])
+        pm = ProblemManager(env_variables=self.env.env_variables, num_to_connect=3)
+
+        group_00_to_22 = Group(player=1, start=Square(row=0, col=0), end=Square(row=2, col=2))
+
+        # Since Player 1 has played at 00, Player 2 cannot win Group 00-22.
+        # This should already be reflected at 22.
+        self.assertNotIn(group_00_to_22, pm.groups_by_square_by_player[1][2][2])
+
+        # Player 1 plays in the center square.
+        pm.move(
+            player=0,
+            row=1,
+            col=1,
+        )
+
+        # Since Group 00-22 was already not winnable before, Square 22 should not be in got_groups_removed_by_square.
+        self.assertNotIn(Square(row=2, col=2), pm.groups_removed_by_squares_by_move[-1])
 
     def test_move(self):
         pm = ProblemManager(env_variables=self.env.env_variables, num_to_connect=3)
