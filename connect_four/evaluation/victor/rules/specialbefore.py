@@ -78,7 +78,41 @@ class Specialbefore(Rule):
         Returns:
             problems_solved (Set[Group]): All Problems in square_to_groups this Rule solves.
         """
-        pass
+        opponent = 1 - self.before.group.player
+        # Find all groups that contain the external directly playable square and
+        # all successors of empty squares of the Specialbefore.
+        external_and_successor_groups = groups_by_square_by_player[opponent][
+            self.external_directly_playable_square.row][self.external_directly_playable_square.col]
+        empty_squares = self.before.empty_squares_of_before_group()
+        for square in empty_squares:
+            direct_successor = Square(row=square.row - 1, col=square.col)
+            external_and_successor_groups = external_and_successor_groups.intersection(
+                groups_by_square_by_player[opponent][direct_successor.row][direct_successor.col])
+
+        # Find all groups that contain the internal directly playable square and
+        # external directly playable square of the Specialbefore.
+        # Essentially, reproducing the groups refuted by a Baseinverse.
+        sq1 = self.internal_directly_playable_square
+        sq2 = self.external_directly_playable_square
+        directly_playable_squares_groups = groups_by_square_by_player[opponent][sq1.row][sq1.col].intersection(
+            groups_by_square_by_player[opponent][sq2.row][sq2.col])
+
+        groups = external_and_successor_groups.union(directly_playable_squares_groups)
+
+        for vertical in self.before.verticals:
+            if vertical != self.unused_vertical():
+                # Add all groups refuted by Verticals which are part of the Before.
+                groups.update(vertical.find_problems_solved_for_player(
+                    groups_by_square=groups_by_square_by_player[opponent],
+                ))
+
+        for claimeven in self.before.claimevens:
+            # Add all groups refuted by Claimevens which are part of the Before.
+            groups.update(claimeven.find_problems_solved_for_player(
+                groups_by_square=groups_by_square_by_player[opponent],
+            ))
+
+        return groups
 
 
 def find_all_specialbefores(board: Board, befores):

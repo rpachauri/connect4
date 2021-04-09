@@ -15,6 +15,7 @@ from connect_four.evaluation.victor.rules import Specialbefore
 from connect_four.evaluation.victor.rules import find_all_specialbefores
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
+from connect_four.problem.problem_manager import ProblemManager
 
 
 class TestSpecialbefore(unittest.TestCase):
@@ -854,6 +855,70 @@ class TestSpecialbefore(unittest.TestCase):
                           external_directly_playable_square=directly_playable_square_0_2),
         }
         self.assertEqual(want_specialbefores, got_specialbefores)
+
+    def test_find_problems_solved(self):
+        # This board is from Diagram 6.10 of the original paper.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
+            ],
+        ])
+        pm = ProblemManager(env_variables=self.env.env_variables, num_to_connect=4)
+
+        # Verticals/Claimevens which are part of the Before.
+        vertical_e2_e3 = Vertical(upper=Square(row=3, col=4), lower=Square(row=4, col=4))  # Vertical e2-e3.
+        claimeven_f1_f2 = Claimeven(upper=Square(row=4, col=5), lower=Square(row=5, col=5))  # Claimeven f1-f2.
+        claimeven_g1_g2 = Claimeven(upper=Square(row=4, col=6), lower=Square(row=5, col=6))  # Claimeven g1-g2.
+
+        # Before d2-g2.
+        before_d2_g2 = Before(
+            group=Group(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6)),  # d2-g2
+            verticals=[vertical_e2_e3],
+            claimevens=[claimeven_f1_f2, claimeven_g1_g2],
+        )
+        # Specialbefore d2-g2.
+        specialbefore_d2_g2 = Specialbefore(
+            before=before_d2_g2,
+            internal_directly_playable_square=Square(row=4, col=4),  # e2
+            external_directly_playable_square=Square(row=3, col=3),  # d3
+        )
+
+        want_problems_solved = {
+            # groups that contain the external directly playable square and
+            # all successors of empty squares of the Specialbefore.
+            Group(player=0, start=Square(row=3, col=3), end=Square(row=3, col=6)),  # d3-g3
+            # groups that contain the internal directly playable square and
+            # external directly playable square of the Specialbefore.
+            Group(player=0, start=Square(row=1, col=1), end=Square(row=4, col=4)),  # b5-e2
+            Group(player=0, start=Square(row=2, col=2), end=Square(row=5, col=5)),  # c4-f1
+            # Note that Vertical e2-e3 does not get used.
+            # Group(player=0, start=Square(row=1, col=4), end=Square(row=4, col=4)),  # e2-e5
+            # groups that are refuted by Claimeven f1-f2.
+            Group(player=0, start=Square(row=1, col=5), end=Square(row=4, col=5)),  # f2-f5
+            Group(player=0, start=Square(row=2, col=5), end=Square(row=5, col=5)),  # f1-f4
+            Group(player=0, start=Square(row=2, col=3), end=Square(row=5, col=6)),  # d4-g1
+            # groups that are refuted by Claimeven g1-g2.
+            Group(player=0, start=Square(row=1, col=6), end=Square(row=4, col=6)),  # g2-g5
+            Group(player=0, start=Square(row=2, col=6), end=Square(row=5, col=6)),  # g1-g4
+            Group(player=0, start=Square(row=1, col=3), end=Square(row=4, col=6)),  # d5-g4
+        }
+        got_problems_solved = specialbefore_d2_g2.find_problems_solved(
+            groups_by_square_by_player=pm.groups_by_square_by_player,
+        )
+        self.assertEqual(want_problems_solved, got_problems_solved)
 
 
 if __name__ == '__main__':
