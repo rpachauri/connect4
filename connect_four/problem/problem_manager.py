@@ -180,3 +180,24 @@ class ProblemManager:
                     # Add g as one of the groups removed.
                     groups_removed_by_square[s].add(g)
         return groups_removed_by_square
+
+    def move(self, player: int, row: int, col: int):
+        """Plays a move at the given row and column for the given player.
+
+        Assumptions:
+            1.  The internal state of the ProblemManager is not at a terminal state.
+
+        Args:
+            player (int): the player making the move.
+            row (int): the row to play
+            col (int): the column to play
+        """
+        pass
+
+    def undo_move(self):
+        """Undoes the most recent move.
+
+        Raises:
+            (AssertionError): if the internal state of the ProblemManager is at the state given upon initialization.
+        """
+        pass

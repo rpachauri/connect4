@@ -1,7 +1,8 @@
 import gym
 import unittest
 
-from connect_four.game.data_structures import Group, Square
+from connect_four.game import Square
+from connect_four.problem import Group
 from connect_four.problem.problem_manager import ProblemManager
 
 
@@ -15,9 +16,9 @@ class TestProblemManagerTicTacToe(unittest.TestCase):
         self.assertEqual(0, pm.player)
 
         # In this test case, we're going to remove groups that contain 00 for Player 2.
-        group_00_to_02 = Group(squares=frozenset([Square(row=0, col=0), Square(row=0, col=1), Square(row=0, col=2)]))
-        group_00_to_22 = Group(squares=frozenset([Square(row=0, col=0), Square(row=1, col=1), Square(row=2, col=2)]))
-        group_00_to_20 = Group(squares=frozenset([Square(row=0, col=0), Square(row=1, col=0), Square(row=2, col=0)]))
+        group_00_to_02 = Group(player=1, start=Square(row=0, col=0), end=Square(row=0, col=2))
+        group_00_to_22 = Group(player=1, start=Square(row=0, col=0), end=Square(row=2, col=2))
+        group_00_to_20 = Group(player=1, start=Square(row=0, col=0), end=Square(row=2, col=0))
         want_groups_removed_by_square = {
             Square(row=0, col=0): {group_00_to_02, group_00_to_22, group_00_to_20},
             Square(row=0, col=1): {group_00_to_02},
