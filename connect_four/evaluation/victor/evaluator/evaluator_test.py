@@ -2,7 +2,7 @@ import unittest
 
 from connect_four.game import Square
 from connect_four.problem import Group
-from connect_four.evaluation.victor.rules import Rule
+from connect_four.evaluation.victor.rules import Rule, Claimeven, Vertical
 from connect_four.evaluation.victor.solution import Solution
 
 from connect_four.evaluation.victor.evaluator.evaluator import create_node_graph
@@ -16,30 +16,39 @@ class TestEvaluator(unittest.TestCase):
         # but it is not necessary for the Solutions to be exhaustive for this test.
         group_0_0_to_0_3 = Group(player=0, start=Square(row=0, col=0), end=Square(row=0, col=3))
         solution1 = Solution(
-            rule=Rule.Claimeven,
             squares=[
                 Square(row=0, col=0),
                 Square(row=1, col=0),
             ],
+            rule_instance=Claimeven(
+                upper=Square(row=0, col=0),
+                lower=Square(row=1, col=0),
+            ),
             groups=[group_0_0_to_0_3],
             claimeven_bottom_squares=[Square(row=1, col=0)],
         )
         group_1_0_to_4_0 = Group(player=0, start=Square(row=1, col=0), end=Square(row=4, col=0))
         solution2 = Solution(
-            rule=Rule.Vertical,
             squares=[
                 Square(row=1, col=0),
                 Square(row=2, col=0),
             ],
+            rule_instance=Vertical(
+                upper=Square(row=1, col=0),
+                lower=Square(row=2, col=0),
+            ),
             groups=[group_1_0_to_4_0],
         )
         group_0_1_to_3_4 = Group(player=1, start=Square(row=0, col=1), end=Square(row=3, col=4))
         solution3 = Solution(
-            rule=Rule.Vertical,
             squares=[
                 Square(row=0, col=1),
                 Square(row=1, col=1),
             ],
+            rule_instance=Vertical(
+                upper=Square(row=0, col=0),
+                lower=Square(row=1, col=0),
+            ),
             groups=[group_0_1_to_3_4],
             claimeven_bottom_squares=[Square(row=1, col=1)],
         )

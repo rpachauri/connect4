@@ -1,4 +1,4 @@
-from connect_four.evaluation.victor.rules import Rule, Claimeven, Baseinverse, Vertical, Aftereven, Baseclaim, Before, \
+from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Aftereven, Baseclaim, Before, \
     Specialbefore, Lowinverse, Highinverse
 
 from connect_four.evaluation.victor.solution import Solution

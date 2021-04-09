@@ -7,7 +7,6 @@ from connect_four.game import Square
 from connect_four.problem import Group
 from connect_four.evaluation.victor.board import Board
 
-from connect_four.evaluation.victor.rules import Rule
 from connect_four.evaluation.victor.rules import Claimeven
 from connect_four.evaluation.victor.rules import Baseinverse
 from connect_four.evaluation.victor.rules import Vertical
@@ -61,7 +60,6 @@ class TestSolution(unittest.TestCase):
 
         got_solution = solution.from_claimeven(claimeven_2_4, square_to_groups)
         want_solution = Solution(
-            rule=Rule.Claimeven,
             squares=frozenset([claimeven_2_4.upper, claimeven_2_4.lower]),
             groups=frozenset([
                 Group(player=0, start=Square(row=3, col=3), end=Square(row=0, col=6)),  # d3-g6
@@ -111,7 +109,6 @@ class TestSolution(unittest.TestCase):
 
         got_solution = solution.from_baseinverse(baseinverse_a1_b1, square_to_groups)
         want_solution = Solution(
-            rule=Rule.Baseinverse,
             squares=frozenset(baseinverse_a1_b1.squares),
             groups=frozenset([
                 Group(player=0, start=Square(row=5, col=0), end=Square(row=5, col=3)),  # a1-d1
@@ -153,7 +150,6 @@ class TestSolution(unittest.TestCase):
 
         got_solution = solution.from_vertical(vertical_e4_e5, square_to_groups)
         want_solution = Solution(
-            rule=Rule.Vertical,
             squares=frozenset([vertical_e4_e5.upper, vertical_e4_e5.lower]),
             groups=frozenset([
                 Group(player=0, start=Square(row=4, col=4), end=Square(row=1, col=4)),  # e2-e5
@@ -197,7 +193,6 @@ class TestSolution(unittest.TestCase):
 
         got_solution = solution.from_aftereven(aftereven_d2_g2, square_to_groups)
         want_solution = Solution(
-            rule=Rule.Aftereven,
             squares=frozenset([
                 # Squares from d2-g2.
                 Square(row=4, col=3),
@@ -265,7 +260,6 @@ class TestSolution(unittest.TestCase):
 
         got_solution = solution.from_lowinverse(lowinverse_c2_c3_d2_d3, square_to_groups)
         want_solution = Solution(
-            rule=Rule.Lowinverse,
             squares=frozenset([
                 Square(row=3, col=2),
                 Square(row=4, col=2),
@@ -331,7 +325,6 @@ class TestSolution(unittest.TestCase):
             directly_playable_squares=[Square(row=4, col=2), Square(row=4, col=3)],  # c2 and d2
         )
         want_solution = Solution(
-            rule=Rule.Highinverse,
             squares=frozenset([
                 Square(row=2, col=2),  # c4
                 Square(row=3, col=2),  # c3
@@ -411,7 +404,6 @@ class TestSolution(unittest.TestCase):
             lowinverse=lowinverse_c4_c5_d4_d5,
         )
         want_highinverse_solution = Solution(
-            rule=Rule.Highinverse,
             squares=frozenset([
                 Square(row=2, col=2),  # c4
                 Square(row=1, col=2),  # c5
@@ -575,7 +567,6 @@ class TestSolution(unittest.TestCase):
             square_to_groups=square_to_groups,
         )
         want_solution = Solution(
-            rule=Rule.Baseclaim,
             squares=frozenset([
                 Square(row=5, col=1),  # b1
                 Square(row=5, col=2),  # c1
@@ -630,7 +621,6 @@ class TestSolution(unittest.TestCase):
 
         got_solution = solution.from_before(before_b4_e1, square_to_groups)
         want_solution = Solution(
-            rule=Rule.Before,
             squares=frozenset([
                 # Empty squares part of the Before group.
                 Square(row=2, col=1),  # b4
@@ -705,7 +695,6 @@ class TestSolution(unittest.TestCase):
             square_to_groups=square_to_groups,
         )
         want_solution = Solution(
-            rule=Rule.Specialbefore,
             squares=frozenset([
                 # Empty squares part of the Specialbefore group.
                 Square(row=4, col=4),  # e2. Note that this is the internal directly playable square.

@@ -1,7 +1,7 @@
 import unittest
 
 from connect_four.game import Square
-from connect_four.evaluation.victor.rules import Rule, Claimeven, Baseinverse, Vertical, Lowinverse, Aftereven
+from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Lowinverse, Aftereven
 
 from connect_four.evaluation.victor.solution import Solution
 from connect_four.evaluation.victor.solution import combination
@@ -29,7 +29,6 @@ class TestCombination(unittest.TestCase):
         # Two Claimevens which can be combined.
         self.assertTrue(combination.allowed(
             s1=Solution(
-                rule=Rule.Claimeven,
                 squares=frozenset([
                     Square(row=5, col=4),  # e1
                     Square(row=4, col=4),  # e2
@@ -40,7 +39,6 @@ class TestCombination(unittest.TestCase):
                 ),
             ),
             s2=Solution(
-                rule=Rule.Claimeven,
                 squares=frozenset([
                     Square(row=3, col=4),  # e3
                     Square(row=2, col=4),  # e4
@@ -55,7 +53,6 @@ class TestCombination(unittest.TestCase):
         # Two Claimevens which cannot be combined.
         self.assertFalse(combination.allowed(
             s1=Solution(
-                rule=Rule.Claimeven,
                 squares=frozenset([
                     Square(row=5, col=4),  # e1
                     Square(row=4, col=4),  # e2
@@ -66,7 +63,6 @@ class TestCombination(unittest.TestCase):
                 ),
             ),
             s2=Solution(
-                rule=Rule.Claimeven,
                 squares=frozenset([
                     Square(row=5, col=4),  # e1
                     Square(row=4, col=4),  # e2
@@ -86,7 +82,6 @@ class TestCombination(unittest.TestCase):
         # A Baseinverse which can be combined with a Claimeven.
         self.assertTrue(combination.allowed(
             s1=Solution(
-                rule=Rule.Claimeven,
                 squares=frozenset([
                     Square(row=5, col=4),  # e1
                     Square(row=4, col=4),  # e2
@@ -97,7 +92,6 @@ class TestCombination(unittest.TestCase):
                 ),
             ),
             s2=Solution(
-                rule=Rule.Baseinverse,
                 squares=frozenset([
                     Square(row=5, col=3),  # d1
                     Square(row=5, col=5),  # f1
@@ -112,7 +106,6 @@ class TestCombination(unittest.TestCase):
         # A Baseinverse which cannot be combined with a Claimeven.
         self.assertFalse(combination.allowed(
             s1=Solution(
-                rule=Rule.Claimeven,
                 squares=frozenset([
                     Square(row=5, col=4),  # e1
                     Square(row=4, col=4),  # e2
@@ -123,7 +116,6 @@ class TestCombination(unittest.TestCase):
                 ),
             ),
             s2=Solution(
-                rule=Rule.Baseinverse,
                 squares=frozenset([
                     Square(row=5, col=3),  # d1
                     Square(row=5, col=4),  # e1
@@ -143,7 +135,6 @@ class TestCombination(unittest.TestCase):
         # A Vertical which can be combined with a Claimeven.
         self.assertTrue(combination.allowed(
             s1=Solution(
-                rule=Rule.Claimeven,
                 squares=frozenset([
                     Square(row=5, col=4),  # e1
                     Square(row=4, col=4),  # e2
@@ -154,7 +145,6 @@ class TestCombination(unittest.TestCase):
                 ),
             ),
             s2=Solution(
-                rule=Rule.Vertical,
                 squares=frozenset([
                     Square(row=4, col=3),  # d2
                     Square(row=3, col=3),  # d3
@@ -169,7 +159,6 @@ class TestCombination(unittest.TestCase):
         # A Vertical which cannot be combined with a Claimeven.
         self.assertFalse(combination.allowed(
             s1=Solution(
-                rule=Rule.Claimeven,
                 squares=frozenset([
                     Square(row=5, col=4),  # e1
                     Square(row=4, col=4),  # e2
@@ -180,7 +169,6 @@ class TestCombination(unittest.TestCase):
                 ),
             ),
             s2=Solution(
-                rule=Rule.Vertical,
                 squares=frozenset([
                     Square(row=4, col=4),  # e2
                     Square(row=3, col=4),  # e3
@@ -201,7 +189,6 @@ class TestCombination(unittest.TestCase):
         # A Lowinverse which can be combined with a Claimeven.
         self.assertTrue(combination.allowed(
             s1=Solution(
-                rule=Rule.Claimeven,
                 squares=frozenset([
                     Square(row=1, col=0),  # a5
                     Square(row=0, col=0),  # a6
@@ -215,7 +202,6 @@ class TestCombination(unittest.TestCase):
                 ),
             ),
             s2=Solution(
-                rule=Rule.Lowinverse,
                 squares=frozenset([
                     Square(row=4, col=0),  # a2
                     Square(row=3, col=0),  # a3
@@ -239,7 +225,6 @@ class TestCombination(unittest.TestCase):
         # A Lowinverse which cannot be combined with a Claimeven.
         self.assertFalse(combination.allowed(
             s1=Solution(
-                rule=Rule.Claimeven,
                 squares=frozenset([
                     Square(row=5, col=0),  # a1
                     Square(row=4, col=0),  # a2
@@ -253,7 +238,6 @@ class TestCombination(unittest.TestCase):
                 ),
             ),
             s2=Solution(
-                rule=Rule.Lowinverse,
                 squares=frozenset([
                     Square(row=2, col=0),  # a4
                     Square(row=1, col=0),  # a5
@@ -281,7 +265,6 @@ class TestCombination(unittest.TestCase):
         # Two Afterevens which can be combined.
         self.assertTrue(combination.allowed(
             s1=Solution(
-                rule=Rule.Aftereven,
                 squares=frozenset([
                     Square(row=5, col=4),  # e1
                     Square(row=4, col=4),  # e2
@@ -303,7 +286,6 @@ class TestCombination(unittest.TestCase):
                 ),
             ),
             s2=Solution(
-                rule=Rule.Aftereven,
                 squares=frozenset([
                     Square(row=5, col=4),  # e1
                     Square(row=4, col=4),  # e2

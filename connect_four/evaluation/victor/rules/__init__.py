@@ -1,5 +1,3 @@
-from connect_four.evaluation.victor.rules.rule import Rule
-
 from connect_four.evaluation.victor.rules.claimeven import Claimeven
 from connect_four.evaluation.victor.rules.claimeven import find_all_claimevens
 

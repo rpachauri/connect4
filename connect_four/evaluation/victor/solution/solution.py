@@ -32,8 +32,7 @@ class Solution:
     Two Solutions may or may not work together depending on which squares each
     consists of and which rule they are an application of.
     """
-    def __init__(self, rule, squares, groups=None, claimeven_bottom_squares=None, rule_instance=None):
-        self.rule = rule
+    def __init__(self, squares, groups=None, claimeven_bottom_squares=None, rule_instance=None):
         self.squares = frozenset(squares)
 
         if groups is None:
@@ -66,15 +65,13 @@ class Solution:
 
     def __eq__(self, other):
         if isinstance(other, Solution):
-            return (self.rule == other.rule and
-                    self.squares == other.squares and
+            return (self.squares == other.squares and
                     self.groups == other.groups and
                     self.claimeven_bottom_squares == other.claimeven_bottom_squares)
         return False
 
     def __hash__(self):
-        return (self.rule.__hash__() * 73 +
-                self.squares.__hash__() * 59 +
+        return (self.squares.__hash__() * 59 +
                 self.groups.__hash__() * 37 +
                 self.claimeven_bottom_squares.__hash__())
 
@@ -191,7 +188,6 @@ def from_claimeven(claimeven: Claimeven, square_to_groups) -> Solution:
     groups = square_to_groups[claimeven.upper]
     if groups:  # len(groups) > 0
         return Solution(
-            rule=Rule.Claimeven,
             squares=[claimeven.upper, claimeven.lower],
             groups=groups,
             claimeven_bottom_squares=[claimeven.lower],
@@ -216,7 +212,7 @@ def from_baseinverse(baseinverse: Baseinverse, square_to_groups) -> Solution:
     groups_intersection = groups1.intersection(groups2)
     if groups_intersection:
         squares = frozenset([square1, square2])
-        return Solution(rule=Rule.Baseinverse, squares=squares, groups=groups_intersection, rule_instance=baseinverse)
+        return Solution(squares=squares, groups=groups_intersection, rule_instance=baseinverse)
 
 
 def from_vertical(vertical: Vertical, square_to_groups) -> Solution:
@@ -235,7 +231,7 @@ def from_vertical(vertical: Vertical, square_to_groups) -> Solution:
     groups_intersection = upper_groups.intersection(lower_groups)
     if groups_intersection:
         squares = frozenset([vertical.upper, vertical.lower])
-        return Solution(rule=Rule.Vertical, squares=squares, groups=groups_intersection, rule_instance=vertical)
+        return Solution(squares=squares, groups=groups_intersection, rule_instance=vertical)
 
 
 def from_aftereven(aftereven: Aftereven, square_to_groups) -> Solution:
@@ -271,7 +267,6 @@ def from_aftereven(aftereven: Aftereven, square_to_groups) -> Solution:
             claimeven_bottom_squares.append(claimeven.lower)
 
         return Solution(
-            rule=Rule.Aftereven,
             squares=frozenset(squares_involved),
             groups=frozenset(groups),
             claimeven_bottom_squares=claimeven_bottom_squares,
@@ -358,7 +353,6 @@ def from_lowinverse(lowinverse: Lowinverse, square_to_groups) -> Solution:
             groups.update(vertical_1_solution.groups)
 
         return Solution(
-            rule=Rule.Lowinverse,
             squares=frozenset(squares),
             groups=frozenset(groups),
             rule_instance=lowinverse,
@@ -440,7 +434,6 @@ def from_highinverse(highinverse: Highinverse, square_to_groups) -> Solution:
             vertical_1.lower,
         ])
         return Solution(
-            rule=Rule.Highinverse,
             squares=squares,
             groups=frozenset(highinverse_groups),
             rule_instance=highinverse,
@@ -475,7 +468,6 @@ def from_baseclaim(baseclaim: Baseclaim, square_to_groups) -> Solution:
     if groups:
         squares = frozenset([baseclaim.first, baseclaim.second, baseclaim.third, square_above_second])
         return Solution(
-            rule=Rule.Baseclaim,
             squares=squares,
             groups=frozenset(groups),
             claimeven_bottom_squares=[baseclaim.second],
@@ -531,7 +523,6 @@ def from_before(before: Before, square_to_groups) -> Solution:
                 groups.update(claimeven_solution.groups)
 
         return Solution(
-            rule=Rule.Before,
             squares=frozenset(squares),
             groups=frozenset(groups),
             claimeven_bottom_squares=claimeven_bottom_squares,
@@ -599,7 +590,6 @@ def from_specialbefore(specialbefore: Specialbefore, square_to_groups) -> Soluti
 
         # The Specialbefore Solution includes all squares and groups that the Before Solution has.
         return Solution(
-            rule=Rule.Specialbefore,
             squares=frozenset(squares),
             groups=frozenset(groups),
             claimeven_bottom_squares=claimeven_bottom_squares,
