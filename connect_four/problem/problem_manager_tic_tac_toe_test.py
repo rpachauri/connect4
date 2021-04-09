@@ -2,7 +2,7 @@ import gym
 import unittest
 
 from connect_four.game.data_structures import Group, Square
-from connect_four.game.problem_manager import ProblemManager
+from connect_four.problem.problem_manager import ProblemManager
 
 
 class TestProblemManagerTicTacToe(unittest.TestCase):

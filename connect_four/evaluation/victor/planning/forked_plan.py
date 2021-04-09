@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-from connect_four.evaluation.victor.game import Square
+from connect_four.game import Square
 
 from connect_four.evaluation.victor.rules import Claimeven
 from connect_four.evaluation.victor.rules import Baseinverse

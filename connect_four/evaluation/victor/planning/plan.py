@@ -1,4 +1,4 @@
-from connect_four.evaluation.victor.game import Square
+from connect_four.game import Square
 
 from connect_four.evaluation.victor.rules import Claimeven
 from connect_four.evaluation.victor.rules import Baseinverse
@@ -30,7 +30,7 @@ class Plan:
 
         Assumptions:
             1. Makes an assumption that together, all applications in rule_applications can be used to respond to
-                any move the opponent makes until the end of the game.
+                any move the opponent makes until the end of the board.
 
         Args:
             rule_applications (Iterable): rule_applications is an iterable of Rule applications:

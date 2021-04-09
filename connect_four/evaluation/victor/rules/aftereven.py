@@ -1,5 +1,5 @@
-from connect_four.evaluation.victor.game import Board
-from connect_four.evaluation.victor.game import Group
+from connect_four.problem import Group
+from connect_four.evaluation.victor.board import Board
 
 
 class Aftereven:

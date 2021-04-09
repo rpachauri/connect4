@@ -1,5 +1,5 @@
-from connect_four.evaluation.victor.game import Board
-from connect_four.evaluation.victor.game import Square
+from connect_four.game import Square
+from connect_four.evaluation.victor.board import Board
 
 
 class Vertical:

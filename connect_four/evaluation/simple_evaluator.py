@@ -64,15 +64,15 @@ class SimpleEvaluator(Evaluator):
                 Unknown: If the current state is non-terminal.
         """
         if not self.done:
-            # The game is not yet done.
+            # The board is not yet done.
             return ProofStatus.Unknown
 
-        # The game has ended, so we must be able to either Prove or Disprove this node.
+        # The board has ended, so we must be able to either Prove or Disprove this node.
         # Player OR has connected three, indicating this node is proven.
         if self.node_type == NodeType.AND and self.reward == TwoPlayerGameEnv.CONNECTED:
             return ProofStatus.Proven
 
-        # The game has ended without OR winning, so OR has failed to prove this node.
+        # The board has ended without OR winning, so OR has failed to prove this node.
         return ProofStatus.Disproven
 
     def actions(self) -> Sequence[int]:

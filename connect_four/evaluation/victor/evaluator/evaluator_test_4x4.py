@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from connect_four.evaluation.victor.game import Board
+from connect_four.evaluation.victor.board import Board
 from connect_four.evaluation.victor.evaluator import evaluator
 from connect_four.envs.connect_four_env import ConnectFourEnv
 

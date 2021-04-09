@@ -1,4 +1,4 @@
-from connect_four.evaluation.victor.game import Square
+from connect_four.game import Square
 from enum import Enum
 
 
@@ -26,7 +26,7 @@ ROW_COL_DIFFS_TO_group_DIRECTION = {
 
 
 class Group:
-    """A Group is a group of 4 squares on a Connect Four board.
+    """A Group is a group of squares in a line on a TwoPlayerGameEnv state.
 
     Each Group belongs to a specific player (0 or 1).
     All four of the squares must be in a line.
@@ -47,20 +47,27 @@ class Group:
         # Perform validation on start and end of group.
         row_diff = end.row - start.row
         col_diff = end.col - start.col
-        if not (row_diff == -3 or row_diff == 0 or row_diff == 3) or not (
-                col_diff == -3 or col_diff == 0 or col_diff == 3):
-            raise ValueError("Invalid group line:", start, "-", end)
 
-        # Derive the four squares of the group from the start and end squares.
-        row_diff, col_diff = row_diff // 3, col_diff // 3
+        # Should be a vector in one of the 8 acceptable directions.
+        if row_diff != 0 and col_diff != 0:
+            assert abs(row_diff) == abs(col_diff)
+
+        # max_abs_diff is the number of squares in the group - 1.
+        max_abs_diff = max(abs(row_diff), abs(col_diff))
+        if max_abs_diff not in {2, 3}:
+            # For now, only support lengths of 3 and 4 for Tic-Tac-Toe and ConnectFour.
+            raise ValueError("Group length", max_abs_diff + 1, "not in {3, 4}")
+
+        # Derive the squares of the group from the start and end squares.
+        row_diff, col_diff = row_diff // max_abs_diff, col_diff // max_abs_diff
         square_list = [start]
-        for _ in range(3):
+        for _ in range(max_abs_diff):
             next_square = Square(square_list[-1].row + row_diff, square_list[-1].col + col_diff)
             square_list.append(next_square)
         assert square_list[-1] == end
 
         self.squares = frozenset(square_list)
-        assert len(self.squares) == 4
+        assert len(self.squares) == max_abs_diff + 1
 
         self.direction = ROW_COL_DIFFS_TO_group_DIRECTION[(row_diff, col_diff)]
 

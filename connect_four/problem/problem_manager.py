@@ -1,7 +1,8 @@
 from typing import List, Set, Dict
 
 from connect_four.envs import TwoPlayerGameEnvVariables
-from connect_four.game.data_structures import Group, Square
+from connect_four.game import Square
+from connect_four.problem import Group
 
 
 class ProblemManager:
@@ -57,17 +58,18 @@ class ProblemManager:
             (1, 0),  # vertical
         ]
         all_groups = set()
-        for start_row in range(num_rows):
-            for start_col in range(num_cols):
-                for direction in directions:
-                    group_squares = set()
-                    for i in range(num_to_connect):
-                        row = start_row + i * direction[0]
-                        col = start_col + i * direction[1]
-                        if ProblemManager._is_valid(row=row, col=col, num_rows=num_rows, num_cols=num_cols):
-                            group_squares.add(Square(row=row, col=col))
-                    if len(group_squares) == num_to_connect:
-                        all_groups.add(Group(squares=frozenset(group_squares)))
+        for player in range(2):
+            for start_row in range(num_rows):
+                for start_col in range(num_cols):
+                    for direction in directions:
+                        end_row = start_row + (num_to_connect - 1) * direction[0]
+                        end_col = start_col + (num_to_connect - 1) * direction[1]
+                        if ProblemManager._is_valid(row=end_row, col=end_col, num_rows=num_rows, num_cols=num_cols):
+                            all_groups.add(Group(
+                                player=player,
+                                start=Square(row=start_row, col=start_col),
+                                end=Square(row=end_row, col=end_col),
+                            ))
         return all_groups
 
     @staticmethod
@@ -114,7 +116,7 @@ class ProblemManager:
                     groups_at_square = set()
                     square = Square(row=row, col=col)
                     for group in all_groups:
-                        if square in group.squares:
+                        if player == group.player and square in group.squares:
                             groups_at_square.add(group)
                     rows.append(groups_at_square)
                 player_squares.append(rows)

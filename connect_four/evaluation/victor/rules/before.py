@@ -1,7 +1,7 @@
-from connect_four.evaluation.victor.game import Board
-from connect_four.evaluation.victor.game import Square
-from connect_four.evaluation.victor.game import Group
-from connect_four.evaluation.victor.game import GroupDirection
+from connect_four.game import Square
+from connect_four.problem import Group
+from connect_four.problem import GroupDirection
+from connect_four.evaluation.victor.board import Board
 
 from connect_four.evaluation.victor.rules import Claimeven
 from connect_four.evaluation.victor.rules import Vertical

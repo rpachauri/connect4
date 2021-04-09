@@ -46,7 +46,7 @@ for i in range(10):
             else:  # reward == TwoPlayerGameEnv.DRAW
                 agents_record[2] += 1
 
-    print("Record after game", i, "-", agents_record)
+    print("Record after board", i, "-", agents_record)
 
 print("Number of wins for agent 1:", agents_record[0])
 print("Number of wins for agent 2:", agents_record[1])

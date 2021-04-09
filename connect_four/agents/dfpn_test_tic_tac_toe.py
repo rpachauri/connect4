@@ -46,8 +46,8 @@ class TestDFPNTicTacToe(unittest.TestCase):
         ])
         # OR is X and AND is O.
         # Any moves that lead to X winning will be considered "Proven".
-        # Any moves that cause X to lose or draw the game will be considered "Disproven".
-        # Any moves that allow the game to continue will be considered "Unknown".
+        # Any moves that cause X to lose or draw the board will be considered "Disproven".
+        # Any moves that allow the board to continue will be considered "Unknown".
         evaluator = SimpleEvaluator(model=self.env)
         hasher = TicTacToeHasher(env=self.env)
         tt = SimpleTranspositionTable()
@@ -66,7 +66,7 @@ class TestDFPNTicTacToe(unittest.TestCase):
         self.assertEqual(DFPN.INF, phi)
         self.assertEqual(0, delta)
 
-        # Verify that any moves that allow the game to continue will be considered "Unknown".
+        # Verify that any moves that allow the board to continue will be considered "Unknown".
         hasher.move(action=5)
         phi, delta = tt.retrieve(transposition=hasher.hash())
         # Since child_2 is an AND node, the phi number is 0 because it disproved the node.
@@ -110,8 +110,8 @@ class TestDFPNTicTacToe(unittest.TestCase):
         ])
         # OR is X and AND is O.
         # Any moves that lead to X winning will be considered "Proven".
-        # Any moves that cause X to lose or draw the game will be considered "Disproven".
-        # Any moves that allow the game to continue will be considered "Unknown".
+        # Any moves that cause X to lose or draw the board will be considered "Disproven".
+        # Any moves that allow the board to continue will be considered "Unknown".
         evaluator = SimpleEvaluator(model=self.env)
         hasher = TicTacToeHasher(env=self.env)
         tt = SimpleTranspositionTable()
@@ -145,8 +145,8 @@ class TestDFPNTicTacToe(unittest.TestCase):
         ])
         # OR is X and AND is O. The above state should be easily proved.
         # Any moves that lead to X winning will be considered "Proven".
-        # Any moves that cause X to lose or draw the game will be considered "Disproven".
-        # Any moves that allow the game to continue will be considered "Unknown".
+        # Any moves that cause X to lose or draw the board will be considered "Disproven".
+        # Any moves that allow the board to continue will be considered "Unknown".
         evaluator = SimpleEvaluator(model=self.env)
         hasher = TicTacToeHasher(env=self.env)
         tt = SimpleTranspositionTable()
@@ -212,7 +212,7 @@ class TestDFPNTicTacToe(unittest.TestCase):
         self.assertEqual(0, delta)
 
     def test_multiple_iterative_deepening_AND_Disproven_near_terminal_state(self):
-        # In this state, AND is to move but the game is a draw.
+        # In this state, AND is to move but the board is a draw.
         self.env.state = np.array([
             [
                 [1, 1, 0, ],

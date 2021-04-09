@@ -217,7 +217,7 @@ class TestMCST(unittest.TestCase):
 
     def test_prevent_opponent_from_winning_not_full_search(self):
         # Test to see if MCPNS can find the optimal move without
-        # searching the entire game tree.
+        # searching the entire board tree.
         self.env.state = np.array([
             [
                 [0, 0, 0, 0, ],
