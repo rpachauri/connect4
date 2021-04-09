@@ -14,6 +14,8 @@ from connect_four.evaluation.victor.rules import Highinverse
 from connect_four.evaluation.victor.rules import find_all_highinverses
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
+from connect_four.problem import Group
+from connect_four.problem.problem_manager import ProblemManager
 
 
 class TestHighinverse(unittest.TestCase):
@@ -195,6 +197,71 @@ class TestHighinverse(unittest.TestCase):
             # All Lowinverses with vertical_1_6.
         }
         self.assertEqual(want_highinverses, got_highinverses)
+
+    def test_find_problems_solved_for_player(self):
+        # This board is from Diagram 6.6 of the original paper.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+            ],
+        ])
+        pm = ProblemManager(env_variables=self.env.env_variables, num_to_connect=4)
+
+        # Lowinverse c2-c3-d2-d3 guarantees that Black will get at least one square
+        # out of each of three pairs of squares:
+        # 1. The squares in the first column (c2-c3).
+        # 2. The squares in the other column (d2-d3).
+        # 3. The upper two squares (c3-d3).
+        lowinverse_c2_c3_d2_d3 = Lowinverse(
+            first_vertical=Vertical(upper=Square(row=3, col=2), lower=Square(row=4, col=2)),  # c2-c3
+            second_vertical=Vertical(upper=Square(row=3, col=3), lower=Square(row=4, col=3)),  # d2-d3
+        )
+        # Highinverse c2-c3-c4-d2-d3-d4 guarantees that Black will get at least one square
+        # out of each of four pairs of squares:
+        # 1. The upper two squares in the first column (c3-c4).
+        # 2. The upper two squares in the second column (d3-d4).
+        # 3. The middle squares from both columns (c3-d3).
+        # 4. The upper squares from both columns (c4-d4).
+        highinverse_c2_c3_c4_d2_d3_d4 = Highinverse(
+            lowinverse=lowinverse_c2_c3_d2_d3,
+            directly_playable_squares=[Square(row=4, col=2), Square(row=4, col=3)],  # c2 and d2
+        )
+        want_problems_solved_for_player_0 = {
+            # White problems.
+            # groups which contain the upper squares of both columns.
+            Group(player=0, start=Square(row=2, col=0), end=Square(row=2, col=3)),  # a4-d4
+            Group(player=0, start=Square(row=2, col=1), end=Square(row=2, col=4)),  # b4-e4
+            Group(player=0, start=Square(row=2, col=2), end=Square(row=2, col=5)),  # c4-f4
+            # groups which contain the middle squares of both columns.
+            Group(player=0, start=Square(row=3, col=0), end=Square(row=3, col=3)),  # a3-d3
+            Group(player=0, start=Square(row=3, col=1), end=Square(row=3, col=4)),  # b3-e3
+            Group(player=0, start=Square(row=3, col=2), end=Square(row=3, col=5)),  # c3-f3
+            # groups refuted by Vertical c3-c4.
+            Group(player=0, start=Square(row=0, col=2), end=Square(row=3, col=2)),  # c3-c6
+            Group(player=0, start=Square(row=1, col=2), end=Square(row=4, col=2)),  # c2-c5
+            # Note that c1-c4 does not need to be refuted because Black already occupies c1.
+            # groups refuted by Vertical d3-d4.
+            Group(player=0, start=Square(row=0, col=3), end=Square(row=3, col=3)),  # d3-d6
+            Group(player=0, start=Square(row=1, col=3), end=Square(row=4, col=3)),  # d2-d5
+            Group(player=0, start=Square(row=2, col=3), end=Square(row=5, col=3)),  # d1-d4
+        }
+        got_problems_solved_for_player_0 = highinverse_c2_c3_c4_d2_d3_d4.find_problems_solved_for_player(
+            groups_by_square=pm.groups_by_square_by_player[0],
+        )
+        self.assertEqual(want_problems_solved_for_player_0, got_problems_solved_for_player_0)
 
 
 if __name__ == '__main__':
