@@ -35,7 +35,20 @@ class Lowinverse(Rule):
         Returns:
             problems_solved (Set[Group]): All Problems in square_to_groups this Rule solves.
         """
-        pass
+        white_problems_solved = self.find_problems_solved_for_player(groups_by_square=groups_by_square_by_player[0])
+        black_problems_solved = self.find_problems_solved_for_player(groups_by_square=groups_by_square_by_player[1])
+        return white_problems_solved.union(black_problems_solved)
+
+    def find_problems_solved_for_player(self, groups_by_square: List[List[Set[Group]]]) -> Set[Group]:
+        vertical_0, vertical_1 = tuple(self.verticals)
+        upper_0 = vertical_0.upper
+        upper_1 = vertical_1.upper
+        groups_0 = groups_by_square[upper_0.row][upper_0.col]
+        groups_1 = groups_by_square[upper_1.row][upper_1.col]
+        solved_by_two_upper_squares = groups_0.intersection(groups_1)
+        vertical_0_problems = vertical_0.find_problems_solved_for_player(groups_by_square=groups_by_square)
+        vertical_1_problems = vertical_1.find_problems_solved_for_player(groups_by_square=groups_by_square)
+        return solved_by_two_upper_squares.union(vertical_0_problems).union(vertical_1_problems)
 
 
 def find_all_lowinverses(verticals):

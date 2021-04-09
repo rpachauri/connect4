@@ -165,7 +165,7 @@ class TestAftereven(unittest.TestCase):
         # Assert that got_afterevens is not empty.
         self.assertTrue(got_afterevens)
 
-    def test_from_aftereven(self):
+    def test_find_problems_solved(self):
         # This board is from Diagram 6.5 of the original paper.
         self.env.state = np.array([
             [
