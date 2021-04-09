@@ -1,3 +1,5 @@
+from typing import Dict, Set, FrozenSet
+
 from connect_four.game import Square
 from connect_four.evaluation.victor.board import Board
 
@@ -42,6 +44,24 @@ class Solution:
         self.claimeven_bottom_squares = frozenset(claimeven_bottom_squares)
 
         self.rule_instance = rule_instance
+        self.squares_by_column = self.cols_to_squares(squares=self.squares)
+
+    @staticmethod
+    def cols_to_squares(squares: FrozenSet[Square]) -> Dict[int, Set[Square]]:
+        """Converts an iterable of Squares into a dictionary of Squares keyed by the column they belong in.
+
+        Args:
+            squares (iterable<Square>): an iterable of Square objects.
+
+        Returns:
+            col_to_squares_dict (Map<int, Set<Square>>): a dictionary of columns to Squares in that column.
+        """
+        col_to_squares_dict = {}
+        for square in squares:
+            if square.col not in col_to_squares_dict:
+                col_to_squares_dict[square.col] = set()
+            col_to_squares_dict[square.col].add(square)
+        return col_to_squares_dict
 
     def __eq__(self, other):
         if isinstance(other, Solution):

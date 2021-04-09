@@ -116,33 +116,13 @@ def column_wise_disjoint_or_equal(solution: Solution, other: Solution) -> bool:
         but the sets squares in that column are not equal.
         Otherwise, True.
     """
-    solution_cols_to_squares = cols_to_squares(solution.squares)
-    other_cols_to_squares = cols_to_squares(other.squares)
-
-    for col in solution_cols_to_squares:
-        if col in other_cols_to_squares:
+    for col in solution.squares_by_column:
+        if col in other.squares_by_column:
             # If the two sets of Squares are not equal but share a Square:
-            if (solution_cols_to_squares[col].intersection(other_cols_to_squares[col]) and
-                    solution_cols_to_squares[col] != other_cols_to_squares[col]):
+            if (solution.squares_by_column[col].intersection(other.squares_by_column[col]) and
+                    solution.squares_by_column[col] != other.squares_by_column[col]):
                 return False
     return True
-
-
-def cols_to_squares(squares):
-    """Converts an iterable of Squares into a dictionary of Squares keyed by the column they belong in.
-
-    Args:
-        squares (iterable<Square>): an iterable of Square objects.
-
-    Returns:
-        col_to_squares_dict (Map<int, Set<Square>>): a dictionary of columns to Squares in that column.
-    """
-    col_to_squares_dict = {}
-    for square in squares:
-        if square.col not in col_to_squares_dict:
-            col_to_squares_dict[square.col] = set()
-        col_to_squares_dict[square.col].add(square)
-    return col_to_squares_dict
 
 
 def allowed_with_claimeven(solution: Solution, other: Solution) -> bool:
