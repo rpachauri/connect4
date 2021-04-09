@@ -12,6 +12,7 @@ from connect_four.evaluation.victor.rules import Aftereven
 from connect_four.evaluation.victor.rules import find_all_afterevens
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
+from connect_four.problem.problem_manager import ProblemManager
 
 
 class TestAftereven(unittest.TestCase):
@@ -163,6 +164,55 @@ class TestAftereven(unittest.TestCase):
         )
         # Assert that got_afterevens is not empty.
         self.assertTrue(got_afterevens)
+
+    def test_from_aftereven(self):
+        # This board is from Diagram 6.5 of the original paper.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 1, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 1, 1, 0, 0, ],
+                [0, 1, 1, 0, 0, 0, 0, ],
+                [0, 1, 1, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 1, 1, 0, 0, ],
+                [0, 1, 0, 0, 0, 0, 0, ],
+                [1, 0, 0, 1, 1, 0, 0, ],
+                [1, 0, 0, 0, 1, 0, 0, ],
+            ],
+        ])
+        pm = ProblemManager(env_variables=self.env.env_variables, num_to_connect=4)
+
+        # The Aftereven d2-g2 solves all groups which need a square in both the f and g column.
+        aftereven_d2_g2 = Aftereven(
+            group=Group(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6)),  # d2-g2
+            claimevens=[
+                Claimeven(upper=Square(row=4, col=5), lower=Square(row=5, col=5)),  # Claimeven f1-f2
+                Claimeven(upper=Square(row=4, col=6), lower=Square(row=5, col=6)),  # Claimeven g1-g2
+            ],
+        )
+
+        want_problems_solved = {
+            # New groups from Aftereven.
+            Group(player=0, start=Square(row=3, col=3), end=Square(row=3, col=6)),  # d3-g3
+            Group(player=0, start=Square(row=1, col=3), end=Square(row=1, col=6)),  # d5-g5
+            Group(player=0, start=Square(row=0, col=3), end=Square(row=0, col=6)),  # d6-g6
+            Group(player=0, start=Square(row=0, col=3), end=Square(row=3, col=6)),  # d0-g3
+            # groups refuted by Claimeven f1-f2.
+            Group(player=0, start=Square(row=2, col=5), end=Square(row=5, col=5)),  # f1-f4
+            Group(player=0, start=Square(row=1, col=5), end=Square(row=4, col=5)),  # f2-f5
+            # groups refuted by Claimeven g1-g2.
+            Group(player=0, start=Square(row=2, col=6), end=Square(row=5, col=6)),  # g1-g4
+            Group(player=0, start=Square(row=1, col=6), end=Square(row=4, col=6)),  # g2-g5
+        }
+        got_problems_solved = aftereven_d2_g2.find_problems_solved(
+            groups_by_square_by_player=pm.groups_by_square_by_player,
+        )
+        self.assertEqual(want_problems_solved, got_problems_solved)
 
 
 if __name__ == '__main__':

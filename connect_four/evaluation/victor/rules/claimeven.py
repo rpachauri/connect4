@@ -36,9 +36,12 @@ class Claimeven(Rule):
             problems_solved (Set[Group]): All Problems in square_to_groups this Rule solves.
         """
         # Return problems that belong to either player at the upper square.
-        row = self.upper.row
-        col = self.upper.col
-        return groups_by_square_by_player[0][row][col].union(groups_by_square_by_player[1][row][col])
+        white_problems_solved = self.find_problems_solved_for_player(groups_by_square=groups_by_square_by_player[0])
+        black_problems_solved = self.find_problems_solved_for_player(groups_by_square=groups_by_square_by_player[1])
+        return white_problems_solved.union(black_problems_solved)
+
+    def find_problems_solved_for_player(self, groups_by_square: List[List[Set[Group]]]) -> Set[Group]:
+        return groups_by_square[self.upper.row][self.upper.col]
 
 
 def find_all_claimevens(board: Board):

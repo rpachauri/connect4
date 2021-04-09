@@ -1,6 +1,7 @@
 from typing import List, Set
 
 from connect_four.evaluation.victor.rules import Rule
+from connect_four.game import Square
 from connect_four.problem import Group
 from connect_four.evaluation.victor.board import Board
 
@@ -50,7 +51,72 @@ class Aftereven(Rule):
         Returns:
             problems_solved (Set[Group]): All Problems in square_to_groups this Rule solves.
         """
-        pass
+        groups = set()
+        self.add_new_groups_from_aftereven(
+            groups=groups,
+            empty_squares_of_aftereven=self.empty_squares_of_aftereven_group(),
+            threatening_squares=[],
+            groups_by_square=groups_by_square_by_player[1 - self.group.player],
+        )
+        for claimeven in self.claimevens:
+            groups.update(claimeven.find_problems_solved_for_player(
+                groups_by_square=groups_by_square_by_player[1 - self.group.player],
+            ))
+        return groups
+
+    @staticmethod
+    def add_new_groups_from_aftereven(
+            groups: Set[Group],
+            empty_squares_of_aftereven: List[Square],
+            threatening_squares: List[Square],
+            groups_by_square: List[List[Set[Group]]]):
+        """Adds any new groups that intersect squares above empty_squares_of_aftereven to groups.
+        This is a recursive backtracking algorithm.
+        threatening_squares starts out as an empty list.
+        empty_squares_of_aftereven starts out as a list of all empty squares of the aftereven.
+
+        We select a square from empty_squares_of_aftereven and remove it from the list.
+        For every square above that square, we add it to threatening_squares, recurse, and then remove it from
+          threatening_squares.
+        The base case is when empty_squares_of_aftereven is empty. At that point, we find all groups that include
+          all squares in threatening_squares and add them to groups.
+
+        Args:
+            groups (Set[Group]): a Set of groups this function will add to.
+            empty_squares_of_aftereven (List[Square]):
+                A subset of empty Squares that belong to an Aftereven.
+                If two Squares from the Aftereven belong in the same column,
+                    the Square from the higher row should be given.
+                It is required that none of the Squares share the same column.
+            threatening_squares (List[Square]):
+                A list of Squares that could belong to a group that the Aftereven refutes.
+                It is required that none of the Squares share the same column.
+            groups_by_square (List[List[Set[Group]]]): A 2D array mapping each
+                Square to all groups that contain that Square.
+
+        Returns:
+            None
+        """
+        # Base case.
+        if not empty_squares_of_aftereven:
+            new_groups_to_add = groups_by_square[threatening_squares[0].row][threatening_squares[0].col]
+            for square in threatening_squares[1:]:
+                new_groups_to_add = new_groups_to_add.intersection(groups_by_square[square.row][square.col])
+            groups.update(new_groups_to_add)
+            return
+
+        # Recursive Case.
+        square = empty_squares_of_aftereven.pop()
+        for row in range(square.row - 1, -1, -1):
+            square_above = Square(row=row, col=square.col)
+            # Choose.
+            threatening_squares.append(square_above)
+            # Recurse.
+            Aftereven.add_new_groups_from_aftereven(
+                groups, empty_squares_of_aftereven, threatening_squares, groups_by_square)
+            # Unchoose.
+            threatening_squares.remove(square_above)
+        empty_squares_of_aftereven.append(square)
 
 
 def find_all_afterevens(board: Board, claimevens, opponent_groups):
