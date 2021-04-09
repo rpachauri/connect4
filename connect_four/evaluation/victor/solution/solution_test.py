@@ -74,6 +74,15 @@ class TestSolution(unittest.TestCase):
         )
         self.assertEqual(want_solution, got_solution)
 
+        want_problems_solved = {
+            Group(player=0, start=Square(row=3, col=3), end=Square(row=0, col=6)),  # d3-g6
+            Group(player=0, start=Square(row=4, col=2), end=Square(row=1, col=5)),  # c2-f5
+            Group(player=0, start=Square(row=5, col=1), end=Square(row=2, col=4)),  # b1-e4
+            Group(player=0, start=Square(row=3, col=4), end=Square(row=0, col=4)),  # e3-d6
+        }
+        got_problems_solves = got_solution.find_problems_solved(square_to_groups=square_to_groups)
+        self.assertEqual(want_problems_solved, got_problems_solves)
+
     def test_from_baseinverse(self):
         # This board is from Diagram 6.2 of the original paper.
         self.env.state = np.array([
