@@ -40,7 +40,15 @@ class Baseinverse(Rule):
         Returns:
             problems_solved (Set[Group]): All Problems in square_to_groups this Rule solves.
         """
-        pass
+        white_problems_solved = self.find_problems_solved_for_player(groups_by_square=groups_by_square_by_player[0])
+        black_problems_solved = self.find_problems_solved_for_player(groups_by_square=groups_by_square_by_player[1])
+        return white_problems_solved.union(black_problems_solved)
+
+    def find_problems_solved_for_player(self, groups_by_square: List[List[Set[Group]]]) -> Set[Group]:
+        square1, square2 = tuple(self.squares)
+        groups1 = groups_by_square[square1.row][square1.col]
+        groups2 = groups_by_square[square2.row][square2.col]
+        return groups1.intersection(groups2)
 
 
 def find_all_baseinverses(board: Board):

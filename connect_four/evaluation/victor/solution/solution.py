@@ -23,8 +23,6 @@ from connect_four.evaluation.victor.rules import find_all_baseclaims
 from connect_four.evaluation.victor.rules import find_all_befores
 from connect_four.evaluation.victor.rules import find_all_specialbefores
 
-from connect_four.problem import Group
-
 
 class Solution:
     """A Solution is an application of a Rule that refutes at least one group.
@@ -74,23 +72,6 @@ class Solution:
         return (self.squares.__hash__() * 59 +
                 self.groups.__hash__() * 37 +
                 self.claimeven_bottom_squares.__hash__())
-
-    def find_problems_solved(self, square_to_groups: Dict[Square, Set[Group]]) -> Set[Group]:
-        """Finds all Problems this Solution solves.
-
-        Args:
-            square_to_groups (Dict[Square, Set[Group]]): All Problems, keyed by Squares that include them.
-
-        Returns:
-            problems_solved (Set[Group]): All Problems in square_to_groups this Solution solves.
-        """
-        if isinstance(self.rule_instance, Claimeven):
-            return self.claimeven_problems_solved(square_to_groups=square_to_groups)
-        pass
-
-    def claimeven_problems_solved(self, square_to_groups: Dict[Square, Set[Group]]) -> Set[Group]:
-        claimeven = self.rule_instance
-        return square_to_groups[claimeven.upper]
 
 
 def find_all_solutions(board: Board):
