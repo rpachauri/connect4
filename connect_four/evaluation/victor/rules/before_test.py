@@ -15,6 +15,7 @@ from connect_four.evaluation.victor.rules.before import add_before_variations
 from connect_four.evaluation.victor.rules.before import empty_squares_of_before_group
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
+from connect_four.problem.problem_manager import ProblemManager
 
 
 class TestBefore(unittest.TestCase):
@@ -296,6 +297,57 @@ class TestBefore(unittest.TestCase):
         got_befores = find_all_befores(board=board, opponent_groups={group_a3_d6})
         # Assert that got_befores is not empty.
         self.assertTrue(got_befores)
+
+    def test_find_problems_solved(self):
+        # This board is from Diagram 6.9 of the original paper.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+            ],
+        ])
+        pm = ProblemManager(env_variables=self.env.env_variables, num_to_connect=4)
+
+        # Before b4-e1+b5+e2 refutes b5-e2.
+        before_b4_e1 = Before(
+            group=Group(player=1, start=Square(row=2, col=1), end=Square(row=5, col=4)),  # Group b4-e1
+            verticals=[
+                Vertical(upper=Square(row=4, col=4), lower=Square(row=5, col=4)),  # Vertical e1-e2
+            ],
+            claimevens=[
+                Claimeven(upper=Square(row=2, col=1), lower=Square(row=3, col=1))  # Claimeven b3-b4
+            ]
+        )
+
+        want_problems_solved = {
+            # groups that include all successors of empty squares of the Before group.
+            Group(player=0, start=Square(row=1, col=1), end=Square(row=4, col=4)),  # b5-e2
+            # groups that include upper square of Claimeven b3-b4.
+            Group(player=0, start=Square(row=2, col=0), end=Square(row=2, col=3)),  # a4-d4
+            Group(player=0, start=Square(row=2, col=1), end=Square(row=2, col=4)),  # b4-e4
+            Group(player=0, start=Square(row=3, col=0), end=Square(row=0, col=3)),  # a3-d6
+            Group(player=0, start=Square(row=5, col=1), end=Square(row=2, col=1)),  # b1-b4
+            Group(player=0, start=Square(row=4, col=1), end=Square(row=1, col=1)),  # b2-b5
+            Group(player=0, start=Square(row=3, col=1), end=Square(row=0, col=1)),  # b3-b6
+            # groups that include both squares of Vertical e1-e2.
+            Group(player=0, start=Square(row=5, col=4), end=Square(row=2, col=4)),  # e1-e4
+        }
+        got_problems_solved = before_b4_e1.find_problems_solved(
+            groups_by_square_by_player=pm.groups_by_square_by_player,
+        )
+        self.assertEqual(want_problems_solved, got_problems_solved)
 
 
 if __name__ == '__main__':

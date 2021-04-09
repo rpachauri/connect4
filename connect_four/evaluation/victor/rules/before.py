@@ -68,7 +68,29 @@ class Before(Rule):
         Returns:
             problems_solved (Set[Group]): All Problems in square_to_groups this Rule solves.
         """
-        pass
+        empty_squares = self.empty_squares_of_before_group()
+        empty_square_successors = []
+        for square in empty_squares:
+            empty_square_successors.append(Square(row=square.row - 1, col=square.col))
+
+        opponent = 1 - self.group.player
+
+        before_groups = groups_by_square_by_player[opponent][
+            empty_square_successors[0].row][empty_square_successors[0].col].copy()
+        for square in empty_square_successors[1:]:
+            before_groups.intersection_update(groups_by_square_by_player[opponent][square.row][square.col])
+
+        for vertical in self.verticals:
+            before_groups.update(vertical.find_problems_solved_for_player(
+                groups_by_square=groups_by_square_by_player[opponent],
+            ))
+
+        for claimeven in self.claimevens:
+            before_groups.update(claimeven.find_problems_solved_for_player(
+                groups_by_square=groups_by_square_by_player[opponent],
+            ))
+
+        return before_groups
 
 
 def find_all_befores(board: Board, opponent_groups):
