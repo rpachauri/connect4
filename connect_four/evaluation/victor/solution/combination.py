@@ -1,4 +1,5 @@
-from connect_four.evaluation.victor.rules import Rule
+from connect_four.evaluation.victor.rules import Rule, Claimeven, Baseinverse, Vertical, Aftereven, Baseclaim, Before, \
+    Specialbefore, Lowinverse, Highinverse
 
 from connect_four.evaluation.victor.solution import Solution
 
@@ -14,57 +15,57 @@ def allowed(s1: Solution, s2: Solution) -> bool:
         combination_allowed (bool): True if the two Solutions can be combined; Otherwise, False.
     """
     # If either Solution is a Claimeven.
-    if s1.rule == Rule.Claimeven:
+    if isinstance(s1.rule_instance, Claimeven):
         return allowed_with_claimeven(solution=s1, other=s2)
-    if s2.rule == Rule.Claimeven:
+    if isinstance(s2.rule_instance, Claimeven):
         return allowed_with_claimeven(solution=s2, other=s1)
 
     # If either Solution is a Baseinverse:
-    if s1.rule == Rule.Baseinverse:
+    if isinstance(s1.rule_instance, Baseinverse):
         return allowed_with_baseinverse(solution=s1, other=s2)
-    if s2.rule == Rule.Baseinverse:
+    if isinstance(s2.rule_instance, Baseinverse):
         return allowed_with_baseinverse(solution=s2, other=s1)
 
     # If either Solution is a Vertical:
-    if s1.rule == Rule.Vertical:
+    if isinstance(s1.rule_instance, Vertical):
         return allowed_with_vertical(solution=s1, other=s2)
-    if s2.rule == Rule.Vertical:
+    if isinstance(s2.rule_instance, Vertical):
         return allowed_with_vertical(solution=s2, other=s1)
 
     # If either Solution is an Aftereven:
-    if s1.rule == Rule.Aftereven:
+    if isinstance(s1.rule_instance, Aftereven):
         return allowed_with_aftereven(solution=s1, other=s2)
-    if s2.rule == Rule.Aftereven:
+    if isinstance(s2.rule_instance, Aftereven):
         return allowed_with_aftereven(solution=s2, other=s1)
 
     # If either Solution is a Lowinverse:
-    if s1.rule == Rule.Lowinverse:
+    if isinstance(s1.rule_instance, Lowinverse):
         return allowed_with_lowinverse(solution=s1, other=s2)
-    if s2.rule == Rule.Lowinverse:
+    if isinstance(s2.rule_instance, Lowinverse):
         return allowed_with_lowinverse(solution=s2, other=s1)
 
     # If either Solution is a Highinverse:
-    if s1.rule == Rule.Highinverse:
+    if isinstance(s1.rule_instance, Highinverse):
         return allowed_with_highinverse(solution=s1, other=s2)
-    if s2.rule == Rule.Highinverse:
+    if isinstance(s2.rule_instance, Highinverse):
         return allowed_with_highinverse(solution=s2, other=s1)
 
     # If either Solution is a Baseclaim:
-    if s1.rule == Rule.Baseclaim:
+    if isinstance(s1.rule_instance, Baseclaim):
         return allowed_with_baseclaim(solution=s1, other=s2)
-    if s2.rule == Rule.Baseclaim:
+    if isinstance(s2.rule_instance, Baseclaim):
         return allowed_with_baseclaim(solution=s2, other=s1)
 
     # If either Solution is a Before:
-    if s1.rule == Rule.Before:
+    if isinstance(s1.rule_instance, Before):
         return allowed_with_before(solution=s1, other=s2)
-    if s2.rule == Rule.Before:
+    if isinstance(s2.rule_instance, Before):
         return allowed_with_before(solution=s2, other=s1)
 
     # If either Solution is a Specialbefore: (although at this point, this must be true).
-    if s1.rule == Rule.Specialbefore:
+    if isinstance(s1.rule_instance, Specialbefore):
         return allowed_with_specialbefore(solution=s1, other=s2)
-    if s2.rule == Rule.Specialbefore:
+    if isinstance(s2.rule_instance, Specialbefore):
         return allowed_with_specialbefore(solution=s2, other=s1)
 
     raise ValueError("Unacceptable Rule types:", s1.rule, s2.rule)
@@ -148,17 +149,9 @@ def allowed_with_claimeven(solution: Solution, other: Solution) -> bool:
     Returns:
         combination_allowed (bool): True if other can be combined with solution; Otherwise, False.
     """
-    if other.rule in [
-        Rule.Claimeven,
-        Rule.Baseinverse,
-        Rule.Vertical,
-        Rule.Aftereven,
-        Rule.Baseclaim,
-        Rule.Before,
-        Rule.Specialbefore,
-    ]:
+    if isinstance(other.rule_instance, (Claimeven, Baseinverse, Vertical, Aftereven, Baseclaim, Before, Specialbefore)):
         return disjoint(solution=solution, other=other)
-    if other.rule in [Rule.Lowinverse, Rule.Highinverse]:
+    if isinstance(other.rule_instance, (Lowinverse, Highinverse)):
         return no_claimeven_below_or_at_inverse(inverse_solution=other, claimeven_solution=solution)
     raise ValueError("invalid other.rule for allowed_with_claimeven:", other.rule)
 
@@ -232,12 +225,12 @@ def allowed_with_aftereven(solution: Solution, other: Solution) -> bool:
     Returns:
         combination_allowed (bool): True if other can be combined with solution; Otherwise, False.
     """
-    if other.rule in [Rule.Aftereven, Rule.Before, Rule.Specialbefore]:
+    if isinstance(other.rule_instance, (Aftereven, Before, Specialbefore)):
         return column_wise_disjoint_or_equal(solution=solution, other=other)
-    if other.rule in [Rule.Lowinverse, Rule.Highinverse]:
+    if isinstance(other.rule_instance, (Lowinverse, Highinverse)):
         return (disjoint(solution=solution, other=other) and
                 no_claimeven_below_or_at_inverse(inverse_solution=other, claimeven_solution=solution))
-    if other.rule in [Rule.Baseclaim]:
+    if isinstance(other.rule_instance, Baseclaim):
         return disjoint(solution=solution, other=other)
     raise ValueError("invalid other.rule for allowed_with_aftereven:", other.rule)
 
@@ -261,12 +254,12 @@ def allowed_with_lowinverse(solution: Solution, other: Solution) -> bool:
     Returns:
         combination_allowed (bool): True if other can be combined with solution; Otherwise, False.
     """
-    if other.rule in [Rule.Lowinverse, Rule.Highinverse]:
+    if isinstance(other.rule_instance, (Lowinverse, Highinverse)):
         return disjoint(solution=solution, other=other)
-    if other.rule in [Rule.Baseclaim]:
+    if isinstance(other.rule_instance, Baseclaim):
         return (disjoint(solution=solution, other=other) and
                 no_claimeven_below_or_at_inverse(inverse_solution=solution, claimeven_solution=other))
-    if other.rule in [Rule.Before, Rule.Specialbefore]:
+    if isinstance(other.rule_instance, (Before, Specialbefore)):
         return (no_claimeven_below_or_at_inverse(inverse_solution=solution, claimeven_solution=other) and
                 column_wise_disjoint_or_equal(solution=solution, other=other))
 
@@ -289,9 +282,9 @@ def allowed_with_highinverse(solution: Solution, other: Solution) -> bool:
     Returns:
         combination_allowed (bool): True if other can be combined with solution; Otherwise, False.
     """
-    if other.rule in [Rule.Highinverse]:
+    if isinstance(other.rule_instance, Highinverse):
         return disjoint(solution=solution, other=other)
-    if other.rule in [Rule.Baseclaim, Rule.Before, Rule.Specialbefore]:
+    if isinstance(other.rule_instance, (Baseclaim, Before, Specialbefore)):
         return (disjoint(solution=solution, other=other) and
                 no_claimeven_below_or_at_inverse(inverse_solution=solution, claimeven_solution=other))
     raise ValueError("invalid other.rule for allowed_with_aftereven:", other.rule)

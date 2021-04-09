@@ -1,10 +1,11 @@
 import unittest
 
 from connect_four.game import Square
-from connect_four.evaluation.victor.rules import Rule
+from connect_four.evaluation.victor.rules import Rule, Claimeven, Baseinverse, Vertical, Lowinverse, Aftereven
 
 from connect_four.evaluation.victor.solution import Solution
 from connect_four.evaluation.victor.solution import combination
+from connect_four.problem import Group
 
 
 class TestCombination(unittest.TestCase):
@@ -33,6 +34,10 @@ class TestCombination(unittest.TestCase):
                     Square(row=5, col=4),  # e1
                     Square(row=4, col=4),  # e2
                 ]),
+                rule_instance=Claimeven(
+                    upper=Square(row=4, col=4),  # e2
+                    lower=Square(row=5, col=4),  # e1
+                ),
             ),
             s2=Solution(
                 rule=Rule.Claimeven,
@@ -40,6 +45,10 @@ class TestCombination(unittest.TestCase):
                     Square(row=3, col=4),  # e3
                     Square(row=2, col=4),  # e4
                 ]),
+                rule_instance=Claimeven(
+                    upper=Square(row=2, col=4),  # e4
+                    lower=Square(row=3, col=4),  # e3
+                ),
             ),
         ))
 
@@ -51,6 +60,10 @@ class TestCombination(unittest.TestCase):
                     Square(row=5, col=4),  # e1
                     Square(row=4, col=4),  # e2
                 ]),
+                rule_instance=Claimeven(
+                    upper=Square(row=4, col=4),  # e2
+                    lower=Square(row=5, col=4),  # e1
+                ),
             ),
             s2=Solution(
                 rule=Rule.Claimeven,
@@ -58,6 +71,10 @@ class TestCombination(unittest.TestCase):
                     Square(row=5, col=4),  # e1
                     Square(row=4, col=4),  # e2
                 ]),
+                rule_instance=Claimeven(
+                    upper=Square(row=4, col=4),  # e2
+                    lower=Square(row=5, col=4),  # e1
+                ),
             ),
         ))
 
@@ -74,6 +91,10 @@ class TestCombination(unittest.TestCase):
                     Square(row=5, col=4),  # e1
                     Square(row=4, col=4),  # e2
                 ]),
+                rule_instance=Claimeven(
+                    upper=Square(row=4, col=4),  # e2
+                    lower=Square(row=5, col=4),  # e1
+                ),
             ),
             s2=Solution(
                 rule=Rule.Baseinverse,
@@ -81,6 +102,10 @@ class TestCombination(unittest.TestCase):
                     Square(row=5, col=3),  # d1
                     Square(row=5, col=5),  # f1
                 ]),
+                rule_instance=Baseinverse(
+                    playable1=Square(row=5, col=3),  # d1
+                    playable2=Square(row=5, col=5),  # f1
+                ),
             ),
         ))
 
@@ -92,6 +117,10 @@ class TestCombination(unittest.TestCase):
                     Square(row=5, col=4),  # e1
                     Square(row=4, col=4),  # e2
                 ]),
+                rule_instance=Claimeven(
+                    upper=Square(row=4, col=4),  # e2
+                    lower=Square(row=5, col=4),  # e1
+                ),
             ),
             s2=Solution(
                 rule=Rule.Baseinverse,
@@ -99,6 +128,10 @@ class TestCombination(unittest.TestCase):
                     Square(row=5, col=3),  # d1
                     Square(row=5, col=4),  # e1
                 ]),
+                rule_instance=Baseinverse(
+                    playable1=Square(row=5, col=3),  # d1
+                    playable2=Square(row=5, col=4),  # e1
+                ),
             ),
         ))
 
@@ -115,6 +148,10 @@ class TestCombination(unittest.TestCase):
                     Square(row=5, col=4),  # e1
                     Square(row=4, col=4),  # e2
                 ]),
+                rule_instance=Claimeven(
+                    upper=Square(row=4, col=4),  # e2
+                    lower=Square(row=5, col=4),  # e1
+                ),
             ),
             s2=Solution(
                 rule=Rule.Vertical,
@@ -122,6 +159,10 @@ class TestCombination(unittest.TestCase):
                     Square(row=4, col=3),  # d2
                     Square(row=3, col=3),  # d3
                 ]),
+                rule_instance=Vertical(
+                    upper=Square(row=3, col=3),  # d3
+                    lower=Square(row=4, col=3),  # d2
+                ),
             ),
         ))
 
@@ -133,6 +174,10 @@ class TestCombination(unittest.TestCase):
                     Square(row=5, col=4),  # e1
                     Square(row=4, col=4),  # e2
                 ]),
+                rule_instance=Claimeven(
+                    upper=Square(row=4, col=4),  # e2
+                    lower=Square(row=5, col=4),  # e1
+                ),
             ),
             s2=Solution(
                 rule=Rule.Vertical,
@@ -140,6 +185,10 @@ class TestCombination(unittest.TestCase):
                     Square(row=4, col=4),  # e2
                     Square(row=3, col=4),  # e3
                 ]),
+                rule_instance=Vertical(
+                    upper=Square(row=3, col=4),  # e3
+                    lower=Square(row=4, col=4),  # e2
+                ),
             ),
         ))
 
@@ -160,6 +209,10 @@ class TestCombination(unittest.TestCase):
                 claimeven_bottom_squares=[
                     Square(row=1, col=0),  # a5
                 ],
+                rule_instance=Claimeven(
+                    upper=Square(row=0, col=0),  # a6
+                    lower=Square(row=1, col=0),  # a5
+                ),
             ),
             s2=Solution(
                 rule=Rule.Lowinverse,
@@ -169,6 +222,16 @@ class TestCombination(unittest.TestCase):
                     Square(row=4, col=1),  # b2
                     Square(row=3, col=1),  # b3
                 ]),
+                rule_instance=Lowinverse(
+                    first_vertical=Vertical(
+                        upper=Square(row=3, col=0),  # a3
+                        lower=Square(row=4, col=0),  # a2
+                    ),
+                    second_vertical=Vertical(
+                        upper=Square(row=3, col=1),  # b3
+                        lower=Square(row=4, col=1),  # b2
+                    ),
+                ),
             ),
         ))
 
@@ -184,6 +247,10 @@ class TestCombination(unittest.TestCase):
                 claimeven_bottom_squares=[
                     Square(row=5, col=0),  # a1
                 ],
+                rule_instance=Claimeven(
+                    upper=Square(row=4, col=0),  # a2
+                    lower=Square(row=5, col=0),  # a1
+                ),
             ),
             s2=Solution(
                 rule=Rule.Lowinverse,
@@ -193,6 +260,16 @@ class TestCombination(unittest.TestCase):
                     Square(row=2, col=1),  # b4
                     Square(row=1, col=1),  # b5
                 ]),
+                rule_instance=Lowinverse(
+                    first_vertical=Vertical(
+                        upper=Square(row=1, col=0),  # a5
+                        lower=Square(row=2, col=0),  # a4
+                    ),
+                    second_vertical=Vertical(
+                        upper=Square(row=1, col=1),  # b5
+                        lower=Square(row=2, col=1),  # b4
+                    ),
+                ),
             ),
         ))
 
@@ -211,15 +288,41 @@ class TestCombination(unittest.TestCase):
                     Square(row=3, col=2),  # c3
                     Square(row=2, col=2),  # c4
                 ]),
+                rule_instance=Aftereven(
+                    group=Group(player=1, start=Square(row=2, col=2), end=Square(row=5, col=5)),  # c4-f1
+                    claimevens=[
+                        Claimeven(
+                            upper=Square(row=2, col=2),  # c4
+                            lower=Square(row=3, col=2),  # c3
+                        ),
+                        Claimeven(
+                            upper=Square(row=4, col=4),  # e2
+                            lower=Square(row=5, col=4),  # e1
+                        ),
+                    ],
+                ),
             ),
             s2=Solution(
                 rule=Rule.Aftereven,
                 squares=frozenset([
                     Square(row=5, col=4),  # e1
                     Square(row=4, col=4),  # e2
-                    Square(row=3, col=6),  # f3
-                    Square(row=2, col=6),  # f4
+                    Square(row=3, col=6),  # g3
+                    Square(row=2, col=6),  # g4
                 ]),
+                rule_instance=Aftereven(
+                    group=Group(player=1, start=Square(row=5, col=3), end=Square(row=2, col=6)),  # d1-g4
+                    claimevens=[
+                        Claimeven(
+                            upper=Square(row=4, col=4),  # e2
+                            lower=Square(row=5, col=4),  # e1
+                        ),
+                        Claimeven(
+                            upper=Square(row=2, col=6),  # g4
+                            lower=Square(row=3, col=6),  # g3
+                        ),
+                    ],
+                ),
             ),
         ))
 
