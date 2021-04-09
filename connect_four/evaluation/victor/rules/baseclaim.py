@@ -43,7 +43,22 @@ class Baseclaim(Rule):
         Returns:
             problems_solved (Set[Group]): All Problems in square_to_groups this Rule solves.
         """
-        pass
+        white_problems_solved = self.find_problems_solved_for_player(groups_by_square=groups_by_square_by_player[0])
+        black_problems_solved = self.find_problems_solved_for_player(groups_by_square=groups_by_square_by_player[1])
+        return white_problems_solved.union(black_problems_solved)
+
+    def find_problems_solved_for_player(self, groups_by_square: List[List[Set[Group]]]) -> Set[Group]:
+        groups = set()
+
+        # Add all groups which contain the first playable square and the square above the second playable square.
+        square_above_second = Square(row=self.second.row - 1, col=self.second.col)
+        groups.update(groups_by_square[self.first.row][self.first.col].intersection(
+            groups_by_square[square_above_second.row][square_above_second.col]))
+
+        # Add all groups which contain the second and third playable square.
+        groups.update(groups_by_square[self.second.row][self.second.col].intersection(
+            groups_by_square[self.third.row][self.third.col]))
+        return groups
 
 
 def find_all_baseclaims(board: Board):

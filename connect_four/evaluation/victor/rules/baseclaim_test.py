@@ -10,6 +10,8 @@ from connect_four.evaluation.victor.rules import Baseclaim
 from connect_four.evaluation.victor.rules import find_all_baseclaims
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
+from connect_four.problem import Group
+from connect_four.problem.problem_manager import ProblemManager
 
 
 class TestBaseclaim(unittest.TestCase):
@@ -118,6 +120,45 @@ class TestBaseclaim(unittest.TestCase):
             Baseclaim(first=square_4_6, second=square_5_4, third=square_4_5),
         }
         self.assertEqual(want_baseclaims, got_baseclaims)
+
+    def test_find_problems_solved_for_player(self):
+        # This board is from Diagram 6.7 of the original paper.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 1, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [1, 0, 0, 0, 0, 0, 1, ],
+            ],
+        ])
+        pm = ProblemManager(env_variables=self.env.env_variables, num_to_connect=4)
+
+        # Baseclaim b1-c1-c2-e1 can be used to refute b1-e4 and c1-f1.
+        baseclaim_b1_c1_c2_f1 = Baseclaim(
+            first=Square(row=5, col=1),  # b1
+            second=Square(row=5, col=2),  # c1
+            third=Square(row=5, col=4),  # e1
+        )
+
+        want_problems_solved_for_player_0 = {
+            Group(player=0, start=Square(row=5, col=1), end=Square(row=2, col=4)),  # b1-e4
+            Group(player=0, start=Square(row=5, col=2), end=Square(row=5, col=5)),  # c1-f1
+            Group(player=0, start=Square(row=5, col=1), end=Square(row=5, col=4)),  # b1-e1
+        }
+        got_problems_solved_for_player_0 = baseclaim_b1_c1_c2_f1.find_problems_solved_for_player(
+            groups_by_square=pm.groups_by_square_by_player[0],
+        )
+        self.assertEqual(want_problems_solved_for_player_0, got_problems_solved_for_player_0)
 
 
 if __name__ == '__main__':
