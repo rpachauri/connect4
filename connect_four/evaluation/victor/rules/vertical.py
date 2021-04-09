@@ -35,7 +35,14 @@ class Vertical(Rule):
         Returns:
             problems_solved (Set[Group]): All Problems in square_to_groups this Rule solves.
         """
-        pass
+        white_problems_solved = self.find_problems_solved_for_player(groups_by_square=groups_by_square_by_player[0])
+        black_problems_solved = self.find_problems_solved_for_player(groups_by_square=groups_by_square_by_player[1])
+        return white_problems_solved.union(black_problems_solved)
+
+    def find_problems_solved_for_player(self, groups_by_square: List[List[Set[Group]]]) -> Set[Group]:
+        upper_groups = groups_by_square[self.upper.row][self.upper.col]
+        lower_groups = groups_by_square[self.lower.row][self.lower.col]
+        return upper_groups.intersection(lower_groups)
 
 
 def find_all_verticals(board: Board):
