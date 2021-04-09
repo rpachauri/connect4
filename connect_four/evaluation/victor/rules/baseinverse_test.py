@@ -74,7 +74,7 @@ class TestBaseinverse(unittest.TestCase):
         }
         self.assertEqual(want_baseinverses, got_baseinverses)
 
-    def test_from_baseinverse(self):
+    def test_find_problems_solved(self):
         # This board is from Diagram 6.2 of the original paper.
         self.env.state = np.array([
             [

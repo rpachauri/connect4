@@ -61,7 +61,7 @@ class TestVertical(unittest.TestCase):
         }
         self.assertEqual(want_verticals, got_verticals)
 
-    def test_from_vertical(self):
+    def test_find_problems_solved(self):
         # This board is from Diagram 6.3 of the original paper.
         self.env.state = np.array([
             [
