@@ -181,7 +181,7 @@ class ProblemManager:
                     groups_removed_by_square[s].add(g)
         return groups_removed_by_square
 
-    def move(self, player: int, row: int, col: int):
+    def move(self, player: int, row: int, col: int) -> Set[Square]:
         """Plays a move at the given row and column for the given player.
 
         Assumptions:
@@ -191,8 +191,13 @@ class ProblemManager:
             player (int): the player making the move.
             row (int): the row to play
             col (int): the column to play
+
+        Returns:
+            affected_squares (Set[Square]): all squares which had a Problem removed.
         """
-        pass
+        groups_removed_by_square = self._play_square(player=player, row=row, col=col)
+        self.groups_removed_by_squares_by_move.append(groups_removed_by_square)
+        return set(groups_removed_by_square.keys())
 
     def undo_move(self):
         """Undoes the most recent move.
@@ -200,4 +205,9 @@ class ProblemManager:
         Raises:
             (AssertionError): if the internal state of the ProblemManager is at the state given upon initialization.
         """
-        pass
+        assert self.groups_removed_by_squares_by_move
+
+        groups_removed_by_squares = self.groups_removed_by_squares_by_move.pop()
+        for square in groups_removed_by_squares:
+            for group in groups_removed_by_squares[square]:
+                self.groups_by_square_by_player[group.player][square.row][square.col].add(group)
