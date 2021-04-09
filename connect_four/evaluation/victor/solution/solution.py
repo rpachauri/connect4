@@ -3,7 +3,6 @@ from typing import Dict, Set, FrozenSet
 from connect_four.game import Square
 from connect_four.evaluation.victor.board import Board
 
-from connect_four.evaluation.victor.rules import Rule
 from connect_four.evaluation.victor.rules import Claimeven
 from connect_four.evaluation.victor.rules import Baseinverse
 from connect_four.evaluation.victor.rules import Vertical
@@ -23,6 +22,7 @@ from connect_four.evaluation.victor.rules import find_all_highinverses
 from connect_four.evaluation.victor.rules import find_all_baseclaims
 from connect_four.evaluation.victor.rules import find_all_befores
 from connect_four.evaluation.victor.rules import find_all_specialbefores
+
 from connect_four.problem import Group
 
 
@@ -32,7 +32,7 @@ class Solution:
     Two Solutions may or may not work together depending on which squares each
     consists of and which rule they are an application of.
     """
-    def __init__(self, squares, groups=None, claimeven_bottom_squares=None, rule_instance=None):
+    def __init__(self, rule_instance, squares, groups=None, claimeven_bottom_squares=None):
         self.squares = frozenset(squares)
 
         if groups is None:

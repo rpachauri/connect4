@@ -2,7 +2,7 @@ import unittest
 
 from connect_four.game import Square
 from connect_four.problem import Group
-from connect_four.evaluation.victor.rules import Rule, Claimeven, Vertical
+from connect_four.evaluation.victor.rules import Claimeven, Vertical
 from connect_four.evaluation.victor.solution import Solution
 
 from connect_four.evaluation.victor.evaluator.evaluator import create_node_graph
