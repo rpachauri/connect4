@@ -43,6 +43,7 @@ class ThreatCombination(Rule):
                  even_square: Square,
                  odd_square: Square,
                  directly_playable_square_shared_col: Square,
+                 directly_playable_square_stacked_col: Square,
                  threat_combination_type: ThreatCombinationType):
         self.even_threat = even_group
         self.odd_threat = odd_group
@@ -50,6 +51,7 @@ class ThreatCombination(Rule):
         self.even_square = even_square
         self.odd_square = odd_square
         self.directly_playable_square_shared_col = directly_playable_square_shared_col
+        self.directly_playable_square_stacked_col = directly_playable_square_stacked_col
         self.threat_combination_type = threat_combination_type
 
     def __eq__(self, other):
@@ -59,6 +61,8 @@ class ThreatCombination(Rule):
                     self.shared_square == other.shared_square and
                     self.even_square == other.even_square and
                     self.odd_square == other.odd_square and
+                    self.directly_playable_square_shared_col == other.directly_playable_square_shared_col and
+                    self.directly_playable_square_stacked_col == other.directly_playable_square_stacked_col and
                     self.threat_combination_type == other.threat_combination_type)
 
     def __hash__(self):
@@ -219,9 +223,12 @@ def create_threat_combination(
         return None
 
     directly_playable_square_shared_col = None
+    directly_playable_square_stacked_col = None
     for square in directly_playable_squares:
         if square.col == even_group.odd_square.col:
             directly_playable_square_shared_col = square
+        if square.col == odd_unshared_square.col:
+            directly_playable_square_stacked_col = square
 
     return ThreatCombination(
         even_group=even_group.group,
@@ -230,6 +237,7 @@ def create_threat_combination(
         even_square=even_group.even_square,
         odd_square=odd_unshared_square,
         directly_playable_square_shared_col=directly_playable_square_shared_col,
+        directly_playable_square_stacked_col=directly_playable_square_stacked_col,
         threat_combination_type=threat_combination_type,
     )
 
