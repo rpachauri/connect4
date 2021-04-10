@@ -9,6 +9,7 @@ from connect_four.evaluation.victor.rules import ThreatCombination
 from connect_four.evaluation.victor.rules.threat_combination import ThreatCombinationType, find_all_threat_combinations
 from connect_four.game import Square
 from connect_four.problem import Group
+from connect_four.problem.problem_manager import ProblemManager
 
 
 class TestThreatCombination(unittest.TestCase):
@@ -88,22 +89,43 @@ class TestThreatCombination(unittest.TestCase):
                 [0, 0, 0, 0, 1, 0, 1, ],
             ],
         ])
+        pm = ProblemManager(env_variables=self.env.env_variables, num_to_connect=4)
         board = Board(self.env.env_variables)
         want_even_group = Group(player=0, start=Square(row=1, col=3), end=Square(row=4, col=6))  # d5-g2
         want_odd_group = Group(player=0, start=Square(row=3, col=3), end=Square(row=3, col=6))  # d3-d3
+        odd_above_directly_playable_even_threat_combination = ThreatCombination(
+            even_group=want_even_group,
+            odd_group=want_odd_group,
+            shared_square=Square(row=3, col=5),  # f3
+            even_square=Square(row=4, col=6),  # g2
+            odd_square=Square(row=3, col=6),  # g3
+            directly_playable_square_shared_col=Square(row=5, col=5),  # f1
+            threat_combination_type=ThreatCombinationType.OddAboveDirectlyPlayableEven,
+        )
         want_threat_combinations = {
-            ThreatCombination(
-                even_group=want_even_group,
-                odd_group=want_odd_group,
-                shared_square=Square(row=3, col=5),  # f3
-                even_square=Square(row=4, col=6),  # g2
-                odd_square=Square(row=3, col=6),  # g3
-                directly_playable_square_shared_col=Square(row=5, col=5),  # f1
-                threat_combination_type=ThreatCombinationType.OddAboveDirectlyPlayableEven,
-            )
+            odd_above_directly_playable_even_threat_combination,
         }
         got_threat_combinations = find_all_threat_combinations(board=board)
         self.assertEqual(want_threat_combinations, got_threat_combinations)
+
+        want_problems_solved = {
+            # Solved by _no_odd_squares_in_crossing_column().
+            Group(player=1, start=Square(row=0, col=5), end=Square(row=3, col=5)),  # f3-f6
+            Group(player=1, start=Square(row=1, col=5), end=Square(row=4, col=5)),  # f2-f5
+            Group(player=1, start=Square(row=2, col=5), end=Square(row=5, col=5)),  # f1-f4
+            # Solved by _no_squares_above_crossing_and_above_odd().
+            Group(player=1, start=Square(row=0, col=3), end=Square(row=0, col=6)),  # d6-g6
+            # Solved by _groups_containing_square_above_crossing_and_upper_stacked().
+            Group(player=1, start=Square(row=0, col=3), end=Square(row=3, col=6)),  # d6-g3
+            # Solved by _vertical_groups_in_stacked_column().
+            Group(player=1, start=Square(row=0, col=6), end=Square(row=3, col=6)),  # g3-g6
+            Group(player=1, start=Square(row=1, col=6), end=Square(row=4, col=6)),  # g2-g5
+            Group(player=1, start=Square(row=2, col=6), end=Square(row=5, col=6)),  # g1-g4
+        }
+        got_problems_solved = odd_above_directly_playable_even_threat_combination.find_problems_solved(
+            groups_by_square_by_player=pm.groups_by_square_by_player,
+        )
+        self.assertEqual(want_problems_solved, got_problems_solved)
 
 
 if __name__ == '__main__':

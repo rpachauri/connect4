@@ -2,7 +2,7 @@ from collections import namedtuple
 from enum import Enum
 from typing import Optional, Set, List
 
-from connect_four.evaluation.victor.rules import Rule
+from connect_four.evaluation.victor.rules import Rule, Vertical
 from connect_four.game import Square
 from connect_four.problem import Group
 from connect_four.evaluation.victor.board import Board
@@ -18,6 +18,7 @@ EvenGroup = namedtuple("EvenGroup", ["group", "odd_square", "even_square"])
 OddGroup = namedtuple("OddGroup", ["group", "odd_square1", "odd_square2"])
 
 
+# noinspection PyTypeChecker
 class ThreatCombination(Rule):
     """A ThreatCombination is a combination of two threats.
 
@@ -67,6 +68,11 @@ class ThreatCombination(Rule):
                 self.even_square.__hash__() * 73 +
                 self.odd_square.__hash__() * 71)
 
+    def upper_square_in_stacked_column(self) -> Square:
+        if self.threat_combination_type == ThreatCombinationType.EvenAboveOdd:
+            return self.even_square
+        return self.odd_square
+
     def find_problems_solved(self, groups_by_square_by_player: List[List[List[Set[Group]]]]) -> Set[Group]:
         """Finds all Problems this Rule solves.
 
@@ -83,7 +89,67 @@ class ThreatCombination(Rule):
         Returns:
             problems_solved (Set[Group]): All Problems in square_to_groups this Rule solves.
         """
-        pass
+        problems_solved = set()
+        problems_solved.update(self._no_odd_squares_in_crossing_column(groups_by_square=groups_by_square_by_player[1]))
+        problems_solved.update(self._no_squares_above_crossing_and_above_odd(
+            groups_by_square=groups_by_square_by_player[1],
+        ))
+        problems_solved.update(self._groups_containing_square_above_crossing_and_upper_stacked(
+            groups_by_square=groups_by_square_by_player[1],
+        ))
+        if self.threat_combination_type == ThreatCombinationType.OddAboveDirectlyPlayableEven:
+            problems_solved.update(self._vertical_groups_in_stacked_column(
+                groups_by_square=groups_by_square_by_player[1],
+                baseinverse_applied=0,
+            ))
+        return problems_solved
+
+    def _no_odd_squares_in_crossing_column(self, groups_by_square: List[List[Set[Group]]]) -> Set[Group]:
+        problems_solved = set()
+
+        # Add Groups containing any odd Square in the crossing column that are not directly playable.
+        for row in range(self.shared_square.row, self.directly_playable_square_shared_col.row, 2):
+            problems_solved.update(groups_by_square[row][self.shared_square.col])
+
+        return problems_solved
+
+    def _no_squares_above_crossing_and_above_odd(self, groups_by_square: List[List[Set[Group]]]) -> Set[Group]:
+        problems_solved = set()
+
+        # Add Groups containing a Square above the crossing square and
+        # a Square above the odd Square in the stacked column.
+        for row_in_crossing_col in range(0, self.shared_square.row, 1):
+            for row_in_stacked_col in range(0, self.odd_square.row, 1):
+                square_above_crossing_groups = groups_by_square[row_in_crossing_col][self.shared_square.col]
+                square_above_stacked_groups = groups_by_square[row_in_stacked_col][self.odd_square.col]
+                problems_solved.update(square_above_crossing_groups.intersection(square_above_stacked_groups))
+
+        return problems_solved
+
+    def _groups_containing_square_above_crossing_and_upper_stacked(
+            self, groups_by_square: List[List[Set[Group]]]) -> Set[Group]:
+        # Add Groups containing the Square above the crossing square and the upper Square in the stacked column.
+        square_above_crossing_groups = groups_by_square[self.shared_square.row - 1][self.shared_square.col]
+        upper_stacked_square = self.upper_square_in_stacked_column()
+        upper_square_in_stacked_column_groups = groups_by_square[upper_stacked_square.row][upper_stacked_square.col]
+
+        return square_above_crossing_groups.intersection(upper_square_in_stacked_column_groups)
+
+    def _vertical_groups_in_stacked_column(
+            self, groups_by_square: List[List[Set[Group]]], baseinverse_applied: int) -> Set[Group]:
+        problems_solved = set()
+
+        # In the stacked column, add Groups containing two Squares on top of each other
+        # up to and including the odd square in that column.
+        # If a baseinverse is applied for the ThreatCombination, this observation starts one square higher.
+        for upper_row in range(self.odd_square.row - baseinverse_applied):
+            vertical = Vertical(
+                upper=Square(row=upper_row, col=self.odd_square.col),
+                lower=Square(row=upper_row + 1, col=self.odd_square.col),
+            )
+            problems_solved.update(vertical.find_problems_solved_for_player(groups_by_square=groups_by_square))
+
+        return problems_solved
 
 
 def find_all_threat_combinations(board: Board) -> Set[ThreatCombination]:
