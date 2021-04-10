@@ -45,6 +45,17 @@ class TestThreatCombination(unittest.TestCase):
 
         board = Board(self.env.env_variables)
 
+        # This is the Even above Odd Threat combination described in Diagram 8.3.
+        even_above_odd_tc = ThreatCombination(
+            even_group=Group(player=0, start=Square(row=5, col=3), end=Square(row=2, col=6)),  # d1-g4,
+            odd_group=Group(player=0, start=Square(row=3, col=3), end=Square(row=3, col=6)),
+            shared_square=Square(row=3, col=5),  # f3
+            even_square=Square(row=2, col=6),  # g4
+            odd_square=Square(row=3, col=6),  # g3
+            directly_playable_square_shared_col=Square(row=5, col=5),  # f1
+            directly_playable_square_stacked_col=Square(row=4, col=6),  # g2
+            threat_combination_type=ThreatCombinationType.EvenAboveOdd,
+        )
         # This is an Odd above not directly playable Even Threat Combination.
         # It wasn't talked about in the original paper for the related diagram, but it exists.
         odd_above_not_directly_playable_even_tc = ThreatCombination(
@@ -58,21 +69,34 @@ class TestThreatCombination(unittest.TestCase):
             threat_combination_type=ThreatCombinationType.OddAboveNotDirectlyPlayableEven,
         )
         want_threat_combinations = {
-            # This is the Even above Odd Threat combination described in Diagram 8.3.
-            ThreatCombination(
-                even_group=Group(player=0, start=Square(row=5, col=3), end=Square(row=2, col=6)),  # d1-g4,
-                odd_group=Group(player=0, start=Square(row=3, col=3), end=Square(row=3, col=6)),
-                shared_square=Square(row=3, col=5),  # f3
-                even_square=Square(row=2, col=6),  # g4
-                odd_square=Square(row=3, col=6),  # g3
-                directly_playable_square_shared_col=Square(row=5, col=5),  # f1
-                directly_playable_square_stacked_col=Square(row=4, col=6),  # g2
-                threat_combination_type=ThreatCombinationType.EvenAboveOdd,
-            ),
+            even_above_odd_tc,
             odd_above_not_directly_playable_even_tc,
         }
         got_threat_combinations = find_all_threat_combinations(board=board)
         self.assertEqual(want_threat_combinations, got_threat_combinations)
+
+        want_even_above_odd_problems_solved = {
+            # Solved by _no_odd_squares_in_crossing_column().
+            Group(player=1, start=Square(row=0, col=5), end=Square(row=3, col=5)),  # f3-f6
+            Group(player=1, start=Square(row=1, col=5), end=Square(row=4, col=5)),  # f2-f5
+            Group(player=1, start=Square(row=2, col=5), end=Square(row=5, col=5)),  # f1-f4
+            # Solved by _no_squares_above_crossing_and_above_odd().
+            Group(player=1, start=Square(row=0, col=3), end=Square(row=0, col=6)),  # d6-g6
+            Group(player=1, start=Square(row=2, col=3), end=Square(row=2, col=6)),  # d4-g4
+            # Solved by _groups_containing_square_above_crossing_and_upper_stacked().
+            # d4-g4 already included.
+            # Solved by _highest_crossing_square_if_odd_is_playable().
+            # None.
+            # Solved by _threat_combination_baseinverse().
+            # None.
+            # Solved by _vertical_groups_in_stacked_column().
+            Group(player=1, start=Square(row=0, col=6), end=Square(row=3, col=6)),  # g3-g6
+            Group(player=1, start=Square(row=1, col=6), end=Square(row=4, col=6)),  # g2-g5
+        }
+        got_even_above_odd_problems_solved = even_above_odd_tc.find_problems_solved(
+            groups_by_square_by_player=pm.groups_by_square_by_player,
+        )
+        self.assertEqual(want_even_above_odd_problems_solved, got_even_above_odd_problems_solved)
 
         want_odd_above_even_problems_solved = {
             # Solved by _no_odd_squares_in_crossing_column().
@@ -90,6 +114,7 @@ class TestThreatCombination(unittest.TestCase):
             Group(player=1, start=Square(row=0, col=2), end=Square(row=3, col=2)),  # c3-c6
             Group(player=1, start=Square(row=1, col=2), end=Square(row=4, col=2)),  # c2-c5
             Group(player=1, start=Square(row=2, col=2), end=Square(row=5, col=2)),  # c1-c4
+            Group(player=1, start=Square(row=0, col=2), end=Square(row=0, col=5)),  # c6-f6
         }
         got_odd_above_even_problems_solved = odd_above_not_directly_playable_even_tc.find_problems_solved(
             groups_by_square_by_player=pm.groups_by_square_by_player,

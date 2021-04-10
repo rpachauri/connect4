@@ -2,7 +2,7 @@ from collections import namedtuple
 from enum import Enum
 from typing import Optional, Set, List
 
-from connect_four.evaluation.victor.rules import Rule, Vertical, Baseinverse
+from connect_four.evaluation.victor.rules import Rule, Vertical, Baseinverse, Claimeven
 from connect_four.game import Square
 from connect_four.problem import Group
 from connect_four.evaluation.victor.board import Board
@@ -144,6 +144,18 @@ class ThreatCombination(Rule):
 
         return square_above_crossing_groups.intersection(upper_square_in_stacked_column_groups)
 
+    def _highest_crossing_square_if_odd_is_playable(
+            self, groups_by_square: List[List[Set[Group]]]) -> Set[Group]:
+        problems_solved = set()
+
+        # If the odd square in the stacked column is playable:
+        if self.odd_square == self.directly_playable_square_stacked_col:
+            # Add Groups containing any Square above square_above_crossing.
+            for row in range(self.shared_square.row - 1):
+                problems_solved.update(groups_by_square[row][self.shared_square.col])
+
+        return problems_solved
+
     def _threat_combination_baseinverse(self, groups_by_square: List[List[Set[Group]]]) -> (Set[Group], int):
         # If the first empty square in the crossing column is odd and
         # the odd square in the stacked column is not directly playable:
@@ -174,6 +186,13 @@ class ThreatCombination(Rule):
                 lower=Square(row=lower_row, col=self.odd_square.col),
             )
             problems_solved.update(vertical.find_problems_solved_for_player(groups_by_square=groups_by_square))
+
+        for claimeven_upper_row in range(self.odd_square.row):
+            claimeven = Claimeven(
+                upper=Square(row=claimeven_upper_row, col=self.odd_square.col),
+                lower=Square(row=claimeven_upper_row + 1, col=self.odd_square.col),
+            )
+            problems_solved.update(claimeven.find_problems_solved_for_player(groups_by_square=groups_by_square))
 
         return problems_solved
 
