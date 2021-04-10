@@ -41,8 +41,22 @@ class TestThreatCombination(unittest.TestCase):
         ])
         self.env.player = 1
 
+        pm = ProblemManager(env_variables=self.env.env_variables, num_to_connect=4)
+
         board = Board(self.env.env_variables)
 
+        # This is an Odd above not directly playable Even Threat Combination.
+        # It wasn't talked about in the original paper for the related diagram, but it exists.
+        odd_above_not_directly_playable_even_tc = ThreatCombination(
+            even_group=Group(player=0, start=Square(row=1, col=1), end=Square(row=4, col=4)),  # b5-e2
+            odd_group=Group(player=0, start=Square(row=1, col=1), end=Square(row=1, col=4)),  # b5-e5
+            shared_square=Square(row=1, col=1),  # b5
+            even_square=Square(row=2, col=2),  # c4
+            odd_square=Square(row=1, col=2),  # c5
+            directly_playable_square_shared_col=Square(row=5, col=1),  # b1
+            directly_playable_square_stacked_col=Square(row=5, col=2),  # c2
+            threat_combination_type=ThreatCombinationType.OddAboveNotDirectlyPlayableEven,
+        )
         want_threat_combinations = {
             # This is the Even above Odd Threat combination described in Diagram 8.3.
             ThreatCombination(
@@ -55,21 +69,32 @@ class TestThreatCombination(unittest.TestCase):
                 directly_playable_square_stacked_col=Square(row=4, col=6),  # g2
                 threat_combination_type=ThreatCombinationType.EvenAboveOdd,
             ),
-            # This is an Odd above not directly playable Even Threat Combination.
-            # It wasn't talked about in the original paper for the related diagram, but it exists.
-            ThreatCombination(
-                even_group=Group(player=0, start=Square(row=1, col=1), end=Square(row=4, col=4)),  # b5-e2
-                odd_group=Group(player=0, start=Square(row=1, col=1), end=Square(row=1, col=4)),   # b5-e5
-                shared_square=Square(row=1, col=1),  # b5
-                even_square=Square(row=2, col=2),  # c4
-                odd_square=Square(row=1, col=2),  # c5
-                directly_playable_square_shared_col=Square(row=5, col=1),  # b1
-                directly_playable_square_stacked_col=Square(row=5, col=2),  # c2
-                threat_combination_type=ThreatCombinationType.OddAboveNotDirectlyPlayableEven,
-            ),
+            odd_above_not_directly_playable_even_tc,
         }
         got_threat_combinations = find_all_threat_combinations(board=board)
         self.assertEqual(want_threat_combinations, got_threat_combinations)
+
+        want_odd_above_even_problems_solved = {
+            # Solved by _no_odd_squares_in_crossing_column().
+            Group(player=1, start=Square(row=0, col=1), end=Square(row=3, col=1)),  # b3-b6
+            Group(player=1, start=Square(row=1, col=1), end=Square(row=4, col=1)),  # b2-b5
+            Group(player=1, start=Square(row=2, col=1), end=Square(row=5, col=1)),  # b1-b4
+            # Solved by _no_squares_above_crossing_and_above_odd().
+            Group(player=1, start=Square(row=0, col=0), end=Square(row=0, col=3)),  # a6-d6
+            Group(player=1, start=Square(row=0, col=1), end=Square(row=0, col=4)),  # b6-e6
+            # Solved by _groups_containing_square_above_crossing_and_upper_stacked().
+            # None.
+            # Solved by _threat_combination_baseinverse().
+            # None.
+            # Solved by _vertical_groups_in_stacked_column().
+            Group(player=1, start=Square(row=0, col=2), end=Square(row=3, col=2)),  # c3-c6
+            Group(player=1, start=Square(row=1, col=2), end=Square(row=4, col=2)),  # c2-c5
+            Group(player=1, start=Square(row=2, col=2), end=Square(row=5, col=2)),  # c1-c4
+        }
+        got_odd_above_even_problems_solved = odd_above_not_directly_playable_even_tc.find_problems_solved(
+            groups_by_square_by_player=pm.groups_by_square_by_player,
+        )
+        self.assertEqual(want_odd_above_even_problems_solved, got_odd_above_even_problems_solved)
 
     def test_diagram_8_7(self):
         # This test is a modification of Diagram 8.7 from the original paper.
