@@ -46,6 +46,7 @@ class OddThreat(Rule):
         for row in range(0, self.empty_square.row, 1):
             problems_solved.update(groups_by_square_by_player[1][row][self.empty_square.col])
 
+        # noinspection PyTypeChecker
         return problems_solved
 
 

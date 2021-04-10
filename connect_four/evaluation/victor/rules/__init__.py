@@ -29,3 +29,6 @@ from connect_four.evaluation.victor.rules.specialbefore import find_all_specialb
 
 from connect_four.evaluation.victor.rules.odd_threat import OddThreat
 from connect_four.evaluation.victor.rules.odd_threat import find_all_odd_threats
+
+from connect_four.evaluation.victor.rules.threat_combination import ThreatCombination
+from connect_four.evaluation.victor.rules.threat_combination import find_all_threat_combinations
