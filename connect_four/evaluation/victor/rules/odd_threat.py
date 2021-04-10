@@ -7,9 +7,10 @@ from connect_four.problem import Group
 
 
 class OddThreat(Rule):
-    def __init__(self, group: Group, empty_square: Square):
+    def __init__(self, group: Group, empty_square: Square, directly_playable_square: Square):
         self.group = group
         self.empty_square = empty_square
+        self.directly_playable_square = directly_playable_square
 
     def __eq__(self, other):
         if isinstance(other, OddThreat):
@@ -35,7 +36,17 @@ class OddThreat(Rule):
         Returns:
             problems_solved (Set[Group]): All Problems in square_to_groups this Rule solves.
         """
-        pass
+        problems_solved = set()
+
+        # Add Groups containing any odd Square up to the Odd Threat that are not directly playable.
+        for row in range(self.empty_square.row, self.directly_playable_square.row, 2):
+            problems_solved.update(groups_by_square_by_player[1][row][self.empty_square.col])
+
+        # Add Groups containing any Squares above the odd Threat.
+        for row in range(0, self.empty_square.row, 1):
+            problems_solved.update(groups_by_square_by_player[1][row][self.empty_square.col])
+
+        return problems_solved
 
 
 def find_all_odd_threats(board: Board) -> Set[OddThreat]:
@@ -55,11 +66,17 @@ def find_all_odd_threats(board: Board) -> Set[OddThreat]:
     for group in board.potential_groups(player=0):
         empty_squares = empty_squares_of_group(board, group)
         if len(empty_squares) == 1 and empty_squares[0] not in directly_playable_squares:
-            odd_threats.add(OddThreat(group=group, empty_square=empty_squares[0]))
+            empty_square = empty_squares[0]
+            odd_threat = OddThreat(
+                group=group,
+                empty_square=empty_square,
+                directly_playable_square=board.playable_square(col=empty_square.col)
+            )
+            odd_threats.add(odd_threat)
     return odd_threats
 
 
-def empty_squares_of_group(board: Board, group: Group):
+def empty_squares_of_group(board: Board, group: Group) -> List[Square]:
     """Returns a list of all empty Squares that belong to group.
 
     Args:
