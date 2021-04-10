@@ -50,6 +50,7 @@ class TestThreatCombination(unittest.TestCase):
                 shared_square=Square(row=3, col=5),  # f3
                 even_square=Square(row=2, col=6),  # g4
                 odd_square=Square(row=3, col=6),  # g3
+                directly_playable_square_shared_col=Square(row=5, col=5),  # f1
                 threat_combination_type=ThreatCombinationType.EvenAboveOdd,
             ),
             # This is an Odd above not directly playable Even Threat Combination.
@@ -60,6 +61,7 @@ class TestThreatCombination(unittest.TestCase):
                 shared_square=Square(row=1, col=1),  # b5
                 even_square=Square(row=2, col=2),  # c4
                 odd_square=Square(row=1, col=2),  # c5
+                directly_playable_square_shared_col=Square(row=1, col=1),  # b1
                 threat_combination_type=ThreatCombinationType.OddAboveNotDirectlyPlayableEven,
             ),
         }
@@ -96,6 +98,7 @@ class TestThreatCombination(unittest.TestCase):
                 shared_square=Square(row=3, col=5),  # f3
                 even_square=Square(row=4, col=6),  # g2
                 odd_square=Square(row=3, col=6),  # g3
+                directly_playable_square_shared_col=Square(row=5, col=5),  # f1
                 threat_combination_type=ThreatCombinationType.OddAboveDirectlyPlayableEven,
             )
         }

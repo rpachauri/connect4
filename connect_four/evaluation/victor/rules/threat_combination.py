@@ -41,12 +41,14 @@ class ThreatCombination(Rule):
                  shared_square: Square,
                  even_square: Square,
                  odd_square: Square,
+                 directly_playable_square_shared_col: Square,
                  threat_combination_type: ThreatCombinationType):
         self.even_threat = even_group
         self.odd_threat = odd_group
         self.shared_square = shared_square
         self.even_square = even_square
         self.odd_square = odd_square
+        self.directly_playable_square_shared_col = directly_playable_square_shared_col
         self.threat_combination_type = threat_combination_type
 
     def __eq__(self, other):
@@ -64,20 +66,6 @@ class ThreatCombination(Rule):
                 self.shared_square.__hash__() * 79 +
                 self.even_square.__hash__() * 73 +
                 self.odd_square.__hash__() * 71)
-
-    # def crossing_column(self) -> int:
-    #     return self.shared_square.col
-    #
-    # def stacked_column(self) -> int:
-    #     return self.even_square.col
-    #
-    # def upper_square_in_stacked_column(self) -> Square:
-    #     if self.threat_combination_type == ThreatCombinationType.EvenAboveOdd:
-    #         return self.even_square
-    #     return self.odd_square
-    #
-    # def columns(self) -> Set[int]:
-    #     return {self.shared_square.col, self.even_square.col}
 
     def find_problems_solved(self, groups_by_square_by_player: List[List[List[Set[Group]]]]) -> Set[Group]:
         """Finds all Problems this Rule solves.
@@ -164,12 +152,18 @@ def create_threat_combination(
     else:
         return None
 
+    directly_playable_square_shared_col = None
+    for square in directly_playable_squares:
+        if square.col == even_group.odd_square.col:
+            directly_playable_square_shared_col = square
+
     return ThreatCombination(
         even_group=even_group.group,
         odd_group=odd_group.group,
         shared_square=even_group.odd_square,
         even_square=even_group.even_square,
         odd_square=odd_unshared_square,
+        directly_playable_square_shared_col=directly_playable_square_shared_col,
         threat_combination_type=threat_combination_type,
     )
 
