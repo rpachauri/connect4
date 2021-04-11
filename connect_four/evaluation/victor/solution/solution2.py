@@ -1,6 +1,6 @@
 from typing import Sequence, Iterable
 
-from connect_four.evaluation.victor.rules import Claimeven, Rule, Baseinverse
+from connect_four.evaluation.victor.rules import Claimeven, Rule, Baseinverse, Vertical
 from connect_four.game import Square
 
 
@@ -48,4 +48,19 @@ def from_baseinverse(baseinverse: Baseinverse) -> Solution:
     return Solution(
         rule_instance=baseinverse,
         squares=baseinverse.squares,
+    )
+
+
+def from_vertical(vertical: Vertical) -> Solution:
+    """Converts a Vertical into a Solution.
+
+    Args:
+        vertical (Vertical): a Vertical.
+
+    Returns:
+        solution (Solution): a Solution.
+    """
+    return Solution(
+        rule_instance=vertical,
+        squares=[vertical.upper, vertical.lower],
     )
