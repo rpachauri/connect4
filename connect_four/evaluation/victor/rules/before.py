@@ -31,6 +31,9 @@ class Before(Rule):
     def __hash__(self):
         return self.group.__hash__() * 41 + self.verticals.__hash__() * 31 + self.claimevens.__hash__()
 
+    def __repr__(self):
+        return self.group.__repr__() + " Verticals: " + str(self.verticals) + " Claimevens: " + str(self.claimevens)
+
     def empty_squares_of_before_group(self):
         """Returns the empty squares of the Before group of this Before.
 

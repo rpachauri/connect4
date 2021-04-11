@@ -349,6 +349,100 @@ class TestBefore(unittest.TestCase):
         )
         self.assertEqual(want_problems_solved, got_problems_solved)
 
+    def test_diagram_7_2(self):
+        # This test case is based on Diagram 5.4 of the original paper.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 1, 1, ],
+                [0, 0, 1, 1, 0, 1, 0, ],
+                [0, 0, 0, 0, 1, 1, 1, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
+                [0, 1, 1, 1, 0, 0, 1, ],
+                [0, 0, 0, 1, 1, 1, 0, ],
+            ],
+            [
+                [0, 0, 1, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 1, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+                [0, 1, 1, 1, 0, 1, 1, ],
+                [0, 0, 0, 0, 1, 1, 0, ],
+                [0, 1, 1, 0, 0, 0, 1, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+
+        # Rule instances that will be used to form Befores.
+        # Claimeven instances.
+        claimeven_a3_a4 = Claimeven(
+            upper=Square(row=2, col=0),  # a4
+            lower=Square(row=3, col=0),  # a3
+        )
+        # Vertical instances.
+        vertical_a4_a5 = Vertical(
+            upper=Square(row=1, col=0),  # a5
+            lower=Square(row=2, col=0),  # a4
+        )
+        vertical_a2_a3 = Vertical(
+            upper=Square(row=3, col=0),  # a3
+            lower=Square(row=4, col=0),  # a2
+        )
+        vertical_b4_b5 = Vertical(
+            upper=Square(row=1, col=1),  # b5
+            lower=Square(row=2, col=1),  # b4
+        )
+        vertical_b5_b6 = Vertical(
+            upper=Square(row=0, col=1),  # b6
+            lower=Square(row=1, col=1),  # b5
+        )
+        # Before instances.
+        vertical_a3_a4 = Vertical(
+            upper=Square(row=2, col=0),  # a4
+            lower=Square(row=3, col=0),  # a3
+        )
+        before_a3_d3_variation_1 = Before(
+            group=Group(player=1, start=Square(row=3, col=0), end=Square(row=3, col=3)),  # a3-d3
+            verticals=[vertical_a2_a3],
+            claimevens=[],
+        )
+        before_a3_d3_variation_2 = Before(
+            group=Group(player=1, start=Square(row=3, col=0), end=Square(row=3, col=3)),  # a3-d3
+            verticals=[vertical_a3_a4],
+            claimevens=[],
+        )
+        before_a4_d4_variation_1 = Before(
+            group=Group(player=1, start=Square(row=2, col=0), end=Square(row=2, col=3)),  # a4-d4
+            verticals=[vertical_b4_b5],
+            claimevens=[claimeven_a3_a4],
+        )
+        before_a4_d4_variation_2 = Before(
+            group=Group(player=1, start=Square(row=2, col=0), end=Square(row=2, col=3)),  # a4-d4
+            verticals=[vertical_a4_a5, vertical_b4_b5],
+            claimevens=[],
+        )
+        before_b5_e2_variation_1 = Before(
+            group=Group(player=1, start=Square(row=1, col=1), end=Square(row=4, col=4)),  # b5-e2
+            verticals=[vertical_b4_b5],
+            claimevens=[],
+        )
+        before_b5_e2_variation_2 = Before(
+            group=Group(player=1, start=Square(row=1, col=1), end=Square(row=4, col=4)),  # b5-e2
+            verticals=[vertical_b5_b6],
+            claimevens=[],
+        )
+
+        want_befores = {
+            before_a3_d3_variation_1,
+            before_a3_d3_variation_2,
+            before_a4_d4_variation_1,
+            before_a4_d4_variation_2,
+            before_b5_e2_variation_1,
+            before_b5_e2_variation_2,
+        }
+
+        # Find all Befores for Black.
+        got_befores = find_all_befores(board=board, opponent_groups=board.potential_groups(player=1))
+        self.assertEqual(want_befores, got_befores)
+
 
 if __name__ == '__main__':
     unittest.main()
