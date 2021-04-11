@@ -66,7 +66,10 @@ def find_all_odd_threats(board: Board) -> Set[OddThreat]:
     odd_threats = set()
     for group in board.potential_groups(player=0):
         empty_squares = empty_squares_of_group(board, group)
-        if len(empty_squares) == 1 and empty_squares[0] not in directly_playable_squares:
+        # If there is only 1 empty square in the group, the square is not directly playable, and it is an odd square:
+        if (len(empty_squares) == 1 and
+                empty_squares[0] not in directly_playable_squares and
+                empty_squares[0].col % 2 == 1):
             empty_square = empty_squares[0]
             odd_threat = OddThreat(
                 group=group,

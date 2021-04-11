@@ -160,6 +160,31 @@ class TestOddThreat(unittest.TestCase):
         )
         self.assertEqual(want_problems_solved, got_problems_solved)
 
+    def test_diagram_7_2(self):
+        # This test case is based on Diagram 5.4 of the original paper.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 1, 1, ],
+                [0, 0, 1, 1, 0, 1, 0, ],
+                [0, 0, 0, 0, 1, 1, 1, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
+                [0, 1, 1, 1, 0, 0, 1, ],
+                [0, 0, 0, 1, 1, 1, 0, ],
+            ],
+            [
+                [0, 0, 1, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 1, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+                [0, 1, 1, 1, 0, 1, 1, ],
+                [0, 0, 0, 0, 1, 1, 0, ],
+                [0, 1, 1, 0, 0, 0, 1, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+
+        got_odd_threats = find_all_odd_threats(board=board)
+        self.assertFalse(got_odd_threats)
+
 
 if __name__ == '__main__':
     unittest.main()
