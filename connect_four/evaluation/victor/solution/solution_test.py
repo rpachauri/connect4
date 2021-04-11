@@ -72,6 +72,14 @@ class TestSolution(unittest.TestCase):
         )
         self.assertEqual(want_solution, got_solution)
 
+        got_solution2 = solution.from_claimeven2(claimeven=claimeven_2_4)
+        want_solution2 = Solution(
+            rule_instance=claimeven_2_4,
+            squares=frozenset([claimeven_2_4.upper, claimeven_2_4.lower]),
+            claimeven_bottom_squares=[claimeven_2_4.lower],
+        )
+        self.assertEqual(want_solution2, got_solution2)
+
     def test_from_baseinverse(self):
         # This board is from Diagram 6.2 of the original paper.
         self.env.state = np.array([
