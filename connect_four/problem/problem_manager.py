@@ -7,7 +7,7 @@ from connect_four.problem import Group
 
 class ProblemManager:
     def __init__(self, env_variables: TwoPlayerGameEnvVariables, num_to_connect: int):
-        """Initializes the SquareTypeManager with the given env_variables.
+        """Initializes the ProblemManager with the given env_variables.
 
         Args:
             env_variables (TwoPlayerGameEnvVariables): a TwoPlayerGame's env_variables.
