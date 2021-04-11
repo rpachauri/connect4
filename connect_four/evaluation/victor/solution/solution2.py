@@ -1,7 +1,7 @@
 from typing import Sequence, Iterable
 
 from connect_four.evaluation.victor.rules import Claimeven, Rule, Baseinverse, Vertical, Aftereven, Lowinverse, \
-    Highinverse
+    Highinverse, Baseclaim
 from connect_four.game import Square
 
 
@@ -133,4 +133,22 @@ def from_highinverse(highinverse: Highinverse) -> Solution:
     return Solution(
         squares=squares,
         rule_instance=highinverse,
+    )
+
+
+def from_baseclaim(baseclaim: Baseclaim) -> Solution:
+    """Converts a Baseclaim into a Solution.
+
+    Args:
+        baseclaim (Baseclaim): a Baseclaim.
+
+    Returns:
+        solution (Solution): a Solution.
+    """
+    square_above_second = Square(row=baseclaim.second.row - 1, col=baseclaim.second.col)
+
+    return Solution(
+        rule_instance=baseclaim,
+        squares=[baseclaim.first, baseclaim.second, baseclaim.third, square_above_second],
+        claimeven_bottom_squares=[baseclaim.second],
     )

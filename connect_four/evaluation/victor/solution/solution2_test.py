@@ -1,6 +1,7 @@
 import unittest
 
-from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Aftereven, Lowinverse, Highinverse
+from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Aftereven, Lowinverse, Highinverse, \
+    Baseclaim
 from connect_four.evaluation.victor.solution import solution2
 from connect_four.game import Square
 from connect_four.problem import Group
@@ -107,6 +108,30 @@ class TestSolution(unittest.TestCase):
         )
         got_solution = solution2.from_highinverse(
             highinverse=highinverse_c2_c3_c4_d2_d3_d4,
+        )
+        self.assertEqual(want_solution, got_solution)
+
+    def test_from_baseclaim(self):
+        baseclaim_b1_c1_c2_f1 = Baseclaim(
+            first=Square(row=5, col=1),  # b1
+            second=Square(row=5, col=2),  # c1
+            third=Square(row=5, col=4),  # e1
+        )
+
+        got_solution = solution2.from_baseclaim(
+            baseclaim=baseclaim_b1_c1_c2_f1,
+        )
+        want_solution = solution2.Solution(
+            rule_instance=baseclaim_b1_c1_c2_f1,
+            squares=frozenset([
+                Square(row=5, col=1),  # b1
+                Square(row=5, col=2),  # c1
+                Square(row=4, col=2),  # c2
+                Square(row=5, col=4),  # e1
+            ]),
+            claimeven_bottom_squares=[
+                Square(row=5, col=2),  # c1
+            ],
         )
         self.assertEqual(want_solution, got_solution)
 
