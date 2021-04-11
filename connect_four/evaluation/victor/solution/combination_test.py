@@ -3,7 +3,7 @@ import unittest
 from connect_four.game import Square
 from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Lowinverse, Aftereven
 
-from connect_four.evaluation.victor.solution import Solution
+from connect_four.evaluation.victor.solution.solution2 import Solution
 from connect_four.evaluation.victor.solution import combination
 from connect_four.problem import Group
 

@@ -1,7 +1,7 @@
 from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Aftereven, Baseclaim, Before, \
     Specialbefore, Lowinverse, Highinverse
 
-from connect_four.evaluation.victor.solution import Solution
+from connect_four.evaluation.victor.solution.solution2 import Solution
 
 
 def allowed(s1: Solution, s2: Solution) -> bool:
@@ -68,7 +68,7 @@ def allowed(s1: Solution, s2: Solution) -> bool:
     if isinstance(s2.rule_instance, Specialbefore):
         return allowed_with_specialbefore(solution=s2, other=s1)
 
-    raise ValueError("Unacceptable Rule types:", s1.rule, s2.rule)
+    raise ValueError("Unacceptable Rule types:", s1.rule_instance, s2.rule_instance)
 
 
 def disjoint(solution: Solution, other: Solution) -> bool:
@@ -153,7 +153,7 @@ def allowed_with_claimeven(solution: Solution, other: Solution) -> bool:
         return disjoint(solution=solution, other=other)
     if isinstance(other.rule_instance, (Lowinverse, Highinverse)):
         return no_claimeven_below_or_at_inverse(inverse_solution=other, claimeven_solution=solution)
-    raise ValueError("invalid other.rule for allowed_with_claimeven:", other.rule)
+    raise ValueError("invalid other.rule_instance for allowed_with_claimeven:", other.rule_instance)
 
 
 def allowed_with_baseinverse(solution: Solution, other: Solution) -> bool:
@@ -232,7 +232,7 @@ def allowed_with_aftereven(solution: Solution, other: Solution) -> bool:
                 no_claimeven_below_or_at_inverse(inverse_solution=other, claimeven_solution=solution))
     if isinstance(other.rule_instance, Baseclaim):
         return disjoint(solution=solution, other=other)
-    raise ValueError("invalid other.rule for allowed_with_aftereven:", other.rule)
+    raise ValueError("invalid other.rule for allowed_with_aftereven:", other.rule_instance)
 
 
 def allowed_with_lowinverse(solution: Solution, other: Solution) -> bool:
@@ -287,7 +287,7 @@ def allowed_with_highinverse(solution: Solution, other: Solution) -> bool:
     if isinstance(other.rule_instance, (Baseclaim, Before, Specialbefore)):
         return (disjoint(solution=solution, other=other) and
                 no_claimeven_below_or_at_inverse(inverse_solution=solution, claimeven_solution=other))
-    raise ValueError("invalid other.rule for allowed_with_aftereven:", other.rule)
+    raise ValueError("invalid other.rule for allowed_with_aftereven:", other.rule_instance)
 
 
 def allowed_with_baseclaim(solution: Solution, other: Solution) -> bool:

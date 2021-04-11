@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Iterable, FrozenSet, Dict, Set
 
 from connect_four.evaluation.victor.rules import Claimeven, Rule, Baseinverse, Vertical, Aftereven, Lowinverse, \
     Highinverse, Baseclaim, Before, Specialbefore, OddThreat
@@ -21,6 +21,24 @@ class Solution:
         if claimeven_bottom_squares is None:
             claimeven_bottom_squares = set()
         self.claimeven_bottom_squares = frozenset(claimeven_bottom_squares)
+        self.squares_by_column = self.cols_to_squares(squares=self.squares)
+
+    @staticmethod
+    def cols_to_squares(squares: FrozenSet[Square]) -> Dict[int, Set[Square]]:
+        """Converts an iterable of Squares into a dictionary of Squares keyed by the column they belong in.
+
+        Args:
+            squares (iterable<Square>): an iterable of Square objects.
+
+        Returns:
+            col_to_squares_dict (Map<int, Set<Square>>): a dictionary of columns to Squares in that column.
+        """
+        col_to_squares_dict = {}
+        for square in squares:
+            if square.col not in col_to_squares_dict:
+                col_to_squares_dict[square.col] = set()
+            col_to_squares_dict[square.col].add(square)
+        return col_to_squares_dict
 
     def __eq__(self, other):
         if isinstance(other, Solution):
