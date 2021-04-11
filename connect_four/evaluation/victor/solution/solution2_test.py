@@ -1,6 +1,6 @@
 import unittest
 
-from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Aftereven
+from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Aftereven, Lowinverse
 from connect_four.evaluation.victor.solution import solution2
 from connect_four.game import Square
 from connect_four.problem import Group
@@ -64,6 +64,24 @@ class TestSolution(unittest.TestCase):
                 Square(row=5, col=6),
             ],
             rule_instance=aftereven_d2_g2,
+        )
+        self.assertEqual(want_solution, got_solution)
+
+    def test_from_lowinverse(self):
+        lowinverse_c2_c3_d2_d3 = Lowinverse(
+            first_vertical=Vertical(upper=Square(row=3, col=2), lower=Square(row=4, col=2)),  # c2-c3
+            second_vertical=Vertical(upper=Square(row=3, col=3), lower=Square(row=4, col=3)),  # d2-d3
+        )
+
+        got_solution = solution2.from_lowinverse(lowinverse_c2_c3_d2_d3)
+        want_solution = solution2.Solution(
+            rule_instance=lowinverse_c2_c3_d2_d3,
+            squares=frozenset([
+                Square(row=3, col=2),
+                Square(row=4, col=2),
+                Square(row=3, col=3),
+                Square(row=4, col=3),
+            ]),
         )
         self.assertEqual(want_solution, got_solution)
 

@@ -1,6 +1,6 @@
 from typing import Sequence, Iterable
 
-from connect_four.evaluation.victor.rules import Claimeven, Rule, Baseinverse, Vertical, Aftereven
+from connect_four.evaluation.victor.rules import Claimeven, Rule, Baseinverse, Vertical, Aftereven, Lowinverse
 from connect_four.game import Square
 
 
@@ -85,4 +85,22 @@ def from_aftereven(aftereven: Aftereven) -> Solution:
         rule_instance=aftereven,
         squares=frozenset(squares_involved),
         claimeven_bottom_squares=claimeven_bottom_squares,
+    )
+
+
+def from_lowinverse(lowinverse: Lowinverse) -> Solution:
+    """Converts a Lowinverse into a Solution.
+
+    Args:
+        lowinverse (Lowinverse): a Lowinverse.
+
+    Returns:
+        solution (Solution): a Solution.
+    """
+    verticals_as_list = list(lowinverse.verticals)
+    vertical_0, vertical_1 = verticals_as_list[0], verticals_as_list[1]
+
+    return Solution(
+        rule_instance=lowinverse,
+        squares=frozenset([vertical_0.upper, vertical_0.lower, vertical_1.upper, vertical_1.lower]),
     )
