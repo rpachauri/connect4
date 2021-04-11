@@ -263,6 +263,69 @@ class TestHighinverse(unittest.TestCase):
         )
         self.assertEqual(want_problems_solved_for_player_0, got_problems_solved_for_player_0)
 
+    def test_diagram_7_2(self):
+        # This test case is based on Diagram 5.4 of the original paper.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 1, 1, ],
+                [0, 0, 1, 1, 0, 1, 0, ],
+                [0, 0, 0, 0, 1, 1, 1, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
+                [0, 1, 1, 1, 0, 0, 1, ],
+                [0, 0, 0, 1, 1, 1, 0, ],
+            ],
+            [
+                [0, 0, 1, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 1, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+                [0, 1, 1, 1, 0, 1, 1, ],
+                [0, 0, 0, 0, 1, 1, 0, ],
+                [0, 1, 1, 0, 0, 0, 1, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+
+        # Create Verticals for Lowinverses.
+        vertical_a4_a5 = Vertical(
+            upper=Square(row=1, col=0),  # a5
+            lower=Square(row=2, col=0),  # a4
+        )
+        vertical_a2_a3 = Vertical(
+            upper=Square(row=3, col=0),  # a3
+            lower=Square(row=4, col=0),  # a2
+        )
+        vertical_b4_b5 = Vertical(
+            upper=Square(row=1, col=1),  # b5
+            lower=Square(row=2, col=1),  # b4
+        )
+        # Create Lowinverses for Highinverses.
+        lowinverse_a4_a5_b4_b5 = Lowinverse(
+            first_vertical=vertical_a4_a5,
+            second_vertical=vertical_b4_b5,
+        )
+        lowinverse_a2_a3_b4_b5 = Lowinverse(
+            first_vertical=vertical_a2_a3,
+            second_vertical=vertical_b4_b5,
+        )
+
+        want_highinverses = {
+            Highinverse(
+                lowinverse=lowinverse_a4_a5_b4_b5,
+                directly_playable_squares=[Square(row=2, col=1)],  # b4
+            ),
+            Highinverse(
+                lowinverse=lowinverse_a2_a3_b4_b5,
+                directly_playable_squares=[Square(row=2, col=1)],  # b4
+            ),
+        }
+        got_highinverses = find_all_highinverses(
+            board=board,
+            lowinverses=find_all_lowinverses(
+                verticals=find_all_verticals(board=board),
+            ),
+        )
+        self.assertEqual(want_highinverses, got_highinverses)
+
 
 if __name__ == '__main__':
     unittest.main()
