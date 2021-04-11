@@ -1,4 +1,4 @@
-from typing import Sequence, Iterable
+from typing import Iterable
 
 from connect_four.evaluation.victor.rules import Claimeven, Rule, Baseinverse, Vertical, Aftereven, Lowinverse, \
     Highinverse, Baseclaim, Before, Specialbefore, OddThreat
@@ -27,6 +27,14 @@ class Solution:
             return (self.rule_instance == other.rule_instance and
                     self.squares == other.squares and
                     self.claimeven_bottom_squares == other.claimeven_bottom_squares)
+
+    def __hash__(self):
+        return (self.rule_instance.__hash__() * 61 +
+                self.squares.__hash__() * 59 +
+                self.claimeven_bottom_squares.__hash__())
+
+    def __repr__(self):
+        return str(self.rule_instance.__class__) + " -> " + str(self.squares)
 
 
 def from_claimeven(claimeven: Claimeven) -> Solution:

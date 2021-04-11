@@ -24,8 +24,8 @@ class Specialbefore(Rule):
 
         Args:
             before (Before): A Before. At least one empty square of the Before group must be playable.
-            internal_directly_playable_square (Square): A directly playable square part of the Before.
-            external_directly_playable_square (Square): A directly playable square not part of the Before.
+            internal_directly_playable_square (Square): A directly playable square part of the Before group.
+            external_directly_playable_square (Square): A directly playable square not part of the Before group.
         """
         # An assumption we make is that the internal directly playable square belongs to at most one Vertical.
         # This allows us to not have to dedupe different variations of Befores.
