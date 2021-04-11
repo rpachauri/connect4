@@ -1,7 +1,7 @@
 from typing import Sequence, Iterable
 
 from connect_four.evaluation.victor.rules import Claimeven, Rule, Baseinverse, Vertical, Aftereven, Lowinverse, \
-    Highinverse, Baseclaim
+    Highinverse, Baseclaim, Before
 from connect_four.game import Square
 
 
@@ -151,4 +151,36 @@ def from_baseclaim(baseclaim: Baseclaim) -> Solution:
         rule_instance=baseclaim,
         squares=[baseclaim.first, baseclaim.second, baseclaim.third, square_above_second],
         claimeven_bottom_squares=[baseclaim.second],
+    )
+
+
+def from_before(before: Before) -> Solution:
+    """Converts a Before into a Solution.
+
+    Args:
+        before (Before): a Before.
+
+    Returns:
+        solution (Solution): a Solution.
+    """
+    empty_squares = before.empty_squares_of_before_group()
+
+    squares = set(empty_squares)
+
+    for vertical in before.verticals:
+        # Add all squares part of Verticals which are part of the Before.
+        squares.add(vertical.upper)
+        squares.add(vertical.lower)
+
+    claimeven_bottom_squares = []
+    for claimeven in before.claimevens:
+        # Add all squares part of Claimevens which are part of the Before.
+        squares.add(claimeven.upper)
+        squares.add(claimeven.lower)
+        claimeven_bottom_squares.append(claimeven.lower)
+
+    return Solution(
+        rule_instance=before,
+        squares=frozenset(squares),
+        claimeven_bottom_squares=claimeven_bottom_squares,
     )

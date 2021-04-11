@@ -1,7 +1,7 @@
 import unittest
 
 from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Aftereven, Lowinverse, Highinverse, \
-    Baseclaim
+    Baseclaim, Before
 from connect_four.evaluation.victor.solution import solution2
 from connect_four.game import Square
 from connect_four.problem import Group
@@ -131,6 +131,34 @@ class TestSolution(unittest.TestCase):
             ]),
             claimeven_bottom_squares=[
                 Square(row=5, col=2),  # c1
+            ],
+        )
+        self.assertEqual(want_solution, got_solution)
+
+    def test_from_before(self):
+        before_b4_e1 = Before(
+            group=Group(player=1, start=Square(row=2, col=1), end=Square(row=5, col=4)),  # Group b4-e1
+            verticals=[
+                Vertical(upper=Square(row=4, col=4), lower=Square(row=5, col=4)),  # Vertical e1-e2
+            ],
+            claimevens=[
+                Claimeven(upper=Square(row=2, col=1), lower=Square(row=3, col=1))  # Claimeven b3-b4
+            ]
+        )
+
+        got_solution = solution2.from_before(before_b4_e1)
+        want_solution = solution2.Solution(
+            rule_instance=before_b4_e1,
+            squares=frozenset([
+                # Empty squares part of the Before group.
+                Square(row=2, col=1),  # b4
+                Square(row=5, col=4),  # e1
+                # Squares part of Claimevens/Verticals not part of the Before group.
+                Square(row=3, col=1),  # b3
+                Square(row=4, col=4),  # e2
+            ]),
+            claimeven_bottom_squares=[
+                Square(row=3, col=1),  # b3
             ],
         )
         self.assertEqual(want_solution, got_solution)
