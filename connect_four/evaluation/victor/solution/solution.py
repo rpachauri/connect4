@@ -176,22 +176,6 @@ def from_claimeven(claimeven: Claimeven, square_to_groups) -> Solution:
         )
 
 
-def from_claimeven2(claimeven: Claimeven) -> Solution:
-    """Converts a Claimeven into a Solution.
-
-    Args:
-        claimeven (Claimeven): a Claimeven.
-
-    Returns:
-        solution (Solution): a Solution.
-    """
-    return Solution(
-        rule_instance=claimeven,
-        squares=[claimeven.upper, claimeven.lower],
-        claimeven_bottom_squares=[claimeven.lower],
-    )
-
-
 def from_baseinverse(baseinverse: Baseinverse, square_to_groups) -> Solution:
     """Converts a Baseinverse into a Solution.
     Must solve at least one potential group in order to be converted into a Solution.
