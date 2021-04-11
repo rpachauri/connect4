@@ -1,7 +1,7 @@
 from typing import Sequence, Iterable
 
 from connect_four.evaluation.victor.rules import Claimeven, Rule, Baseinverse, Vertical, Aftereven, Lowinverse, \
-    Highinverse, Baseclaim, Before, Specialbefore
+    Highinverse, Baseclaim, Before, Specialbefore, OddThreat
 from connect_four.game import Square
 
 
@@ -220,4 +220,19 @@ def from_specialbefore(specialbefore: Specialbefore) -> Solution:
         squares=frozenset(squares),
         claimeven_bottom_squares=claimeven_bottom_squares,
         rule_instance=specialbefore,
+    )
+
+
+def from_odd_threat(odd_threat: OddThreat) -> Solution:
+    """Converts an OddThreat into a Solution.
+
+    Args:
+        odd_threat (OddThreat): an OddThreat.
+
+    Returns:
+        solution (Solution): a Solution.
+    """
+    return Solution(
+        rule_instance=odd_threat,
+        squares=[odd_threat.empty_square],
     )
