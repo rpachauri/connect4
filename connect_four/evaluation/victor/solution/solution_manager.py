@@ -1,6 +1,10 @@
 from typing import Set
 
 from connect_four.envs import TwoPlayerGameEnvVariables
+from connect_four.evaluation.victor.board import Board
+from connect_four.evaluation.victor.rules import find_all_claimevens, find_all_baseinverses, find_all_verticals, \
+    find_all_afterevens, find_all_lowinverses, find_all_highinverses, find_all_baseclaims, find_all_befores, \
+    find_all_specialbefores, find_all_odd_threats
 from connect_four.evaluation.victor.solution import Solution
 
 
@@ -11,6 +15,33 @@ class SolutionManager:
         Args:
             env_variables (TwoPlayerGameEnvVariables): a TwoPlayerGame's env_variables.
         """
+        self.board = Board(env_variables=env_variables)
+        pass
+
+    def _find_all_solutions(self) -> Set[Solution]:
+        """Finds all Solutions for the current board.
+
+        Returns:
+            solutions (Set[Solution]): the set of all Solutions for either player in the current board.
+        """
+        white_groups = self.board.potential_groups(0)
+        black_groups = self.board.potential_groups(1)
+
+        # Find all applications of all rules.
+        claimevens = find_all_claimevens(board=self.board)
+        baseinverses = find_all_baseinverses(board=self.board)
+        verticals = find_all_verticals(board=self.board)
+        white_afterevens = find_all_afterevens(board=self.board, claimevens=claimevens, opponent_groups=white_groups)
+        black_afterevens = find_all_afterevens(board=self.board, claimevens=claimevens, opponent_groups=black_groups)
+        lowinverses = find_all_lowinverses(verticals=verticals)
+        highinverses = find_all_highinverses(board=self.board, lowinverses=lowinverses)
+        baseclaims = find_all_baseclaims(board=self.board)
+        white_befores = find_all_befores(board=self.board, opponent_groups=white_groups)
+        white_specialbefores = find_all_specialbefores(board=self.board, befores=white_befores)
+        black_befores = find_all_befores(board=self.board, opponent_groups=black_groups)
+        black_specialbefores = find_all_specialbefores(board=self.board, befores=black_befores)
+        # Find all win conditions for White.
+        white_odd_threats = find_all_odd_threats(board=self.board)
         pass
 
     def move(self, player: int, row: int, col: int) -> (Set[Solution], Set[Solution]):
