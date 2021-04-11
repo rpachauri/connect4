@@ -1,6 +1,7 @@
 from typing import Sequence, Iterable
 
-from connect_four.evaluation.victor.rules import Claimeven, Rule, Baseinverse, Vertical, Aftereven, Lowinverse
+from connect_four.evaluation.victor.rules import Claimeven, Rule, Baseinverse, Vertical, Aftereven, Lowinverse, \
+    Highinverse
 from connect_four.game import Square
 
 
@@ -103,4 +104,33 @@ def from_lowinverse(lowinverse: Lowinverse) -> Solution:
     return Solution(
         rule_instance=lowinverse,
         squares=frozenset([vertical_0.upper, vertical_0.lower, vertical_1.upper, vertical_1.lower]),
+    )
+
+
+def from_highinverse(highinverse: Highinverse) -> Solution:
+    """Converts a Highinverse into a Solution.
+
+    Args:
+        highinverse (Highinverse): a Highinverse.
+
+    Returns:
+        solution (Solution): a Solution.
+    """
+    verticals_as_list = list(highinverse.lowinverse.verticals)
+    vertical_0, vertical_1 = verticals_as_list[0], verticals_as_list[1]
+    upper_square_0 = Square(row=vertical_0.upper.row - 1, col=vertical_0.upper.col)
+    upper_square_1 = Square(row=vertical_1.upper.row - 1, col=vertical_1.upper.col)
+
+    # Form the highinverse into a solution.
+    squares = frozenset([
+        upper_square_0,
+        vertical_0.upper,
+        vertical_0.lower,
+        upper_square_1,
+        vertical_1.upper,
+        vertical_1.lower,
+    ])
+    return Solution(
+        squares=squares,
+        rule_instance=highinverse,
     )
