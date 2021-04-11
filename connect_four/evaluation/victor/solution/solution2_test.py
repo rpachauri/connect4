@@ -1,8 +1,9 @@
 import unittest
 
-from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical
+from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Aftereven
 from connect_four.evaluation.victor.solution import solution2
 from connect_four.game import Square
+from connect_four.problem import Group
 
 
 class TestSolution(unittest.TestCase):
@@ -33,6 +34,36 @@ class TestSolution(unittest.TestCase):
         want_solution = solution2.Solution(
             rule_instance=vertical_e4_e5,
             squares=frozenset([vertical_e4_e5.upper, vertical_e4_e5.lower]),
+        )
+        self.assertEqual(want_solution, got_solution)
+
+    def test_from_aftereven(self):
+        aftereven_d2_g2 = Aftereven(
+            group=Group(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6)),  # d2-g2
+            claimevens=[
+                Claimeven(upper=Square(row=4, col=5), lower=Square(row=5, col=5)),  # Claimeven f1-f2
+                Claimeven(upper=Square(row=4, col=6), lower=Square(row=5, col=6)),  # Claimeven g1-g2
+            ],
+        )
+
+        got_solution = solution2.from_aftereven(aftereven_d2_g2)
+        want_solution = solution2.Solution(
+            squares=frozenset([
+                # Squares from d2-g2.
+                Square(row=4, col=3),
+                Square(row=4, col=4),
+                Square(row=4, col=5),
+                Square(row=4, col=6),
+                # Lower squares of Claimevens.
+                Square(row=5, col=5),
+                Square(row=5, col=6),
+            ]),
+            claimeven_bottom_squares=[
+                # Lower squares of Claimevens.
+                Square(row=5, col=5),
+                Square(row=5, col=6),
+            ],
+            rule_instance=aftereven_d2_g2,
         )
         self.assertEqual(want_solution, got_solution)
 

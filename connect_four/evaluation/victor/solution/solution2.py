@@ -1,6 +1,6 @@
 from typing import Sequence, Iterable
 
-from connect_four.evaluation.victor.rules import Claimeven, Rule, Baseinverse, Vertical
+from connect_four.evaluation.victor.rules import Claimeven, Rule, Baseinverse, Vertical, Aftereven
 from connect_four.game import Square
 
 
@@ -63,4 +63,26 @@ def from_vertical(vertical: Vertical) -> Solution:
     return Solution(
         rule_instance=vertical,
         squares=[vertical.upper, vertical.lower],
+    )
+
+
+def from_aftereven(aftereven: Aftereven) -> Solution:
+    """Converts an Aftereven into a Solution.
+
+    Args:
+        aftereven (Aftereven): an Aftereven.
+
+    Returns:
+        solution (Solution): a Solution.
+    """
+    squares_involved = list(aftereven.group.squares)
+    claimeven_bottom_squares = []
+    for claimeven in aftereven.claimevens:
+        squares_involved.append(claimeven.lower)
+        claimeven_bottom_squares.append(claimeven.lower)
+
+    return Solution(
+        rule_instance=aftereven,
+        squares=frozenset(squares_involved),
+        claimeven_bottom_squares=claimeven_bottom_squares,
     )
