@@ -222,7 +222,170 @@ class TestSolutionManager(unittest.TestCase):
             # OddThreat Solutions.
             # None.
         }
-        self.assertEqual(want_solutions, sm.solutions)
+        self.assertEqual(want_solutions, sm.solutions_by_move[0])
+
+    def test_move_a1_from_diagram_7_2(self):
+        # This test case is based on Diagram 5.4 of the original paper.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 1, 1, ],
+                [0, 0, 1, 1, 0, 1, 0, ],
+                [0, 0, 0, 0, 1, 1, 1, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
+                [0, 1, 1, 1, 0, 0, 1, ],
+                [0, 0, 0, 1, 1, 1, 0, ],
+            ],
+            [
+                [0, 0, 1, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 1, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+                [0, 1, 1, 1, 0, 1, 1, ],
+                [0, 0, 0, 0, 1, 1, 0, ],
+                [0, 1, 1, 0, 0, 0, 1, ],
+            ],
+        ])
+        sm = SolutionManager(env_variables=self.env.env_variables)
+
+        # Rule instances that will be used to form Solutions.
+        # Claimeven instances.
+        claimeven_a1_a2 = Claimeven(
+            upper=Square(row=4, col=0),  # a2
+            lower=Square(row=5, col=0),  # a1
+        )
+        # Vertical instances.
+        vertical_a2_a3 = Vertical(
+            upper=Square(row=3, col=0),  # a3
+            lower=Square(row=4, col=0),  # a2
+        )
+        vertical_b4_b5 = Vertical(
+            upper=Square(row=1, col=1),  # b5
+            lower=Square(row=2, col=1),  # b4
+        )
+        # Lowinverse instances.
+        lowinverse_a2_a3_b4_b5 = Lowinverse(
+            first_vertical=vertical_a2_a3,
+            second_vertical=vertical_b4_b5,
+        )
+        # Before instances.
+        before_a2_d2 = Before(
+            group=Group(player=0, start=Square(row=4, col=0), end=Square(row=4, col=3)),  # a2-d2
+            verticals=[vertical_a2_a3],
+            claimevens=[],
+        )
+
+        want_removed_solutions = {
+            # Claimeven Solutions.
+            solution2.from_claimeven(claimeven=claimeven_a1_a2),
+            # Baseinverse Solutions.
+            solution2.from_baseinverse(baseinverse=Baseinverse(
+                playable1=Square(row=5, col=0),  # a1
+                playable2=Square(row=2, col=1),  # b4
+            )),
+            solution2.from_baseinverse(baseinverse=Baseinverse(
+                playable1=Square(row=5, col=0),  # a1
+                playable2=Square(row=0, col=4),  # e6
+            )),
+            # Vertical Solutions.
+            # None.
+            # Aftereven Solutions.
+            solution2.from_aftereven(aftereven=Aftereven(
+                group=Group(player=0, start=Square(row=4, col=0), end=Square(row=4, col=3)),  # a2-d2
+                claimevens=[claimeven_a1_a2],
+            )),
+            # Lowinverse Solutions.
+            # None.
+            # Highinverse Solutions.
+            solution2.from_highinverse(highinverse=Highinverse(
+                lowinverse=lowinverse_a2_a3_b4_b5,
+                # a2 is now directly playable, causing this Highinverse to be stale.
+                directly_playable_squares=[Square(row=2, col=1)],  # b4
+            )),
+            # Baseclaim Solutions.
+            solution2.from_baseclaim(baseclaim=Baseclaim(
+                first=Square(row=0, col=4),  # e6
+                second=Square(row=5, col=0),  # a1
+                third=Square(row=2, col=1),  # b4
+            )),
+            # Before Solutions.
+            # None.
+            # Specialbefore Solutions.
+            # None.
+            # OddThreat Solutions.
+            # None.
+        }
+        want_added_solutions = {
+            # Claimeven Solutions.
+            # None.
+            # Baseinverse Solutions.
+            solution2.from_baseinverse(baseinverse=Baseinverse(
+                playable1=Square(row=4, col=0),  # a2
+                playable2=Square(row=2, col=1),  # b4
+            )),
+            solution2.from_baseinverse(baseinverse=Baseinverse(
+                playable1=Square(row=4, col=0),  # a2
+                playable2=Square(row=0, col=4),  # e6
+            )),
+            # Vertical Solutions.
+            # None.
+            # Aftereven Solutions.
+            # None.
+            # Lowinverse Solutions.
+            # None.
+            # Highinverse Solutions.
+            solution2.from_highinverse(highinverse=Highinverse(
+                lowinverse=lowinverse_a2_a3_b4_b5,
+                # a2 is now directly playable, causing this Highinverse to be stale.
+                directly_playable_squares=[
+                    Square(row=4, col=0),  # a2
+                    Square(row=2, col=1),  # b4
+                ],
+            )),
+            # Baseclaim Solutions.
+            # None.
+            # Before Solutions.
+            # None.
+            # Specialbefore Solutions.
+            solution2.from_specialbefore(specialbefore=Specialbefore(
+                before=before_a2_d2,
+                internal_directly_playable_square=Square(row=4, col=0),  # a2
+                external_directly_playable_square=Square(row=2, col=1),  # b4
+            )),
+            solution2.from_specialbefore(specialbefore=Specialbefore(
+                before=before_a2_d2,
+                internal_directly_playable_square=Square(row=4, col=0),  # a2
+                external_directly_playable_square=Square(row=0, col=4),  # e6
+            )),
+            # OddThreat Solutions.
+            # None.
+        }
+        got_removed_solutions, got_added_solutions = sm.move(player=0, row=5, col=0)
+        self.assertEqual(want_removed_solutions, got_removed_solutions)
+        self.assertEqual(want_added_solutions, got_added_solutions)
+
+    def test_undo_move_raises_assertion_error(self):
+        # undo_move() should raise an assertion error if the SM is at the given state.
+        sm = SolutionManager(env_variables=self.env.env_variables)
+        with self.assertRaises(AssertionError):
+            sm.undo_move()
+
+    def test_move_undo_move(self):
+        # Initialize variables.
+        player, row, col = 0, 5, 0
+        sm = SolutionManager(env_variables=self.env.env_variables)
+
+        # Validate internal variables upon initialization.
+        self.assertEqual(0, sm.board.state[player][row][col])
+        self.assertFalse(sm.moves)
+
+        # Validate internal variables after moving.
+        sm.move(player=player, row=row, col=col)
+        self.assertEqual(1, sm.board.state[player][row][col])
+        self.assertEqual((player, row, col), sm.moves[0])
+
+        # Validate internal variables equal to what they were upon initialization.
+        sm.undo_move()
+        self.assertEqual(0, sm.board.state[player][row][col])
+        self.assertFalse(sm.moves)
 
 
 if __name__ == '__main__':

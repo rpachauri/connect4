@@ -16,32 +16,34 @@ class SolutionManager:
             env_variables (TwoPlayerGameEnvVariables): a TwoPlayerGame's env_variables.
         """
         self.board = Board(env_variables=env_variables)
-        self.solutions = self._find_all_solutions()
+        self.solutions_by_move = [self._find_all_solutions(board=self.board)]
+        self.moves = []
 
-    def _find_all_solutions(self) -> Set[Solution]:
+    @staticmethod
+    def _find_all_solutions(board: Board) -> Set[Solution]:
         """Finds all Solutions for the current board.
 
         Returns:
             solutions (Set[Solution]): the set of all Solutions for either player in the current board.
         """
-        white_groups = self.board.potential_groups(0)
-        black_groups = self.board.potential_groups(1)
+        white_groups = board.potential_groups(0)
+        black_groups = board.potential_groups(1)
 
         # Find all applications of all rules.
-        claimevens = find_all_claimevens(board=self.board)
-        baseinverses = find_all_baseinverses(board=self.board)
-        verticals = find_all_verticals(board=self.board)
-        white_afterevens = find_all_afterevens(board=self.board, claimevens=claimevens, opponent_groups=white_groups)
-        black_afterevens = find_all_afterevens(board=self.board, claimevens=claimevens, opponent_groups=black_groups)
+        claimevens = find_all_claimevens(board=board)
+        baseinverses = find_all_baseinverses(board=board)
+        verticals = find_all_verticals(board=board)
+        white_afterevens = find_all_afterevens(board=board, claimevens=claimevens, opponent_groups=white_groups)
+        black_afterevens = find_all_afterevens(board=board, claimevens=claimevens, opponent_groups=black_groups)
         lowinverses = find_all_lowinverses(verticals=verticals)
-        highinverses = find_all_highinverses(board=self.board, lowinverses=lowinverses)
-        baseclaims = find_all_baseclaims(board=self.board)
-        white_befores = find_all_befores(board=self.board, opponent_groups=white_groups)
-        white_specialbefores = find_all_specialbefores(board=self.board, befores=white_befores)
-        black_befores = find_all_befores(board=self.board, opponent_groups=black_groups)
-        black_specialbefores = find_all_specialbefores(board=self.board, befores=black_befores)
+        highinverses = find_all_highinverses(board=board, lowinverses=lowinverses)
+        baseclaims = find_all_baseclaims(board=board)
+        white_befores = find_all_befores(board=board, opponent_groups=white_groups)
+        white_specialbefores = find_all_specialbefores(board=board, befores=white_befores)
+        black_befores = find_all_befores(board=board, opponent_groups=black_groups)
+        black_specialbefores = find_all_specialbefores(board=board, befores=black_befores)
         # Find all win conditions for White.
-        white_odd_threats = find_all_odd_threats(board=self.board)
+        white_odd_threats = find_all_odd_threats(board=board)
 
         # Convert the rule instances into Solutions.
         solutions = set()
@@ -89,7 +91,17 @@ class SolutionManager:
             removed_solutions (Set[Solution]): the Solutions that were removed after the given move.
             added_solutions (Set[Solution]): the Solutions that were added after the given move.
         """
-        pass
+        previous_solutions = self.solutions_by_move[-1]
+
+        self.board.state[player][row][col] = 1
+        current_solutions = self._find_all_solutions(board=self.board)
+
+        self.moves.append((player, row, col))
+        self.solutions_by_move.append(current_solutions)
+
+        removed_solutions = previous_solutions - current_solutions
+        added_solutions = current_solutions - previous_solutions
+        return removed_solutions, added_solutions
 
     def undo_move(self):
         """Undoes the most recent move.
@@ -97,4 +109,10 @@ class SolutionManager:
         Raises:
             (AssertionError): if the internal state of the SolutionManager is at the state given upon initialization.
         """
-        pass
+        assert self.moves
+        assert len(self.solutions_by_move) > 1
+
+        player, row, col = self.moves.pop()
+        self.board.state[player][row][col] = 0
+
+        self.solutions_by_move.pop()
