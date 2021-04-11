@@ -1,7 +1,7 @@
 import unittest
 
 from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Aftereven, Lowinverse, Highinverse, \
-    Baseclaim, Before
+    Baseclaim, Before, Specialbefore
 from connect_four.evaluation.victor.solution import solution2
 from connect_four.game import Square
 from connect_four.problem import Group
@@ -159,6 +159,50 @@ class TestSolution(unittest.TestCase):
             ]),
             claimeven_bottom_squares=[
                 Square(row=3, col=1),  # b3
+            ],
+        )
+        self.assertEqual(want_solution, got_solution)
+
+    def test_from_specialbefore(self):
+        # Verticals/Claimevens which are part of the Before.
+        vertical_e2_e3 = Vertical(upper=Square(row=3, col=4), lower=Square(row=4, col=4))  # Vertical e2-e3.
+        claimeven_f1_f2 = Claimeven(upper=Square(row=4, col=5), lower=Square(row=5, col=5))  # Claimeven f1-f2.
+        claimeven_g1_g2 = Claimeven(upper=Square(row=4, col=6), lower=Square(row=5, col=6))  # Claimeven g1-g2.
+
+        # Before d2-g2.
+        before_d2_g2 = Before(
+            group=Group(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6)),  # d2-g2
+            verticals=[vertical_e2_e3],
+            claimevens=[claimeven_f1_f2, claimeven_g1_g2],
+        )
+        # Specialbefore d2-g2.
+        specialbefore_d2_g2 = Specialbefore(
+            before=before_d2_g2,
+            internal_directly_playable_square=Square(row=4, col=4),  # e2
+            external_directly_playable_square=Square(row=3, col=3),  # d3
+        )
+
+        got_solution = solution2.from_specialbefore(
+            specialbefore=specialbefore_d2_g2,
+        )
+        want_solution = solution2.Solution(
+            rule_instance=specialbefore_d2_g2,
+            squares=frozenset([
+                # Empty squares part of the Specialbefore group.
+                Square(row=4, col=4),  # e2. Note that this is the internal directly playable square.
+                Square(row=4, col=5),  # f2
+                Square(row=4, col=6),  # g2
+                # Squares not part of the Specialbefore group but are
+                # part of Verticals/Claimevens which are part of the Specialbefore.
+                # Square(row=3, col=4),  # e3 is the upper Square of Vertical e2-e3 and does not get used.
+                Square(row=5, col=5),  # f1 is the lower Square of Claimeven f1-f2.
+                Square(row=5, col=6),  # g1 is the lower Square of Claimeven g1-g2.
+                # Directly playable square not part of the Specialbefore group.
+                Square(row=3, col=3),  # d3
+            ]),
+            claimeven_bottom_squares=[
+                Square(row=5, col=5),  # f1 is the lower Square of Claimeven f1-f2.
+                Square(row=5, col=6),  # g1 is the lower Square of Claimeven g1-g2.
             ],
         )
         self.assertEqual(want_solution, got_solution)

@@ -1,7 +1,7 @@
 from typing import Sequence, Iterable
 
 from connect_four.evaluation.victor.rules import Claimeven, Rule, Baseinverse, Vertical, Aftereven, Lowinverse, \
-    Highinverse, Baseclaim, Before
+    Highinverse, Baseclaim, Before, Specialbefore
 from connect_four.game import Square
 
 
@@ -183,4 +183,41 @@ def from_before(before: Before) -> Solution:
         rule_instance=before,
         squares=frozenset(squares),
         claimeven_bottom_squares=claimeven_bottom_squares,
+    )
+
+
+def from_specialbefore(specialbefore: Specialbefore) -> Solution:
+    """Converts a Specialbefore into a Solution.
+
+    Args:
+        specialbefore (Specialbefore): a Specialbefore.
+
+    Returns:
+        solution (Solution): a Solution.
+    """
+    # Find all groups that contain the internal directly playable square and
+    # external directly playable square of the Specialbefore.
+    sq1 = specialbefore.internal_directly_playable_square
+    sq2 = specialbefore.external_directly_playable_square
+
+    squares = {sq1, sq2}
+
+    for vertical in specialbefore.before.verticals:
+        if vertical != specialbefore.unused_vertical():
+            # Add all squares part of Verticals which are part of the Before.
+            squares.add(vertical.upper)
+            squares.add(vertical.lower)
+
+    claimeven_bottom_squares = []
+    for claimeven in specialbefore.before.claimevens:
+        # Add all squares part of Claimevens which are part of the Before.
+        squares.add(claimeven.upper)
+        squares.add(claimeven.lower)
+        claimeven_bottom_squares.append(claimeven.lower)
+
+    # The Specialbefore Solution includes all squares that the Before Solution has.
+    return Solution(
+        squares=frozenset(squares),
+        claimeven_bottom_squares=claimeven_bottom_squares,
+        rule_instance=specialbefore,
     )
