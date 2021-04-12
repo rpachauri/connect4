@@ -11,7 +11,7 @@ from connect_four.evaluation.victor.rules import find_all_claimevens
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
 from connect_four.problem import Group
-from connect_four.problem.problem_manager import ProblemManager
+from connect_four.problem import ConnectFourProblemManager
 
 
 class TestClaimeven(unittest.TestCase):
@@ -83,7 +83,7 @@ class TestClaimeven(unittest.TestCase):
                 [0, 0, 0, 0, 1, 0, 1, ],
             ],
         ])
-        pm = ProblemManager(env_variables=self.env.env_variables, num_to_connect=4)
+        pm = ConnectFourProblemManager(env_variables=self.env.env_variables)
 
         # We're using the Claimeven with the upper square being e4.
         # In the example from the original paper, this refutes the groups in (4):

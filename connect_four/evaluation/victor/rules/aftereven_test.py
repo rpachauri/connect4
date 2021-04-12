@@ -12,7 +12,7 @@ from connect_four.evaluation.victor.rules import Aftereven
 from connect_four.evaluation.victor.rules import find_all_afterevens
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
-from connect_four.problem.problem_manager import ProblemManager
+from connect_four.problem import ConnectFourProblemManager
 
 
 class TestAftereven(unittest.TestCase):
@@ -185,7 +185,7 @@ class TestAftereven(unittest.TestCase):
                 [1, 0, 0, 0, 1, 0, 0, ],
             ],
         ])
-        pm = ProblemManager(env_variables=self.env.env_variables, num_to_connect=4)
+        pm = ConnectFourProblemManager(env_variables=self.env.env_variables)
 
         # The Aftereven d2-g2 solves all groups which need a square in both the f and g column.
         aftereven_d2_g2 = Aftereven(

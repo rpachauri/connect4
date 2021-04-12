@@ -15,7 +15,7 @@ from connect_four.evaluation.victor.rules import Specialbefore
 from connect_four.evaluation.victor.rules import find_all_specialbefores
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
-from connect_four.problem.problem_manager import ProblemManager
+from connect_four.problem import ConnectFourProblemManager
 
 
 class TestSpecialbefore(unittest.TestCase):
@@ -876,7 +876,7 @@ class TestSpecialbefore(unittest.TestCase):
                 [0, 0, 0, 0, 1, 0, 0, ],
             ],
         ])
-        pm = ProblemManager(env_variables=self.env.env_variables, num_to_connect=4)
+        pm = ConnectFourProblemManager(env_variables=self.env.env_variables, num_to_connect=4)
 
         # Verticals/Claimevens which are part of the Before.
         vertical_e2_e3 = Vertical(upper=Square(row=3, col=4), lower=Square(row=4, col=4))  # Vertical e2-e3.

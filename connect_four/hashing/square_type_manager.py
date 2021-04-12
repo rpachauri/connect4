@@ -3,7 +3,7 @@ from typing import List, Set, Dict
 
 from connect_four.envs import TwoPlayerGameEnvVariables
 from connect_four.game import Square
-from connect_four.problem.problem_manager import ProblemManager
+from connect_four.problem import ConnectingProblemManager
 
 
 class SquareType(Enum):
@@ -24,7 +24,7 @@ class SquareTypeManager:
         state, self.player = env_variables
         num_rows, num_cols = len(state[0]), len(state[0][0])
 
-        self.problem_manager = ProblemManager(env_variables=env_variables, num_to_connect=num_to_connect)
+        self.problem_manager = ConnectingProblemManager(env_variables=env_variables, num_to_connect=num_to_connect)
         self.square_types = self._create_initial_square_types(num_rows=num_rows, num_cols=num_cols)
 
         # Play squares that have already been played.

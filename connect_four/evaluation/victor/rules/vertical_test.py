@@ -9,7 +9,7 @@ from connect_four.evaluation.victor.rules import Vertical
 from connect_four.evaluation.victor.rules import find_all_verticals
 from connect_four.envs.connect_four_env import ConnectFourEnv
 from connect_four.problem import Group
-from connect_four.problem.problem_manager import ProblemManager
+from connect_four.problem import ConnectFourProblemManager
 
 
 class TestVertical(unittest.TestCase):
@@ -81,7 +81,7 @@ class TestVertical(unittest.TestCase):
                 [0, 0, 0, 0, 1, 0, 0, ],
             ],
         ])
-        pm = ProblemManager(env_variables=self.env.env_variables, num_to_connect=4)
+        pm = ConnectFourProblemManager(env_variables=self.env.env_variables)
 
         # The Vertical e4-e5 solves e2-e5 and e3-e6.
         vertical_e4_e5 = Vertical(upper=Square(row=2, col=4), lower=Square(row=1, col=4))

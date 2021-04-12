@@ -3,7 +3,7 @@ import unittest
 from connect_four.game import Square
 from connect_four.problem import Group
 # from connect_four.game.data_structures import Group, Square
-from connect_four.problem.problem_manager import ProblemManager
+from connect_four.problem.connecting_problem_manager import ConnectingProblemManager
 
 
 class TestProblemManager(unittest.TestCase):
@@ -26,17 +26,17 @@ class TestProblemManager(unittest.TestCase):
             Group(player=1, start=Square(row=0, col=0), end=Square(row=2, col=2)),
             Group(player=1, start=Square(row=2, col=0), end=Square(row=0, col=2)),
         }
-        got_all_groups = ProblemManager._create_all_groups(num_rows=3, num_cols=3, num_to_connect=3)
+        got_all_groups = ConnectingProblemManager._create_all_groups(num_rows=3, num_cols=3, num_to_connect=3)
         self.assertEqual(want_all_groups, got_all_groups)
 
     def test_create_all_groups_6x7_num_to_connect_4(self):
-        got_all_groups = ProblemManager._create_all_groups(num_rows=6, num_cols=7, num_to_connect=4)
+        got_all_groups = ConnectingProblemManager._create_all_groups(num_rows=6, num_cols=7, num_to_connect=4)
         # 69 groups for 2 players.
         self.assertEqual(69 * 2, len(got_all_groups))
 
     def test_create_all_groups_by_square_by_player_3x3_num_to_connect_3(self):
-        all_groups = ProblemManager._create_all_groups(num_rows=3, num_cols=3, num_to_connect=3)
-        got_all_groups_by_square_by_player = ProblemManager._create_all_groups_by_square_by_player(
+        all_groups = ConnectingProblemManager._create_all_groups(num_rows=3, num_cols=3, num_to_connect=3)
+        got_all_groups_by_square_by_player = ConnectingProblemManager._create_all_groups_by_square_by_player(
             num_rows=3,
             num_cols=3,
             all_groups=all_groups,

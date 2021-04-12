@@ -11,7 +11,7 @@ from connect_four.evaluation.victor.rules import find_all_baseinverses
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
 from connect_four.problem import Group
-from connect_four.problem.problem_manager import ProblemManager
+from connect_four.problem import ConnectFourProblemManager
 
 
 class TestBaseinverse(unittest.TestCase):
@@ -94,7 +94,7 @@ class TestBaseinverse(unittest.TestCase):
                 [0, 0, 0, 0, 1, 0, 0, ],
             ],
         ])
-        pm = ProblemManager(env_variables=self.env.env_variables, num_to_connect=4)
+        pm = ConnectFourProblemManager(env_variables=self.env.env_variables)
 
         # The Baseinverse a1-b1 solves a1-d1.
         baseinverse_a1_b1 = Baseinverse(playable1=Square(row=5, col=0), playable2=Square(row=5, col=1))
