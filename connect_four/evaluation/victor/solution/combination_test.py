@@ -1,10 +1,11 @@
 import unittest
 
 from connect_four.game import Square
-from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Lowinverse, Aftereven
+from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Lowinverse, Aftereven, OddThreat, \
+    Before
 
 from connect_four.evaluation.victor.solution.solution2 import Solution
-from connect_four.evaluation.victor.solution import combination
+from connect_four.evaluation.victor.solution import combination, solution2
 from connect_four.problem import Group
 
 
@@ -307,6 +308,50 @@ class TestCombination(unittest.TestCase):
                 ),
             ),
         ))
+
+    def test_allowed_with_odd_threat(self):
+        # No OddThreat can be combined with another OddThreat.
+        odd_threat_a3_d3 = solution2.from_odd_threat(odd_threat=OddThreat(
+            group=Group(player=0, start=Square(row=3, col=0), end=Square(row=3, col=3)),  # a3-d3
+            empty_square=Square(row=3, col=0),  # a3
+            directly_playable_square=Square(row=5, col=0),  # a1
+        ))
+        odd_threat_d5_g5 = solution2.from_odd_threat(odd_threat=OddThreat(
+            group=Group(player=0, start=Square(row=1, col=3), end=Square(row=1, col=6)),  # d5-g5
+            empty_square=Square(row=1, col=6),  # g5
+            directly_playable_square=Square(row=5, col=6),  # g5
+        ))
+        self.assertFalse(combination.allowed(s1=odd_threat_a3_d3, s2=odd_threat_d5_g5))
+
+        # OddThreats cannot be combined with Black-only Solutions.
+        before_b4_e1 = solution2.from_before(
+            before=Before(
+                group=Group(player=1, start=Square(row=2, col=1), end=Square(row=5, col=4)),  # Group b4-e1
+                verticals=[
+                    Vertical(upper=Square(row=4, col=4), lower=Square(row=5, col=4)),  # Vertical e1-e2
+                ],
+                claimevens=[
+                    Claimeven(upper=Square(row=2, col=1), lower=Square(row=3, col=1))  # Claimeven b3-b4
+                ]
+            ),
+        )
+        self.assertFalse(combination.allowed(s1=odd_threat_a3_d3, s2=before_b4_e1))
+
+        # OddThreats can be combined with White-only or Shared Solutions as long as they don't share the same column.
+        claimeven_2_4 = solution2.from_claimeven(
+            claimeven=Claimeven(
+                upper=Square(row=2, col=4),
+                lower=Square(row=3, col=4),
+            ),
+        )
+        self.assertTrue(combination.allowed(s1=odd_threat_a3_d3, s2=claimeven_2_4))
+        claimeven_2_0 = solution2.from_claimeven(
+            claimeven=Claimeven(
+                upper=Square(row=2, col=0),
+                lower=Square(row=3, col=0),
+            ),
+        )
+        self.assertFalse(combination.allowed(s1=odd_threat_a3_d3, s2=claimeven_2_0))
 
 
 if __name__ == '__main__':

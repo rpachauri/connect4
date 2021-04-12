@@ -1,5 +1,5 @@
 from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Aftereven, Baseclaim, Before, \
-    Specialbefore, Lowinverse, Highinverse
+    Specialbefore, Lowinverse, Highinverse, OddThreat
 
 from connect_four.evaluation.victor.solution.solution2 import Solution
 
@@ -14,6 +14,12 @@ def allowed(s1: Solution, s2: Solution) -> bool:
     Returns:
         combination_allowed (bool): True if the two Solutions can be combined; Otherwise, False.
     """
+    # If either Solution is an OddThreat.
+    if isinstance(s1.rule_instance, OddThreat):
+        return allowed_with_odd_threat(solution=s1, other=s2)
+    if isinstance(s2.rule_instance, OddThreat):
+        return allowed_with_odd_threat(solution=s2, other=s1)
+
     # If either Solution is a Claimeven.
     if isinstance(s1.rule_instance, Claimeven):
         return allowed_with_claimeven(solution=s1, other=s2)
@@ -105,6 +111,20 @@ def no_claimeven_below_or_at_inverse(inverse_solution: Solution, claimeven_solut
     return True
 
 
+def column_wise_disjoint(solution: Solution, other: Solution) -> bool:
+    """Returns true if the two solutions are disjoint (column-wise).
+
+    Args:
+        solution (Solution): a Solution.
+        other (Solution): a Solution.
+
+    Returns:
+        False if the two solutions have squares that share a column,
+        Otherwise, True.
+    """
+    return solution.squares_by_column.keys().isdisjoint(other.squares_by_column.keys())
+
+
 def column_wise_disjoint_or_equal(solution: Solution, other: Solution) -> bool:
     """Returns true if the two solutions are disjoint or equal (column-wise).
 
@@ -123,6 +143,50 @@ def column_wise_disjoint_or_equal(solution: Solution, other: Solution) -> bool:
             if (solution.squares_by_column[col].intersection(other.squares_by_column[col]) and
                     solution.squares_by_column[col] != other.squares_by_column[col]):
                 return False
+    return True
+
+
+def allowed_with_odd_threat(solution: Solution, other: Solution) -> bool:
+    """Returns True if other can be combined with solution; Otherwise, False.
+
+    Args:
+        solution (Solution): a Solution with rule=Rule.Claimeven.
+        other (Solution): a Solution.
+
+    Requires:
+        1. solution must have rule=Rule.Claimeven.
+        2. other must have rule be one of the following:
+            -   Rule.OddThreat
+            -   Rule.Claimeven
+            -   Rule.Baseinverse
+            -   Rule.Vertical
+            -   Rule.Aftereven
+            -   Rule.Lowinverse
+            -   Rule.Highinverse
+            -   Rule.Baseclaim
+            -   Rule.Before
+            -   Rule.Specialbefore
+
+    Returns:
+        combination_allowed (bool): True if other can be combined with solution; Otherwise, False.
+    """
+    # No OddThreat can be combined with another OddThreat.
+    if isinstance(other.rule_instance, OddThreat):
+        return False
+
+    # OddThreats cannot be combined with any other Solution that uses a square in the same column.
+    if not column_wise_disjoint(solution=solution, other=other):
+        return False
+
+    # OddThreats are Solutions that belong to White. They cannot be combined with Black-only Solutions.
+    if isinstance(other.rule_instance, (Aftereven, Before)):
+        if other.rule_instance.group.player == 1:
+            return False
+
+    if isinstance(other.rule_instance, Specialbefore):
+        if other.rule_instance.before.group.player == 1:
+            return False
+
     return True
 
 
