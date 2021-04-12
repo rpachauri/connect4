@@ -38,7 +38,7 @@ class ProblemManager:
     def get_problems_by_square_by_player(self) -> List[List[List[Set[Problem]]]]:
         """
         Returns:
-            groups_by_square_by_player (List[List[List[Set[Problem]]]]): a 3D array of a Set of Groups.
+            problems_by_square_by_player (List[List[List[Set[Problem]]]]): a 3D array of a Set of Groups.
                 1. The first dimension is the player.
                 2. The second dimension is the row.
                 3. The third dimension is the col.

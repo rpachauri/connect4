@@ -7,7 +7,7 @@ from connect_four.envs import ConnectFourEnv
 from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Aftereven, Lowinverse, Highinverse, \
     Baseclaim, Before, Specialbefore
 from connect_four.evaluation.victor.solution import solution2
-from connect_four.evaluation.victor.solution.solution_manager import SolutionManager
+from connect_four.evaluation.victor.solution.victor_solution_manager import VictorSolutionManager
 from connect_four.game import Square
 from connect_four.problem import Group
 
@@ -39,7 +39,7 @@ class TestSolutionManager(unittest.TestCase):
                 [0, 1, 1, 0, 0, 0, 1, ],
             ],
         ])
-        sm = SolutionManager(env_variables=self.env.env_variables)
+        sm = VictorSolutionManager(env_variables=self.env.env_variables)
 
         # Rule instances that will be used to form Solutions.
         # Claimeven instances.
@@ -244,7 +244,7 @@ class TestSolutionManager(unittest.TestCase):
                 [0, 1, 1, 0, 0, 0, 1, ],
             ],
         ])
-        sm = SolutionManager(env_variables=self.env.env_variables)
+        sm = VictorSolutionManager(env_variables=self.env.env_variables)
 
         # Rule instances that will be used to form Solutions.
         # Claimeven instances.
@@ -364,14 +364,14 @@ class TestSolutionManager(unittest.TestCase):
 
     def test_undo_move_raises_assertion_error(self):
         # undo_move() should raise an assertion error if the SM is at the given state.
-        sm = SolutionManager(env_variables=self.env.env_variables)
+        sm = VictorSolutionManager(env_variables=self.env.env_variables)
         with self.assertRaises(AssertionError):
             sm.undo_move()
 
     def test_move_undo_move(self):
         # Initialize variables.
         player, row, col = 0, 5, 0
-        sm = SolutionManager(env_variables=self.env.env_variables)
+        sm = VictorSolutionManager(env_variables=self.env.env_variables)
 
         # Validate internal variables upon initialization.
         self.assertEqual(0, sm.board.state[player][row][col])

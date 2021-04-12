@@ -1,2 +1,5 @@
 from connect_four.evaluation.victor.solution.solution import Solution
 from connect_four.evaluation.victor.solution.solution import find_all_solutions
+
+from connect_four.evaluation.victor.solution.solution_manager import SolutionManager
+from connect_four.evaluation.victor.solution.victor_solution_manager import VictorSolutionManager
