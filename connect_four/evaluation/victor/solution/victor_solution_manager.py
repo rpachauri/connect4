@@ -109,7 +109,8 @@ class VictorSolutionManager(SolutionManager):
         """Undoes the most recent move.
 
         Raises:
-            (AssertionError): if the internal state of the VictorSolutionManager is at the state given upon initialization.
+            (AssertionError): if the internal state of the VictorSolutionManager
+                is at the state given upon initialization.
         """
         assert self.moves
         assert len(self.solutions_by_move) > 1

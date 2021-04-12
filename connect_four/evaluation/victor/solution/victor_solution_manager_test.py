@@ -5,7 +5,7 @@ import numpy as np
 
 from connect_four.envs import ConnectFourEnv
 from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Aftereven, Lowinverse, Highinverse, \
-    Baseclaim, Before, Specialbefore
+    Baseclaim, Before, Specialbefore, OddThreat
 from connect_four.evaluation.victor.solution import solution2
 from connect_four.evaluation.victor.solution.victor_solution_manager import VictorSolutionManager
 from connect_four.game import Square
@@ -386,6 +386,40 @@ class TestSolutionManager(unittest.TestCase):
         sm.undo_move()
         self.assertEqual(0, sm.board.state[player][row][col])
         self.assertFalse(sm.moves)
+
+    def test_win_conditions_diagram_8_1(self):
+        # This test case is based on Diagram 8.1.
+        # Black is to move and White has an odd threat at a3.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
+                [0, 1, 1, 1, 0, 0, 0, ],
+                [0, 1, 0, 0, 0, 0, 0, ],
+                [1, 0, 1, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
+                [0, 0, 1, 1, 1, 0, 0, ],
+                [0, 1, 0, 0, 1, 0, 0, ],
+            ],
+        ])
+        self.env.player_turn = 1  # Black to move.
+        solution_manager = VictorSolutionManager(env_variables=self.env.env_variables)
+
+        want_odd_threat_a3_d3 = solution2.from_odd_threat(
+            odd_threat=OddThreat(
+                group=Group(player=0, start=Square(row=3, col=0), end=Square(row=3, col=3)),  # a3-d3
+                empty_square=Square(row=3, col=0),  # a3
+                directly_playable_square=Square(row=4, col=0),  # a2
+            )
+        )
+        got_win_conditions = solution_manager.get_win_conditions()
+        self.assertEqual({want_odd_threat_a3_d3}, got_win_conditions)
 
 
 if __name__ == '__main__':

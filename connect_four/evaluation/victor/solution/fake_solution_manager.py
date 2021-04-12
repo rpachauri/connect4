@@ -6,8 +6,12 @@ from connect_four.game import Square
 
 
 class FakeSolutionManager(SolutionManager):
-    def __init__(self, solutions: Set[Solution]):
+    def __init__(self, solutions: Set[Solution], win_conditions: Set[Solution] = None):
         self.solutions = solutions
+
+        if win_conditions is None:
+            win_conditions = set()
+        self.win_conditions = win_conditions
 
     def move(self, player: int, row: int, col: int) -> Set[Square]:
         pass
@@ -19,4 +23,4 @@ class FakeSolutionManager(SolutionManager):
         return self.solutions
 
     def get_win_conditions(self) -> Set[Solution]:
-        pass
+        return self.win_conditions
