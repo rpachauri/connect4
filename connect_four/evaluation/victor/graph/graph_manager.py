@@ -35,6 +35,9 @@ class GraphManager:
         self.solution_to_problems: Dict[Solution, Set[Problem]] = {}
         self.solution_to_solutions: Dict[Solution, Set[Solution]] = {}
 
+        for problem in self.problem_manager.get_all_problems():
+            self.problem_to_solutions[problem] = set()
+
         for solution in solutions:
             problems_solved = solution.rule_instance.find_problems_solved(
                 groups_by_square_by_player=problems_by_square_by_player,
@@ -42,8 +45,6 @@ class GraphManager:
 
             self.solution_to_problems[solution] = set()
             for problem in problems_solved:
-                if problem not in self.problem_to_solutions:
-                    self.problem_to_solutions[problem] = set()
                 self.problem_to_solutions[problem].add(solution)
                 self.solution_to_problems[solution].add(problem)
 
@@ -90,7 +91,7 @@ class GraphManager:
             3. Else: # the current player is Black:
                 White can guarantee a win.
         """
-        problems = self.problem_manager.get_problems()
+        problems = self.problem_manager.get_current_problems()
 
         if self.player == 0:
             return self._find_chosen_set(problems=problems, disallowed_solutions=set(), used_solutions=set())
@@ -162,6 +163,8 @@ class GraphManager:
         Returns:
             most_difficult_problem (Problem): the Problem with the fewest allowed Solutions.
         """
+        assert problems
+
         most_difficult_problem = None
         num_neighbors_of_most_difficult = len(self.solution_to_problems) + 1  # Set to an arbitrary high number.
 

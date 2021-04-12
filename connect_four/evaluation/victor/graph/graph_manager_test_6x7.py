@@ -128,7 +128,7 @@ class TestGraphManager6x7(unittest.TestCase):
         # The used Solutions may also solve Problems that belong to the other player.
         # The minimum requirement is that the found Solutions solves all
         # Problems that need to be solved in this position.
-        self.assertTrue(problem_manager.get_problems().issubset(got_solved_problems))
+        self.assertTrue(problem_manager.get_current_problems().issubset(got_solved_problems))
 
     def test_evaluate_6x7(self):
         # The empty 6x7 board has no solution set for Black because White is guaranteed to win.
@@ -154,7 +154,7 @@ class TestGraphManager6x7(unittest.TestCase):
         solution_manager = VictorSolutionManager(env_variables=self.env.env_variables)
 
         # There should be exactly 69 problems that need solving.
-        self.assertEqual(69, len(problem_manager.get_problems()))
+        self.assertEqual(69, len(problem_manager.get_current_problems()))
 
         gm = GraphManager(player=0, problem_manager=problem_manager, solution_manager=solution_manager)
         got_evaluation = gm.evaluate()
@@ -301,7 +301,7 @@ class TestGraphManager6x7(unittest.TestCase):
         # The used Solutions may also solve Problems that belong to the other player.
         # The minimum requirement is that the found Solutions solves all
         # Problems that need to be solved in this position.
-        self.assertTrue(problem_manager.get_problems().issubset(got_solved_problems))
+        self.assertTrue(problem_manager.get_current_problems().issubset(got_solved_problems))
 
     def test_evaluate_6x7_8_1(self):
         # This test case is based on Diagram 8.1.
@@ -331,6 +331,35 @@ class TestGraphManager6x7(unittest.TestCase):
         gm = GraphManager(player=1, problem_manager=problem_manager, solution_manager=solution_manager)
         got_evaluation = gm.evaluate()
         self.assertIsNotNone(got_evaluation)
+
+    def test_evaluate_6x7_11_1_a1_a2(self):
+        # This test case is a modified version of on Diagram 11.1.
+        # White has played a1 and Black has responded with a2.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [1, 0, 1, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [1, 0, 1, 1, 1, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
+            ],
+        ])
+        problem_manager = ConnectFourProblemManager(env_variables=self.env.env_variables)
+        solution_manager = VictorSolutionManager(env_variables=self.env.env_variables)
+
+        # Catches the case when there exists a Problem that cannot be solved by any Solutions.
+        gm = GraphManager(player=0, problem_manager=problem_manager, solution_manager=solution_manager)
+        got_evaluation = gm.evaluate()
+        self.assertIsNone(got_evaluation)
 
 
 if __name__ == '__main__':

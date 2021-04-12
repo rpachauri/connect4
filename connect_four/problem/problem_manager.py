@@ -50,10 +50,19 @@ class ProblemManager:
         pass
 
     @abstractmethod
-    def get_problems(self) -> Set[Problem]:
+    def get_current_problems(self) -> Set[Problem]:
         """
 
         Returns:
             problems (Set[Problem]): a set of all Problems that belong to the current player.
+        """
+        pass
+
+    @abstractmethod
+    def get_all_problems(self) -> Set[Problem]:
+        """
+
+        Returns:
+            problems (Set[Problem]): a set of all Problems that belong to the either player.
         """
         pass

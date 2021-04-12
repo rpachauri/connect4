@@ -228,7 +228,7 @@ class ConnectingProblemManager(ProblemManager):
         """
         return self.groups_by_square_by_player
 
-    def get_problems(self) -> Set[Problem]:
+    def get_current_problems(self) -> Set[Problem]:
         """
 
         Returns:
@@ -238,4 +238,17 @@ class ConnectingProblemManager(ProblemManager):
         for row in range(len(self.groups_by_square_by_player[self.player])):
             for col in range(len(self.groups_by_square_by_player[self.player][row])):
                 problems.update(self.groups_by_square_by_player[self.player][row][col])
+        return problems
+
+    def get_all_problems(self) -> Set[Problem]:
+        """
+
+        Returns:
+            problems (Set[Problem]): a set of all Problems that belong to the either player.
+        """
+        problems = set()
+        for player in range(len(self.groups_by_square_by_player)):
+            for row in range(len(self.groups_by_square_by_player[player])):
+                for col in range(len(self.groups_by_square_by_player[player][row])):
+                    problems.update(self.groups_by_square_by_player[player][row][col])
         return problems

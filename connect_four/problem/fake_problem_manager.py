@@ -17,3 +17,9 @@ class FakeProblemManager(ProblemManager):
 
     def get_problems_by_square_by_player(self) -> List[List[List[Set[Problem]]]]:
         return self.problems_by_square_by_player
+
+    def get_current_problems(self) -> Set[Problem]:
+        pass
+
+    def get_all_problems(self) -> Set[Problem]:
+        pass
