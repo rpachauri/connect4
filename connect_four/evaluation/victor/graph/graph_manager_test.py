@@ -3,9 +3,11 @@ from typing import List, Set
 
 from connect_four.evaluation.victor.rules import Claimeven, Vertical
 from connect_four.evaluation.victor.solution import solution2
+from connect_four.evaluation.victor.solution.fake_solution_manager import FakeSolutionManager
 from connect_four.game import Square
 from connect_four.problem import Group as Problem
 from connect_four.evaluation.victor.graph.graph_manager import GraphManager
+from connect_four.problem.fake_problem_manager import FakeProblemManager
 
 
 class TestGraphManager(unittest.TestCase):
@@ -67,13 +69,14 @@ class TestGraphManager(unittest.TestCase):
 
         problems = {problem_1, problem_2, problem_3}
         groups_by_square_by_player = self.create_groups_by_square_by_player(num_rows=6, num_cols=7, problems=problems)
-        got_problem_to_solutions, got_solution_to_problems, got_solution_to_solutions = GraphManager.create_node_graph(
-            solutions={solution_1, solution_2, solution_3},
-            groups_by_square_by_player=groups_by_square_by_player,
-        )
-        self.assertEqual(want_problem_to_solutions, got_problem_to_solutions)
-        self.assertEqual(want_solution_to_problems, got_solution_to_problems)
-        self.assertEqual(want_solution_to_solutions, got_solution_to_solutions)
+
+        fake_problem_manager = FakeProblemManager(problems_by_square_by_player=groups_by_square_by_player)
+        fake_solution_manager = FakeSolutionManager(solutions={solution_1, solution_2, solution_3})
+
+        gm = GraphManager(player=0, problem_manager=fake_problem_manager, solution_manager=fake_solution_manager)
+        self.assertEqual(want_problem_to_solutions, gm.problem_to_solutions)
+        self.assertEqual(want_solution_to_problems, gm.solution_to_problems)
+        self.assertEqual(want_solution_to_solutions, gm.solution_to_solutions)
 
 
 if __name__ == '__main__':

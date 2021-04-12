@@ -1,74 +1,55 @@
-from typing import Set, Dict, List
+from typing import Set, Dict
 
+from connect_four.evaluation.victor.solution import SolutionManager
 from connect_four.problem import Group as Problem
-from connect_four.envs import TwoPlayerGameEnvVariables
 from connect_four.evaluation.victor.solution import combination
 from connect_four.evaluation.victor.solution.solution2 import Solution
-from connect_four.evaluation.victor.solution.solution_manager import SolutionManager
 from connect_four.problem.problem_manager import ProblemManager
 
 
 class GraphManager:
-    def __init__(self, env_variables: TwoPlayerGameEnvVariables):
+    def __init__(self, player: int,
+                 problem_manager: ProblemManager,
+                 solution_manager: SolutionManager):
         """Initializes the SolutionManager with the given env_variables.
 
         Args:
-            env_variables (TwoPlayerGameEnvVariables): a TwoPlayerGame's env_variables.
+            player (int): the current player.
+            problem_manager (ProblemManager): a ProblemManager whose internal state matches env_variables.
+            solution_manager (SolutionManager): a SolutionManager whose internal state matches env_variables.
         """
-        self.problem_manager = ProblemManager(env_variables=env_variables, num_to_connect=4)
-        self.solution_manager = SolutionManager(env_variables=env_variables)
+        self.player = player
+        self.problem_manager = problem_manager
+        self.solution_manager = solution_manager
 
+        self._initialize_node_graph()
+
+    def _initialize_node_graph(self):
+        """Initializes the NodeGraph connecting Problems to Solutions, Solutions to Problems, and Solutions to Solutions.
+        """
         solutions = self.solution_manager.get_solutions()
+        problems_by_square_by_player = self.problem_manager.get_problems_by_square_by_player()
 
-        self.problem_to_solutions, self.solution_to_problems, self.solution_to_solutions = self.create_node_graph(
-            solutions=solutions,
-            groups_by_square_by_player=self.problem_manager.groups_by_square_by_player,
-        )
-
-    @staticmethod
-    def create_node_graph(
-            solutions: Set[Solution], groups_by_square_by_player: List[List[List[Set[Problem]]]]
-    ) -> (Dict[Problem, Set[Solution]], Dict[Solution, Set[Problem]], Dict[Solution, Set[Solution]]):
-        """Creates a NodeGraph connecting Problems to Solutions, Solutions to Problems, and Solutions to Solutions.
-        
-        Args:
-            solutions (Set[Solution]): the set of Solutions to include in the Graph.
-            groups_by_square_by_player (List[List[List[Set[Group]]]]): a 3D array of a Set of Groups.
-                1. The first dimension is the player.
-                2. The second dimension is the row.
-                3. The third dimension is the col.
-
-                For a given player and a given (row, col),
-                you can retrieve all Groups that player can win from that Square with:
-                    set_of_possible_winning_groups_at_player_row_col = groups_by_square_by_player[player][row][col]
-
-        Returns:
-            problem_to_solutions (Dict[Problem, Set[Solution]]): dictionary mapping problems to solutions.
-            solution_to_problems (Dict[Solution, Set[Problem]]): dictionary mapping solutions to problems.
-            solution_to_solutions (Dict[Solution, Set[Solution]]): dictionary mapping solutions to solutions.
-        """
-        problem_to_solutions = {}
-        solution_to_problems = {}
-        solution_to_solutions = {}
+        self.problem_to_solutions: Dict[Problem, Set[Solution]] = {}
+        self.solution_to_problems: Dict[Solution, Set[Problem]] = {}
+        self.solution_to_solutions: Dict[Solution, Set[Solution]] = {}
 
         for solution in solutions:
             problems_solved = solution.rule_instance.find_problems_solved(
-                groups_by_square_by_player=groups_by_square_by_player,
+                groups_by_square_by_player=problems_by_square_by_player,
             )
 
-            solution_to_problems[solution] = set()
+            self.solution_to_problems[solution] = set()
             for problem in problems_solved:
-                if problem not in problem_to_solutions:
-                    problem_to_solutions[problem] = set()
-                problem_to_solutions[problem].add(solution)
-                solution_to_problems[solution].add(problem)
+                if problem not in self.problem_to_solutions:
+                    self.problem_to_solutions[problem] = set()
+                self.problem_to_solutions[problem].add(solution)
+                self.solution_to_problems[solution].add(problem)
 
-            solution_to_solutions[solution] = set()
+            self.solution_to_solutions[solution] = set()
             for other in solutions:
                 if not combination.allowed(s1=solution, s2=other):
-                    solution_to_solutions[solution].add(other)
-
-        return problem_to_solutions, solution_to_problems, solution_to_solutions
+                    self.solution_to_solutions[solution].add(other)
 
     def move(self, row: int, col: int):
         """Plays a move at the given row and column for the current player.
@@ -108,4 +89,90 @@ class GraphManager:
             3. Else: # the current player is Black:
                 White can guarantee a win.
         """
-        pass
+        problems = self._get_current_problems()
+        return self._find_chosen_set(problems=problems, disallowed_solutions=set(), used_solutions=set())
+
+    def _get_current_problems(self) -> Set[Problem]:
+        """
+        Returns:
+            current_problems (Set[Problem]): a subset of the Problems in this node graph that
+                belong to the current player.
+        """
+        current_problems = set()
+        for problem in self.problem_to_solutions:
+            if problem.player == self.player:
+                current_problems.add(problem)
+        return current_problems
+
+    def _find_chosen_set(self,
+                         problems: Set[Problem],
+                         disallowed_solutions: Set[Solution],
+                         used_solutions: Set[Solution]) -> Set[Solution]:
+        """Finds a "chosen set" of Solutions that can be used to solve problems.
+
+        Args:
+            problems (Set[Problem]): a set of Problems to solve.
+            disallowed_solutions (Set[Solution]): a set of Solutions that cannot be used.
+            used_solutions (Set[Solution]): a set of Solutions that are already in use.
+
+        Returns:
+            chosen_set (Set[Solution]):
+                If problems is empty, a copy of used_solutions.
+                Else if problems is solvable without the use of disallowed_solutions, a superset of used_solutions.
+                Else: None.
+        """
+        # Base Case.
+        if not problems:
+            # If there are no unsolved problems, return the set of Solutions currently in use.
+            return used_solutions.copy()
+
+        # Recursive Case.
+        # Find the most difficult problem to solve.
+        most_difficult_problem = self._problem_with_fewest_solutions(
+            problems=problems, disallowed_solutions=disallowed_solutions)
+        # Find all solutions that can be used to solve the most difficult problem.
+        most_difficult_problem_usable_solutions = self.problem_to_solutions[most_difficult_problem].difference(
+            disallowed_solutions)
+
+        for solution in most_difficult_problem_usable_solutions:
+            # Choose.
+            used_solutions.add(solution)
+            # Recurse.
+            chosen_set = self._find_chosen_set(
+                problems=problems - self.solution_to_problems[solution],
+                disallowed_solutions=disallowed_solutions.union(self.solution_to_solutions[solution]),
+                used_solutions=used_solutions,
+            )
+            # Unchoose.
+            used_solutions.remove(solution)
+
+            if chosen_set is not None:
+                return chosen_set
+
+    def _problem_with_fewest_solutions(self, problems: Set[Problem], disallowed_solutions: Set[Solution]) -> Problem:
+        """Finds the problem with the fewest allowed Solutions.
+
+        Args:
+            problems (Set[Problem]): a set of Problems to solve.
+            disallowed_solutions (Set[Solution]): a set of Solutions that cannot be used.
+
+        Returns:
+            most_difficult_problem (Problem): the Problem with the fewest allowed Solutions.
+        """
+        most_difficult_problem = None
+        num_neighbors_of_most_difficult = len(self.solution_to_problems) + 1  # Set to an arbitrary high number.
+
+        # Find the Problem in problems with the fewest solutions in this graph.
+        # Exclude any Solution in disallowed_solutions.
+        for problem in problems:
+            num_nodes = len(self.problem_to_solutions[problem].difference(disallowed_solutions))
+            if num_nodes < num_neighbors_of_most_difficult:
+                most_difficult_problem = problem
+                num_neighbors_of_most_difficult = num_nodes
+
+        # If we didn't find a most_difficult_problem, then that means there isn't a single Problem in both
+        # problems and node_graph.
+        if most_difficult_problem is not None:
+            return most_difficult_problem
+
+        raise ValueError("No problem in problems and node_graph")
