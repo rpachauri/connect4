@@ -6,7 +6,7 @@ import numpy as np
 from connect_four.envs import ConnectFourEnv
 from connect_four.evaluation.victor.graph.graph_manager import GraphManager
 from connect_four.evaluation.victor.rules import Claimeven, Vertical, Baseinverse, Before
-from connect_four.evaluation.victor.solution import solution2
+from connect_four.evaluation.victor.solution import solution2, VictorSolutionManager
 from connect_four.evaluation.victor.solution.fake_solution_manager import FakeSolutionManager
 from connect_four.game import Square
 from connect_four.problem import Group as Problem, ConnectFourProblemManager
@@ -19,7 +19,7 @@ class TestGraphManager6x6(unittest.TestCase):
         ConnectFourEnv.N = 6
         self.env.reset()
 
-    def test_evaluate_6x6(self):
+    def test_find_chosen_set_6x6(self):
         # This test case is based on the example given in Section 10.1.
         self.env.state = np.array([
             [
@@ -139,6 +139,61 @@ class TestGraphManager6x6(unittest.TestCase):
         gm = GraphManager(player=0, problem_manager=problem_manager, solution_manager=fake_solution_manager)
         got_solutions = gm.evaluate()
         self.assertEqual(solutions, got_solutions)
+
+    def test_evaluate_6x6(self):
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, ],
+            ],
+        ])
+        problem_manager = ConnectFourProblemManager(env_variables=self.env.env_variables)
+        solution_manager = VictorSolutionManager(env_variables=self.env.env_variables)
+
+        gm = GraphManager(player=0, problem_manager=problem_manager, solution_manager=solution_manager)
+        got_evaluation = gm.evaluate()
+        self.assertIsNotNone(got_evaluation)
+
+    def test_evaluate_6x5_diagram_8_7_inverted(self):
+        # This test case is based on an inverted version of Diagram 8.7.
+        # White is to move and Black is trying to refute all of White's threats.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 1, ],
+                [0, 0, 0, 0, 1, 0, ],
+                [0, 0, 0, 1, 0, 1, ],
+                [0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 1, 1, ],
+                [0, 0, 1, 0, 1, 1, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 1, ],
+                [0, 0, 0, 0, 1, 0, ],
+                [0, 0, 0, 1, 1, 1, ],
+                [0, 0, 0, 1, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, ],
+            ],
+        ])
+        problem_manager = ConnectFourProblemManager(env_variables=self.env.env_variables)
+        solution_manager = VictorSolutionManager(env_variables=self.env.env_variables)
+
+        gm = GraphManager(player=0, problem_manager=problem_manager, solution_manager=solution_manager)
+        got_evaluation = gm.evaluate()
+
+        self.assertIsNotNone(got_evaluation)
 
 
 if __name__ == '__main__':

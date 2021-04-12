@@ -26,6 +26,7 @@ class TestEvaluator6x6(unittest.TestCase):
         ConnectFourEnv.N = 6
         self.env.reset()
 
+    @unittest.skip("deprecated")
     def test_find_chosen_set_6x6(self):
         # This test case is based on the example given in Section 10.1.
         self.env.state = np.array([
@@ -173,6 +174,7 @@ class TestEvaluator6x6(unittest.TestCase):
         )
         self.assertEqual(solutions, got_solutions)
 
+    @unittest.skip("deprecated")
     def test_evaluate_6x6(self):
         self.env.state = np.array([
             [
@@ -196,6 +198,7 @@ class TestEvaluator6x6(unittest.TestCase):
         got_evaluation = evaluator.evaluate(board=board)
         self.assertIsNotNone(got_evaluation)
 
+    @unittest.skip("deprecated")
     def test_evaluate_6x5_diagram_8_7_inverted(self):
         # This test case is based on an inverted version of Diagram 8.7.
         # White is to move and Black is trying to refute all of White's threats.

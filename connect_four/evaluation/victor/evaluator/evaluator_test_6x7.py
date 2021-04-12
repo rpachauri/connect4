@@ -25,6 +25,7 @@ class TestEvaluator6x7(unittest.TestCase):
         ConnectFourEnv.N = 7
         self.env.reset()
 
+    @unittest.skip("deprecated")
     def test_evaluate_6x7(self):
         # The empty 6x7 board has no solution set for Black because White is guaranteed to win.
         self.env.state = np.array([
@@ -49,6 +50,7 @@ class TestEvaluator6x7(unittest.TestCase):
         got_evaluation = evaluator.evaluate(board=board)
         self.assertIsNone(got_evaluation)
 
+    @unittest.skip("deprecated")
     def test_evaluate_6x7_a1(self):
         # This test case is based on Appendix B: Situation after 1. a1.
         self.env.state = np.array([
@@ -73,6 +75,7 @@ class TestEvaluator6x7(unittest.TestCase):
         got_evaluation = evaluator.evaluate(board=board)
         self.assertIsNotNone(got_evaluation)
 
+    @unittest.skip("deprecated")
     def test_evaluate_6x7_b1(self):
         # This test case is based on Appendix B: Situation after 1. b1.
         self.env.state = np.array([
@@ -97,6 +100,7 @@ class TestEvaluator6x7(unittest.TestCase):
         got_evaluation = evaluator.evaluate(board=board)
         self.assertIsNotNone(got_evaluation)
 
+    @unittest.skip("deprecated")
     def test_evaluate_6x7_c1(self):
         # This test case is based on Appendix B: Situation after 1. c1.
         self.env.state = np.array([
@@ -121,6 +125,7 @@ class TestEvaluator6x7(unittest.TestCase):
         got_evaluation = evaluator.evaluate(board=board)
         self.assertIsNotNone(got_evaluation)
 
+    @unittest.skip("deprecated")
     def test_find_chosen_set_diagram_6_1(self):
         # This test case is based on Diagram 6.1.
         self.env.state = np.array([
@@ -248,6 +253,7 @@ class TestEvaluator6x7(unittest.TestCase):
             solved_groups.update(sol.groups)
         self.assertEqual(white_groups, solved_groups)
 
+    @unittest.skip("deprecated")
     def test_evaluate_6x7_8_1(self):
         # This test case is based on Diagram 8.1.
         # Black is to move and White has an odd threat at a3.
@@ -274,6 +280,7 @@ class TestEvaluator6x7(unittest.TestCase):
         got_evaluation = evaluator.evaluate(board=board)
         self.assertIsNotNone(got_evaluation)
 
+    @unittest.skip("deprecated")
     def test_find_chosen_set_diagram_8_1(self):
         # This test case is based on Diagram 8.1.
         # Black is to move and White has an odd threat at a3.
@@ -380,6 +387,7 @@ class TestEvaluator6x7(unittest.TestCase):
             solved_groups.update(sol.groups)
         self.assertEqual(black_groups, solved_groups)
 
+    @unittest.skip("deprecated")
     def test_evaluate_6x7_even_above_odd_threat_combination(self):
         # This test case is based on Diagram 8.3.
         # Black is to move and White has a ThreatCombination at d1-g4 and d3-g3.
@@ -416,6 +424,7 @@ class TestEvaluator6x7(unittest.TestCase):
         )
         self.assertEqual(want_odd_threat_guarantor, got_evaluation.odd_threat_guarantor)
 
+    @unittest.skip("deprecated")
     def test_evaluate_6x7_odd_above_not_directly_playable_even_threat_combination(self):
         # This test case is based on Diagram 8.7.
         # The even square of the ThreatCombination is NOT directly playable.
@@ -455,6 +464,7 @@ class TestEvaluator6x7(unittest.TestCase):
         )
         self.assertEqual(want_odd_threat_guarantor, got_evaluation.odd_threat_guarantor)
 
+    @unittest.skip("deprecated")
     def test_evaluate_6x7_odd_above_directly_playable_even_threat_combination(self):
         # This test case is based on Diagram 8.7.
         # The even square of the ThreatCombination IS directly playable.

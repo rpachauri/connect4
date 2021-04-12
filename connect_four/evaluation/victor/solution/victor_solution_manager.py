@@ -4,7 +4,7 @@ from connect_four.envs import TwoPlayerGameEnvVariables
 from connect_four.evaluation.victor.board import Board
 from connect_four.evaluation.victor.rules import find_all_claimevens, find_all_baseinverses, find_all_verticals, \
     find_all_afterevens, find_all_lowinverses, find_all_highinverses, find_all_baseclaims, find_all_befores, \
-    find_all_specialbefores, find_all_odd_threats
+    find_all_specialbefores, find_all_odd_threats, OddThreat
 from connect_four.evaluation.victor.solution import solution2
 from connect_four.evaluation.victor.solution.solution2 import Solution
 from connect_four.evaluation.victor.solution.solution_manager import SolutionManager
@@ -126,3 +126,20 @@ class VictorSolutionManager(SolutionManager):
             solutions (Set[Solution]): the set of all Solutions that can be used in the current state.
         """
         return self.solutions_by_move[-1]
+
+    def get_win_conditions(self) -> Set[Solution]:
+        """Returns all win conditions for the current game position.
+
+        Returns:
+            win_conditions (Set[Solution]): a subset of all Solutions in this state.
+
+            Constraints on win_conditions:
+                1. No Solution in win_conditions may be combined with another Solution in win_conditions.
+        """
+        win_conditions = set()
+
+        for solution in self.solutions_by_move[-1]:
+            if isinstance(solution.rule_instance, OddThreat):
+                win_conditions.add(solution)
+
+        return win_conditions

@@ -42,3 +42,15 @@ class SolutionManager:
             solutions (Set[Solution]): the set of all Solutions that can be used in the current state.
         """
         pass
+
+    @abstractmethod
+    def get_win_conditions(self) -> Set[Solution]:
+        """Returns all win conditions for the current game position.
+
+        Returns:
+            win_conditions (Set[Solution]): a subset of all Solutions in this state.
+
+            Constraints on win_conditions:
+                1. No Solution in win_conditions may be combined with another Solution in win_conditions.
+        """
+        pass

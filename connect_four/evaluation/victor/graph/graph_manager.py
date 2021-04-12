@@ -25,7 +25,8 @@ class GraphManager:
         self._initialize_node_graph()
 
     def _initialize_node_graph(self):
-        """Initializes the NodeGraph connecting Problems to Solutions, Solutions to Problems, and Solutions to Solutions.
+        """Initializes the NodeGraph connecting Problems to Solutions,
+        Solutions to Problems, and Solutions to Solutions.
         """
         solutions = self.solution_manager.get_solutions()
         problems_by_square_by_player = self.problem_manager.get_problems_by_square_by_player()
@@ -89,20 +90,22 @@ class GraphManager:
             3. Else: # the current player is Black:
                 White can guarantee a win.
         """
-        problems = self._get_current_problems()
-        return self._find_chosen_set(problems=problems, disallowed_solutions=set(), used_solutions=set())
+        problems = self.problem_manager.get_problems()
 
-    def _get_current_problems(self) -> Set[Problem]:
-        """
-        Returns:
-            current_problems (Set[Problem]): a subset of the Problems in this node graph that
-                belong to the current player.
-        """
-        current_problems = set()
-        for problem in self.problem_to_solutions:
-            if problem.player == self.player:
-                current_problems.add(problem)
-        return current_problems
+        if self.player == 0:
+            return self._find_chosen_set(problems=problems, disallowed_solutions=set(), used_solutions=set())
+
+        if self.player == 1:
+            # In order to prove White can win, White must be able to use a win condition and solve all problems
+            # the win condition doesn't solve.
+            for win_condition in self.solution_manager.get_win_conditions():
+                chosen_set = self._find_chosen_set(
+                    problems=problems - self.solution_to_problems[win_condition],
+                    disallowed_solutions=self.solution_to_solutions[win_condition],
+                    used_solutions={win_condition},
+                )
+                if chosen_set is not None:
+                    return chosen_set
 
     def _find_chosen_set(self,
                          problems: Set[Problem],

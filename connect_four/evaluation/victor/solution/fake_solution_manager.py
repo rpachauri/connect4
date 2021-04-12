@@ -17,3 +17,6 @@ class FakeSolutionManager(SolutionManager):
 
     def get_solutions(self) -> Set[Solution]:
         return self.solutions
+
+    def get_win_conditions(self) -> Set[Solution]:
+        pass

@@ -48,3 +48,12 @@ class ProblemManager:
                     set_of_possible_winning_groups_at_player_row_col = groups_by_square_by_player[player][row][col]
         """
         pass
+
+    @abstractmethod
+    def get_problems(self) -> Set[Problem]:
+        """
+
+        Returns:
+            problems (Set[Problem]): a set of all Problems that belong to the current player.
+        """
+        pass
