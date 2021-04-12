@@ -5,7 +5,8 @@ from connect_four.evaluation.victor.board import Board
 from connect_four.evaluation.victor.rules import find_all_claimevens, find_all_baseinverses, find_all_verticals, \
     find_all_afterevens, find_all_lowinverses, find_all_highinverses, find_all_baseclaims, find_all_befores, \
     find_all_specialbefores, find_all_odd_threats
-from connect_four.evaluation.victor.solution import Solution, solution2
+from connect_four.evaluation.victor.solution import solution2
+from connect_four.evaluation.victor.solution.solution2 import Solution
 
 
 class SolutionManager:
@@ -116,3 +117,11 @@ class SolutionManager:
         self.board.state[player][row][col] = 0
 
         self.solutions_by_move.pop()
+
+    def get_solutions(self) -> Set[Solution]:
+        """Returns all Solutions for the current game position.
+
+        Returns:
+            solutions (Set[Solution]): the set of all Solutions that can be used in the current state.
+        """
+        return self.solutions_by_move[-1]
