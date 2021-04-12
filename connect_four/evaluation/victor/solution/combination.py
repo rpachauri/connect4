@@ -408,4 +408,11 @@ def allowed_with_specialbefore(solution: Solution, other: Solution) -> bool:
     Returns:
         combination_allowed (bool): True if other can be combined with solution; Otherwise, False.
     """
+    if isinstance(solution.rule_instance, Specialbefore):  # Should be true.
+        solution_baseinverse_squares = {
+            solution.rule_instance.internal_directly_playable_square,
+            solution.rule_instance.external_directly_playable_square,
+        }
+        if not solution_baseinverse_squares.isdisjoint(other.squares):
+            return False
     return column_wise_disjoint_or_equal(solution=solution, other=other)

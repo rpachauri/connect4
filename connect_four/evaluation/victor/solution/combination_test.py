@@ -2,7 +2,7 @@ import unittest
 
 from connect_four.game import Square
 from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Lowinverse, Aftereven, OddThreat, \
-    Before
+    Before, Specialbefore
 
 from connect_four.evaluation.victor.solution.solution2 import Solution
 from connect_four.evaluation.victor.solution import combination, solution2
@@ -352,6 +352,51 @@ class TestCombination(unittest.TestCase):
             ),
         )
         self.assertFalse(combination.allowed(s1=odd_threat_a3_d3, s2=claimeven_2_0))
+
+    def test_specialbefore_not_allowed_with_specialbefore(self):
+        before_5_3_to_2_6 = Before(
+            group=Group(player=1, start=Square(row=5, col=3), end=Square(row=2, col=6)),  # d1-g4
+            verticals=[
+                Vertical(upper=Square(row=2, col=5), lower=Square(row=3, col=5)),  # Vertical f3-f4
+                Vertical(upper=Square(row=1, col=6), lower=Square(row=2, col=6)),  # Vertical g4-g5
+                Vertical(upper=Square(row=4, col=3), lower=Square(row=5, col=3)),  # Vertical d1-d2
+            ],
+            claimevens=[
+                Claimeven(upper=Square(row=4, col=4), lower=Square(row=5, col=5))  # Claimeven e1-e2
+            ],
+        )
+        specialbefore_5_3_to_2_6_ext_5_2 = Specialbefore(
+            before=before_5_3_to_2_6,
+            external_directly_playable_square=Square(row=5, col=2),  # c1
+            internal_directly_playable_square=Square(row=5, col=3),  # d1
+        )
+        specialbefore_5_3_to_2_6_ext_5_2_solution = solution2.from_specialbefore(
+            specialbefore=specialbefore_5_3_to_2_6_ext_5_2,
+        )
+
+        before_2_0_to_5_3 = Before(
+            group=Group(player=1, start=Square(row=2, col=0), end=Square(row=5, col=3)),  # a4-d1
+            verticals=[
+                Vertical(upper=Square(row=2, col=1), lower=Square(row=3, col=1)),  # Vertical b3-b4
+                Vertical(upper=Square(row=3, col=2), lower=Square(row=4, col=2)),  # Vertical c2-c3
+                Vertical(upper=Square(row=4, col=3), lower=Square(row=5, col=3)),  # Vertical d1-d2
+            ],
+            claimevens=[
+                Claimeven(upper=Square(row=2, col=0), lower=Square(row=3, col=0)),  # Claimeven a3-a4
+            ],
+        )
+        specialbefore_2_0_to_5_3_ext_5_6 = Specialbefore(
+            before=before_2_0_to_5_3,
+            external_directly_playable_square=Square(row=5, col=6),  # g1
+            internal_directly_playable_square=Square(row=5, col=3),  # d1
+        )
+        specialbefore_2_0_to_5_3_ext_5_6_solution = solution2.from_specialbefore(
+            specialbefore=specialbefore_2_0_to_5_3_ext_5_6,
+        )
+        self.assertFalse(combination.allowed(
+            s1=specialbefore_5_3_to_2_6_ext_5_2_solution,
+            s2=specialbefore_2_0_to_5_3_ext_5_6_solution,
+        ))
 
 
 if __name__ == '__main__':
