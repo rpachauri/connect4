@@ -2,17 +2,16 @@ from abc import abstractmethod
 from typing import Set
 
 from connect_four.evaluation.victor.solution.solution2 import Solution
-from connect_four.game import Square
 
 
 class SolutionManager:
 
     @abstractmethod
-    def move(self, player: int, row: int, col: int) -> Set[Square]:
+    def move(self, player: int, row: int, col: int) -> (Set[Solution], Set[Solution]):
         """Plays a move at the given row and column for the given player.
 
         Assumptions:
-            1.  The internal state of the ProblemManager is not at a terminal state.
+            1.  The internal state of the SolutionManager is not at a terminal state.
 
         Args:
             player (int): the player making the move.
@@ -20,17 +19,22 @@ class SolutionManager:
             col (int): the column to play
 
         Returns:
-            affected_squares (Set[Square]): all squares which had a Problem removed.
+            removed_solutions (Set[Solution]): the Solutions that were removed after the given move.
+            added_solutions (Set[Solution]): the Solutions that were added after the given move.
         """
         pass
 
     @abstractmethod
-    def undo_move(self):
+    def undo_move(self) -> (Set[Solution], Set[Solution]):
         """Undoes the most recent move.
 
         Raises:
             (AssertionError): if the internal state of the ProblemManager is
                 at the state given upon initialization.
+
+        Returns:
+            removed_solutions (Set[Solution]): the Solutions that were removed by undoing the most recent move.
+            added_solutions (Set[Solution]): the Solutions that were added by undoing the most recent move.
         """
         pass
 

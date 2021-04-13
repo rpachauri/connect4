@@ -105,12 +105,16 @@ class VictorSolutionManager(SolutionManager):
         added_solutions = current_solutions - previous_solutions
         return removed_solutions, added_solutions
 
-    def undo_move(self):
+    def undo_move(self) -> (Set[Solution], Set[Solution]):
         """Undoes the most recent move.
 
         Raises:
             (AssertionError): if the internal state of the VictorSolutionManager
                 is at the state given upon initialization.
+
+        Returns:
+            removed_solutions (Set[Solution]): the Solutions that were removed by undoing the most recent move.
+            added_solutions (Set[Solution]): the Solutions that were added by undoing the most recent move.
         """
         assert self.moves
         assert len(self.solutions_by_move) > 1
@@ -118,7 +122,12 @@ class VictorSolutionManager(SolutionManager):
         player, row, col = self.moves.pop()
         self.board.state[player][row][col] = 0
 
-        self.solutions_by_move.pop()
+        current_solutions = self.solutions_by_move.pop()
+        previous_solutions = self.solutions_by_move[-1]
+
+        removed_solutions = current_solutions - previous_solutions
+        added_solutions = previous_solutions - current_solutions
+        return removed_solutions, added_solutions
 
     def get_solutions(self) -> Set[Solution]:
         """Returns all Solutions for the current game position.

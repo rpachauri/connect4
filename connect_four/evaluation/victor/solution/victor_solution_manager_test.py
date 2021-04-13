@@ -378,14 +378,17 @@ class TestSolutionManager(unittest.TestCase):
         self.assertFalse(sm.moves)
 
         # Validate internal variables after moving.
-        sm.move(player=player, row=row, col=col)
+        want_added_solutions, want_removed_solutions = sm.move(player=player, row=row, col=col)
         self.assertEqual(1, sm.board.state[player][row][col])
         self.assertEqual((player, row, col), sm.moves[0])
 
         # Validate internal variables equal to what they were upon initialization.
-        sm.undo_move()
+        got_removed_solutions, got_added_solutions = sm.undo_move()
         self.assertEqual(0, sm.board.state[player][row][col])
         self.assertFalse(sm.moves)
+
+        self.assertEqual(want_removed_solutions, got_removed_solutions)
+        self.assertEqual(want_added_solutions, got_added_solutions)
 
     def test_win_conditions_diagram_8_1(self):
         # This test case is based on Diagram 8.1.
