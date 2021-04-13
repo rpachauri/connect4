@@ -8,7 +8,7 @@ from connect_four.problem import Group as Problem
 class ProblemManager:
 
     @abstractmethod
-    def move(self, player: int, row: int, col: int) -> Set[Square]:
+    def move(self, player: int, row: int, col: int) -> (Set[Square], Set[Problem]):
         """Plays a move at the given row and column for the given player.
 
         Assumptions:
@@ -21,16 +21,20 @@ class ProblemManager:
 
         Returns:
             affected_squares (Set[Square]): all squares which had a Problem removed.
+            removed_problems (Set[Problem]): all Problems that were removed.
         """
         pass
 
     @abstractmethod
-    def undo_move(self):
+    def undo_move(self) -> Set[Problem]:
         """Undoes the most recent move.
 
         Raises:
             (AssertionError): if the internal state of the ProblemManager is
                 at the state given upon initialization.
+
+        Returns:
+            added_problems (Set[Problem]): the Problems that were added after undoing the most recent move.
         """
         pass
 

@@ -73,7 +73,7 @@ class SquareTypeManager:
             row (int): the row to play
             col (int): the column to play
         """
-        affected_squares = self.problem_manager.move(player=self.player, row=row, col=col)
+        affected_squares, _ = self.problem_manager.move(player=self.player, row=row, col=col)
 
         indifferent_squares = self._find_indifferent_squares(
             player=self.player,

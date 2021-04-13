@@ -200,19 +200,26 @@ class ConnectingProblemManager(ProblemManager):
         self.groups_removed_by_squares_by_move.append(groups_removed_by_square)
         return set(groups_removed_by_square.keys())
 
-    def undo_move(self):
+    def undo_move(self) -> Set[Problem]:
         """Undoes the most recent move.
 
         Raises:
             (AssertionError): if the internal state of the ConnectingProblemManager is
                 at the state given upon initialization.
+
+        Returns:
+            added_problems (Set[Problem]): the Problems that were added after undoing the most recent move.
         """
         assert self.groups_removed_by_squares_by_move
 
+        added_problems = set()
         groups_removed_by_squares = self.groups_removed_by_squares_by_move.pop()
         for square in groups_removed_by_squares:
             for group in groups_removed_by_squares[square]:
                 self.groups_by_square_by_player[group.player][square.row][square.col].add(group)
+                added_problems.add(group)
+
+        return added_problems
 
     def get_problems_by_square_by_player(self) -> List[List[List[Set[Problem]]]]:
         """
