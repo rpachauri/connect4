@@ -15,7 +15,6 @@ class TestEvaluator4x6(unittest.TestCase):
         ConnectFourEnv.N = 6
         self.env.reset()
 
-    @unittest.skip("deprecated")
     def test_evaluate_4x6(self):
         self.env.state = np.array([
             [

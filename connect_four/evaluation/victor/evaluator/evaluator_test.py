@@ -9,7 +9,6 @@ from connect_four.evaluation.victor.evaluator.evaluator import create_node_graph
 
 
 class TestEvaluator(unittest.TestCase):
-    @unittest.skip("deprecated")
     def test_create_node_graph(self):
         # Note that a Board is not required for create_node_graph().
         # Also note that the Solutions below are not exhaustive

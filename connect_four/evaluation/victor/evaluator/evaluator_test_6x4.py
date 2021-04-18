@@ -18,7 +18,6 @@ class TestEvaluator6x4(unittest.TestCase):
         ConnectFourEnv.N = 4
         self.env.reset()
 
-    @unittest.skip("deprecated")
     def test_evaluate_6x4(self):
         self.env.state = np.array([
             [
@@ -42,7 +41,6 @@ class TestEvaluator6x4(unittest.TestCase):
         got_evaluation = evaluator.evaluate(board=board)
         self.assertIsNotNone(got_evaluation)
 
-    @unittest.skip("deprecated")
     def test_evaluate_6x4_odd_above_even_threat_combination(self):
         # This test case is based on Diagram 8.3. The left 3 columns are removed.
         # Black is to move and White has a ThreatCombination at a1-d4 and a3-d3.
@@ -79,7 +77,6 @@ class TestEvaluator6x4(unittest.TestCase):
         )
         self.assertEqual(want_odd_threat_guarantor, got_evaluation.odd_threat_guarantor)
 
-    @unittest.skip("deprecated")
     def test_evaluate_6x7_odd_above_not_directly_playable_even_threat_combination(self):
         # This test case is a modified version of Diagram 8.7.
         # The even square of the ThreatCombination is NOT directly playable.
