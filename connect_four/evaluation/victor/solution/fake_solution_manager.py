@@ -2,7 +2,6 @@ from typing import Set
 
 from connect_four.evaluation.victor.solution import SolutionManager
 from connect_four.evaluation.victor.solution.solution2 import Solution
-from connect_four.game import Square
 
 
 class FakeSolutionManager(SolutionManager):
@@ -13,10 +12,10 @@ class FakeSolutionManager(SolutionManager):
             win_conditions = set()
         self.win_conditions = win_conditions
 
-    def move(self, player: int, row: int, col: int) -> Set[Square]:
+    def move(self, player: int, row: int, col: int) -> (Set[Solution], Set[Solution]):
         pass
 
-    def undo_move(self):
+    def undo_move(self) -> (Set[Solution], Set[Solution]):
         pass
 
     def get_solutions(self) -> Set[Solution]:
