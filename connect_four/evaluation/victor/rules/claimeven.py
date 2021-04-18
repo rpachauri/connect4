@@ -1,4 +1,4 @@
-from typing import List, Set
+from typing import List, Set, Optional
 
 from connect_four.evaluation.victor.rules import Rule
 from connect_four.game import Square
@@ -66,3 +66,41 @@ def find_all_claimevens(board: Board):
                 claimevens.add(Claimeven(upper, lower))
 
     return claimevens
+
+
+class ClaimevenManager:
+    def __init__(self, board: Board):
+        """
+
+        Args:
+            board (Board): a Board instance.
+        """
+        pass
+
+    def find_all_claimevens(self) -> Set[Claimeven]:
+        """
+
+        Returns:
+            claimevens (set<Claimeven>): the set of Claimevens for the current state.
+        """
+        pass
+
+    def move(self, row: int, col: int) -> Optional[Claimeven]:
+        """Moves the internal state of the ClaimevenManager to after this square has been played.
+
+        Args:
+            row (int): the row being played.
+            col (int): the col being played.
+
+        Returns:
+            removed_claimeven (Optional[Claimeven]): the Claimeven being removed, if there is one.
+        """
+        pass
+
+    def undo_move(self) -> Optional[Claimeven]:
+        """Undoes the most recent move, updating the set of Claimevens.
+
+        Returns:
+            added_claimeven (Optional[Claimeven]): the Claimeven being added, if there is one.
+        """
+        pass
