@@ -85,7 +85,7 @@ class TestClaimeven(unittest.TestCase):
         ])
         board = Board(self.env.env_variables)
         cm = ClaimevenManager(board=board)
-        got_claimevens = cm.find_all_claimevens()
+        got_claimevens = cm.claimevens
 
         want_claimevens = {
             Claimeven(Square(0, 0), Square(1, 0)),

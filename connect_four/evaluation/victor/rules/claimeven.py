@@ -78,14 +78,6 @@ class ClaimevenManager:
         self.claimevens = find_all_claimevens(board=board)
         self.claimevens_removed_by_move = []
 
-    def find_all_claimevens(self) -> Set[Claimeven]:
-        """
-
-        Returns:
-            claimevens (set<Claimeven>): the set of Claimevens for the current state.
-        """
-        return self.claimevens
-
     def move(self, row: int, col: int) -> Optional[Claimeven]:
         """Moves the internal state of the ClaimevenManager to after this square has been played.
 
