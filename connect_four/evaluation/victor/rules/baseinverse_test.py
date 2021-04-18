@@ -3,6 +3,7 @@ import unittest
 
 import numpy as np
 
+from connect_four.evaluation.victor.rules.baseinverse import BaseinverseManager
 from connect_four.game import Square
 from connect_four.evaluation.victor.board import Board
 
@@ -42,6 +43,60 @@ class TestBaseinverse(unittest.TestCase):
         ])
         board = Board(self.env.env_variables)
         got_baseinverses = find_all_baseinverses(board)
+
+        want_baseinverses = {
+            # All matches with Square(5, 0).
+            Baseinverse(Square(5, 0), Square(5, 1)),
+            Baseinverse(Square(5, 0), Square(2, 2)),
+            Baseinverse(Square(5, 0), Square(3, 3)),
+            Baseinverse(Square(5, 0), Square(4, 4)),
+            Baseinverse(Square(5, 0), Square(5, 5)),
+            Baseinverse(Square(5, 0), Square(5, 6)),
+            # All matches with Square(5, 1).
+            Baseinverse(Square(5, 1), Square(2, 2)),
+            Baseinverse(Square(5, 1), Square(3, 3)),
+            Baseinverse(Square(5, 1), Square(4, 4)),
+            Baseinverse(Square(5, 1), Square(5, 5)),
+            Baseinverse(Square(5, 1), Square(5, 6)),
+            # All matches with Square(2, 2).
+            Baseinverse(Square(2, 2), Square(3, 3)),
+            Baseinverse(Square(2, 2), Square(4, 4)),
+            Baseinverse(Square(2, 2), Square(5, 5)),
+            Baseinverse(Square(2, 2), Square(5, 6)),
+            # All matches with Square(3, 3).
+            Baseinverse(Square(3, 3), Square(4, 4)),
+            Baseinverse(Square(3, 3), Square(5, 5)),
+            Baseinverse(Square(3, 3), Square(5, 6)),
+            # All matches with Square(4, 4).
+            Baseinverse(Square(4, 4), Square(5, 5)),
+            Baseinverse(Square(4, 4), Square(5, 6)),
+            # All matches with Square(5, 5).
+            Baseinverse(Square(5, 5), Square(5, 6)),
+        }
+        self.assertEqual(want_baseinverses, got_baseinverses)
+
+    def test_baseinverse_manager_initialization(self):
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+        bm = BaseinverseManager(board=board)
+        got_baseinverses = bm.baseinverses
 
         want_baseinverses = {
             # All matches with Square(5, 0).

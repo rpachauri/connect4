@@ -51,7 +51,7 @@ class Baseinverse(Rule):
         return groups1.intersection(groups2)
 
 
-def find_all_baseinverses(board: Board):
+def find_all_baseinverses(board: Board) -> Set[Baseinverse]:
     """find_all_baseinverses takes a Board and returns a set of Baseinverses for it.
 
     It makes no assumptions about whose turn it is or who is the controller of the Zugzwang.
@@ -79,7 +79,7 @@ class BaseinverseManager:
         Args:
             board (Board): a Board instance.
         """
-        pass
+        self.baseinverses = find_all_baseinverses(board=board)
 
     def move(self, square: Square, playable_squares: Set[Square]) -> (Set[Baseinverse], Set[Baseinverse]):
         """Moves the internal state of the BaseinverseManager to after this square has been played.
