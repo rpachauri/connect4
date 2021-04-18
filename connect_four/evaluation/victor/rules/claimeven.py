@@ -75,7 +75,7 @@ class ClaimevenManager:
         Args:
             board (Board): a Board instance.
         """
-        pass
+        self.claimevens = find_all_claimevens(board=board)
 
     def find_all_claimevens(self) -> Set[Claimeven]:
         """
@@ -83,7 +83,7 @@ class ClaimevenManager:
         Returns:
             claimevens (set<Claimeven>): the set of Claimevens for the current state.
         """
-        pass
+        return self.claimevens
 
     def move(self, row: int, col: int) -> Optional[Claimeven]:
         """Moves the internal state of the ClaimevenManager to after this square has been played.

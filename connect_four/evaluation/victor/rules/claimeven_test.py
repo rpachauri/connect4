@@ -3,6 +3,7 @@ import unittest
 
 import numpy as np
 
+from connect_four.evaluation.victor.rules.claimeven import ClaimevenManager
 from connect_four.game import Square
 from connect_four.evaluation.victor.board import Board
 
@@ -42,6 +43,49 @@ class TestClaimeven(unittest.TestCase):
         ])
         board = Board(self.env.env_variables)
         got_claimevens = find_all_claimevens(board)
+
+        want_claimevens = {
+            Claimeven(Square(0, 0), Square(1, 0)),
+            Claimeven(Square(2, 0), Square(3, 0)),
+            Claimeven(Square(4, 0), Square(5, 0)),
+            Claimeven(Square(0, 1), Square(1, 1)),
+            Claimeven(Square(2, 1), Square(3, 1)),
+            Claimeven(Square(4, 1), Square(5, 1)),
+            Claimeven(Square(0, 2), Square(1, 2)),
+            Claimeven(Square(2, 2), Square(3, 2)),
+            Claimeven(Square(0, 4), Square(1, 4)),
+            Claimeven(Square(2, 4), Square(3, 4)),
+            Claimeven(Square(0, 5), Square(1, 5)),
+            Claimeven(Square(2, 5), Square(3, 5)),
+            Claimeven(Square(4, 5), Square(5, 5)),
+            Claimeven(Square(0, 6), Square(1, 6)),
+            Claimeven(Square(2, 6), Square(3, 6)),
+            Claimeven(Square(4, 6), Square(5, 6)),
+        }
+        self.assertEqual(want_claimevens, got_claimevens)
+
+    def test_claimeven_manager_initialization(self):
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 1, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+        cm = ClaimevenManager(board=board)
+        got_claimevens = cm.find_all_claimevens()
 
         want_claimevens = {
             Claimeven(Square(0, 0), Square(1, 0)),
