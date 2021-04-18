@@ -5,7 +5,7 @@ import numpy as np
 
 from connect_four.envs import ConnectFourEnv
 from connect_four.evaluation.victor.graph.graph_manager import GraphManager
-from connect_four.evaluation.victor.rules import Claimeven, OddThreat, Baseinverse
+from connect_four.evaluation.victor.rules import Claimeven, OddThreat, Baseinverse, Before, Vertical
 from connect_four.evaluation.victor.solution import solution2, VictorSolutionManager
 from connect_four.evaluation.victor.solution.fake_solution_manager import FakeSolutionManager
 from connect_four.game import Square
@@ -155,8 +155,10 @@ class TestGraphManager6x7(unittest.TestCase):
 
         # There should be exactly 69 problems that need solving.
         self.assertEqual(69, len(problem_manager.get_current_problems()))
+        print("number of solutions =", len(solution_manager.get_solutions()))
 
         gm = GraphManager(player=0, problem_manager=problem_manager, solution_manager=solution_manager)
+        print("number of useful solutions =", len(gm.solution_to_problems))
         got_evaluation = gm.evaluate()
         self.assertIsNone(got_evaluation)
 
@@ -360,6 +362,53 @@ class TestGraphManager6x7(unittest.TestCase):
         gm = GraphManager(player=0, problem_manager=problem_manager, solution_manager=solution_manager)
         got_evaluation = gm.evaluate()
         self.assertIsNone(got_evaluation)
+
+    def test_move(self):
+        problem_manager = ConnectFourProblemManager(env_variables=self.env.env_variables)
+        solution_manager = VictorSolutionManager(env_variables=self.env.env_variables)
+
+        gm1 = GraphManager(player=0, problem_manager=problem_manager, solution_manager=solution_manager)
+        gm1.move(row=5, col=0)
+
+        # Initialize a second GraphManager at the moved state.
+        gm2 = GraphManager(player=1, problem_manager=problem_manager, solution_manager=solution_manager)
+        self.assertEqual(gm1.problem_to_solutions, gm2.problem_to_solutions)
+        self.assertEqual(gm1.solution_to_problems, gm2.solution_to_problems)
+        self.assertEqual(len(gm1.solution_to_solutions), len(gm2.solution_to_solutions))
+        counter = 0
+        for solution in gm1.solution_to_solutions:
+            counter += 1
+            print(counter, "of", len(gm1.solution_to_solutions))
+            self.assertIn(solution, gm2.solution_to_solutions)
+            self.assertEqual(gm1.solution_to_solutions[solution], gm2.solution_to_solutions[solution])
+
+    def test_move_undo_move(self):
+        problem_manager = ConnectFourProblemManager(env_variables=self.env.env_variables)
+        solution_manager = VictorSolutionManager(env_variables=self.env.env_variables)
+
+        gm1 = GraphManager(player=0, problem_manager=problem_manager, solution_manager=solution_manager)
+
+        gm1.move(row=5, col=3)
+        self.assertEqual(1, gm1.player)
+
+        gm1.undo_move()
+
+        gm2 = GraphManager(
+            player=0,
+            problem_manager=ConnectFourProblemManager(env_variables=self.env.env_variables),
+            solution_manager=VictorSolutionManager(env_variables=self.env.env_variables),
+        )
+
+        for problem in gm1.problem_to_solutions:
+            self.assertEqual(gm1.problem_to_solutions[problem], gm2.problem_to_solutions[problem])
+        self.assertEqual(gm1.solution_to_problems, gm2.solution_to_problems)
+        self.assertEqual(len(gm1.solution_to_solutions), len(gm2.solution_to_solutions))
+        counter = 0
+        for solution in gm1.solution_to_solutions:
+            counter += 1
+            print(counter, "of", len(gm1.solution_to_solutions))
+            self.assertIn(solution, gm2.solution_to_solutions)
+            self.assertEqual(gm1.solution_to_solutions[solution], gm2.solution_to_solutions[solution])
 
 
 if __name__ == '__main__':

@@ -18,7 +18,7 @@ class VictorSolutionManager(SolutionManager):
             env_variables (TwoPlayerGameEnvVariables): a TwoPlayerGame's env_variables.
         """
         self.board = Board(env_variables=env_variables)
-        self.solutions_by_move = [self._find_all_solutions(board=self.board)]
+        # self.solutions_by_move = [self._find_all_solutions(board=self.board)]
         self.moves = []
 
     @staticmethod
@@ -93,13 +93,12 @@ class VictorSolutionManager(SolutionManager):
             removed_solutions (Set[Solution]): the Solutions that were removed after the given move.
             added_solutions (Set[Solution]): the Solutions that were added after the given move.
         """
-        previous_solutions = self.solutions_by_move[-1]
+        previous_solutions = self._find_all_solutions(board=self.board)
 
         self.board.state[player][row][col] = 1
         current_solutions = self._find_all_solutions(board=self.board)
 
         self.moves.append((player, row, col))
-        self.solutions_by_move.append(current_solutions)
 
         removed_solutions = previous_solutions - current_solutions
         added_solutions = current_solutions - previous_solutions
@@ -117,13 +116,16 @@ class VictorSolutionManager(SolutionManager):
             added_solutions (Set[Solution]): the Solutions that were added by undoing the most recent move.
         """
         assert self.moves
-        assert len(self.solutions_by_move) > 1
+        # assert len(self.solutions_by_move) > 1
+        current_solutions = self._find_all_solutions(board=self.board)
 
         player, row, col = self.moves.pop()
         self.board.state[player][row][col] = 0
 
-        current_solutions = self.solutions_by_move.pop()
-        previous_solutions = self.solutions_by_move[-1]
+        previous_solutions = self._find_all_solutions(board=self.board)
+
+        # current_solutions = self.solutions_by_move.pop()
+        # previous_solutions = self.solutions_by_move[-1]
 
         removed_solutions = current_solutions - previous_solutions
         added_solutions = previous_solutions - current_solutions
@@ -135,7 +137,8 @@ class VictorSolutionManager(SolutionManager):
         Returns:
             solutions (Set[Solution]): the set of all Solutions that can be used in the current state.
         """
-        return self.solutions_by_move[-1]
+        # return self.solutions_by_move[-1]
+        return self._find_all_solutions(board=self.board)
 
     def get_win_conditions(self) -> Set[Solution]:
         """Returns all win conditions for the current game position.
@@ -148,7 +151,8 @@ class VictorSolutionManager(SolutionManager):
         """
         win_conditions = set()
 
-        for solution in self.solutions_by_move[-1]:
+        # for solution in self.solutions_by_move[-1]:
+        for solution in self._find_all_solutions(board=self.board):
             if isinstance(solution.rule_instance, OddThreat):
                 win_conditions.add(solution)
 

@@ -20,7 +20,7 @@ class TestSolutionManager(unittest.TestCase):
         self.env.reset()
 
     def test_initialization_diagram_7_2(self):
-        # This test case is based on Diagram 5.4 of the original paper.
+        # This test case is based on Diagram 7.2 of the original paper.
         self.env.state = np.array([
             [
                 [0, 0, 0, 0, 0, 1, 1, ],
@@ -373,6 +373,10 @@ class TestSolutionManager(unittest.TestCase):
         player, row, col = 0, 5, 0
         sm = VictorSolutionManager(env_variables=self.env.env_variables)
 
+        baseclaim = Baseclaim(first=Square(row=5, col=3), second=Square(row=5, col=5), third=Square(row=5, col=1))
+
+        self.assertIn(baseclaim, sm.get_solutions())
+
         # Validate internal variables upon initialization.
         self.assertEqual(0, sm.board.state[player][row][col])
         self.assertFalse(sm.moves)
@@ -389,6 +393,8 @@ class TestSolutionManager(unittest.TestCase):
 
         self.assertEqual(want_removed_solutions, got_removed_solutions)
         self.assertEqual(want_added_solutions, got_added_solutions)
+
+        self.assertIn(baseclaim, want_added_solutions)
 
     def test_win_conditions_diagram_8_1(self):
         # This test case is based on Diagram 8.1.

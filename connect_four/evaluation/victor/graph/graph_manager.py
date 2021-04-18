@@ -29,7 +29,6 @@ class GraphManager:
         Solutions to Problems, and Solutions to Solutions.
         """
         solutions = self.solution_manager.get_solutions()
-        problems_by_square_by_player = self.problem_manager.get_problems_by_square_by_player()
 
         self.problem_to_solutions: Dict[Problem, Set[Solution]] = {}
         self.solution_to_problems: Dict[Solution, Set[Problem]] = {}
@@ -38,20 +37,7 @@ class GraphManager:
         for problem in self.problem_manager.get_all_problems():
             self.problem_to_solutions[problem] = set()
 
-        for solution in solutions:
-            problems_solved = solution.rule_instance.find_problems_solved(
-                groups_by_square_by_player=problems_by_square_by_player,
-            )
-
-            self.solution_to_problems[solution] = set()
-            for problem in problems_solved:
-                self.problem_to_solutions[problem].add(solution)
-                self.solution_to_problems[solution].add(problem)
-
-            self.solution_to_solutions[solution] = set()
-            for other in solutions:
-                if not combination.allowed(s1=solution, s2=other):
-                    self.solution_to_solutions[solution].add(other)
+        self._add_solutions(solutions=solutions)
 
     def move(self, row: int, col: int):
         """Plays a move at the given row and column for the current player.
@@ -66,7 +52,61 @@ class GraphManager:
         Returns:
             Nothing.
         """
-        pass
+        _, removed_problems = self.problem_manager.move(player=self.player, row=row, col=col)
+        self._remove_problems(problems=removed_problems)
+
+        removed_solutions, added_solutions = self.solution_manager.move(player=self.player, row=row, col=col)
+        self._remove_solutions(solutions=removed_solutions)
+        self._add_solutions(solutions=added_solutions)
+
+        # Switch play.
+        self.player = 1 - self.player
+
+    def _remove_problems(self, problems: Set[Problem]):
+        for problem in problems:
+            for solution in self.problem_to_solutions.pop(problem):
+                self.solution_to_problems[solution].remove(problem)
+
+    def _remove_solutions(self, solutions):
+        # removed_solution_to_solutions = {}
+        for solution in solutions:
+            affected_problems = self.solution_to_problems.pop(solution)
+            for problem in affected_problems:
+                self.problem_to_solutions[problem].remove(solution)
+
+            # removed_solution_to_solutions[solution] = self.solution_to_solutions.pop(solution)
+
+        # for solution in removed_solution_to_solutions:
+            for adjacency in self.solution_to_solutions.pop(solution):  # removed_solution_to_solutions[solution]:
+                if adjacency in self.solution_to_solutions:
+                    self.solution_to_solutions[adjacency].remove(solution)
+
+    def _add_solutions(self, solutions):
+        problems_by_square_by_player = self.problem_manager.get_problems_by_square_by_player()
+
+        for solution in solutions:
+            if solution not in self.solution_to_problems:
+                self.solution_to_problems[solution] = set()
+            if solution not in self.solution_to_solutions:
+                self.solution_to_solutions[solution] = set()
+
+        for solution in solutions:
+
+            problems_solved = solution.rule_instance.find_problems_solved(
+                groups_by_square_by_player=problems_by_square_by_player,
+            )
+
+            if problems_solved:
+                for problem in problems_solved:
+                    if problem not in self.problem_to_solutions:
+                        self.problem_to_solutions[problem] = set()
+                    self.problem_to_solutions[problem].add(solution)
+                    self.solution_to_problems[solution].add(problem)
+
+                for other in self.solution_to_solutions:
+                    if not combination.allowed(s1=solution, s2=other):
+                        self.solution_to_solutions[solution].add(other)
+                        self.solution_to_solutions[other].add(solution)
 
     def undo_move(self):
         """Undoes the most recent move.
@@ -74,7 +114,29 @@ class GraphManager:
         Raises:
             (AssertionError): if the internal state of the GraphManager is at the state given upon initialization.
         """
-        pass
+        added_problems = self.problem_manager.undo_move()
+        for problem in added_problems:
+            if problem not in self.problem_to_solutions:
+                self.problem_to_solutions[problem] = set()
+
+        for solution in self.solution_to_problems:
+
+            problems_solved = solution.rule_instance.find_problems_solved(
+                groups_by_square_by_player=self.problem_manager.get_problems_by_square_by_player(),
+            )
+
+            for problem in problems_solved:
+                if problem not in self.problem_to_solutions:
+                    self.problem_to_solutions[problem] = set()
+                self.problem_to_solutions[problem].add(solution)
+                self.solution_to_problems[solution].add(problem)
+
+        removed_solutions, added_solutions = self.solution_manager.undo_move()
+        self._remove_solutions(solutions=removed_solutions)
+        self._add_solutions(solutions=added_solutions)
+
+        # Switch play.
+        self.player = 1 - self.player
 
     def evaluate(self) -> Set[Solution]:
         """Evaluates the current position.
