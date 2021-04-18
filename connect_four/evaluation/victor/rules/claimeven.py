@@ -44,7 +44,7 @@ class Claimeven(Rule):
         return groups_by_square[self.upper.row][self.upper.col]
 
 
-def find_all_claimevens(board: Board):
+def find_all_claimevens(board: Board) -> Set[Claimeven]:
     """find_all_claimevens takes a Board and returns a set of Claimevens for it.
 
     It makes no assumptions about whose turn it is or who is the controller of the Zugzwang.
@@ -76,6 +76,7 @@ class ClaimevenManager:
             board (Board): a Board instance.
         """
         self.claimevens = find_all_claimevens(board=board)
+        self.claimevens_removed_by_move = []
 
     def find_all_claimevens(self) -> Set[Claimeven]:
         """
@@ -95,7 +96,12 @@ class ClaimevenManager:
         Returns:
             removed_claimeven (Optional[Claimeven]): the Claimeven being removed, if there is one.
         """
-        pass
+        removed_claimeven = None
+        if row % 2 == 1:  # row is odd
+            removed_claimeven = Claimeven(lower=Square(row=row, col=col), upper=Square(row=row - 1, col=col))
+            self.claimevens.remove(removed_claimeven)
+        self.claimevens_removed_by_move.append(removed_claimeven)
+        return removed_claimeven
 
     def undo_move(self) -> Optional[Claimeven]:
         """Undoes the most recent move, updating the set of Claimevens.

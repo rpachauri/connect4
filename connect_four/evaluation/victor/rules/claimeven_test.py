@@ -107,6 +107,35 @@ class TestClaimeven(unittest.TestCase):
         }
         self.assertEqual(want_claimevens, got_claimevens)
 
+    def test_claimeven_manager_move(self):
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 1, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+        cm = ClaimevenManager(board=board)
+
+        want_removed_claimeven = Claimeven(lower=Square(row=5, col=0), upper=Square(row=4, col=0))
+        got_removed_claimeven = cm.move(row=5, col=0)
+        self.assertEqual(want_removed_claimeven, got_removed_claimeven)
+
+        got_removed_claimeven = cm.move(row=4, col=0)
+        self.assertIsNone(got_removed_claimeven)
+
     def test_find_problems_solved(self):
         # This board is from Diagram 5.4 of the original paper.
         self.env.state = np.array([
