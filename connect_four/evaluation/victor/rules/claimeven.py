@@ -109,4 +109,7 @@ class ClaimevenManager:
         Returns:
             added_claimeven (Optional[Claimeven]): the Claimeven being added, if there is one.
         """
-        pass
+        added_claimeven = self.claimevens_removed_by_move.pop()
+        if added_claimeven is not None:
+            self.claimevens.add(added_claimeven)
+        return added_claimeven
