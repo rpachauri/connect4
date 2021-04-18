@@ -70,3 +70,35 @@ def find_all_baseinverses(board: Board):
             if playable1 != playable2:
                 baseinverses.add(Baseinverse(playable1, playable2))
     return baseinverses
+
+
+class BaseinverseManager:
+    def __init__(self, board: Board):
+        """Initializes the BaseinverseManager.
+
+        Args:
+            board (Board): a Board instance.
+        """
+        pass
+
+    def move(self, square: Square, playable_squares: Set[Square]) -> (Set[Baseinverse], Set[Baseinverse]):
+        """Moves the internal state of the BaseinverseManager to after this square has been played.
+
+        Args:
+            square (Square): the square being played.
+            playable_squares (Set[Square]): the set of directly playable squares, including square.
+
+        Returns:
+            removed_baseinverses (Set[Baseinverse]): the set of Baseinverses Claimeven being removed.
+            added_baseinverses (Set[Baseinverse]): the set of Baseinverses Claimeven being added.
+        """
+        pass
+
+    def undo_move(self) -> (Set[Baseinverse], Set[Baseinverse]):
+        """Undoes the most recent move, updating the set of Baseinverses.
+
+        Returns:
+            removed_baseinverses (Set[Baseinverse]): the set of Baseinverses Claimeven being removed.
+            added_baseinverses (Set[Baseinverse]): the set of Baseinverses Claimeven being added.
+        """
+        pass
