@@ -76,24 +76,36 @@ class VerticalManager:
         Args:
             board (Board): a Board instance.
         """
-        pass
+        self.verticals = find_all_verticals(board=board)
 
-    def move(self, row: int, col: int) -> Optional[Vertical]:
+    def move(self, square: Square) -> Optional[Vertical]:
         """Moves the internal state of the CVerticalManager to after this square has been played.
 
         Args:
-            row (int): the row being played.
-            col (int): the col being played.
+            square (int): the square being played.
 
         Returns:
             removed_vertical (Optional[Vertical]): the Vertical being removed, if there is one.
         """
-        pass
+        removed_vertical = None
+        if square.row % 2 == 0 and square.row != 0:  # row is even and is not the top row
+            removed_vertical = Vertical(lower=square, upper=Square(row=square.row - 1, col=square.col))
+            self.verticals.remove(removed_vertical)
 
-    def undo_move(self) -> Optional[Vertical]:
+        return removed_vertical
+
+    def undo_move(self, square: Square) -> Optional[Vertical]:
         """Undoes the most recent move, updating the set of Vertical.
+
+        Args:
+            square (int): the square being undone.
 
         Returns:
             added_vertical (Optional[Vertical]): the Vertical being added, if there is one.
         """
-        pass
+        added_vertical = None
+        if square.row % 2 == 0 and square.row != 0:  # row is even and is not the top row
+            added_vertical = Vertical(lower=square, upper=Square(row=square.row - 1, col=square.col))
+            self.verticals.add(added_vertical)
+
+        return added_vertical
