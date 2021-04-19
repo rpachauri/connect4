@@ -179,3 +179,37 @@ def get_aftereven_claimevens(board: Board, group: Group) -> Optional[Set[Claimev
             claimevens.add(Claimeven(lower=lower, upper=square))
 
     return claimevens
+
+
+class AfterevenManager:
+    def __init__(self, board: Board):
+        """Initializes the AfterevenManager.
+
+        Args:
+            board (Board): a Board instance.
+        """
+        pass
+
+    def move(self, square: Square, board: Board) -> Set[Aftereven]:
+        """Moves the internal state of the AfterevenManager to after this square has been played.
+
+        Args:
+            square (int): the square being played.
+            board (Board): the Board state, without square having been played yet.
+
+        Returns:
+            removed_afterevens (Set[Aftereven]): the set of Afterevens being removed.
+        """
+        pass
+
+    def undo_move(self, square: Square, board: Board) -> Set[Aftereven]:
+        """Undoes the most recent move, updating the set of Afterevens.
+
+        Args:
+            square (int): the square being undone.
+            board (Board): the Board state, with square being empty.
+
+        Returns:
+            added__afterevens (Set[Aftereven]): the set of Afterevens being added.
+        """
+        pass
