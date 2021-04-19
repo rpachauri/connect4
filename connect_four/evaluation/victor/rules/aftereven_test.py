@@ -3,6 +3,7 @@ import unittest
 
 import numpy as np
 
+from connect_four.evaluation.victor.rules.aftereven import AfterevenManager
 from connect_four.game import Square
 from connect_four.problem import Group
 from connect_four.evaluation.victor.board import Board
@@ -61,6 +62,44 @@ class TestAftereven(unittest.TestCase):
         }
         self.assertEqual(want_afterevens, got_afterevens)
 
+    def test_aftereven_manager_initialization1(self):
+        # This test case is based on Diagram 6.4.
+        # Extra tokens have been added to reduce the number of possible Aftereven instances.
+        self.env.state = np.array([
+            [
+                [1, 0, 0, 1, 0, 0, 1, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [1, 0, 1, 0, 1, 0, 1, ],
+                [0, 0, 1, 1, 1, 0, 0, ],
+                [1, 0, 0, 0, 0, 0, 1, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 1, 0, 1, 0, 0, ],
+                [1, 0, 1, 0, 1, 0, 1, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [1, 0, 0, 0, 0, 0, 1, ],
+                [0, 0, 1, 1, 1, 0, 0, ],
+                [1, 0, 0, 0, 1, 0, 1, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+        am = AfterevenManager(board=board)
+        got_afterevens = am.afterevens
+
+        # Note there are no White Afterevens.
+        want_afterevens = {
+            Aftereven(
+                group=Group(player=1, start=Square(row=4, col=1), end=Square(row=4, col=4)),  # b2-e2
+                claimevens=frozenset([Claimeven(upper=Square(row=4, col=1), lower=Square(row=5, col=1))]),
+            ),
+            Aftereven(
+                group=Group(player=1, start=Square(row=4, col=2), end=Square(row=4, col=5)),  # c2-f2
+                claimevens=frozenset([Claimeven(upper=Square(row=4, col=5), lower=Square(row=5, col=5))]),
+            ),
+        }
+        self.assertEqual(want_afterevens, got_afterevens)
+
     def test_aftereven2(self):
         # This test case is based on Diagram 6.5.
         # Extra tokens have been added to reduce the number of possible Aftereven instances.
@@ -89,6 +128,56 @@ class TestAftereven(unittest.TestCase):
             opponent_groups=black_groups,
         )
 
+        want_afterevens = {
+            Aftereven(
+                group=Group(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6)),  # d2-g2
+                claimevens=frozenset([
+                    Claimeven(upper=Square(row=4, col=5), lower=Square(row=5, col=5)),
+                    Claimeven(upper=Square(row=4, col=6), lower=Square(row=5, col=6)),
+                ]),
+            ),
+            Aftereven(
+                group=Group(player=1, start=Square(row=2, col=3), end=Square(row=2, col=6)),  # d4-g4
+                claimevens=frozenset([
+                    Claimeven(upper=Square(row=2, col=5), lower=Square(row=3, col=5)),
+                    Claimeven(upper=Square(row=2, col=6), lower=Square(row=3, col=6)),
+                ]),
+            ),
+            Aftereven(
+                group=Group(player=1, start=Square(row=2, col=2), end=Square(row=2, col=5)),  # c4-f4
+                claimevens=frozenset([
+                    Claimeven(upper=Square(row=2, col=5), lower=Square(row=3, col=5)),
+                ]),
+            ),
+        }
+        self.assertEqual(want_afterevens, got_afterevens)
+
+    def test_aftereven_manager_initialization2(self):
+        # This test case is based on Diagram 6.5.
+        # Extra tokens have been added to reduce the number of possible Aftereven instances.
+        self.env.state = np.array([
+            [
+                [1, 0, 1, 0, 0, 0, 0, ],
+                [1, 0, 0, 1, 0, 0, 0, ],
+                [1, 1, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 1, 1, 0, 0, ],
+                [0, 1, 1, 0, 0, 0, 0, ],
+                [0, 1, 1, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 1, 0, 1, 0, 0, 0, ],
+                [0, 1, 1, 0, 0, 0, 0, ],
+                [0, 0, 1, 1, 1, 0, 0, ],
+                [1, 1, 0, 0, 0, 0, 0, ],
+                [1, 0, 0, 1, 1, 0, 0, ],
+                [1, 0, 0, 0, 1, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+        am = AfterevenManager(board=board)
+        got_afterevens = am.afterevens
+
+        # Note there are no White Afterevens.
         want_afterevens = {
             Aftereven(
                 group=Group(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6)),  # d2-g2

@@ -188,7 +188,8 @@ class AfterevenManager:
         Args:
             board (Board): a Board instance.
         """
-        pass
+        self.afterevens = find_all_afterevens(board=board, opponent_groups=board.potential_groups(player=0))
+        self.afterevens.update(find_all_afterevens(board=board, opponent_groups=board.potential_groups(player=1)))
 
     def move(self, square: Square, board: Board) -> Set[Aftereven]:
         """Moves the internal state of the AfterevenManager to after this square has been played.
