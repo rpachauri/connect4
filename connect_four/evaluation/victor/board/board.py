@@ -121,6 +121,37 @@ class Board:
             row, col = row + row_diff, col + col_diff
         return True
 
+    def potential_groups_at_square(self, square: Square) -> Set[Group]:
+        """Finds all potential groups that belong to either player containing square.
+
+        Args:
+            square (Square): a Square.
+
+        Returns:
+            groups_at_square (Set[Group]): All groups that contain square.
+        """
+        directions = [
+            (-1, 1),  # up-right diagonal
+            (0, 1),  # horizontal
+            (1, 1),  # down-right diagonal
+            (1, 0),  # vertical
+        ]
+        groups = set()
+
+        for row_diff, col_diff in directions:
+            for i in range(4):
+                row = square.row - i * row_diff
+                col = square.col - i * col_diff
+                for player in range(2):
+                    if self.is_potential_group(player, row, col, row_diff, col_diff):
+                        groups.add(Group(
+                            player,
+                            start=Square(row, col),
+                            end=Square(row + 3 * row_diff, col + 3 * col_diff),
+                        ))
+
+        return groups
+
     def potential_groups_by_square(self):
         """Returns a dictionary of Squares to all groups that contain that Square.
         Every Group is a potential Group that the current player has in this board state.
