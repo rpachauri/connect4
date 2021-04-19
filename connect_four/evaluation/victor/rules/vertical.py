@@ -1,4 +1,4 @@
-from typing import List, Set
+from typing import List, Set, Optional
 
 from connect_four.evaluation.victor.rules import Rule
 from connect_four.game import Square
@@ -67,3 +67,33 @@ def find_all_verticals(board: Board):
                 verticals.add(Vertical(upper, lower))
 
     return verticals
+
+
+class VerticalManager:
+    def __init__(self, board: Board):
+        """Initializes the VerticalManager.
+
+        Args:
+            board (Board): a Board instance.
+        """
+        pass
+
+    def move(self, row: int, col: int) -> Optional[Vertical]:
+        """Moves the internal state of the CVerticalManager to after this square has been played.
+
+        Args:
+            row (int): the row being played.
+            col (int): the col being played.
+
+        Returns:
+            removed_vertical (Optional[Vertical]): the Vertical being removed, if there is one.
+        """
+        pass
+
+    def undo_move(self) -> Optional[Vertical]:
+        """Undoes the most recent move, updating the set of Vertical.
+
+        Returns:
+            added_vertical (Optional[Vertical]): the Vertical being added, if there is one.
+        """
+        pass
