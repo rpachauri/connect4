@@ -129,6 +129,194 @@ class TestBaseinverse(unittest.TestCase):
         }
         self.assertEqual(want_baseinverses, got_baseinverses)
 
+    def test_move(self):
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+        bm = BaseinverseManager(board=board)
+
+        # White will play at a1, removing any Baseinverses that include a1 and adding any Baseinverses that include a2.
+
+        want_removed_baseinverses = {
+            Baseinverse(Square(5, 0), Square(5, 1)),
+            Baseinverse(Square(5, 0), Square(2, 2)),
+            Baseinverse(Square(5, 0), Square(3, 3)),
+            Baseinverse(Square(5, 0), Square(4, 4)),
+            Baseinverse(Square(5, 0), Square(5, 5)),
+            Baseinverse(Square(5, 0), Square(5, 6)),
+        }
+        want_added_baseinverses = {
+            Baseinverse(Square(4, 0), Square(5, 1)),
+            Baseinverse(Square(4, 0), Square(2, 2)),
+            Baseinverse(Square(4, 0), Square(3, 3)),
+            Baseinverse(Square(4, 0), Square(4, 4)),
+            Baseinverse(Square(4, 0), Square(5, 5)),
+            Baseinverse(Square(4, 0), Square(5, 6)),
+        }
+
+        got_removed_baseinverses, got_added_baseinverses = bm.move(
+            square=Square(5, 0),
+            playable_squares=board.playable_squares(),
+        )
+        self.assertEqual(want_removed_baseinverses, got_removed_baseinverses)
+        self.assertEqual(want_added_baseinverses, got_added_baseinverses)
+
+    def test_move_top_row(self):
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+        bm = BaseinverseManager(board=board)
+
+        # White will play at d6, removing any Baseinverses that include d6 and not adding any Baseinverses.
+
+        want_removed_baseinverses = {
+            Baseinverse(Square(5, 0), Square(0, 3)),
+            Baseinverse(Square(5, 1), Square(0, 3)),
+            Baseinverse(Square(4, 2), Square(0, 3)),
+            Baseinverse(Square(5, 4), Square(0, 3)),
+            Baseinverse(Square(5, 5), Square(0, 3)),
+            Baseinverse(Square(5, 6), Square(0, 3)),
+        }
+        want_added_baseinverses = set()
+
+        got_removed_baseinverses, got_added_baseinverses = bm.move(
+            square=Square(0, 3),
+            playable_squares=board.playable_squares(),
+        )
+        self.assertEqual(want_removed_baseinverses, got_removed_baseinverses)
+        self.assertEqual(want_added_baseinverses, got_added_baseinverses)
+
+    def test_undo_move(self):
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+        bm = BaseinverseManager(board=board)
+
+        bm.move(
+            square=Square(5, 0),
+            playable_squares=board.playable_squares(),
+        )
+
+        want_added_baseinverses = {
+            Baseinverse(Square(5, 0), Square(5, 1)),
+            Baseinverse(Square(5, 0), Square(2, 2)),
+            Baseinverse(Square(5, 0), Square(3, 3)),
+            Baseinverse(Square(5, 0), Square(4, 4)),
+            Baseinverse(Square(5, 0), Square(5, 5)),
+            Baseinverse(Square(5, 0), Square(5, 6)),
+        }
+        want_removed_baseinverses = {
+            Baseinverse(Square(4, 0), Square(5, 1)),
+            Baseinverse(Square(4, 0), Square(2, 2)),
+            Baseinverse(Square(4, 0), Square(3, 3)),
+            Baseinverse(Square(4, 0), Square(4, 4)),
+            Baseinverse(Square(4, 0), Square(5, 5)),
+            Baseinverse(Square(4, 0), Square(5, 6)),
+        }
+
+        got_added_baseinverses, got_removed_baseinverses = bm.undo_move(
+            square=Square(5, 0),
+            playable_squares=board.playable_squares(),
+        )
+        self.assertEqual(want_added_baseinverses, got_added_baseinverses)
+        self.assertEqual(want_removed_baseinverses, got_removed_baseinverses)
+
+    def test_undo_move_top_row(self):
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+        bm = BaseinverseManager(board=board)
+
+        # White will play at d6, removing any Baseinverses that include d6 and not adding any Baseinverses.
+
+        bm.undo_move(
+            square=Square(0, 3),
+            playable_squares=board.playable_squares(),
+        )
+
+        # We now undo White's move at d6.
+
+        want_added_baseinverses = {
+            Baseinverse(Square(5, 0), Square(0, 3)),
+            Baseinverse(Square(5, 1), Square(0, 3)),
+            Baseinverse(Square(4, 2), Square(0, 3)),
+            Baseinverse(Square(5, 4), Square(0, 3)),
+            Baseinverse(Square(5, 5), Square(0, 3)),
+            Baseinverse(Square(5, 6), Square(0, 3)),
+        }
+        want_removed_baseinverses = set()
+
+        got_added_baseinverses, got_removed_baseinverses = bm.undo_move(
+            square=Square(0, 3),
+            playable_squares=board.playable_squares(),
+        )
+        self.assertEqual(want_added_baseinverses, got_added_baseinverses)
+        self.assertEqual(want_removed_baseinverses, got_removed_baseinverses)
+
     def test_find_problems_solved(self):
         # This board is from Diagram 6.2 of the original paper.
         self.env.state = np.array([

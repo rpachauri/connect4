@@ -92,13 +92,49 @@ class BaseinverseManager:
             removed_baseinverses (Set[Baseinverse]): the set of Baseinverses Claimeven being removed.
             added_baseinverses (Set[Baseinverse]): the set of Baseinverses Claimeven being added.
         """
-        pass
+        removed_baseinverses = set()
+        for other_square in playable_squares:
+            if other_square != square:
+                baseinverse = Baseinverse(playable1=square, playable2=other_square)
+                self.baseinverses.remove(baseinverse)
+                removed_baseinverses.add(baseinverse)
 
-    def undo_move(self) -> (Set[Baseinverse], Set[Baseinverse]):
+        added_baseinverses = set()
+        if square.row > 0:
+            square_above = Square(row=square.row - 1, col=square.col)
+            for other_square in playable_squares:
+                if other_square != square:
+                    baseinverse = Baseinverse(playable1=square_above, playable2=other_square)
+                    self.baseinverses.add(baseinverse)
+                    added_baseinverses.add(baseinverse)
+
+        return removed_baseinverses, added_baseinverses
+
+    def undo_move(self, square: Square, playable_squares: Set[Square]) -> (Set[Baseinverse], Set[Baseinverse]):
         """Undoes the most recent move, updating the set of Baseinverses.
 
+        Args:
+            square (Square): the square being undone.
+            playable_squares (Set[Square]): the set of directly playable squares, including square.
+
         Returns:
-            removed_baseinverses (Set[Baseinverse]): the set of Baseinverses Claimeven being removed.
             added_baseinverses (Set[Baseinverse]): the set of Baseinverses Claimeven being added.
+            removed_baseinverses (Set[Baseinverse]): the set of Baseinverses Claimeven being removed.
         """
-        pass
+        added_baseinverses = set()
+        for other_square in playable_squares:
+            if other_square != square:
+                baseinverse = Baseinverse(playable1=square, playable2=other_square)
+                self.baseinverses.add(baseinverse)
+                added_baseinverses.add(baseinverse)
+
+        removed_baseinverses = set()
+        if square.row > 0:
+            square_above = Square(row=square.row - 1, col=square.col)
+            for other_square in playable_squares:
+                if other_square != square:
+                    baseinverse = Baseinverse(playable1=square_above, playable2=other_square)
+                    self.baseinverses.remove(baseinverse)
+                    removed_baseinverses.add(baseinverse)
+
+        return added_baseinverses, removed_baseinverses
