@@ -7,7 +7,6 @@ from connect_four.game import Square
 from connect_four.problem import Group
 from connect_four.evaluation.victor.board import Board
 from connect_four.evaluation.victor.rules import Claimeven
-from connect_four.evaluation.victor.rules import find_all_claimevens
 from connect_four.evaluation.victor.rules import Aftereven
 from connect_four.evaluation.victor.rules import find_all_afterevens
 
@@ -47,7 +46,6 @@ class TestAftereven(unittest.TestCase):
         black_groups = board.potential_groups(1)
         got_afterevens = find_all_afterevens(
             board=board,
-            claimevens=find_all_claimevens(board),
             opponent_groups=black_groups,
         )
 
@@ -88,7 +86,6 @@ class TestAftereven(unittest.TestCase):
         black_groups = board.potential_groups(1)
         got_afterevens = find_all_afterevens(
             board=board,
-            claimevens=find_all_claimevens(board),
             opponent_groups=black_groups,
         )
 
@@ -144,7 +141,6 @@ class TestAftereven(unittest.TestCase):
         # Since d6 is an empty square in the top row, no Aftereven groups containing d6 can be formed.
         got_afterevens = find_all_afterevens(
             board=board,
-            claimevens=find_all_claimevens(board=board),
             opponent_groups={group_a3_d6},
         )
         # Assert that got_afterevens is empty.
@@ -159,7 +155,6 @@ class TestAftereven(unittest.TestCase):
         # Now that d6 has been taken by White, White can use it in some Aftereven groups.
         got_afterevens = find_all_afterevens(
             board=board,
-            claimevens=find_all_claimevens(board=board),
             opponent_groups={group_a3_d6},
         )
         # Assert that got_afterevens is not empty.

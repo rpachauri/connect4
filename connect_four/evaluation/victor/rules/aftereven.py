@@ -1,4 +1,4 @@
-from typing import List, Set
+from typing import List, Set, Optional
 
 from connect_four.evaluation.victor.rules import Rule, Claimeven
 from connect_four.game import Square
@@ -119,7 +119,7 @@ class Aftereven(Rule):
         empty_squares_of_aftereven.append(square)
 
 
-def find_all_afterevens(board: Board, opponent_groups) -> Set[Aftereven]:
+def find_all_afterevens(board: Board, opponent_groups: Set[Group]) -> Set[Aftereven]:
     """find_all_afterevens takes a Board and a set of Claimevens and returns a set of Afterevens for the Board.
 
     Args:
@@ -139,7 +139,7 @@ def find_all_afterevens(board: Board, opponent_groups) -> Set[Aftereven]:
     return afterevens
 
 
-def get_aftereven_claimevens(board: Board, group: Group):
+def get_aftereven_claimevens(board: Board, group: Group) -> Optional[Set[Claimeven]]:
     """get_aftereven_claimevens takes a Board, set of Claimevens and a group.
     It figures out if the group is an Aftereven group.
     If the group is an Aftereven group, then it returns the Claimevens which are part of the Aftereven.
@@ -173,7 +173,7 @@ def get_aftereven_claimevens(board: Board, group: Group):
 
             # If an even square of an Aftereven group is empty, but the square below it is not,
             # then it is not a Claimeven.
-            if not board.is_valid(square=lower) or not board.is_empty(square=lower):
+            if not board.is_empty(square=lower):
                 return None
 
             claimevens.add(Claimeven(lower=lower, upper=square))
