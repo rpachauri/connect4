@@ -1,6 +1,6 @@
 from typing import List, Set
 
-from connect_four.evaluation.victor.rules import Rule
+from connect_four.evaluation.victor.rules import Rule, Claimeven
 from connect_four.game import Square
 from connect_four.problem import Group
 from connect_four.evaluation.victor.board import Board
@@ -119,33 +119,27 @@ class Aftereven(Rule):
         empty_squares_of_aftereven.append(square)
 
 
-def find_all_afterevens(board: Board, claimevens, opponent_groups):
+def find_all_afterevens(board: Board, opponent_groups) -> Set[Aftereven]:
     """find_all_afterevens takes a Board and a set of Claimevens and returns a set of Afterevens for the Board.
 
     Args:
         board (Board): a Board instance.
-        claimevens (set<Claimeven>): a set of Claimevens for board.
         opponent_groups (iterable<Group>): an iterable of Groups belonging to the
             opponent of the player to move on board.
 
     Returns:
         afterevens (set<Aftereven>): a set of Afterevens for board.
     """
-    # Dictionary of the upper square of a Claimeven to the Claimeven itself.
-    even_squares_to_claimevens = {}
-    for claimeven in claimevens:
-        even_squares_to_claimevens[claimeven.upper] = claimeven
-
     afterevens = set()
     for group in opponent_groups:
-        aftereven_claimevens = get_aftereven_claimevens(board, even_squares_to_claimevens, group)
+        aftereven_claimevens = get_aftereven_claimevens(board, group)
         if aftereven_claimevens is not None:
             afterevens.add(Aftereven(group, aftereven_claimevens))
 
     return afterevens
 
 
-def get_aftereven_claimevens(board: Board, even_squares_to_claimevens, group: Group):
+def get_aftereven_claimevens(board: Board, group: Group):
     """get_aftereven_claimevens takes a Board, set of Claimevens and a group.
     It figures out if the group is an Aftereven group.
     If the group is an Aftereven group, then it returns the Claimevens which are part of the Aftereven.
@@ -153,9 +147,6 @@ def get_aftereven_claimevens(board: Board, even_squares_to_claimevens, group: Gr
 
     Args:
         board (Board): a Board instance.
-        even_squares_to_claimevens (dict<Square, Claimeven>): dictionary of Squares to Claimevens.
-            Each Square in the key set is the even square of a Claimeven on the board.
-            It maps to the Claimeven it is a part of.
         group (Group): a group on this board.
 
     Returns:
@@ -173,11 +164,18 @@ def get_aftereven_claimevens(board: Board, even_squares_to_claimevens, group: Gr
             # If a square is in the top row, then this would be a useless Aftereven.
             if square.row == 0:
                 return None
-            if square in even_squares_to_claimevens:
-                claimevens.add(even_squares_to_claimevens[square])
-            else:
-                # If an empty square does not belong to any of the Claimeven even squares,
-                # then the Group is not an Aftereven group.
+
+            # If square is odd, then we cannot use a Claimeven to build the Aftereven.
+            if square.row % 2 == 1:
                 return None
+
+            lower = Square(row=square.row + 1, col=square.col)
+
+            # If an even square of an Aftereven group is empty, but the square below it is not,
+            # then it is not a Claimeven.
+            if not board.is_valid(square=lower) or not board.is_empty(square=lower):
+                return None
+
+            claimevens.add(Claimeven(lower=lower, upper=square))
 
     return claimevens

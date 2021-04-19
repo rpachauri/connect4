@@ -92,7 +92,7 @@ def find_all_solutions(board: Board):
     claimevens = find_all_claimevens(board=board)
     baseinverses = find_all_baseinverses(board=board)
     verticals = find_all_verticals(board=board)
-    afterevens = find_all_afterevens(board=board, claimevens=claimevens, opponent_groups=opponent_groups)
+    afterevens = find_all_afterevens(board=board, opponent_groups=opponent_groups)
     lowinverses = find_all_lowinverses(verticals=verticals)
     highinverses = find_all_highinverses(board=board, lowinverses=lowinverses)
     baseclaims = find_all_baseclaims(board=board)
