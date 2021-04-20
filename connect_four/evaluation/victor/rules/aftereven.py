@@ -191,26 +191,148 @@ class AfterevenManager:
         self.afterevens = find_all_afterevens(board=board, opponent_groups=board.potential_groups(player=0))
         self.afterevens.update(find_all_afterevens(board=board, opponent_groups=board.potential_groups(player=1)))
 
-    def move(self, square: Square, board: Board) -> Set[Aftereven]:
+    def move(self, player: int, square: Square, board: Board) -> (Set[Aftereven], Set[Aftereven]):
         """Moves the internal state of the AfterevenManager to after this square has been played.
 
         Args:
-            square (int): the square being played.
+            player (int): the player playing square.
+            square (Square): the square being played.
             board (Board): the Board state, without square having been played yet.
 
         Returns:
             removed_afterevens (Set[Aftereven]): the set of Afterevens being removed.
+            added_afterevens (Set[Aftereven]): the set of Afterevens being added.
         """
-        pass
+        removed_afterevens = AfterevenManager.afterevens_above_square(square=square, board=board)
+        self.afterevens.difference_update(removed_afterevens)
 
-    def undo_move(self, square: Square, board: Board) -> Set[Aftereven]:
+        added_afterevens = AfterevenManager.afterevens_at_square(player=player, square=square, board=board)
+        self.afterevens.update(added_afterevens)
+
+        return removed_afterevens, added_afterevens
+
+    @staticmethod
+    def afterevens_above_square(square: Square, board: Board) -> Set[Aftereven]:
+        """Finds all Afterevens that uses the Square above square.
+
+        Args:
+            square (Square): the square being played.
+                1. If square is even, returns an empty set.
+                2. If square is odd, returns all Afterevens that contain the Claimeven that uses square as its lower.
+            board (Board): the Board state, without square having been played yet.
+
+        Returns:
+            afterevens (Set[Aftereven]): a set of Afterevens.
+                Each Aftereven in afterevens contains a Claimeven with square as its lower.
+        """
+        # If square is even, no Claimevens would be affected and thus, no Afterevens would be affected.
+        if square.row % 2 == 0:
+            return set()
+        # square must be odd (i.e. the lower of a Claimeven).
+
+        # Find all Groups that contain square_above.
+        square_above = Square(row=square.row - 1, col=square.col)
+        groups = board.potential_groups_at_square(square=square_above)
+
+        afterevens = set()
+        # Any Aftereven that uses a group in groups can no longer be used.
+        for group in groups:
+            aftereven_claimevens = AfterevenManager.get_aftereven_claimevens_excluding_square(board=board, group=group)
+            if aftereven_claimevens is not None:
+                afterevens.add(Aftereven(group, aftereven_claimevens))
+
+        return afterevens
+
+    @staticmethod
+    def afterevens_at_square(player: int, square: Square, board: Board) -> Set[Aftereven]:
+        """Finds all Afterevens that uses square.
+
+        Args:
+            player (int): the player playing square.
+            square (Square): the square being played.
+            board (Board): the Board state, without square having been played yet.
+
+        Returns:
+            afterevens (Set[Aftereven]): a set of Afterevens.
+                Each Aftereven group in afterevens contains square.
+        """
+        # Find all Groups that contain square.
+        groups = board.potential_groups_at_square(square=square)
+
+        afterevens = set()
+        # Any Aftereven that uses a group in groups can no longer be used.
+        for group in groups:
+            if group.player == player:
+                aftereven_claimevens = AfterevenManager.get_aftereven_claimevens_excluding_square(
+                    board=board,
+                    group=group,
+                    excluding_square=square,
+                )
+                if aftereven_claimevens is not None:
+                    afterevens.add(Aftereven(group, aftereven_claimevens))
+
+        return afterevens
+
+    @staticmethod
+    def get_aftereven_claimevens_excluding_square(board: Board, group: Group, excluding_square: Square = None) -> \
+            Optional[Set[Claimeven]]:
+        """get_aftereven_claimevens takes a Board, set of Claimevens, a Group, and a Square.
+        It figures out if group could be an Aftereven group if Square was played by group.player.
+        If the group is an Aftereven group, then it returns the Claimevens which are part of the Aftereven.
+        If the group is not an Aftereven group, then it returns None.
+
+        Args:
+            board (Board): a Board instance.
+            group (Group): a group on this board.
+            excluding_square (Square): an empty Square part of group to exclude when searching for Claimevens.
+
+        Returns:
+            claimevens (iterable<Claimeven>):
+                If the given group could be an Aftereven group, an iterable of Claimevens,
+                where the upper square of each Claimeven is an empty square in the Aftereven group.
+
+                If the given group is not an Aftereven group, returns None.
+        """
+        claimevens = set()
+
+        for square in group.squares:
+            # If the square is not empty, we assume it already belongs to the player who owns the Group.
+            if board.is_empty(square) and square != excluding_square:
+                # If a square is in the top row, then this would be a useless Aftereven.
+                if square.row == 0:
+                    return None
+
+                # If square is odd, then we cannot use a Claimeven to build the Aftereven.
+                if square.row % 2 == 1:
+                    return None
+
+                lower = Square(row=square.row + 1, col=square.col)
+
+                # If an even square of an Aftereven group is empty, but the square below it is not,
+                # then it is not a Claimeven.
+                if not board.is_empty(square=lower):
+                    return None
+
+                claimevens.add(Claimeven(lower=lower, upper=square))
+
+        return claimevens
+
+    def undo_move(self, player: int, square: Square, board: Board) -> (Set[Aftereven], Set[Aftereven]):
         """Undoes the most recent move, updating the set of Afterevens.
 
         Args:
+            player (int): the player who had square.
             square (int): the square being undone.
             board (Board): the Board state, with square being empty.
 
         Returns:
-            added__afterevens (Set[Aftereven]): the set of Afterevens being added.
+            added_afterevens (Set[Aftereven]): the set of Afterevens being added.
+            removed_afterevens (Set[Aftereven]): the set of Afterevens being removed.
         """
-        pass
+        added_afterevens = AfterevenManager.afterevens_above_square(square=square, board=board)
+        self.afterevens.update(added_afterevens)
+
+        removed_afterevens = AfterevenManager.afterevens_at_square(player=player, square=square, board=board)
+        self.afterevens.difference_update(removed_afterevens)
+
+        return added_afterevens, removed_afterevens

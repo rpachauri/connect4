@@ -202,6 +202,100 @@ class TestAftereven(unittest.TestCase):
         }
         self.assertEqual(want_afterevens, got_afterevens)
 
+    def test_afterevens_above_square(self):
+        board = Board(self.env.env_variables)
+
+        # Find all Afterevens that use a1.
+        want_afterevens = {
+            Aftereven(
+                group=Group(player=0, start=Square(row=4, col=0), end=Square(row=4, col=3)),  # a2-d2
+                claimevens=frozenset([
+                    Claimeven(upper=Square(row=4, col=0), lower=Square(row=5, col=0)),  # a1-a2
+                    Claimeven(upper=Square(row=4, col=1), lower=Square(row=5, col=1)),  # b1-b2
+                    Claimeven(upper=Square(row=4, col=2), lower=Square(row=5, col=2)),  # c1-c2
+                    Claimeven(upper=Square(row=4, col=3), lower=Square(row=5, col=3)),  # d1-d2
+                ]),
+            ),
+            Aftereven(
+                group=Group(player=1, start=Square(row=4, col=0), end=Square(row=4, col=3)),  # a2-d2
+                claimevens=frozenset([
+                    Claimeven(upper=Square(row=4, col=0), lower=Square(row=5, col=0)),  # a1-a2
+                    Claimeven(upper=Square(row=4, col=1), lower=Square(row=5, col=1)),  # b1-b2
+                    Claimeven(upper=Square(row=4, col=2), lower=Square(row=5, col=2)),  # c1-c2
+                    Claimeven(upper=Square(row=4, col=3), lower=Square(row=5, col=3)),  # d1-d2
+                ]),
+            ),
+        }
+        got_afterevens = AfterevenManager.afterevens_above_square(square=Square(row=5, col=0), board=board)
+        self.assertEqual(want_afterevens, got_afterevens)
+
+    def test_afterevens_at_odd_square(self):
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [1, 0, 0, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 1, 0, 1, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+
+        # Find all Afterevens that White could use at c3.
+        want_afterevens = {
+            Aftereven(
+                group=Group(player=0, start=Square(row=5, col=0), end=Square(row=2, col=3)),  # a1-d4
+                claimevens=frozenset([
+                    Claimeven(upper=Square(row=4, col=1), lower=Square(row=5, col=1)),  # b1-b2
+                    Claimeven(upper=Square(row=2, col=3), lower=Square(row=3, col=3)),  # d3-d4
+                ]),
+            ),
+        }
+        got_afterevens = AfterevenManager.afterevens_at_square(player=0, square=Square(row=3, col=2), board=board)
+        self.assertEqual(want_afterevens, got_afterevens)
+
+    def test_afterevens_at_even_square(self):
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [1, 0, 0, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 1, 1, 0, 1, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+
+        # Find all Afterevens that White could use at b2.
+        want_afterevens = {
+            Aftereven(
+                group=Group(player=0, start=Square(row=5, col=0), end=Square(row=2, col=3)),  # a1-d4
+                claimevens=frozenset([
+                    Claimeven(upper=Square(row=2, col=3), lower=Square(row=3, col=3)),  # d3-d4
+                ]),
+            ),
+        }
+        got_afterevens = AfterevenManager.afterevens_at_square(player=0, square=Square(row=4, col=1), board=board)
+        self.assertEqual(want_afterevens, got_afterevens)
+
     def test_empty_squares_of_aftereven_group_top_row_empty(self):
         # This test case validates that if a Group contains an empty square in the top row, no Afterevens use it.
         # However, if that square is taken by a player, that player can use it in some Afterevens.
