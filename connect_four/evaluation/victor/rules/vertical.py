@@ -45,7 +45,7 @@ class Vertical(Rule):
         return upper_groups.intersection(lower_groups)
 
 
-def find_all_verticals(board: Board):
+def find_all_verticals(board: Board) -> Set[Vertical]:
     """find_all_verticals takes a Board and returns a set of Verticals for it.
 
     It makes no assumptions about whose turn it is or who is the controller of the Zugzwang.
@@ -79,33 +79,36 @@ class VerticalManager:
         self.verticals = find_all_verticals(board=board)
 
     def move(self, square: Square) -> Optional[Vertical]:
-        """Moves the internal state of the CVerticalManager to after this square has been played.
+        """Moves the internal state of the VerticalManager to after this square has been played.
 
         Args:
-            square (int): the square being played.
+            square (Square): the square being played.
 
         Returns:
             removed_vertical (Optional[Vertical]): the Vertical being removed, if there is one.
         """
-        removed_vertical = None
-        if square.row % 2 == 0 and square.row != 0:  # row is even and is not the top row
-            removed_vertical = Vertical(lower=square, upper=Square(row=square.row - 1, col=square.col))
+        removed_vertical = VerticalManager.vertical_at_square(square=square)
+        if removed_vertical is not None:
             self.verticals.remove(removed_vertical)
 
         return removed_vertical
 
+    @staticmethod
+    def vertical_at_square(square: Square) -> Optional[Vertical]:
+        if square.row % 2 == 0 and square.row != 0:  # row is even and is not the top row
+            return Vertical(lower=square, upper=Square(row=square.row - 1, col=square.col))
+
     def undo_move(self, square: Square) -> Optional[Vertical]:
-        """Undoes the most recent move, updating the set of Vertical.
+        """Undoes the most recent move, updating the set of Verticals.
 
         Args:
-            square (int): the square being undone.
+            square (Square): the square being undone.
 
         Returns:
             added_vertical (Optional[Vertical]): the Vertical being added, if there is one.
         """
-        added_vertical = None
-        if square.row % 2 == 0 and square.row != 0:  # row is even and is not the top row
-            added_vertical = Vertical(lower=square, upper=Square(row=square.row - 1, col=square.col))
+        added_vertical = VerticalManager.vertical_at_square(square=square)
+        if added_vertical is not None:
             self.verticals.add(added_vertical)
 
         return added_vertical
