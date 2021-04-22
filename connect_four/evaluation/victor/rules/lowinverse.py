@@ -89,7 +89,9 @@ class LowinverseManager:
         Returns:
             removed_lowinverses (Set[Lowinverse]): the set of Lowinverses being removed.
         """
-        pass
+        removed_lowinverses = LowinverseManager._find_affected_lowinverses(vertical=vertical, verticals=verticals)
+        self.lowinverses -= removed_lowinverses
+        return removed_lowinverses
 
     @staticmethod
     def _find_affected_lowinverses(vertical: Optional[Vertical], verticals: Set[Vertical]) -> Set[Lowinverse]:
@@ -105,7 +107,14 @@ class LowinverseManager:
                 the cross product between vertical and verticals.
                 If vertical is None, returns an empty set.
         """
-        pass
+        if vertical is None:
+            return set()
+
+        affected_lowinverses = set()
+        for other in verticals - {vertical}:
+            if vertical.upper.col != other.upper.col:
+                affected_lowinverses.add(Lowinverse(first_vertical=vertical, second_vertical=other))
+        return affected_lowinverses
 
     def undo_move(self, vertical: Optional[Vertical], verticals: Set[Vertical]) -> Set[Lowinverse]:
         """Moves the internal state of the LowinverseManager to before this square was played.
@@ -118,4 +127,6 @@ class LowinverseManager:
         Returns:
             added_lowinverses (Set[Lowinverse]): the set of Lowinverses being added.
         """
-        pass
+        added_lowinverses = LowinverseManager._find_affected_lowinverses(vertical=vertical, verticals=verticals)
+        self.lowinverses += added_lowinverses
+        return added_lowinverses
