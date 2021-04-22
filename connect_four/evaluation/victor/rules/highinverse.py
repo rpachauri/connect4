@@ -125,7 +125,7 @@ class HighinverseManager:
             board (Board): a Board instance.
             lowinverses (Set[Lowinverse]): an set of Lowinverses for board.
         """
-        pass
+        self.highinverses = find_all_highinverses(board=board, lowinverses=lowinverses)
 
     def move(self, square: Square,
              removed_lowinverses: Set[Lowinverse],
