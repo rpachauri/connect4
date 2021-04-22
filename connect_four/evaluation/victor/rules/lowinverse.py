@@ -1,4 +1,4 @@
-from typing import List, Set
+from typing import List, Set, Optional
 
 from connect_four.evaluation.victor.rules import Vertical, Rule
 from connect_four.problem import Group
@@ -51,7 +51,7 @@ class Lowinverse(Rule):
         return solved_by_two_upper_squares.union(vertical_0_problems).union(vertical_1_problems)
 
 
-def find_all_lowinverses(verticals):
+def find_all_lowinverses(verticals: Set[Vertical]):
     """find_all_lowinverses takes an iterable of Verticals and returns an iterable of Lowinverses.
 
     Args:
@@ -67,3 +67,55 @@ def find_all_lowinverses(verticals):
                 lowinverses.add(Lowinverse(first_vertical, second_vertical))
 
     return lowinverses
+
+
+class LowinverseManager:
+    def __init__(self, verticals: Set[Vertical]):
+        """Initializes the LowinverseManager.
+
+        Args:
+            verticals (Set[Vertical]): a set of Verticals to build Lowinverses off of.
+        """
+        pass
+
+    def move(self, vertical: Optional[Vertical], verticals: Set[Vertical]) -> Set[Lowinverse]:
+        """Moves the internal state of the LowinverseManager to after this square has been played.
+
+        Args:
+            vertical (Optional[Vertical]): an optional Vertical that may have been removed after move is played.
+            verticals (Set[Vertical]): the set of Verticals in the current state.
+                If vertical is not None, vertical will be in verticals
+
+        Returns:
+            removed_lowinverses (Set[Lowinverse]): the set of Lowinverses being removed.
+        """
+        pass
+
+    @staticmethod
+    def _find_affected_lowinverses(vertical: Optional[Vertical], verticals: Set[Vertical]) -> Set[Lowinverse]:
+        """Returns the set of Lowinverses that results from the cross product between vertical and verticals.
+
+        Args:
+            vertical (Optional[Vertical]): an optional Vertical.
+            verticals (Set[Vertical]): a set of Verticals.
+                If vertical is not None, vertical will be in verticals
+
+        Returns:
+            affected_lowinverses (Set[Lowinverse]): the set of Lowinverses that results from
+                the cross product between vertical and verticals.
+                If vertical is None, returns an empty set.
+        """
+        pass
+
+    def undo_move(self, vertical: Optional[Vertical], verticals: Set[Vertical]) -> Set[Lowinverse]:
+        """Moves the internal state of the LowinverseManager to before this square was played.
+
+        Args:
+            vertical (Optional[Vertical]): an optional Vertical that may have been added after move is undone.
+            verticals (Set[Vertical]): the set of Verticals in the current state.
+                If vertical is not None, vertical will be in verticals
+
+        Returns:
+            added_lowinverses (Set[Lowinverse]): the set of Lowinverses being added.
+        """
+        pass
