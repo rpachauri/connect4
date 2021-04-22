@@ -145,6 +145,32 @@ class HighinverseManager:
         """
         pass
 
+    @staticmethod
+    def _highinverse_given_lowinverses(
+            lowinverses: Set[Lowinverse], directly_playable_squares: Set[Square]) -> Set[Highinverse]:
+        """Derive a set of Highinverses given a set of Lowinverses and the set of directly playable squares.
+
+        Args:
+            lowinverses (Set[Lowinverse]): a set of Lowinverses to derive Highinverses from.
+            directly_playable_squares: the set of directly playable Squares.
+
+        Returns:
+            highinverses (Set[Highinverse]): a set of Highinverses derived from lowinverses and
+                directly_playable_squares.
+        """
+        highinverses = set()
+
+        for lowinverse in lowinverses:
+            vertical0, vertical1 = tuple(lowinverse.verticals)
+            lower0, lower1 = vertical0.lower, vertical1.lower
+            highinverse = Highinverse(
+                lowinverse=lowinverse,
+                directly_playable_squares=directly_playable_squares.intersection({lower0, lower1}),
+            )
+            highinverses.add(highinverse)
+
+        return highinverses
+
     def undo_move(self, square: Square,
                   added_lowinverses: Set[Lowinverse],
                   verticals: Set[Vertical],

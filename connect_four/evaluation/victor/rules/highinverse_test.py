@@ -561,6 +561,55 @@ class TestHighinverse(unittest.TestCase):
         }
         self.assertEqual(want_highinverses, got_highinverses)
 
+    def test_highinverse_given_lowinverses(self):
+        # This test case is based on Diagram 7.2 of the original paper.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 1, 1, ],
+                [0, 0, 1, 1, 0, 1, 0, ],
+                [0, 0, 0, 0, 1, 1, 1, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
+                [0, 1, 1, 1, 0, 0, 1, ],
+                [0, 0, 0, 1, 1, 1, 0, ],
+            ],
+            [
+                [0, 0, 1, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 1, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+                [0, 1, 1, 1, 0, 1, 1, ],
+                [0, 0, 0, 0, 1, 1, 0, ],
+                [0, 1, 1, 0, 0, 0, 1, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+
+        # Create Verticals for Lowinverses.
+        vertical_a2_a3 = Vertical(
+            upper=Square(row=3, col=0),  # a3
+            lower=Square(row=4, col=0),  # a2
+        )
+        vertical_b4_b5 = Vertical(
+            upper=Square(row=1, col=1),  # b5
+            lower=Square(row=2, col=1),  # b4
+        )
+        # Create Lowinverses for Highinverses.
+        lowinverse_a2_a3_b4_b5 = Lowinverse(
+            first_vertical=vertical_a2_a3,
+            second_vertical=vertical_b4_b5,
+        )
+        want_highinverses = {
+            Highinverse(
+                lowinverse=lowinverse_a2_a3_b4_b5,
+                directly_playable_squares=[Square(row=2, col=1)],  # b4
+            ),
+        }
+
+        got_highinverses = HighinverseManager._highinverse_given_lowinverses(
+            lowinverses={lowinverse_a2_a3_b4_b5},
+            directly_playable_squares=board.playable_squares(),
+        )
+        self.assertEqual(want_highinverses, got_highinverses)
+
 
 if __name__ == '__main__':
     unittest.main()
