@@ -76,7 +76,7 @@ class LowinverseManager:
         Args:
             verticals (Set[Vertical]): a set of Verticals to build Lowinverses off of.
         """
-        pass
+        self.lowinverses = find_all_lowinverses(verticals=verticals)
 
     def move(self, vertical: Optional[Vertical], verticals: Set[Vertical]) -> Set[Lowinverse]:
         """Moves the internal state of the LowinverseManager to after this square has been played.
