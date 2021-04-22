@@ -38,7 +38,7 @@ class Board:
         """
         return self.state[0][square.row][square.col] == 0 and self.state[1][square.row][square.col] == 0
 
-    def playable_squares(self):
+    def playable_squares(self) -> Set[Square]:
         """Returns a set of playable squares on this board.
 
         Returns:

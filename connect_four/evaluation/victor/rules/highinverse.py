@@ -115,3 +115,51 @@ def find_all_highinverses(board: Board, lowinverses):
             directly_playable_squares=highinverse_directly_playable_squares,
         ))
     return highinverses
+
+
+class HighinverseManager:
+    def __init__(self, board: Board, lowinverses: Set[Lowinverse]):
+        """Initializes the LowinverseManager.
+
+        Args:
+            board (Board): a Board instance.
+            lowinverses (Set[Lowinverse]): an set of Lowinverses for board.
+        """
+        pass
+
+    def move(self, square: Square,
+             removed_lowinverses: Set[Lowinverse],
+             verticals: Set[Vertical],
+             directly_playable_squares: Set[Square]) -> (Set[Highinverse], Set[Highinverse]):
+        """Moves the internal state of the HighinverseManager to after this square has been played.
+
+        Args:
+            square (Square): the Square being played.
+            removed_lowinverses (Set[Lowinverse]): the set of Lowinverses removed after square is played.
+            verticals (Set[Vertical]): the set of Verticals in the current state.
+            directly_playable_squares (Set[Square]): the set of directly playable Squares in the current state.
+
+        Returns:
+            removed_highinverses (Set[Highinverse]): the set of Highinverses removed after square is played.
+            added_highinverses (Set[Highinverse]): the set of Highinverses added after square is played.
+        """
+        pass
+
+    def undo_move(self, square: Square,
+                  added_lowinverses: Set[Lowinverse],
+                  verticals: Set[Vertical],
+                  directly_playable_squares: Set[Square]) -> (Set[Highinverse], Set[Highinverse]):
+        """Moves the internal state of the HighinverseManager to before this square has been played.
+
+        Args:
+            square (Square): the Square being undone.
+            added_lowinverses (Set[Lowinverse]): the set of Lowinverses added after square is undone.
+            verticals (Set[Vertical]): the set of Verticals in the state after square is undone.
+            directly_playable_squares (Set[Square]): the set of directly playable Squares in the
+                state after square is undone.
+
+        Returns:
+            added_highinverses (Set[Highinverse]): the set of Highinverses added after square is undone.
+            removed_highinverses (Set[Highinverse]): the set of Highinverses removed after square is undone.
+        """
+        pass
