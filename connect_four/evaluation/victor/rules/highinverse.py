@@ -93,15 +93,15 @@ class Highinverse(Rule):
         return highinverse_groups
 
 
-def find_all_highinverses(board: Board, lowinverses):
-    """find_all_highinverses takes an iterable of Lowinverses and returns an iterable of Highinverses.
+def find_all_highinverses(board: Board, lowinverses: Set[Lowinverse]) -> Set[Highinverse]:
+    """find_all_highinverses takes a set of Lowinverses and returns an set of Highinverses.
 
     Args:
         board (Board): a Board instance.
-        lowinverses (iterable<Lowinverse>): an iterable of Lowinverses.
+        lowinverses (Set<Lowinverse>): a set of Lowinverses.
 
     Returns:
-        highinverses (iterable<Highinverse>): an iterable of Highinverses.
+        highinverses (Set<Highinverse>): a set of Highinverses.
     """
     directly_playable_squares = board.playable_squares()
     highinverses = set()
@@ -143,7 +143,60 @@ class HighinverseManager:
             removed_highinverses (Set[Highinverse]): the set of Highinverses removed after square is played.
             added_highinverses (Set[Highinverse]): the set of Highinverses added after square is played.
         """
-        pass
+        removed_highinverses, added_highinverses = HighinverseManager._removed_added_highinverses(
+            square=square,
+            removed_lowinverses=removed_lowinverses,
+            verticals=verticals,
+            directly_playable_squares=directly_playable_squares,
+        )
+
+        self.highinverses.difference_update(removed_highinverses)
+        self.highinverses.update(added_highinverses)
+
+        return removed_highinverses, added_highinverses
+
+    @staticmethod
+    def _removed_added_highinverses(
+            square: Square,
+            removed_lowinverses: Set[Lowinverse],
+            verticals: Set[Vertical],
+            directly_playable_squares: Set[Square]) -> (Set[Highinverse], Set[Highinverse]):
+        """
+
+        Args:
+            square (Square): the Square being played.
+            removed_lowinverses (Set[Lowinverse]): the set of Lowinverses removed after square is played.
+            verticals (Set[Vertical]): the set of Verticals in the current state.
+            directly_playable_squares (Set[Square]): the set of directly playable Squares in the current state.
+
+        Returns:
+            removed_highinverses (Set[Highinverse]): the set of Highinverses removed after square is played.
+            added_highinverses (Set[Highinverse]): the set of Highinverses added after square is played.
+        """
+        removed_highinverses = set()
+        added_highinverses = set()
+
+        removed_highinverses.update(HighinverseManager._highinverse_given_lowinverses(
+            lowinverses=removed_lowinverses,
+            directly_playable_squares=directly_playable_squares,
+        ))
+
+        # If square is an odd square and is not in the second-from-the-top row:
+        if square.row % 2 == 1 and square.row != 1:
+            lower = Square(row=square.row - 1, col=square.col)
+            upper = Square(row=lower.row - 1, col=square.col)
+            vertical = Vertical(upper=upper, lower=lower)
+
+            not_directly_playable_highinverses, directly_playable_highinverses = \
+                HighinverseManager._directly_playable_highinverse_changes(
+                    vertical=vertical,
+                    verticals=verticals,
+                    directly_playable_squares=directly_playable_squares
+                )
+            removed_highinverses.update(not_directly_playable_highinverses)
+            added_highinverses.update(directly_playable_highinverses)
+
+        return removed_highinverses, added_highinverses
 
     @staticmethod
     def _highinverse_given_lowinverses(
@@ -152,7 +205,7 @@ class HighinverseManager:
 
         Args:
             lowinverses (Set[Lowinverse]): a set of Lowinverses to derive Highinverses from.
-            directly_playable_squares: the set of directly playable Squares.
+            directly_playable_squares (Set[Square]): the set of directly playable Squares.
 
         Returns:
             highinverses (Set[Highinverse]): a set of Highinverses derived from lowinverses and
@@ -171,6 +224,49 @@ class HighinverseManager:
 
         return highinverses
 
+    @staticmethod
+    def _directly_playable_highinverse_changes(
+            vertical: Vertical,
+            verticals: Set[Vertical],
+            directly_playable_squares: Set[Square]) -> (Set[Highinverse], Set[Highinverse]):
+        """
+
+        Requires:
+            1. The square below vertical.lower is in directly_playable_squares.
+            2. vertical.lower is not in directly_playable_squares.
+
+        Args:
+            vertical (Vertical): a directly playable Vertical.
+            verticals (Set[Vertical]): a set of Verticals, including vertical.
+            directly_playable_squares (Set[Square]): the set of directly playable Squares.
+
+        Returns:
+            removed_highinverses (Set[Highinverse]): a set of Highinverses that would be removed after vertical.lower
+                becomes directly playable.
+            added_highinverses (Set[Highinverse]): a set of Highinverses that would be added after vertical.lower
+                becomes directly playable.
+        """
+        removed_highinverses = set()
+        added_highinverses = set()
+
+        for other in verticals - {vertical}:
+            if vertical.upper.col != other.upper.col:
+                lowinverse = Lowinverse(first_vertical=vertical, second_vertical=other)
+                removed_highinverse_directly_playable_squares = directly_playable_squares.intersection({other.lower})
+                removed_highinverses.add(Highinverse(
+                    lowinverse=lowinverse,
+                    directly_playable_squares=removed_highinverse_directly_playable_squares,
+                ))
+
+                added_highinverse_directly_playable_squares = removed_highinverse_directly_playable_squares.union(
+                    {vertical.lower},
+                )
+                added_highinverses.add(Highinverse(
+                    lowinverse=lowinverse,
+                    directly_playable_squares=added_highinverse_directly_playable_squares,
+                ))
+        return removed_highinverses, added_highinverses
+
     def undo_move(self, square: Square,
                   added_lowinverses: Set[Lowinverse],
                   verticals: Set[Vertical],
@@ -188,4 +284,14 @@ class HighinverseManager:
             added_highinverses (Set[Highinverse]): the set of Highinverses added after square is undone.
             removed_highinverses (Set[Highinverse]): the set of Highinverses removed after square is undone.
         """
-        pass
+        added_highinverses, removed_highinverses = HighinverseManager._removed_added_highinverses(
+            square=square,
+            removed_lowinverses=added_lowinverses,
+            verticals=verticals,
+            directly_playable_squares=directly_playable_squares,
+        )
+
+        self.highinverses.update(added_highinverses)
+        self.highinverses.difference_update(removed_highinverses)
+
+        return added_highinverses, removed_highinverses
