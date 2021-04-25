@@ -80,24 +80,8 @@ def find_all_baseclaims(board: Board):
             for third in playable_squares:
                 if third == first or third == second:
                     continue
-                if in_order(first, second, third):
-                    baseclaims.add(Baseclaim(first, second, third))
+                # if in_order(first, second, third):
+                baseclaims.add(Baseclaim(first=first, second=second, third=third))
+                baseclaims.add(Baseclaim(first=third, second=second, third=first))
 
     return baseclaims
-
-
-def in_order(first: Square, second: Square, third: Square):
-    """Returns whether or not the three given squares are in order.
-
-    Args:
-        first (Square): A directly playable Square.
-        second (Square): A directly playable odd Square.
-        third (Square): A directly playable Square.
-
-    Returns:
-        ordered (bool): True if the squares can be numbered left-to-right starting
-            from the first square and allowing for loops. Otherwise, False.
-    """
-    return ((first.col < second.col < third.col) or
-            (second.col < third.col < first.col) or
-            (third.col < first.col < second.col))

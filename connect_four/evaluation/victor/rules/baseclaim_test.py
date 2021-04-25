@@ -60,63 +60,111 @@ class TestBaseclaim(unittest.TestCase):
             Baseclaim(first=square_4_0, second=square_5_1, third=square_5_4),
             Baseclaim(first=square_4_0, second=square_5_1, third=square_4_5),
             Baseclaim(first=square_4_0, second=square_5_1, third=square_4_6),
+            # Baseclaims where square_5_2 is the first square.
+            Baseclaim(first=square_5_2, second=square_5_1, third=square_4_0),
+            Baseclaim(first=square_5_2, second=square_5_1, third=square_0_3),
+            Baseclaim(first=square_5_2, second=square_5_1, third=square_5_4),
+            Baseclaim(first=square_5_2, second=square_5_1, third=square_4_5),
+            Baseclaim(first=square_5_2, second=square_5_1, third=square_4_6),
+            # Baseclaims where square_0_3 is the first square.
+            Baseclaim(first=square_0_3, second=square_5_1, third=square_4_0),
+            Baseclaim(first=square_0_3, second=square_5_1, third=square_5_2),
+            Baseclaim(first=square_0_3, second=square_5_1, third=square_5_4),
+            Baseclaim(first=square_0_3, second=square_5_1, third=square_4_5),
+            Baseclaim(first=square_0_3, second=square_5_1, third=square_4_6),
+            # Baseclaims where square_5_4 is the first square.
+            Baseclaim(first=square_5_4, second=square_5_1, third=square_4_0),
+            Baseclaim(first=square_5_4, second=square_5_1, third=square_5_2),
+            Baseclaim(first=square_5_4, second=square_5_1, third=square_0_3),
+            Baseclaim(first=square_5_4, second=square_5_1, third=square_4_5),
+            Baseclaim(first=square_5_4, second=square_5_1, third=square_4_6),
+            # Baseclaims where square_4_5 is the first square.
+            Baseclaim(first=square_4_5, second=square_5_1, third=square_4_0),
+            Baseclaim(first=square_4_5, second=square_5_1, third=square_5_2),
+            Baseclaim(first=square_4_5, second=square_5_1, third=square_0_3),
+            Baseclaim(first=square_4_5, second=square_5_1, third=square_5_4),
+            Baseclaim(first=square_4_5, second=square_5_1, third=square_4_6),
             # Baseclaims where square_4_6 is the first square.
+            Baseclaim(first=square_4_6, second=square_5_1, third=square_4_0),
             Baseclaim(first=square_4_6, second=square_5_1, third=square_5_2),
             Baseclaim(first=square_4_6, second=square_5_1, third=square_0_3),
             Baseclaim(first=square_4_6, second=square_5_1, third=square_5_4),
             Baseclaim(first=square_4_6, second=square_5_1, third=square_4_5),
-            # Baseclaims where square_4_5 is the first square.
-            Baseclaim(first=square_4_5, second=square_5_1, third=square_5_2),
-            Baseclaim(first=square_4_5, second=square_5_1, third=square_0_3),
-            Baseclaim(first=square_4_5, second=square_5_1, third=square_5_4),
-            # Baseclaims where square_5_4 is the first square.
-            Baseclaim(first=square_5_4, second=square_5_1, third=square_5_2),
-            Baseclaim(first=square_5_4, second=square_5_1, third=square_0_3),
-            # Baseclaims where square_0_3 is the first square.
-            Baseclaim(first=square_0_3, second=square_5_1, third=square_5_2),
 
             ## Baseclaims where square_5_2 is the second square.
-            # Baseclaims where square_5_1 is the first square.
-            Baseclaim(first=square_5_1, second=square_5_2, third=square_0_3),
-            Baseclaim(first=square_5_1, second=square_5_2, third=square_5_4),
-            Baseclaim(first=square_5_1, second=square_5_2, third=square_4_5),
-            Baseclaim(first=square_5_1, second=square_5_2, third=square_4_6),
-            Baseclaim(first=square_5_1, second=square_5_2, third=square_4_0),
             # Baseclaims where square_4_0 is the first square.
+            Baseclaim(first=square_4_0, second=square_5_2, third=square_5_1),
             Baseclaim(first=square_4_0, second=square_5_2, third=square_0_3),
             Baseclaim(first=square_4_0, second=square_5_2, third=square_5_4),
             Baseclaim(first=square_4_0, second=square_5_2, third=square_4_5),
             Baseclaim(first=square_4_0, second=square_5_2, third=square_4_6),
+            # Baseclaims where square_5_1 is the first square.
+            Baseclaim(first=square_5_1, second=square_5_2, third=square_4_0),
+            Baseclaim(first=square_5_1, second=square_5_2, third=square_0_3),
+            Baseclaim(first=square_5_1, second=square_5_2, third=square_5_4),
+            Baseclaim(first=square_5_1, second=square_5_2, third=square_4_5),
+            Baseclaim(first=square_5_1, second=square_5_2, third=square_4_6),
+            # Baseclaims where square_0_3 is the first square.
+            Baseclaim(first=square_0_3, second=square_5_2, third=square_4_0),
+            Baseclaim(first=square_0_3, second=square_5_2, third=square_5_1),
+            Baseclaim(first=square_0_3, second=square_5_2, third=square_5_4),
+            Baseclaim(first=square_0_3, second=square_5_2, third=square_4_5),
+            Baseclaim(first=square_0_3, second=square_5_2, third=square_4_6),
+            # Baseclaims where square_5_4 is the first square.
+            Baseclaim(first=square_5_4, second=square_5_2, third=square_4_0),
+            Baseclaim(first=square_5_4, second=square_5_2, third=square_5_1),
+            Baseclaim(first=square_5_4, second=square_5_2, third=square_0_3),
+            Baseclaim(first=square_5_4, second=square_5_2, third=square_4_5),
+            Baseclaim(first=square_5_4, second=square_5_2, third=square_4_6),
+            # Baseclaims where square_4_5 is the first square.
+            Baseclaim(first=square_4_5, second=square_5_2, third=square_4_0),
+            Baseclaim(first=square_4_5, second=square_5_2, third=square_5_1),
+            Baseclaim(first=square_4_5, second=square_5_2, third=square_0_3),
+            Baseclaim(first=square_4_5, second=square_5_2, third=square_5_4),
+            Baseclaim(first=square_4_5, second=square_5_2, third=square_4_6),
             # Baseclaims where square_4_6 is the first square.
+            Baseclaim(first=square_4_6, second=square_5_2, third=square_4_0),
+            Baseclaim(first=square_4_6, second=square_5_2, third=square_5_1),
             Baseclaim(first=square_4_6, second=square_5_2, third=square_0_3),
             Baseclaim(first=square_4_6, second=square_5_2, third=square_5_4),
             Baseclaim(first=square_4_6, second=square_5_2, third=square_4_5),
-            # Baseclaims where square_4_5 is the first square.
-            Baseclaim(first=square_4_5, second=square_5_2, third=square_0_3),
-            Baseclaim(first=square_4_5, second=square_5_2, third=square_5_4),
-            # Baseclaims where square_5_4 is the first square.
-            Baseclaim(first=square_5_4, second=square_5_2, third=square_0_3),
 
             ## Baseclaims where square_5_4 is the second square.
+            # Baseclaims where square_4_0 is the first square.
+            Baseclaim(first=square_4_0, second=square_5_4, third=square_5_1),
+            Baseclaim(first=square_4_0, second=square_5_4, third=square_5_2),
+            Baseclaim(first=square_4_0, second=square_5_4, third=square_0_3),
+            Baseclaim(first=square_4_0, second=square_5_4, third=square_4_5),
+            Baseclaim(first=square_4_0, second=square_5_4, third=square_4_6),
+            # Baseclaims where square_5_1 is the first square.
+            Baseclaim(first=square_5_1, second=square_5_4, third=square_4_0),
+            Baseclaim(first=square_5_1, second=square_5_4, third=square_5_2),
+            Baseclaim(first=square_5_1, second=square_5_4, third=square_0_3),
+            Baseclaim(first=square_5_1, second=square_5_4, third=square_4_5),
+            Baseclaim(first=square_5_1, second=square_5_4, third=square_4_6),
+            # Baseclaims where square_5_2 is the first square.
+            Baseclaim(first=square_5_2, second=square_5_4, third=square_4_0),
+            Baseclaim(first=square_5_2, second=square_5_4, third=square_5_1),
+            Baseclaim(first=square_5_2, second=square_5_4, third=square_0_3),
+            Baseclaim(first=square_5_2, second=square_5_4, third=square_4_5),
+            Baseclaim(first=square_5_2, second=square_5_4, third=square_4_6),
             # Baseclaims where square_0_3 is the first square.
-            Baseclaim(first=square_0_3, second=square_5_4, third=square_4_5),
-            Baseclaim(first=square_0_3, second=square_5_4, third=square_4_6),
             Baseclaim(first=square_0_3, second=square_5_4, third=square_4_0),
             Baseclaim(first=square_0_3, second=square_5_4, third=square_5_1),
             Baseclaim(first=square_0_3, second=square_5_4, third=square_5_2),
-            # Baseclaims where square_5_2 is the first square.
-            Baseclaim(first=square_5_2, second=square_5_4, third=square_4_5),
-            Baseclaim(first=square_5_2, second=square_5_4, third=square_4_6),
-            Baseclaim(first=square_5_2, second=square_5_4, third=square_4_0),
-            Baseclaim(first=square_5_2, second=square_5_4, third=square_5_1),
-            # Baseclaims where square_5_1 is the first square.
-            Baseclaim(first=square_5_1, second=square_5_4, third=square_4_5),
-            Baseclaim(first=square_5_1, second=square_5_4, third=square_4_6),
-            Baseclaim(first=square_5_1, second=square_5_4, third=square_4_0),
-            # Baseclaims where square_4_0 is the first square.
-            Baseclaim(first=square_4_0, second=square_5_4, third=square_4_5),
-            Baseclaim(first=square_4_0, second=square_5_4, third=square_4_6),
+            Baseclaim(first=square_0_3, second=square_5_4, third=square_4_5),
+            Baseclaim(first=square_0_3, second=square_5_4, third=square_4_6),
+            # Baseclaims where square_4_5 is the first square.
+            Baseclaim(first=square_4_5, second=square_5_4, third=square_4_0),
+            Baseclaim(first=square_4_5, second=square_5_4, third=square_5_1),
+            Baseclaim(first=square_4_5, second=square_5_4, third=square_5_2),
+            Baseclaim(first=square_4_5, second=square_5_4, third=square_0_3),
+            Baseclaim(first=square_4_5, second=square_5_4, third=square_4_6),
             # Baseclaims where square_4_6 is the first square.
+            Baseclaim(first=square_4_6, second=square_5_4, third=square_4_0),
+            Baseclaim(first=square_4_6, second=square_5_4, third=square_5_1),
+            Baseclaim(first=square_4_6, second=square_5_4, third=square_5_2),
+            Baseclaim(first=square_4_6, second=square_5_4, third=square_0_3),
             Baseclaim(first=square_4_6, second=square_5_4, third=square_4_5),
         }
         self.assertEqual(want_baseclaims, got_baseclaims)
