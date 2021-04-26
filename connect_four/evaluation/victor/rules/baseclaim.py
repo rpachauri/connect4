@@ -61,7 +61,7 @@ class Baseclaim(Rule):
         return groups
 
 
-def find_all_baseclaims(board: Board):
+def find_all_baseclaims(board: Board) -> Set[Baseclaim]:
     """find_all_baseclaims takes a Board and returns an iterable of Baseclaims for the Board.
 
     Args:
@@ -85,3 +85,45 @@ def find_all_baseclaims(board: Board):
                 baseclaims.add(Baseclaim(first=third, second=second, third=first))
 
     return baseclaims
+
+
+class BaseclaimManager:
+    def __init__(self, board: Board):
+        """Initializes the BaseclaimManager.
+
+        Args:
+            board (Board): a Board instance.
+        """
+        self.baseclaims = find_all_baseclaims(board=board)
+
+    def move(self, square: Square, directly_playable_squares: Set[Square]) -> (Set[Baseclaim], Set[Baseclaim]):
+        """Moves the internal state of the BaseclaimManager to after this square has been played.
+
+        Requires:
+            1. square must be in directly_playable_squares.
+
+        Args:
+            square (Square): the square being played.
+            directly_playable_squares (Set[Square]): the set of directly playable Squares in the current state.
+
+        Returns:
+            removed_baseclaims (Set[Baseclaim]): the set of Baseclaims removed after square is played.
+            added_baseclaims (Set[Baseclaim]): the set of Baseclaims added after square is played.
+        """
+        pass
+
+    def undo_move(self, square: Square, directly_playable_squares: Set[Square]) -> (Set[Baseclaim], Set[Baseclaim]):
+        """Moves the internal state of the BaseclaimManager to before this square has been played.
+
+        Requires:
+            1. square must be in directly_playable_squares.
+
+        Args:
+            square (Square): the square being played.
+            directly_playable_squares (Set[Square]): the set of directly playable Squares in the current state.
+
+        Returns:
+            added_baseclaims (Set[Baseclaim]): the set of Baseclaims removed after square is undone.
+            removed_baseclaims (Set[Baseclaim]): the set of Baseclaims removed after square is undone.
+        """
+        pass
