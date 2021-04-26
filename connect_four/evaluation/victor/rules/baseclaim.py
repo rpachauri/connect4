@@ -140,6 +140,37 @@ class BaseclaimManager:
 
         return baseclaims
 
+    @staticmethod
+    def _baseclaims_given_second_square(
+            second: Square, directly_playable_squares: Set[Square]) -> Set[Baseclaim]:
+        """Given a square, find all Baseclaims that can be formed using square as
+            the second square of the Baseclaim.
+
+        Args:
+            second (Square): the square to be used as second square of the created Baseclaims.
+            directly_playable_squares (Set[Square]): the set of directly playable squares that can be used to create
+                Baseclaims.
+
+        Returns:
+            baseclaims (Set[Baseclaim]): the set of Baseclaims that can be formed using square as the second
+                square of the Baseclaim.
+        """
+        # If square is even, return an empty set because square must be odd to be the second square of a Baseclaim.
+        if second.row % 2 == 0:
+            return set()
+
+        baseclaims = set()
+        for first in directly_playable_squares:
+            if first.col == second.col:
+                continue
+            for third in directly_playable_squares:
+                if first.col == third.col or second.col == third.col:
+                    continue
+                baseclaims.add(Baseclaim(first=first, second=second, third=third))
+                baseclaims.add(Baseclaim(first=third, second=second, third=first))
+
+        return baseclaims
+
     def undo_move(self, square: Square, directly_playable_squares: Set[Square]) -> (Set[Baseclaim], Set[Baseclaim]):
         """Moves the internal state of the BaseclaimManager to before this square has been played.
 
