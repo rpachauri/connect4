@@ -319,6 +319,85 @@ class TestBaseclaim(unittest.TestCase):
         }
         self.assertEqual(want_baseclaims, got_baseclaims)
 
+    def test_baseclaims_given_first_and_third_square(self):
+        # This board is from Diagram 6.7 of the original paper.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 1, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [1, 0, 0, 0, 0, 0, 1, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+
+        # Directly playable squares.
+        square_4_0 = Square(row=4, col=0)
+        square_5_1 = Square(row=5, col=1)
+        square_5_2 = Square(row=5, col=2)
+        square_0_3 = Square(row=0, col=3)
+        square_5_4 = Square(row=5, col=4)
+        square_4_5 = Square(row=4, col=5)
+        square_4_6 = Square(row=4, col=6)
+
+        # All Baseclaims that use square_4_0 as the first or third square.
+        want_baseclaims = {
+            ## Baseclaims where square_4_0 is the first square.
+            # Baseclaims where square_5_1 is the second square.
+            Baseclaim(first=square_4_0, second=square_5_1, third=square_5_2),
+            Baseclaim(first=square_4_0, second=square_5_1, third=square_0_3),
+            Baseclaim(first=square_4_0, second=square_5_1, third=square_5_4),
+            Baseclaim(first=square_4_0, second=square_5_1, third=square_4_5),
+            Baseclaim(first=square_4_0, second=square_5_1, third=square_4_6),
+            # Baseclaims where square_5_2 is the second square.
+            Baseclaim(first=square_4_0, second=square_5_2, third=square_5_1),
+            Baseclaim(first=square_4_0, second=square_5_2, third=square_0_3),
+            Baseclaim(first=square_4_0, second=square_5_2, third=square_5_4),
+            Baseclaim(first=square_4_0, second=square_5_2, third=square_4_5),
+            Baseclaim(first=square_4_0, second=square_5_2, third=square_4_6),
+            # Baseclaims where square_5_4 is the second square.
+            Baseclaim(first=square_4_0, second=square_5_4, third=square_5_1),
+            Baseclaim(first=square_4_0, second=square_5_4, third=square_5_2),
+            Baseclaim(first=square_4_0, second=square_5_4, third=square_0_3),
+            Baseclaim(first=square_4_0, second=square_5_4, third=square_4_5),
+            Baseclaim(first=square_4_0, second=square_5_4, third=square_4_6),
+
+            ## Baseclaims where square_4_0 is the third square.
+            # Baseclaims where square_5_1 is the second square.
+            Baseclaim(first=square_5_2, second=square_5_1, third=square_4_0),
+            Baseclaim(first=square_0_3, second=square_5_1, third=square_4_0),
+            Baseclaim(first=square_5_4, second=square_5_1, third=square_4_0),
+            Baseclaim(first=square_4_5, second=square_5_1, third=square_4_0),
+            Baseclaim(first=square_4_6, second=square_5_1, third=square_4_0),
+            # Baseclaims where square_5_2 is the second square.
+            Baseclaim(first=square_5_1, second=square_5_2, third=square_4_0),
+            Baseclaim(first=square_0_3, second=square_5_2, third=square_4_0),
+            Baseclaim(first=square_5_4, second=square_5_2, third=square_4_0),
+            Baseclaim(first=square_4_5, second=square_5_2, third=square_4_0),
+            Baseclaim(first=square_4_6, second=square_5_2, third=square_4_0),
+            # Baseclaims where square_5_4 is the second square.
+            Baseclaim(first=square_5_1, second=square_5_4, third=square_4_0),
+            Baseclaim(first=square_5_2, second=square_5_4, third=square_4_0),
+            Baseclaim(first=square_0_3, second=square_5_4, third=square_4_0),
+            Baseclaim(first=square_4_5, second=square_5_4, third=square_4_0),
+            Baseclaim(first=square_4_6, second=square_5_4, third=square_4_0),
+        }
+        got_baseclaims = BaseclaimManager._baseclaims_given_first_and_third_square(
+            square=square_4_0,
+            directly_playable_squares=board.playable_squares(),
+        )
+        self.assertEqual(want_baseclaims, got_baseclaims)
+
     def test_find_problems_solved_for_player(self):
         # This board is from Diagram 6.7 of the original paper.
         self.env.state = np.array([

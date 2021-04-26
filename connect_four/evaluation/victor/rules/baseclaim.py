@@ -112,6 +112,34 @@ class BaseclaimManager:
         """
         pass
 
+    @staticmethod
+    def _baseclaims_given_first_and_third_square(
+            square: Square, directly_playable_squares: Set[Square]) -> Set[Baseclaim]:
+        """Given a square, find all Baseclaims that can be formed using square as
+            either the first or third square of the Baseclaim.
+
+        Args:
+            square (Square): the square to be used as either the first or third square of the created Baseclaims.
+            directly_playable_squares (Set[Square]): the set of directly playable squares that can be used to create
+                Baseclaims.
+
+        Returns:
+            baseclaims (Set[Baseclaim]): the set of Baseclaims that can be formed using square as either the first
+                or third square of the Baseclaim.
+        """
+        first = square
+        baseclaims = set()
+        for second in directly_playable_squares:
+            if first == second or second.row % 2 == 0:
+                continue
+            for third in directly_playable_squares:
+                if first == third or second == third:
+                    continue
+                baseclaims.add(Baseclaim(first=first, second=second, third=third))
+                baseclaims.add(Baseclaim(first=third, second=second, third=first))
+
+        return baseclaims
+
     def undo_move(self, square: Square, directly_playable_squares: Set[Square]) -> (Set[Baseclaim], Set[Baseclaim]):
         """Moves the internal state of the BaseclaimManager to before this square has been played.
 
