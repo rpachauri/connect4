@@ -11,7 +11,7 @@ from connect_four.evaluation.victor.rules import Claimeven
 from connect_four.evaluation.victor.rules import Vertical
 from connect_four.evaluation.victor.rules import Before
 from connect_four.evaluation.victor.rules import find_all_befores
-from connect_four.evaluation.victor.rules.before import add_before_variations
+from connect_four.evaluation.victor.rules.before import add_before_variations, BeforeManager
 from connect_four.evaluation.victor.rules.before import empty_squares_of_before_group
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
@@ -441,6 +441,56 @@ class TestBefore(unittest.TestCase):
 
         # Find all Befores for Black.
         got_befores = find_all_befores(board=board, opponent_groups=board.potential_groups(player=1))
+        self.assertEqual(want_befores, got_befores)
+
+    def test_before_manager_initialization(self):
+        self.env.state = np.array([
+            [
+                [0, 0, 1, 0, 0, 0, 1, ],
+                [1, 1, 0, 0, 1, 0, 1, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [1, 1, 0, 1, 1, 0, 1, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [1, 1, 0, 1, 1, 0, 1, ],
+            ],
+            [
+                [1, 1, 0, 0, 1, 0, 0, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+                [1, 1, 0, 1, 1, 0, 1, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [1, 1, 0, 1, 1, 0, 1, ],
+                [0, 0, 1, 0, 0, 1, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+        bm = BeforeManager(board=board)
+        got_befores = bm.befores
+
+        # White Groups.
+        group_3_3_to_3_6 = Group(player=0, start=Square(row=3, col=3), end=Square(row=3, col=6))
+        # Black Groups.
+        group_4_3_to_4_6 = Group(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6))
+        group_2_3_to_2_6 = Group(player=1, start=Square(row=2, col=3), end=Square(row=2, col=6))
+        group_1_3_to_4_6 = Group(player=1, start=Square(row=1, col=3), end=Square(row=4, col=6))
+
+        # Verticals part of the Befores.
+        vertical_3_5 = Vertical(upper=Square(row=3, col=5), lower=Square(row=4, col=5))
+        vertical_1_5 = Vertical(upper=Square(row=1, col=5), lower=Square(row=2, col=5))
+        vertical_2_5 = Vertical(upper=Square(row=2, col=5), lower=Square(row=3, col=5))
+
+        want_befores = {
+            # White Befores.
+            Before(group=group_3_3_to_3_6, verticals=[vertical_3_5], claimevens=[]),
+            Before(group=group_3_3_to_3_6, verticals=[vertical_2_5], claimevens=[]),
+            # Black Befores.
+            Before(group=group_4_3_to_4_6, verticals=[vertical_3_5], claimevens=[]),
+            Before(group=group_2_3_to_2_6, verticals=[vertical_1_5], claimevens=[]),
+            # The Before below is excluded because it doesn't have any verticals. This makes it an Aftereven.
+            # claimeven_3_5 = Claimeven(upper=Square(row=2, col=5), lower=Square(row=3, col=5))
+            # Before(group=group_2_3_to_2_6, verticals=[], claimevens=[claimeven_3_5]),
+            Before(group=group_1_3_to_4_6, verticals=[vertical_3_5], claimevens=[]),
+            Before(group=group_1_3_to_4_6, verticals=[vertical_2_5], claimevens=[]),
+        }
         self.assertEqual(want_befores, got_befores)
 
 
