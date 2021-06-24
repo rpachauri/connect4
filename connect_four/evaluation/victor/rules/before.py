@@ -212,3 +212,67 @@ def add_before_variations(board: Board, befores, group: Group, empty_squares, ve
             claimevens.remove(claimeven)
 
     empty_squares.append(square)
+
+
+class BeforeManager:
+    def __init__(self, board: Board):
+        """Initializes the BeforeManager.
+
+        Args:
+            board (Board): a Board instance.
+        """
+        pass
+
+    def move(self, player: int, square: Square, board: Board) -> (Set[Before], Set[Before]):
+        """Moves the internal state of the BeforeManager to after this square has been played.
+
+        Args:
+            player (int): the player playing square.
+            square (Square): the square being played.
+            board (Board): the Board state, without square having been played yet.
+
+        Returns:
+            removed_befores (Set[Before]): the set of Afterevens being removed.
+            added_befores (Set[Before]): the set of Afterevens being added.
+        """
+        pass
+
+    def _befores_containing_square_in_group(self, square: Square, board: Board) -> Set[Before]:
+        """Given a square, find all Befores that can be formed using square in the Before group.
+
+        Args:
+            square (Square): an empty Square. Every Before returned must have square in its Before group.
+            board (Board):  a Board instance.
+
+        Returns:
+            befores (Set[Before]): a set of Befores, where each Before contains square in its Before group.
+        """
+        pass
+
+    def _befores_containing_square_outside_group(self, square: Square, board: Board) -> Set[Before]:
+        """Given a square, find all Befores that can be formed using square as the lower square of a Vertical or
+        Claimeven. The square must not be part of the Before group.
+
+        Args:
+            square (Square): an empty Square.
+            board: a Board instance.
+
+        Returns:
+            befores (Set[Before]): a set of Befores, where each Before contains square as the lower square of one of
+                its Verticals or Claimevens. The square must not be part of the Before group.
+        """
+        pass
+
+    def undo_move(self, player: int, square: Square, board: Board) -> (Set[Before], Set[Before]):
+        """Moves the internal state of the BeforeManager to before this square was played.
+
+        Args:
+            player (int): the player who had square.
+            square (Square): the square being undone.
+            board (Board): the Board state, with square being empty.
+
+        Returns:
+            added_befores (Set[Before]): the set of Afterevens being added.
+            removed_befores (Set[Before]): the set of Afterevens being removed.
+        """
+        pass
