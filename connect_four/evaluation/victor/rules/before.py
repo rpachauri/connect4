@@ -96,7 +96,7 @@ class Before(Rule):
         return before_groups
 
 
-def find_all_befores(board: Board, opponent_groups):
+def find_all_befores(board: Board, opponent_groups) -> Set[Before]:
     """find_all_befores takes a Board and an iterable of Groups and returns an iterable of Befores for the Board.
 
     Args:
@@ -105,7 +105,7 @@ def find_all_befores(board: Board, opponent_groups):
             opponent of the player to move on board.
 
     Returns:
-        befores (iterable<Before>): an iterable of Befores for board.
+        befores (Set[Before]): an iterable of Befores for board.
     """
     befores = set()
 
@@ -125,7 +125,7 @@ def find_all_befores(board: Board, opponent_groups):
     return befores
 
 
-def empty_squares_of_before_group(board: Board, group: Group):
+def empty_squares_of_before_group(board: Board, group: Group) -> List[Square]:
     """Retrieves the empty squares of a Before group if the given group meets the conditions of a Before group.
     Returns an empty list if the group does not meet the conditions.
 
@@ -134,7 +134,7 @@ def empty_squares_of_before_group(board: Board, group: Group):
         group (Group): a possible Before group.
 
     Returns:
-        empty_squares (list<Square>):
+        empty_squares (List[Square]):
             If there exists an empty square with square.row == 0 in group:
                 returns []
             Otherwise:
@@ -149,7 +149,8 @@ def empty_squares_of_before_group(board: Board, group: Group):
     return empty_squares
 
 
-def add_before_variations(board: Board, befores, group: Group, empty_squares, verticals, claimevens):
+def add_before_variations(board: Board, befores: Set[Before], group: Group, empty_squares: List[Square],
+                          verticals: List[Vertical], claimevens: List[Claimeven]):
     """Adds all Before variations with group as the Before group to befores.
 
     Args:
@@ -162,7 +163,7 @@ def add_before_variations(board: Board, befores, group: Group, empty_squares, ve
         claimevens (set<Claimeven>): a set of Claimevens which are part of the Before we are building.
 
     Returns:
-
+        None.
     """
     # This is a Recursive Backtracking algorithm.
     # Base Case.
@@ -221,7 +222,8 @@ class BeforeManager:
         Args:
             board (Board): a Board instance.
         """
-        pass
+        self.befores = find_all_befores(board=board, opponent_groups=board.potential_groups(player=0))
+        self.befores.update(find_all_befores(board=board, opponent_groups=board.potential_groups(player=1)))
 
     def move(self, player: int, square: Square, board: Board) -> (Set[Before], Set[Before]):
         """Moves the internal state of the BeforeManager to after this square has been played.
