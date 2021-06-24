@@ -110,7 +110,32 @@ class BaseclaimManager:
             removed_baseclaims (Set[Baseclaim]): the set of Baseclaims removed after square is played.
             added_baseclaims (Set[Baseclaim]): the set of Baseclaims added after square is played.
         """
-        pass
+        removed_baseclaims = set()
+        added_baseclaims = set()
+
+        removed_baseclaims.update(BaseclaimManager._baseclaims_given_first_and_third_square(
+            square=square,
+            directly_playable_squares=directly_playable_squares,
+        ))
+        removed_baseclaims.update(BaseclaimManager._baseclaims_given_second_square(
+            second=square,
+            directly_playable_squares=directly_playable_squares,
+        ))
+        if square.row > 0:
+            square_above = Square(row=square.row - 1, col=square.col)
+            added_baseclaims.update(BaseclaimManager._baseclaims_given_first_and_third_square(
+                square=square_above,
+                directly_playable_squares=directly_playable_squares,
+            ))
+            added_baseclaims.update(BaseclaimManager._baseclaims_given_second_square(
+                second=square_above,
+                directly_playable_squares=directly_playable_squares,
+            ))
+
+        self.baseclaims.difference_update(removed_baseclaims)
+        self.baseclaims.update(added_baseclaims)
+
+        return removed_baseclaims, added_baseclaims
 
     @staticmethod
     def _baseclaims_given_first_and_third_square(
@@ -130,10 +155,10 @@ class BaseclaimManager:
         first = square
         baseclaims = set()
         for second in directly_playable_squares:
-            if first == second or second.row % 2 == 0:
+            if first.col == second.col or second.row % 2 == 0:
                 continue
             for third in directly_playable_squares:
-                if first == third or second == third:
+                if first.col == third.col or second.col == third.col:
                     continue
                 baseclaims.add(Baseclaim(first=first, second=second, third=third))
                 baseclaims.add(Baseclaim(first=third, second=second, third=first))
@@ -185,4 +210,29 @@ class BaseclaimManager:
             added_baseclaims (Set[Baseclaim]): the set of Baseclaims removed after square is undone.
             removed_baseclaims (Set[Baseclaim]): the set of Baseclaims removed after square is undone.
         """
-        pass
+        added_baseclaims = set()
+        removed_baseclaims = set()
+
+        added_baseclaims.update(BaseclaimManager._baseclaims_given_first_and_third_square(
+            square=square,
+            directly_playable_squares=directly_playable_squares,
+        ))
+        added_baseclaims.update(BaseclaimManager._baseclaims_given_second_square(
+            second=square,
+            directly_playable_squares=directly_playable_squares,
+        ))
+        if square.row > 0:
+            square_above = Square(row=square.row - 1, col=square.col)
+            removed_baseclaims.update(BaseclaimManager._baseclaims_given_first_and_third_square(
+                square=square_above,
+                directly_playable_squares=directly_playable_squares,
+            ))
+            removed_baseclaims.update(BaseclaimManager._baseclaims_given_second_square(
+                second=square_above,
+                directly_playable_squares=directly_playable_squares,
+            ))
+
+        self.baseclaims.difference_update(removed_baseclaims)
+        self.baseclaims.update(added_baseclaims)
+
+        return removed_baseclaims, added_baseclaims
