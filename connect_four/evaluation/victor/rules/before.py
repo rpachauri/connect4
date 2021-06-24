@@ -239,7 +239,8 @@ class BeforeManager:
         """
         pass
 
-    def _befores_containing_square_in_group(self, square: Square, board: Board) -> Set[Before]:
+    @staticmethod
+    def _befores_containing_square_in_group(square: Square, board: Board) -> Set[Before]:
         """Given a square, find all Befores that can be formed using square in the Before group.
 
         Args:
@@ -249,9 +250,12 @@ class BeforeManager:
         Returns:
             befores (Set[Before]): a set of Befores, where each Before contains square in its Before group.
         """
-        pass
+        # Groups belonging to either player containing square.
+        groups_containing_square = board.potential_groups_at_square(square)
+        return find_all_befores(board, groups_containing_square)
 
-    def _befores_containing_square_outside_group(self, square: Square, board: Board) -> Set[Before]:
+    @staticmethod
+    def _befores_containing_square_outside_group(square: Square, board: Board) -> Set[Before]:
         """Given a square, find all Befores that can be formed using square as the lower square of a Vertical or
         Claimeven. The square must not be part of the Before group.
 

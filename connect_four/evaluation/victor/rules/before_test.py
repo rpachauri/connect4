@@ -493,6 +493,40 @@ class TestBefore(unittest.TestCase):
         }
         self.assertEqual(want_befores, got_befores)
 
+    def test_befores_containing_square_in_group(self):
+        # In the following Board state, it is White to move.
+        self.env.state = np.array([
+            [
+                [0, 0, 1, 0, 0, 0, 1, ],
+                [1, 1, 0, 0, 1, 0, 1, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [1, 1, 0, 1, 1, 0, 1, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [1, 1, 0, 1, 1, 0, 1, ],
+            ],
+            [
+                [1, 1, 0, 0, 1, 0, 0, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+                [1, 1, 0, 1, 1, 0, 1, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [1, 1, 0, 1, 1, 0, 1, ],
+                [0, 0, 1, 0, 0, 1, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+
+        # After White plays at f2, Black no longer is able to use the Before group d2-g2.
+        group_4_3_to_4_6 = Group(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6))  # d2-g2
+
+        # There is only one version of this Before, containing a Vertical at f2-f3.
+        vertical_3_5 = Vertical(upper=Square(row=3, col=5), lower=Square(row=4, col=5))  # f2-f3
+
+        want_befores = {
+            Before(group=group_4_3_to_4_6, verticals=[vertical_3_5], claimevens=[]),
+        }
+        got_befores = BeforeManager._befores_containing_square_in_group(square=Square(row=4, col=5), board=board)
+        self.assertEqual(want_befores, got_befores)
+
 
 if __name__ == '__main__':
     unittest.main()
