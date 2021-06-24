@@ -267,7 +267,41 @@ class BeforeManager:
             befores (Set[Before]): a set of Befores, where each Before contains square as the lower square of one of
                 its Verticals or Claimevens. The square must not be part of the Before group.
         """
-        pass
+        # If the square is in the top row, there are no new Befores.
+        if square.row == 0:
+            return set()
+
+        # Find all Befores that contain above in the Before group.
+        above = Square(row=square.row - 1, col=square.col)
+        befores_containing_above_in_group = BeforeManager._befores_containing_square_in_group(square=above, board=board)
+
+        # Of those Befores, find the subset that contains square.
+        befores = set()
+        for before in befores_containing_above_in_group:
+            if BeforeManager._square_lower_in_before_outside_group(square=square, before=before):
+                befores.add(before)
+
+        return befores
+
+    @staticmethod
+    def _square_lower_in_before_outside_group(square: Square, before: Before) -> bool:
+        """Returns whether or not the given square is the lower square of one of the Verticals or Claimevens in before.
+
+        Args:
+            square (Square): a Square.
+            before (Before): a Before, whose Before group contains the square above square.
+
+        Returns:
+            in (bool): True if square is the lower square of one of before's Verticals or Claimevens. Otherwise, false.
+        """
+        for vertical in before.verticals:
+            if square == vertical.lower:
+                return True
+        for claimeven in before.claimevens:
+            if square == claimeven.lower:
+                return True
+
+        return False
 
     def undo_move(self, player: int, square: Square, board: Board) -> (Set[Before], Set[Before]):
         """Moves the internal state of the BeforeManager to before this square was played.
