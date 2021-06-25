@@ -129,18 +129,43 @@ def find_all_specialbefores(board: Board, befores):
     specialbefores = set()
     directly_playable_squares = board.playable_squares()
 
+    for external_directly_playable_square in directly_playable_squares:
+        specialbefores.update(specialbefores_given_external_square(
+            befores=befores,
+            directly_playable_squares=directly_playable_squares,
+            external_directly_playable_square=external_directly_playable_square,
+        ))
+
+    return specialbefores
+
+
+def specialbefores_given_external_square(
+        befores: Set[Before],
+        directly_playable_squares: Set[Square],
+        external_directly_playable_square: Square) -> Set[Specialbefore]:
+    """
+
+    Args:
+        befores (Set[Before]): a set of Befores used to create Specialbefores.
+        directly_playable_squares (Set[Square]): a set of directly playable squares, possibly including square.
+        external_directly_playable_square (Square): a square to be used as the external directly playable
+            square of each Specialbefore.
+
+    Returns:
+        specialbefores (Set[Specialbefore]): a set of Specialbefores. Each Specialbefore uses square as its external
+            directly playable square.
+    """
+    specialbefores = set()
     for before in befores:
         directly_playable_squares_in_before_group = internal_directly_playable_squares(
             before, directly_playable_squares)
         for internal_directly_playable_square in directly_playable_squares_in_before_group:
-            for external_directly_playable_square in directly_playable_squares:
-                if can_be_used_with_before(external_directly_playable_square, before):
-                    specialbefores.add(Specialbefore(
-                        before=before,
-                        internal_directly_playable_square=internal_directly_playable_square,
-                        external_directly_playable_square=external_directly_playable_square,
-                    ))
-
+            if can_be_used_with_before(external_directly_playable_square, before):
+                specialbefores.add(Specialbefore(
+                    before=before,
+                    internal_directly_playable_square=internal_directly_playable_square,
+                    external_directly_playable_square=external_directly_playable_square,
+                ))
     return specialbefores
 
 

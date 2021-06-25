@@ -876,7 +876,7 @@ class TestSpecialbefore(unittest.TestCase):
                 [0, 0, 0, 0, 1, 0, 0, ],
             ],
         ])
-        pm = ConnectFourProblemManager(env_variables=self.env.env_variables, num_to_connect=4)
+        pm = ConnectFourProblemManager(env_variables=self.env.env_variables)
 
         # Verticals/Claimevens which are part of the Before.
         vertical_e2_e3 = Vertical(upper=Square(row=3, col=4), lower=Square(row=4, col=4))  # Vertical e2-e3.
