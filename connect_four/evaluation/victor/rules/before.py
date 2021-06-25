@@ -237,7 +237,40 @@ class BeforeManager:
             removed_befores (Set[Before]): the set of Afterevens being removed.
             added_befores (Set[Before]): the set of Afterevens being added.
         """
-        pass
+        removed_befores, added_befores = BeforeManager.added_removed_befores(player=player, square=square, board=board)
+
+        self.befores.difference_update(removed_befores)
+        self.befores.update(added_befores)
+
+        return removed_befores, added_befores
+
+    @staticmethod
+    def added_removed_befores(player: int, square: Square, board: Board) -> (Set[Before], Set[Before]):
+        """Finds the set of Befores that are added and removed after player would have played square in board.
+
+
+        Requires:
+            1. board.state[player][square.row][square.col] == 0
+
+        Args:
+            player (int): the player playing square.
+            square (Square): the square being played.
+            board (Board): the Board state, without square having been played yet.
+
+        Returns:
+            removed_befores (Set[Before]): the set of Afterevens being removed.
+            added_befores (Set[Before]): the set of Afterevens being added.
+        """
+        removed_befores = set()
+
+        removed_befores.update(BeforeManager._befores_containing_square_in_group(square=square, board=board))
+        removed_befores.update(BeforeManager._befores_containing_square_outside_group(square=square, board=board))
+
+        board.state[player][square.row][square.col] = 1
+        added_befores = BeforeManager._befores_containing_square_in_group(square=square, board=board)
+        board.state[player][square.row][square.col] = 0
+
+        return removed_befores, added_befores
 
     @staticmethod
     def _befores_containing_square_in_group(square: Square, board: Board) -> Set[Before]:
@@ -315,4 +348,9 @@ class BeforeManager:
             added_befores (Set[Before]): the set of Afterevens being added.
             removed_befores (Set[Before]): the set of Afterevens being removed.
         """
-        pass
+        added_befores, removed_befores = BeforeManager.added_removed_befores(player=player, square=square, board=board)
+
+        self.befores.update(added_befores)
+        self.befores.difference_update(removed_befores)
+
+        return added_befores, removed_befores

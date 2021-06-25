@@ -493,7 +493,8 @@ class TestBefore(unittest.TestCase):
         }
         self.assertEqual(want_befores, got_befores)
 
-    def test_befores_containing_square_in_group(self):
+    def test_befores_containing_square_in_group_empty_square(self):
+        # Tests the _befores_containing_square_in_group helper function when square is empty.
         # In the following Board state, it is White to move.
         self.env.state = np.array([
             [
@@ -525,6 +526,48 @@ class TestBefore(unittest.TestCase):
             Before(group=group_4_3_to_4_6, verticals=[vertical_3_5], claimevens=[]),
         }
         got_befores = BeforeManager._befores_containing_square_in_group(square=Square(row=4, col=5), board=board)
+        self.assertEqual(want_befores, got_befores)
+
+    def test_befores_containing_square_in_group_played_square(self):
+        # Tests the _befores_containing_square_in_group helper function when square is played.
+        # In the following Board state, White has just played a6.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [1, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [1, 0, 0, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [1, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+
+        # After White plays at a3, White now has a Before at a3-d3.
+        group_3_0_to_3_3 = Group(player=0, start=Square(row=3, col=0), end=Square(row=3, col=3))  # a3-d3
+
+        # There are 4 versions of this Before, each containing two Verticals.
+        vertical_2_1 = Vertical(upper=Square(row=2, col=1), lower=Square(row=3, col=1))  # b3-b4
+        vertical_3_1 = Vertical(upper=Square(row=3, col=1), lower=Square(row=4, col=1))  # b2-b3
+        vertical_2_2 = Vertical(upper=Square(row=2, col=2), lower=Square(row=3, col=2))  # c3-c4
+        vertical_3_2 = Vertical(upper=Square(row=3, col=2), lower=Square(row=4, col=2))  # c2-c3
+
+        want_befores = {
+            # Only White Befores are created.
+            Before(group=group_3_0_to_3_3, verticals=[vertical_2_1, vertical_2_2], claimevens=[]),
+            Before(group=group_3_0_to_3_3, verticals=[vertical_2_1, vertical_3_2], claimevens=[]),
+            Before(group=group_3_0_to_3_3, verticals=[vertical_3_1, vertical_2_2], claimevens=[]),
+            Before(group=group_3_0_to_3_3, verticals=[vertical_3_1, vertical_3_2], claimevens=[]),
+        }
+        got_befores = BeforeManager._befores_containing_square_in_group(square=Square(row=3, col=0), board=board)
         self.assertEqual(want_befores, got_befores)
 
     def test_befores_containing_square_outside_group(self):
@@ -562,6 +605,8 @@ class TestBefore(unittest.TestCase):
         }
         got_befores = BeforeManager._befores_containing_square_outside_group(square=Square(row=4, col=5), board=board)
         self.assertEqual(want_befores, got_befores)
+
+
 
 
 if __name__ == '__main__':
