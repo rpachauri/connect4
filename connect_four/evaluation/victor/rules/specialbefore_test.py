@@ -3,6 +3,7 @@ import unittest
 
 import numpy as np
 
+from connect_four.evaluation.victor.rules.specialbefore import SpecialbeforeManager
 from connect_four.game import Square
 from connect_four.problem import Group
 from connect_four.evaluation.victor.board import Board
@@ -919,6 +920,93 @@ class TestSpecialbefore(unittest.TestCase):
             groups_by_square_by_player=pm.groups_by_square_by_player,
         )
         self.assertEqual(want_problems_solved, got_problems_solved)
+
+    def test_specialbefore_manager_init_simplified_diagram_6_10(self):
+        # This is a modified test case from Diagram 6.10 from the original paper.
+        # We filled up a lot of the columns to simplify the test case and reduce the total number of Specialbefores.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [1, 0, 0, 0, 0, 1, 1, ],
+                [0, 1, 1, 0, 0, 0, 0, ],
+                [1, 0, 0, 0, 0, 1, 1, ],
+                [0, 1, 1, 0, 0, 0, 0, ],
+                [1, 0, 1, 1, 0, 1, 1, ],
+            ],
+            [
+                [1, 0, 1, 0, 0, 1, 1, ],
+                [0, 1, 1, 0, 0, 0, 0, ],
+                [1, 0, 0, 0, 0, 1, 1, ],
+                [0, 1, 1, 0, 0, 0, 0, ],
+                [1, 0, 0, 1, 0, 1, 1, ],
+                [0, 1, 0, 0, 1, 0, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+        black_groups = board.potential_groups(player=1)
+        black_befores = find_all_befores(board=board, opponent_groups=black_groups)
+
+        # Note that the set of Befores should normally include both Black and White Befores,
+        # but we only pass in Black Befores for simplicity.
+        sm = SpecialbeforeManager(board=board, befores=black_befores)
+        got_specialbefores = sm.befores
+
+        # Directly playable squares.
+        directly_playable_square_0_1 = Square(row=0, col=1)
+        directly_playable_square_3_3 = Square(row=3, col=3)
+        directly_playable_square_4_4 = Square(row=4, col=4)
+
+        # Non-vertical groups for black that contain at least one directly playable square.
+        group_3_1_to_3_4 = Group(player=1, start=Square(row=3, col=1), end=Square(row=3, col=4))
+        group_4_3_to_4_6 = Group(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6))
+
+        # Verticals/Claimevens that can belong to Befores.
+        vertical_2_3 = Vertical(upper=Square(row=2, col=3), lower=Square(row=3, col=3))
+        vertical_2_4 = Vertical(upper=Square(row=2, col=4), lower=Square(row=3, col=4))
+        vertical_3_4 = Vertical(upper=Square(row=3, col=4), lower=Square(row=4, col=4))
+
+        before_3_1_to_3_4_variation_1 = Before(
+            group=group_3_1_to_3_4,
+            verticals=[vertical_2_3, vertical_2_4],
+            claimevens=[],
+        )
+        before_3_1_to_3_4_variation_2 = Before(
+            group=group_3_1_to_3_4,
+            verticals=[vertical_2_3, vertical_3_4],
+            claimevens=[],
+        )
+        before_4_3_to_4_6 = Before(
+            group=group_4_3_to_4_6,
+            verticals=[vertical_3_4],
+            claimevens=[],
+        )
+
+        want_specialbefores = {
+            # Specialbefores for before_3_1_to_3_4_variation_1.
+            Specialbefore(
+                before=before_3_1_to_3_4_variation_1,
+                internal_directly_playable_square=directly_playable_square_3_3,
+                external_directly_playable_square=directly_playable_square_0_1,
+            ),
+            # Specialbefores for before_3_1_to_3_4_variation_2.
+            Specialbefore(
+                before=before_3_1_to_3_4_variation_2,
+                internal_directly_playable_square=directly_playable_square_3_3,
+                external_directly_playable_square=directly_playable_square_0_1,
+            ),
+            # Specialbefores for before_4_3_to_4_6.
+            Specialbefore(
+                before=before_4_3_to_4_6,
+                internal_directly_playable_square=directly_playable_square_4_4,
+                external_directly_playable_square=directly_playable_square_0_1,
+            ),
+            Specialbefore(
+                before=before_4_3_to_4_6,
+                internal_directly_playable_square=directly_playable_square_4_4,
+                external_directly_playable_square=directly_playable_square_3_3,
+            ),
+        }
+        self.assertEqual(want_specialbefores, got_specialbefores)
 
 
 if __name__ == '__main__':

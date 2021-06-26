@@ -196,8 +196,8 @@ def can_be_used_with_before(external_directly_playable_square: Square, before: B
 
 
 class SpecialbeforeManager:
-    def __init__(self, board: Board):
-        pass
+    def __init__(self, board: Board, befores: Set[Before]):
+        self.befores = find_all_specialbefores(board=board, befores=befores)
 
     def move(self, square: Square, board: Board, removed_befores: Set[Before],
              added_befores: Set[Before], befores: Set[Before]) -> (Set[Specialbefore], Set[Specialbefore]):
