@@ -193,3 +193,44 @@ def can_be_used_with_before(external_directly_playable_square: Square, before: B
         if external_directly_playable_square.col == square.col:
             return False
     return True
+
+
+class SpecialbeforeManager:
+    def __init__(self, board: Board):
+        pass
+
+    def move(self, square: Square, board: Board, removed_befores: Set[Before],
+             added_befores: Set[Before], befores: Set[Before]) -> (Set[Specialbefore], Set[Specialbefore]):
+        """Moves the internal state of the SpecialbeforeManager to after this square has been played.
+
+        Args:
+            square (Square): the Square being played.
+            board (Board): a Board instance. square has not been played yet.
+            removed_befores (Set[Before]): the set of Befores removed after square is played.
+            added_befores (Set[Before]): the set of Befores added after square is played.
+            befores (Set[Before]): the set of Befores in the position before square is played. Note that removed_befores
+                will be a subset of this set.
+
+        Returns:
+            removed_specialbefores (Set[Specialbefore]): the set of Specialbefores removed after square is played.
+            added_specialbefores (Set[Specialbefore]): the set of Specialbefores added after square is played.
+        """
+        pass
+
+    def undo_move(self, square: Square, board: Board, added_befores: Set[Before],
+                  removed_befores: Set[Before], befores: Set[Before]) -> (Set[Specialbefore], Set[Specialbefore]):
+        """Moves the internal state of the SpecialbeforeManager to after this square has been played.
+
+        Args:
+            square (Square): the Square being undone.
+            board (Board): a Board instance. square has already been undone.
+            added_befores (Set[Before]): the set of Befores added after square is undone.
+            removed_befores (Set[Before]): the set of Befores removed after square is undone.
+            befores (Set[Before]): the set of Befores in the position after square is undone. Note that added_befores
+                will be a subset of this set.
+
+        Returns:
+            added_specialbefores (Set[Specialbefore]): the set of Specialbefores added after square is played.
+            removed_specialbefores (Set[Specialbefore]): the set of Specialbefores removed after square is played.
+        """
+        pass
