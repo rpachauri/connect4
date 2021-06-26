@@ -115,7 +115,7 @@ class Specialbefore(Rule):
         return groups
 
 
-def find_all_specialbefores(board: Board, befores):
+def find_all_specialbefores(board: Board, befores) -> Set[Specialbefore]:
     """find_all_specialbefores takes a Board and an iterable of Befores for the Board and
     outputs an iterable of Specialbefores for the Board.
 
@@ -197,7 +197,7 @@ def can_be_used_with_before(external_directly_playable_square: Square, before: B
 
 class SpecialbeforeManager:
     def __init__(self, board: Board, befores: Set[Before]):
-        self.befores = find_all_specialbefores(board=board, befores=befores)
+        self.specialbefores = find_all_specialbefores(board=board, befores=befores)
 
     def move(self, square: Square, board: Board, removed_befores: Set[Before],
              added_befores: Set[Before], befores: Set[Before]) -> (Set[Specialbefore], Set[Specialbefore]):
@@ -215,7 +215,30 @@ class SpecialbeforeManager:
             removed_specialbefores (Set[Specialbefore]): the set of Specialbefores removed after square is played.
             added_specialbefores (Set[Specialbefore]): the set of Specialbefores added after square is played.
         """
-        pass
+        removed_specialbefores = set()
+        added_specialbefores = set()
+        directly_playable_squares = board.playable_squares()
+
+        removed_specialbefores.update(find_all_specialbefores(board=board, befores=removed_befores))
+        added_specialbefores.update(find_all_specialbefores(board=board, befores=added_befores))
+
+        removed_specialbefores.update(specialbefores_given_external_square(
+            befores=befores,
+            directly_playable_squares=directly_playable_squares,
+            external_directly_playable_square=square,
+        ))
+        if square.row > 0:
+            above = Square(row=square.row - 1, col=square.col)
+            added_specialbefores.update(specialbefores_given_external_square(
+                befores=befores,
+                directly_playable_squares=directly_playable_squares,
+                external_directly_playable_square=above,
+            ))
+
+        self.specialbefores.difference_update(removed_specialbefores)
+        self.specialbefores.update(added_specialbefores)
+
+        return removed_specialbefores, added_specialbefores
 
     def undo_move(self, square: Square, board: Board, added_befores: Set[Before],
                   removed_befores: Set[Before], befores: Set[Before]) -> (Set[Specialbefore], Set[Specialbefore]):
@@ -233,4 +256,27 @@ class SpecialbeforeManager:
             added_specialbefores (Set[Specialbefore]): the set of Specialbefores added after square is played.
             removed_specialbefores (Set[Specialbefore]): the set of Specialbefores removed after square is played.
         """
-        pass
+        added_specialbefores = set()
+        removed_specialbefores = set()
+        directly_playable_squares = board.playable_squares()
+
+        added_specialbefores.update(find_all_specialbefores(board=board, befores=added_befores))
+        removed_specialbefores.update(find_all_specialbefores(board=board, befores=removed_befores))
+
+        added_specialbefores.update(specialbefores_given_external_square(
+            befores=befores,
+            directly_playable_squares=directly_playable_squares,
+            external_directly_playable_square=square,
+        ))
+        if square.row > 0:
+            above = Square(row=square.row - 1, col=square.col)
+            removed_specialbefores.update(specialbefores_given_external_square(
+                befores=befores,
+                directly_playable_squares=directly_playable_squares,
+                external_directly_playable_square=above,
+            ))
+
+        self.specialbefores.update(added_specialbefores)
+        self.specialbefores.difference_update(removed_specialbefores)
+
+        return added_specialbefores, removed_specialbefores
