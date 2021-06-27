@@ -126,9 +126,16 @@ def find_all_specialbefores(board: Board, befores) -> Set[Specialbefore]:
     Returns:
         specialbefores (iterable<Specialbefore>): an iterable of Specialbefores for board.
     """
-    specialbefores = set()
     directly_playable_squares = board.playable_squares()
+    return find_all_specialbefores_with_playable_squares(
+        befores=befores,
+        directly_playable_squares=directly_playable_squares,
+    )
 
+
+def find_all_specialbefores_with_playable_squares(
+        befores: Set[Before], directly_playable_squares: Set[Square]) -> Set[Specialbefore]:
+    specialbefores = set()
     for external_directly_playable_square in directly_playable_squares:
         specialbefores.update(specialbefores_given_external_square(
             befores=befores,
@@ -169,6 +176,35 @@ def specialbefores_given_external_square(
     return specialbefores
 
 
+def specialbefores_given_internal_square(
+        befores: Set[Before],
+        directly_playable_squares: Set[Square],
+        internal_directly_playable_square: Square) -> Set[Specialbefore]:
+    """
+
+    Args:
+        befores (Set[Before]): a set of Befores used to create Specialbefores.
+        directly_playable_squares (Set[Square]): a set of directly playable squares, possibly including square.
+        internal_directly_playable_square (Square): a square to be used as the internal directly playable
+            square of each Specialbefore.
+
+    Returns:
+        specialbefores (Set[Specialbefore]): a set of Specialbefores. Each Specialbefore uses square as its external
+            directly playable square.
+    """
+    specialbefores = set()
+    for before in befores:
+        if internal_directly_playable_square in before.group.squares:
+            for external_directly_playable_square in directly_playable_squares:
+                if can_be_used_with_before(external_directly_playable_square, before):
+                    specialbefores.add(Specialbefore(
+                        before=before,
+                        internal_directly_playable_square=internal_directly_playable_square,
+                        external_directly_playable_square=external_directly_playable_square,
+                    ))
+    return specialbefores
+
+
 def internal_directly_playable_squares(before: Before, directly_playable_squares):
     """Returns a set of directly playable squares in before.group.squares.
     If there are none, returns an empty set.
@@ -206,37 +242,64 @@ class SpecialbeforeManager:
         Args:
             square (Square): the Square being played.
             board (Board): a Board instance. square has not been played yet.
-            removed_befores (Set[Before]): the set of Befores removed after square is played.
-            added_befores (Set[Before]): the set of Befores added after square is played.
-            befores (Set[Before]): the set of Befores in the position before square is played. Note that removed_befores
-                will be a subset of this set.
+            removed_befores (Set[Specialbefore]): the set of Befores removed after square is played.
+            added_befores (Set[Specialbefore]): the set of Befores added after square is played.
+            befores (Set[Specialbefore]): the intersection between the set of Befores before and after this move is undone.
 
         Returns:
             removed_specialbefores (Set[Specialbefore]): the set of Specialbefores removed after square is played.
             added_specialbefores (Set[Specialbefore]): the set of Specialbefores added after square is played.
         """
+        removed_specialbefores, added_specialbefores = SpecialbeforeManager.added_removed_specialbefores(
+            square=square,
+            board=board,
+            removed_befores=removed_befores,
+            added_befores=added_befores,
+            befores=befores,
+        )
+
+        self.specialbefores.difference_update(removed_specialbefores)
+        self.specialbefores.update(added_specialbefores)
+
+        return removed_specialbefores, added_specialbefores
+
+    @staticmethod
+    def added_removed_specialbefores(
+            square: Square, board: Board, removed_befores: Set[Before],
+            added_befores: Set[Before], befores: Set[Before]) -> (Set[Specialbefore], Set[Specialbefore]):
         removed_specialbefores = set()
         added_specialbefores = set()
+
         directly_playable_squares = board.playable_squares()
+        new_directly_playable_squares = directly_playable_squares.difference({square})
+
+        if square.row > 0:
+            above = Square(row=square.row - 1, col=square.col)
+            new_directly_playable_squares.update({above})
+
+            added_specialbefores.update(specialbefores_given_external_square(
+                befores=befores,
+                directly_playable_squares=new_directly_playable_squares,
+                external_directly_playable_square=above,
+            ))
+
+            added_specialbefores.update(specialbefores_given_internal_square(
+                befores=befores,
+                directly_playable_squares=new_directly_playable_squares,
+                internal_directly_playable_square=above,
+            ))
 
         removed_specialbefores.update(find_all_specialbefores(board=board, befores=removed_befores))
-        added_specialbefores.update(find_all_specialbefores(board=board, befores=added_befores))
+        added_specialbefores.update(find_all_specialbefores_with_playable_squares(
+            befores=added_befores,
+            directly_playable_squares=new_directly_playable_squares,
+        ))
 
         removed_specialbefores.update(specialbefores_given_external_square(
             befores=befores,
             directly_playable_squares=directly_playable_squares,
             external_directly_playable_square=square,
         ))
-        if square.row > 0:
-            above = Square(row=square.row - 1, col=square.col)
-            added_specialbefores.update(specialbefores_given_external_square(
-                befores=befores,
-                directly_playable_squares=directly_playable_squares,
-                external_directly_playable_square=above,
-            ))
-
-        self.specialbefores.difference_update(removed_specialbefores)
-        self.specialbefores.update(added_specialbefores)
 
         return removed_specialbefores, added_specialbefores
 
@@ -249,32 +312,19 @@ class SpecialbeforeManager:
             board (Board): a Board instance. square has already been undone.
             added_befores (Set[Before]): the set of Befores added after square is undone.
             removed_befores (Set[Before]): the set of Befores removed after square is undone.
-            befores (Set[Before]): the set of Befores in the position after square is undone. Note that added_befores
-                will be a subset of this set.
+            befores (Set[Before]): the intersection between the set of Befores before and after this move is undone.
 
         Returns:
             added_specialbefores (Set[Specialbefore]): the set of Specialbefores added after square is played.
             removed_specialbefores (Set[Specialbefore]): the set of Specialbefores removed after square is played.
         """
-        added_specialbefores = set()
-        removed_specialbefores = set()
-        directly_playable_squares = board.playable_squares()
-
-        added_specialbefores.update(find_all_specialbefores(board=board, befores=added_befores))
-        removed_specialbefores.update(find_all_specialbefores(board=board, befores=removed_befores))
-
-        added_specialbefores.update(specialbefores_given_external_square(
+        added_specialbefores, removed_specialbefores = SpecialbeforeManager.added_removed_specialbefores(
+            square=square,
+            board=board,
+            removed_befores=added_befores,
+            added_befores=removed_befores,
             befores=befores,
-            directly_playable_squares=directly_playable_squares,
-            external_directly_playable_square=square,
-        ))
-        if square.row > 0:
-            above = Square(row=square.row - 1, col=square.col)
-            removed_specialbefores.update(specialbefores_given_external_square(
-                befores=befores,
-                directly_playable_squares=directly_playable_squares,
-                external_directly_playable_square=above,
-            ))
+        )
 
         self.specialbefores.update(added_specialbefores)
         self.specialbefores.difference_update(removed_specialbefores)

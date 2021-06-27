@@ -66,7 +66,7 @@ class Board:
             if self.is_empty(square):
                 return square
 
-    def potential_groups(self, player):
+    def potential_groups(self, player) -> Set[Group]:
         """Returns a set of potential groups that this player has in this board state.
 
         Args:

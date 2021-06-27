@@ -3,6 +3,7 @@ import unittest
 
 import numpy as np
 
+from connect_four.evaluation.victor.rules.before import BeforeManager
 from connect_four.evaluation.victor.rules.specialbefore import SpecialbeforeManager
 from connect_four.game import Square
 from connect_four.problem import Group
@@ -949,7 +950,7 @@ class TestSpecialbefore(unittest.TestCase):
         # Note that the set of Befores should normally include both Black and White Befores,
         # but we only pass in Black Befores for simplicity.
         sm = SpecialbeforeManager(board=board, befores=black_befores)
-        got_specialbefores = sm.befores
+        got_specialbefores = sm.specialbefores
 
         # Directly playable squares.
         directly_playable_square_0_1 = Square(row=0, col=1)
@@ -1007,6 +1008,68 @@ class TestSpecialbefore(unittest.TestCase):
             ),
         }
         self.assertEqual(want_specialbefores, got_specialbefores)
+
+    def test_specialbefore_manager_move(self):
+        # Initialize variables.
+        player, row, col = 0, 5, 0
+        square = Square(row=row, col=col)
+        board = Board(self.env.env_variables)
+
+        # initial_groups = board.potential_groups(player=0).union(board.potential_groups(player=1))
+        bm = BeforeManager(board=board)
+        initial_befores = bm.befores  # find_all_befores(board=board, opponent_groups=initial_groups)
+        initial_specialbefores = find_all_specialbefores(board=board, befores=initial_befores)
+
+        removed_befores, added_befores = bm.move(player=player, square=square, board=board)
+        sm = SpecialbeforeManager(board=board, befores=initial_befores)
+        got_removed_specialbefores, got_added_specialbefores = sm.move(
+            square=square,
+            board=board,
+            removed_befores=removed_befores,
+            added_befores=added_befores,
+            befores=initial_befores - added_befores - removed_befores,  # The Befores that remained in the position
+        )
+
+        board.state[player][row][col] = 1
+
+        final_groups = board.potential_groups(player=0).union(board.potential_groups(player=1))
+        final_befores = find_all_befores(board=board, opponent_groups=final_groups)
+        final_specialbefores = find_all_specialbefores(board=board, befores=final_befores)
+
+        want_removed_specialbefores = initial_specialbefores - final_specialbefores
+        want_added_specialbefores = final_specialbefores - initial_specialbefores
+
+        self.assertEqual(want_removed_specialbefores, got_removed_specialbefores)
+        self.assertEqual(want_added_specialbefores, got_added_specialbefores)
+
+    def test_specialbefore_manager_undo_move(self):
+        # Initialize variables.
+        player, row, col = 0, 5, 0
+        square = Square(row=row, col=col)
+        board = Board(self.env.env_variables)
+
+        bm = BeforeManager(board=board)
+        initial_befores = bm.befores
+
+        removed_befores, added_befores = bm.move(player=player, square=square, board=board)
+        sm = SpecialbeforeManager(board=board, befores=initial_befores)
+        want_added_specialbefores, want_removed_specialbefores = sm.move(
+            square=square,
+            board=board,
+            removed_befores=removed_befores,
+            added_befores=added_befores,
+            befores=initial_befores - added_befores - removed_befores,  # The Befores that remained in the position
+        )
+        got_added_specialbefores, got_removed_specialbefores = sm.undo_move(
+            square=square,
+            board=board,
+            added_befores=removed_befores,
+            removed_befores=added_befores,
+            befores=initial_befores - added_befores - removed_befores,  # The Befores that remained in the position
+        )
+
+        self.assertEqual(want_added_specialbefores, got_added_specialbefores)
+        self.assertEqual(want_removed_specialbefores, got_removed_specialbefores)
 
 
 if __name__ == '__main__':
