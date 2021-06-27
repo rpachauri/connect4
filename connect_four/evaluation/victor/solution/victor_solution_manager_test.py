@@ -190,6 +190,11 @@ class TestSolutionManager(unittest.TestCase):
             )),
             # Baseclaim Solutions.
             solution2.from_baseclaim(baseclaim=Baseclaim(
+                first=Square(row=2, col=1),  # b4
+                second=Square(row=5, col=0),  # a1
+                third=Square(row=0, col=4),  # e6
+            )),
+            solution2.from_baseclaim(baseclaim=Baseclaim(
                 first=Square(row=0, col=4),  # e6
                 second=Square(row=5, col=0),  # a1
                 third=Square(row=2, col=1),  # b4
@@ -222,10 +227,10 @@ class TestSolutionManager(unittest.TestCase):
             # OddThreat Solutions.
             # None.
         }
-        self.assertEqual(want_solutions, sm.solutions_by_move[0])
+        self.assertEqual(want_solutions, sm.solutions)
 
     def test_move_a1_from_diagram_7_2(self):
-        # This test case is based on Diagram 5.4 of the original paper.
+        # This test case is a modified version of Diagram 7.2 from the original paper.
         self.env.state = np.array([
             [
                 [0, 0, 0, 0, 0, 1, 1, ],
@@ -302,6 +307,11 @@ class TestSolutionManager(unittest.TestCase):
             )),
             # Baseclaim Solutions.
             solution2.from_baseclaim(baseclaim=Baseclaim(
+                first=Square(row=2, col=1),  # b4
+                second=Square(row=5, col=0),  # a1
+                third=Square(row=0, col=4),  # e6
+            )),
+            solution2.from_baseclaim(baseclaim=Baseclaim(
                 first=Square(row=0, col=4),  # e6
                 second=Square(row=5, col=0),  # a1
                 third=Square(row=2, col=1),  # b4
@@ -341,7 +351,7 @@ class TestSolutionManager(unittest.TestCase):
                 ],
             )),
             # Baseclaim Solutions.
-            # None.
+            # None
             # Before Solutions.
             # None.
             # Specialbefore Solutions.
@@ -373,9 +383,16 @@ class TestSolutionManager(unittest.TestCase):
         player, row, col = 0, 5, 0
         sm = VictorSolutionManager(env_variables=self.env.env_variables)
 
-        baseclaim = Baseclaim(first=Square(row=5, col=3), second=Square(row=5, col=5), third=Square(row=5, col=1))
+        baseclaim_solution = solution2.from_baseclaim(
+            baseclaim=Baseclaim(
+                first=Square(row=5, col=3),
+                second=Square(row=5, col=5),
+                third=Square(row=5, col=0),
+            ),
+        )
 
-        self.assertIn(baseclaim, sm.get_solutions())
+        got_solutions = sm.get_solutions()
+        self.assertIn(baseclaim_solution, got_solutions)
 
         # Validate internal variables upon initialization.
         self.assertEqual(0, sm.board.state[player][row][col])
@@ -387,14 +404,14 @@ class TestSolutionManager(unittest.TestCase):
         self.assertEqual((player, row, col), sm.moves[0])
 
         # Validate internal variables equal to what they were upon initialization.
-        got_removed_solutions, got_added_solutions = sm.undo_move()
+        got_added_solutions, got_removed_solutions = sm.undo_move()
         self.assertEqual(0, sm.board.state[player][row][col])
         self.assertFalse(sm.moves)
 
         self.assertEqual(want_removed_solutions, got_removed_solutions)
         self.assertEqual(want_added_solutions, got_added_solutions)
 
-        self.assertIn(baseclaim, want_added_solutions)
+        self.assertIn(baseclaim_solution, want_added_solutions)
 
     def test_win_conditions_diagram_8_1(self):
         # This test case is based on Diagram 8.1.

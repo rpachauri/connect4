@@ -5,9 +5,19 @@ from connect_four.evaluation.victor.board import Board
 from connect_four.evaluation.victor.rules import find_all_claimevens, find_all_baseinverses, find_all_verticals, \
     find_all_afterevens, find_all_lowinverses, find_all_highinverses, find_all_baseclaims, find_all_befores, \
     find_all_specialbefores, find_all_odd_threats, OddThreat
+from connect_four.evaluation.victor.rules.aftereven import AfterevenManager
+from connect_four.evaluation.victor.rules.baseclaim import BaseclaimManager
+from connect_four.evaluation.victor.rules.baseinverse import BaseinverseManager
+from connect_four.evaluation.victor.rules.before import BeforeManager
+from connect_four.evaluation.victor.rules.claimeven import ClaimevenManager
+from connect_four.evaluation.victor.rules.highinverse import HighinverseManager
+from connect_four.evaluation.victor.rules.lowinverse import LowinverseManager
+from connect_four.evaluation.victor.rules.specialbefore import SpecialbeforeManager
+from connect_four.evaluation.victor.rules.vertical import VerticalManager
 from connect_four.evaluation.victor.solution import solution2
 from connect_four.evaluation.victor.solution.solution2 import Solution
 from connect_four.evaluation.victor.solution.solution_manager import SolutionManager
+from connect_four.game import Square
 
 
 class VictorSolutionManager(SolutionManager):
@@ -19,6 +29,7 @@ class VictorSolutionManager(SolutionManager):
         """
         self.board = Board(env_variables=env_variables)
         # self.solutions_by_move = [self._find_all_solutions(board=self.board)]
+        self.solutions = self._find_all_solutions(board=self.board)
         self.moves = []
 
     @staticmethod
@@ -93,15 +104,97 @@ class VictorSolutionManager(SolutionManager):
             removed_solutions (Set[Solution]): the Solutions that were removed after the given move.
             added_solutions (Set[Solution]): the Solutions that were added after the given move.
         """
-        previous_solutions = self._find_all_solutions(board=self.board)
+        removed_solutions, added_solutions = VictorSolutionManager.added_removed_solutions(
+            player=player, row=row, col=col, board=self.board,
+        )
+        self.solutions.difference_update(removed_solutions)
+        self.solutions.update(added_solutions)
 
         self.board.state[player][row][col] = 1
-        current_solutions = self._find_all_solutions(board=self.board)
-
         self.moves.append((player, row, col))
 
-        removed_solutions = previous_solutions - current_solutions
-        added_solutions = current_solutions - previous_solutions
+        return removed_solutions, added_solutions
+
+    @staticmethod
+    def added_removed_solutions(player: int, row: int, col: int, board: Board) -> (Set[Solution], Set[Solution]):
+        claimeven_manager = ClaimevenManager(board=board)
+        baseinverse_manager = BaseinverseManager(board=board)
+        vertical_manager = VerticalManager(board=board)
+        aftereven_manager = AfterevenManager(board=board)
+        lowinverse_manager = LowinverseManager(verticals=vertical_manager.verticals)
+        highinverse_manager = HighinverseManager(board=board, lowinverses=lowinverse_manager.lowinverses)
+        baseclaim_manager = BaseclaimManager(board=board)
+        before_manager = BeforeManager(board=board)
+        specialbefore_manager = SpecialbeforeManager(board=board, befores=before_manager.befores)
+
+        square = Square(row=row, col=col)
+        playable_squares = board.playable_squares()
+
+        claimeven = claimeven_manager.move(row=row, col=col)
+        removed_baseinverses, added_baseinverses = baseinverse_manager.move(
+            square=square,
+            playable_squares=playable_squares,
+        )
+        vertical = vertical_manager.move(square=square)
+        removed_afterevens, added_afterevens = aftereven_manager.move(player=player, square=square, board=board)
+        removed_lowinverses = lowinverse_manager.move(
+            vertical=vertical,
+            verticals=vertical_manager.verticals,
+        )
+        removed_highinverses, added_highinverses = highinverse_manager.move(
+            square=square,
+            removed_lowinverses=removed_lowinverses,
+            verticals=vertical_manager.verticals,
+            directly_playable_squares=playable_squares,
+        )
+        removed_baseclaims, added_baseclaims = baseclaim_manager.move(
+            square=square,
+            directly_playable_squares=playable_squares,
+        )
+        removed_befores, added_befores = before_manager.move(player=player, square=square, board=board)
+        removed_specialbefores, added_specialbefores = specialbefore_manager.move(
+            square=square,
+            board=board,
+            removed_befores=removed_befores,
+            added_befores=added_befores,
+            befores=before_manager.befores - removed_befores - added_befores,
+        )
+
+        # Convert the rule instances into Solutions.
+        removed_solutions = set()
+        if claimeven is not None:
+            removed_solutions.add(solution2.from_claimeven(claimeven=claimeven))
+        for baseinverse in removed_baseinverses:
+            removed_solutions.add(solution2.from_baseinverse(baseinverse=baseinverse))
+        if vertical is not None:
+            removed_solutions.add(solution2.from_vertical(vertical=vertical))
+        for aftereven in removed_afterevens:
+            removed_solutions.add(solution2.from_aftereven(aftereven=aftereven))
+        for lowinverse in removed_lowinverses:
+            removed_solutions.add(solution2.from_lowinverse(lowinverse=lowinverse))
+        for highinverse in removed_highinverses:
+            removed_solutions.add(solution2.from_highinverse(highinverse=highinverse))
+        for baseclaim in removed_baseclaims:
+            removed_solutions.add(solution2.from_baseclaim(baseclaim=baseclaim))
+        for before in removed_befores:
+            removed_solutions.add(solution2.from_before(before=before))
+        for specialbefore in removed_specialbefores:
+            removed_solutions.add(solution2.from_specialbefore(specialbefore=specialbefore))
+
+        added_solutions = set()
+        for baseinverse in added_baseinverses:
+            added_solutions.add(solution2.from_baseinverse(baseinverse=baseinverse))
+        for aftereven in added_afterevens:
+            added_solutions.add(solution2.from_aftereven(aftereven=aftereven))
+        for highinverse in added_highinverses:
+            added_solutions.add(solution2.from_highinverse(highinverse=highinverse))
+        for baseclaim in added_baseclaims:
+            added_solutions.add(solution2.from_baseclaim(baseclaim=baseclaim))
+        for before in added_befores:
+            added_solutions.add(solution2.from_before(before=before))
+        for specialbefore in added_specialbefores:
+            added_solutions.add(solution2.from_specialbefore(specialbefore=specialbefore))
+
         return removed_solutions, added_solutions
 
     def undo_move(self) -> (Set[Solution], Set[Solution]):
@@ -112,24 +205,22 @@ class VictorSolutionManager(SolutionManager):
                 is at the state given upon initialization.
 
         Returns:
-            removed_solutions (Set[Solution]): the Solutions that were removed by undoing the most recent move.
             added_solutions (Set[Solution]): the Solutions that were added by undoing the most recent move.
+            removed_solutions (Set[Solution]): the Solutions that were removed by undoing the most recent move.
         """
         assert self.moves
-        # assert len(self.solutions_by_move) > 1
-        current_solutions = self._find_all_solutions(board=self.board)
+        # current_solutions = self._find_all_solutions(board=self.board)
 
         player, row, col = self.moves.pop()
         self.board.state[player][row][col] = 0
 
-        previous_solutions = self._find_all_solutions(board=self.board)
+        added_solutions, removed_solutions = VictorSolutionManager.added_removed_solutions(
+            player=player, row=row, col=col, board=self.board,
+        )
+        self.solutions.update(added_solutions)
+        self.solutions.difference_update(removed_solutions)
 
-        # current_solutions = self.solutions_by_move.pop()
-        # previous_solutions = self.solutions_by_move[-1]
-
-        removed_solutions = current_solutions - previous_solutions
-        added_solutions = previous_solutions - current_solutions
-        return removed_solutions, added_solutions
+        return added_solutions, removed_solutions
 
     def get_solutions(self) -> Set[Solution]:
         """Returns all Solutions for the current game position.
