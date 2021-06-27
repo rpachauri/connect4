@@ -606,7 +606,28 @@ class TestBefore(unittest.TestCase):
         got_befores = BeforeManager._befores_containing_square_outside_group(square=Square(row=4, col=5), board=board)
         self.assertEqual(want_befores, got_befores)
 
+    def test_before_manager_move(self):
+        # Initialize variables.
+        player, row, col = 0, 5, 0
+        square = Square(row=row, col=col)
+        board = Board(self.env.env_variables)
 
+        bm = BeforeManager(board=board)
+        got_removed_befores, got_added_befores = bm.move(player=player, square=square, board=board)
+
+        initial_groups = board.potential_groups(player=0).union(board.potential_groups(player=1))
+        initial_befores = find_all_befores(board=board, opponent_groups=initial_groups)
+
+        board.state[player][row][col] = 1
+
+        final_groups = board.potential_groups(player=0).union(board.potential_groups(player=1))
+        final_befores = find_all_befores(board=board, opponent_groups=final_groups)
+
+        want_removed_befores = initial_befores - final_befores
+        want_added_befores = final_befores - initial_befores
+
+        self.assertEqual(want_removed_befores, got_removed_befores)
+        self.assertEqual(want_added_befores, got_added_befores)
 
 
 if __name__ == '__main__':
