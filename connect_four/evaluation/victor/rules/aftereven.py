@@ -2,7 +2,7 @@ from typing import List, Set, Optional
 
 from connect_four.evaluation.victor.rules import Rule, Claimeven
 from connect_four.game import Square
-from connect_four.problem import Group
+from connect_four.problem import Group, GroupDirection
 from connect_four.evaluation.victor.board import Board
 
 
@@ -132,53 +132,54 @@ def find_all_afterevens(board: Board, opponent_groups: Set[Group]) -> Set[Aftere
     """
     afterevens = set()
     for group in opponent_groups:
-        aftereven_claimevens = get_aftereven_claimevens(board, group)
+        aftereven_claimevens = AfterevenManager.get_aftereven_claimevens_excluding_square(board=board, group=group)
+        # get_aftereven_claimevens(board, group)
         if aftereven_claimevens is not None:
             afterevens.add(Aftereven(group, aftereven_claimevens))
 
     return afterevens
 
 
-def get_aftereven_claimevens(board: Board, group: Group) -> Optional[Set[Claimeven]]:
-    """get_aftereven_claimevens takes a Board, set of Claimevens and a group.
-    It figures out if the group is an Aftereven group.
-    If the group is an Aftereven group, then it returns the Claimevens which are part of the Aftereven.
-    If the group is not an Aftereven group, then it returns None.
-
-    Args:
-        board (Board): a Board instance.
-        group (Group): a group on this board.
-
-    Returns:
-        claimevens (iterable<Claimeven>):
-            If the given group is an Aftereven group, an iterable of Claimevens,
-            where the upper square of each Claimeven is an empty square in the Aftereven group.
-
-            If the given group is not an Aftereven group, returns None.
-    """
-    claimevens = set()
-
-    for square in group.squares:
-        # If the square is not empty, we assume it already belongs to the player who owns the Group.
-        if board.is_empty(square):
-            # If a square is in the top row, then this would be a useless Aftereven.
-            if square.row == 0:
-                return None
-
-            # If square is odd, then we cannot use a Claimeven to build the Aftereven.
-            if square.row % 2 == 1:
-                return None
-
-            lower = Square(row=square.row + 1, col=square.col)
-
-            # If an even square of an Aftereven group is empty, but the square below it is not,
-            # then it is not a Claimeven.
-            if not board.is_empty(square=lower):
-                return None
-
-            claimevens.add(Claimeven(lower=lower, upper=square))
-
-    return claimevens
+# def get_aftereven_claimevens(board: Board, group: Group) -> Optional[Set[Claimeven]]:
+#     """get_aftereven_claimevens takes a Board, set of Claimevens and a group.
+#     It figures out if the group is an Aftereven group.
+#     If the group is an Aftereven group, then it returns the Claimevens which are part of the Aftereven.
+#     If the group is not an Aftereven group, then it returns None.
+#
+#     Args:
+#         board (Board): a Board instance.
+#         group (Group): a group on this board.
+#
+#     Returns:
+#         claimevens (iterable<Claimeven>):
+#             If the given group is an Aftereven group, an iterable of Claimevens,
+#             where the upper square of each Claimeven is an empty square in the Aftereven group.
+#
+#             If the given group is not an Aftereven group, returns None.
+#     """
+#     claimevens = set()
+#
+#     for square in group.squares:
+#         # If the square is not empty, we assume it already belongs to the player who owns the Group.
+#         if board.is_empty(square):
+#             # If a square is in the top row, then this would be a useless Aftereven.
+#             if square.row == 0:
+#                 return None
+#
+#             # If square is odd, then we cannot use a Claimeven to build the Aftereven.
+#             if square.row % 2 == 1:
+#                 return None
+#
+#             lower = Square(row=square.row + 1, col=square.col)
+#
+#             # If an even square of an Aftereven group is empty, but the square below it is not,
+#             # then it is not a Claimeven.
+#             if not board.is_empty(square=lower):
+#                 return None
+#
+#             claimevens.add(Claimeven(lower=lower, upper=square))
+#
+#     return claimevens
 
 
 class AfterevenManager:
@@ -293,6 +294,9 @@ class AfterevenManager:
 
                 If the given group is not an Aftereven group, returns None.
         """
+        if group.direction == GroupDirection.vertical:
+            return None
+
         claimevens = set()
 
         for square in group.squares:

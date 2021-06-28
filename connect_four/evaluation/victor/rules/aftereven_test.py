@@ -296,6 +296,38 @@ class TestAftereven(unittest.TestCase):
         got_afterevens = AfterevenManager.afterevens_at_square(player=0, square=Square(row=4, col=1), board=board)
         self.assertEqual(want_afterevens, got_afterevens)
 
+    def test_get_aftereven_claimevens_excluding_square_ignores_vertical_groups(self):
+        # There is a corner case where the excluding square can be the lower square of a Claimeven in an Aftereven.
+        # We can exclude this case by always excluding Afterevens for vertical Groups.
+        # It's okay to exclude vertical Groups for Afterevens because it is not possible for all the empty squares
+        # of the group to be the upper square of a Claimeven.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 1, ],
+                [0, 1, 0, 0, 0, 0, 0, ],
+                [1, 1, 0, 0, 0, 0, 1, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 1, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 1, 1, ],
+                [0, 0, 1, 0, 0, 1, 0, ],
+            ],
+        ])
+        board = Board(self.env.env_variables)
+        group = Group(player=0, start=Square(row=2, col=1), end=Square(row=5, col=1))  # b1-b4
+        got_claimevens = AfterevenManager.get_aftereven_claimevens_excluding_square(
+            board=board,
+            group=group,
+            excluding_square=Square(row=3, col=1),  # b3
+        )
+        self.assertIsNone(got_claimevens)
+
     def test_empty_squares_of_aftereven_group_top_row_empty(self):
         # This test case validates that if a Group contains an empty square in the top row, no Afterevens use it.
         # However, if that square is taken by a player, that player can use it in some Afterevens.
