@@ -4,6 +4,7 @@ import gym
 import numpy as np
 
 from connect_four.envs import ConnectFourEnv
+from connect_four.evaluation.victor.board import Board
 from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Aftereven, Lowinverse, Highinverse, \
     Baseclaim, Before, Specialbefore, OddThreat
 from connect_four.evaluation.victor.solution import solution2
@@ -412,6 +413,46 @@ class TestSolutionManager(unittest.TestCase):
         self.assertEqual(want_added_solutions, got_added_solutions)
 
         self.assertIn(baseclaim_solution, want_added_solutions)
+
+    @unittest.skip
+    def test_move(self):
+        # Whenever a bug is found for VictorSolutionManager.move(), this test
+        # can be used to debug it. It's needed because there can be very many
+        # Solutions added/removed in a state, and it could be difficult to find out
+        # which one is causing the bug.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [1, 1, 0, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [1, 0, 0, 0, 0, 0, 0, ],
+                [1, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 1, 0, 1, 0, 0, ],
+            ],
+        ])
+        board = Board(env_variables=self.env.env_variables)
+        player, row, col = 0, 2, 0
+
+        initial_solutions = VictorSolutionManager._find_all_solutions(board=board)
+        board.state[player][row][col] = 1
+        final_solutions = VictorSolutionManager._find_all_solutions(board=board)
+
+        want_removed_solutions = initial_solutions - final_solutions
+        want_added_solutions = final_solutions - initial_solutions
+
+        sm = VictorSolutionManager(env_variables=self.env.env_variables)
+        got_removed_solutions, got_added_solutions = sm.move(player=player, row=row, col=col)
+
+        self.assertEqual(want_removed_solutions, got_removed_solutions)
+        self.assertEqual(want_added_solutions, got_added_solutions)
 
     def test_win_conditions_diagram_8_1(self):
         # This test case is based on Diagram 8.1.

@@ -84,8 +84,8 @@ class VictorSolutionManager(SolutionManager):
             solutions.add(solution2.from_specialbefore(specialbefore=specialbefore))
         for specialbefore in black_specialbefores:
             solutions.add(solution2.from_specialbefore(specialbefore=specialbefore))
-        for odd_threat in white_odd_threats:
-            solutions.add(solution2.from_odd_threat(odd_threat=odd_threat))
+        # for odd_threat in white_odd_threats:
+        #     solutions.add(solution2.from_odd_threat(odd_threat=odd_threat))
 
         return solutions
 
