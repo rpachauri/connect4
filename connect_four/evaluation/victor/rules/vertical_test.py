@@ -217,6 +217,25 @@ class TestVertical(unittest.TestCase):
         )
         self.assertEqual(want_problems_solved, got_problems_solved)
 
+    def test_solves(self):
+        # The Vertical e4-e5 solves e2-e5 but not e1-e4.
+        vertical_e4_e5 = Vertical(upper=Square(row=2, col=4), lower=Square(row=1, col=4))
+
+        white_group_e2_e5 = Group(player=0, start=Square(row=4, col=4), end=Square(row=1, col=4))  # e2-e5
+        white_group_e1_e4 = Group(player=0, start=Square(row=5, col=4), end=Square(row=2, col=4))  # e1-e4
+
+        self.assertTrue(vertical_e4_e5.solves(group=white_group_e2_e5))
+        self.assertFalse(vertical_e4_e5.solves(group=white_group_e1_e4))
+
+    def test_is_useful(self):
+        vertical_e4_e5 = Vertical(upper=Square(row=2, col=4), lower=Square(row=1, col=4))
+
+        white_group_e2_e5 = Group(player=0, start=Square(row=4, col=4), end=Square(row=1, col=4))  # e2-e5
+
+        # If a Vertical solves at least one Group, it is useful.
+        self.assertTrue(vertical_e4_e5.is_useful(groups={white_group_e2_e5}))
+        self.assertFalse(vertical_e4_e5.is_useful(groups=set()))
+
 
 if __name__ == '__main__':
     unittest.main()

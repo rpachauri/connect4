@@ -367,9 +367,9 @@ class TestBaseinverse(unittest.TestCase):
 
         self.assertTrue(baseinverse_a1_b1.solves(group=white_group_a1_d1))
 
-        # The Baseinverse a1-b1 does not solve a2-d2.
-        white_group_a2_d2 = Group(player=0, start=Square(row=4, col=0), end=Square(row=4, col=3))  # a2-d2
-        self.assertFalse(baseinverse_a1_b1.solves(group=white_group_a2_d2))
+        # The Baseinverse a1-b1 does not solve b1-e1.
+        white_group_b1_e1 = Group(player=0, start=Square(row=5, col=1), end=Square(row=5, col=4))  # b1-e1
+        self.assertFalse(baseinverse_a1_b1.solves(group=white_group_b1_e1))
 
     def test_is_useful(self):
         baseinverse_a1_b1 = Baseinverse(playable1=Square(row=5, col=0), playable2=Square(row=5, col=1))
