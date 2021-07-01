@@ -359,6 +359,27 @@ class TestBaseinverse(unittest.TestCase):
             groups_by_square_by_player=pm.groups_by_square_by_player,
         ))
 
+    def test_solves(self):
+        baseinverse_a1_b1 = Baseinverse(playable1=Square(row=5, col=0), playable2=Square(row=5, col=1))
+
+        # The Baseinverse a1-b1 solves a1-d1.
+        white_group_a1_d1 = Group(player=0, start=Square(row=5, col=0), end=Square(row=5, col=3))  # a1-d1
+
+        self.assertTrue(baseinverse_a1_b1.solves(group=white_group_a1_d1))
+
+        # The Baseinverse a1-b1 does not solve a2-d2.
+        white_group_a2_d2 = Group(player=0, start=Square(row=4, col=0), end=Square(row=4, col=3))  # a2-d2
+        self.assertFalse(baseinverse_a1_b1.solves(group=white_group_a2_d2))
+
+    def test_is_useful(self):
+        baseinverse_a1_b1 = Baseinverse(playable1=Square(row=5, col=0), playable2=Square(row=5, col=1))
+
+        white_group_a1_d1 = Group(player=0, start=Square(row=5, col=0), end=Square(row=5, col=3))  # a1-d1
+
+        # If a Baseinverse solves at least one Group, it is useful.
+        self.assertTrue(baseinverse_a1_b1.is_useful(groups={white_group_a1_d1}))
+        self.assertFalse(baseinverse_a1_b1.is_useful(groups=set()))
+
 
 if __name__ == '__main__':
     unittest.main()
