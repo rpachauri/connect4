@@ -24,6 +24,55 @@ class Highinverse(Rule):
     def __hash__(self):
         return self.lowinverse.__hash__() * 37 + self.directly_playable_squares.__hash__()
 
+    def solves(self, group: Group) -> bool:
+        if self.lowinverse.solves(group=group):
+            return True
+
+        verticals_as_list = list(self.lowinverse.verticals)
+        vertical_0, vertical_1 = verticals_as_list[0], verticals_as_list[1]
+        upper_square_0 = Square(row=vertical_0.upper.row - 1, col=vertical_0.upper.col)
+        upper_square_1 = Square(row=vertical_1.upper.row - 1, col=vertical_1.upper.col)
+
+        # If the lower square of the first column is directly playable:
+        if (vertical_0.lower in self.directly_playable_squares and
+                vertical_0.lower in group.squares and
+                upper_square_1 in group.squares):
+            # Return True if the Group contains both the lower square of the first column and
+            # the upper square of the second column.
+            return True
+
+        # If the lower square of the second column is directly playable:
+        if (vertical_1.lower in self.directly_playable_squares and
+                vertical_1.lower in group.squares and
+                upper_square_0 in group.squares):
+            # Return True if the Group contains both the lower square of the second column and
+            # the upper square of the first column.
+            return True
+
+        upper_vertical_0 = Vertical(upper=upper_square_0, lower=vertical_0.upper)
+        if upper_vertical_0.solves(group=group):
+            return True
+
+        upper_vertical_1 = Vertical(upper=upper_square_1, lower=vertical_1.upper)
+        if upper_vertical_1.solves(group=group):
+            return True
+
+        return upper_square_0 in group.squares and upper_square_1 in group.squares
+
+    def is_useful(self, groups: Set[Group]) -> bool:
+        already_solved_groups = set()
+        for group in groups:
+            for vertical in self.lowinverse.verticals:
+                if vertical.solves(group=group):
+                    already_solved_groups.add(group)
+
+            if self.lowinverse.solves(group=group):
+                already_solved_groups.add(group)
+
+        # Given that already_solved_groups is a subset of groups, it will not equal groups only if there exists
+        # a Group this Highinverse can solve that one of its Verticals or its Lowinverse cannot.
+        return already_solved_groups != groups
+
     def find_problems_solved(self, groups_by_square_by_player: List[List[List[Set[Group]]]]) -> Set[Group]:
         """Finds all Problems this Rule solves.
 

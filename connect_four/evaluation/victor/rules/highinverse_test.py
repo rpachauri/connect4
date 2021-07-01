@@ -677,6 +677,87 @@ class TestHighinverse(unittest.TestCase):
         self.assertEqual(want_removed_highinverses, got_removed_highinverses)
         self.assertEqual(want_added_highinverses, got_added_highinverses)
 
+    def test_solves(self):
+        # Lowinverse c2-c3-d2-d3 guarantees that Black will get at least one square
+        # out of each of three pairs of squares:
+        # 1. The squares in the first column (c2-c3).
+        # 2. The squares in the other column (d2-d3).
+        # 3. The upper two squares (c3-d3).
+        lowinverse_c2_c3_d2_d3 = Lowinverse(
+            first_vertical=Vertical(upper=Square(row=3, col=2), lower=Square(row=4, col=2)),  # c2-c3
+            second_vertical=Vertical(upper=Square(row=3, col=3), lower=Square(row=4, col=3)),  # d2-d3
+        )
+        # Highinverse c2-c3-c4-d2-d3-d4 guarantees that Black will get at least one square
+        # out of each of four pairs of squares:
+        # 1. The upper two squares in the first column (c3-c4).
+        # 2. The upper two squares in the second column (d3-d4).
+        # 3. The middle squares from both columns (c3-d3).
+        # 4. The upper squares from both columns (c4-d4).
+        highinverse_c2_c3_c4_d2_d3_d4 = Highinverse(
+            lowinverse=lowinverse_c2_c3_d2_d3,
+            directly_playable_squares=[Square(row=4, col=2), Square(row=4, col=3)],  # c2 and d2
+        )
+
+        # Group which contain the upper squares of both columns.
+        white_group_a4_d4 = Group(player=0, start=Square(row=2, col=0), end=Square(row=2, col=3))  # a4-d4
+        self.assertTrue(highinverse_c2_c3_c4_d2_d3_d4.solves(group=white_group_a4_d4))
+        # Group which contain the middle squares of both columns.
+        white_group_a3_d3 = Group(player=0, start=Square(row=3, col=0), end=Square(row=3, col=3))  # a3-d3
+        self.assertTrue(highinverse_c2_c3_c4_d2_d3_d4.solves(group=white_group_a3_d3))
+        # Group that can be refuted by Vertical c3-c4.
+        white_group_c3_c6 = Group(player=0, start=Square(row=0, col=2), end=Square(row=3, col=2))  # c3-c6
+        self.assertTrue(highinverse_c2_c3_c4_d2_d3_d4.solves(group=white_group_c3_c6))
+        # Group that can be refuted by Vertical d3-d4.
+        white_group_d3_d6 = Group(player=0, start=Square(row=0, col=3), end=Square(row=3, col=3))  # d3-d6
+        self.assertTrue(highinverse_c2_c3_c4_d2_d3_d4.solves(group=white_group_d3_d6))
+        # Group that cannot be solved by the Highinverse at all.
+        white_group_a5_d6 = Group(player=0, start=Square(row=1, col=0), end=Square(row=1, col=3))  # a5-d5
+        self.assertFalse(highinverse_c2_c3_c4_d2_d3_d4.solves(group=white_group_a5_d6))
+
+    def test_is_useful(self):
+        # Lowinverse c2-c3-d2-d3 guarantees that Black will get at least one square
+        # out of each of three pairs of squares:
+        # 1. The squares in the first column (c2-c3).
+        # 2. The squares in the other column (d2-d3).
+        # 3. The upper two squares (c3-d3).
+        lowinverse_c2_c3_d2_d3 = Lowinverse(
+            first_vertical=Vertical(upper=Square(row=3, col=2), lower=Square(row=4, col=2)),  # c2-c3
+            second_vertical=Vertical(upper=Square(row=3, col=3), lower=Square(row=4, col=3)),  # d2-d3
+        )
+        # Highinverse c2-c3-c4-d2-d3-d4 guarantees that Black will get at least one square
+        # out of each of four pairs of squares:
+        # 1. The upper two squares in the first column (c3-c4).
+        # 2. The upper two squares in the second column (d3-d4).
+        # 3. The middle squares from both columns (c3-d3).
+        # 4. The upper squares from both columns (c4-d4).
+        highinverse_c2_c3_c4_d2_d3_d4 = Highinverse(
+            lowinverse=lowinverse_c2_c3_d2_d3,
+            directly_playable_squares=[Square(row=4, col=2), Square(row=4, col=3)],  # c2 and d2
+        )
+
+        # Group which contain the upper squares of both columns.
+        white_group_a4_d4 = Group(player=0, start=Square(row=2, col=0), end=Square(row=2, col=3))  # a4-d4
+        self.assertTrue(highinverse_c2_c3_c4_d2_d3_d4.is_useful(groups={white_group_a4_d4}))
+        # Group which contain the middle squares of both columns. This can be solved by the Lowinverse.
+        white_group_a3_d3 = Group(player=0, start=Square(row=3, col=0), end=Square(row=3, col=3))  # a3-d3
+        self.assertFalse(highinverse_c2_c3_c4_d2_d3_d4.is_useful(groups={white_group_a3_d3}))
+        # Group that can be refuted by Vertical c3-c4.
+        # Note that these are the top two squares in the c-column of the Highinverse.
+        white_group_c3_c6 = Group(player=0, start=Square(row=0, col=2), end=Square(row=3, col=2))  # c3-c6
+        self.assertTrue(highinverse_c2_c3_c4_d2_d3_d4.is_useful(groups={white_group_c3_c6}))
+        # Group that can be refuted by Vertical d3-d4.
+        # Note that these are the top two squares in the d-column of the Highinverse.
+        white_group_d3_d6 = Group(player=0, start=Square(row=0, col=3), end=Square(row=3, col=3))  # d3-d6
+        self.assertTrue(highinverse_c2_c3_c4_d2_d3_d4.is_useful(groups={white_group_d3_d6}))
+        # Group that can be refuted by Vertical c2-c3.
+        # Note that these are the bottom two squares in the c-column of the Highinverse.
+        white_group_c2_c5 = Group(player=0, start=Square(row=1, col=2), end=Square(row=4, col=2))  # c2-c5
+        self.assertFalse(highinverse_c2_c3_c4_d2_d3_d4.is_useful(groups={white_group_c2_c5}))
+        # Group that can be refuted by Vertical d2-d3.
+        # Note that these are the bottom two squares in the d-column of the Highinverse.
+        white_group_d2_d5 = Group(player=0, start=Square(row=1, col=3), end=Square(row=4, col=3))  # d3-d6
+        self.assertFalse(highinverse_c2_c3_c4_d2_d3_d4.is_useful(groups={white_group_d2_d5}))
+
 
 if __name__ == '__main__':
     unittest.main()
