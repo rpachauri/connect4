@@ -655,6 +655,41 @@ class TestBaseclaim(unittest.TestCase):
         )
         self.assertEqual(want_problems_solved_for_player_0, got_problems_solved_for_player_0)
 
+    def test_solves(self):
+        # Baseclaim b1-c1-c2-e1 allows the player to guarantee themselves one of the following squares:
+        # 1. b1 or c2
+        # 2. c1 or e1
+        # c2 is the non-playable square.
+        baseclaim_b1_c1_c2_f1 = Baseclaim(
+            first=Square(row=5, col=1),  # b1
+            second=Square(row=5, col=2),  # c1
+            third=Square(row=5, col=4),  # e1
+        )
+
+        # Group b1-e4 contains b1 and c2, so the Baseclaim can refute it.
+        white_group_b1_e4 = Group(player=0, start=Square(row=5, col=1), end=Square(row=2, col=4))  # b1-e4
+        self.assertTrue(baseclaim_b1_c1_c2_f1.solves(group=white_group_b1_e4))
+        # Group c1-f1 contains c1 and e1, so the Baseclaim can refute it.
+        white_group_c1_f1 = Group(player=0, start=Square(row=5, col=2), end=Square(row=5, col=5))  # c1-f1
+        self.assertTrue(baseclaim_b1_c1_c2_f1.solves(group=white_group_c1_f1))
+        # Group c2-f2 does not contain b1 and c2 and it does not contain c1 and e1, so the Baseclaim cannot refute it.
+        white_group_c2_f2 = Group(player=0, start=Square(row=4, col=2), end=Square(row=4, col=5))  # c2-f2
+        self.assertFalse(baseclaim_b1_c1_c2_f1.solves(group=white_group_c2_f2))
+
+    def test_is_useful(self):
+        baseclaim_b1_c1_c2_f1 = Baseclaim(
+            first=Square(row=5, col=1),  # b1
+            second=Square(row=5, col=2),  # c1
+            third=Square(row=5, col=4),  # e1
+        )
+
+        # Group b1-e4 contains b1 and c2, so the Baseclaim can refute it.
+        white_group_b1_e4 = Group(player=0, start=Square(row=5, col=1), end=Square(row=2, col=4))  # b1-e4
+
+        # If a Baseclaim solves at least one Group, it is useful.
+        self.assertTrue(baseclaim_b1_c1_c2_f1.is_useful(groups={white_group_b1_e4}))
+        self.assertFalse(baseclaim_b1_c1_c2_f1.is_useful(groups=set()))
+
 
 if __name__ == '__main__':
     unittest.main()

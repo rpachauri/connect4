@@ -5,6 +5,8 @@ from connect_four.game import Square
 from connect_four.evaluation.victor.board import Board
 from connect_four.problem import Group
 
+import warnings
+
 
 class Baseclaim(Rule):
     def __init__(self, first: Square, second: Square, third: Square):
@@ -27,6 +29,16 @@ class Baseclaim(Rule):
     def __hash__(self):
         return self.first.__hash__() * 41 + self.second.__hash__() * 31 + self.third.__hash__()
 
+    def solves(self, group: Group) -> bool:
+        square_above_second = Square(row=self.second.row - 1, col=self.second.col)
+        if self.first in group.squares and square_above_second in group.squares:
+            return True
+
+        return self.second in group.squares and self.third in group.squares
+
+    def is_useful(self, groups: Set[Group]) -> bool:
+        return not not groups
+
     def find_problems_solved(self, groups_by_square_by_player: List[List[List[Set[Group]]]]) -> Set[Group]:
         """Finds all Problems this Rule solves.
 
@@ -43,6 +55,7 @@ class Baseclaim(Rule):
         Returns:
             problems_solved (Set[Group]): All Problems in square_to_groups this Rule solves.
         """
+        warnings.warn("find_problems_solved is deprecated. use solves() instead", DeprecationWarning)
         white_problems_solved = self.find_problems_solved_for_player(groups_by_square=groups_by_square_by_player[0])
         black_problems_solved = self.find_problems_solved_for_player(groups_by_square=groups_by_square_by_player[1])
         return white_problems_solved.union(black_problems_solved)

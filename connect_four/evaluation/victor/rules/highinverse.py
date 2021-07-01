@@ -6,6 +6,8 @@ from connect_four.evaluation.victor.rules import Lowinverse, Rule, Vertical
 from connect_four.game import Square
 from connect_four.problem import Group
 
+import warnings
+
 
 class Highinverse(Rule):
     def __init__(self, lowinverse: Lowinverse, directly_playable_squares=None):
@@ -89,6 +91,7 @@ class Highinverse(Rule):
         Returns:
             problems_solved (Set[Group]): All Problems in square_to_groups this Rule solves.
         """
+        warnings.warn("find_problems_solved is deprecated. use solves() instead", DeprecationWarning)
         white_problems_solved = self.find_problems_solved_for_player(groups_by_square=groups_by_square_by_player[0])
         black_problems_solved = self.find_problems_solved_for_player(groups_by_square=groups_by_square_by_player[1])
         return white_problems_solved.union(black_problems_solved)
