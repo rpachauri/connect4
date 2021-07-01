@@ -2,7 +2,7 @@ import unittest
 from typing import List, Set
 
 from connect_four.evaluation.victor.rules import Claimeven, Vertical
-from connect_four.evaluation.victor.solution import solution2
+from connect_four.evaluation.victor.solution import victor_solution
 from connect_four.evaluation.victor.solution.fake_solution_manager import FakeSolutionManager
 from connect_four.game import Square
 from connect_four.problem import Group as Problem
@@ -37,17 +37,17 @@ class TestGraphManager(unittest.TestCase):
         # but it is not necessary for the Solutions to be exhaustive for this test.
 
         problem_1 = Problem(player=0, start=Square(row=0, col=0), end=Square(row=3, col=3))  # a6-d3
-        solution_1 = solution2.from_claimeven(claimeven=Claimeven(
+        solution_1 = victor_solution.from_claimeven(claimeven=Claimeven(
             upper=Square(row=0, col=0),  # a6
             lower=Square(row=1, col=0),  # a5
         ))
         problem_2 = Problem(player=0, start=Square(row=1, col=0), end=Square(row=4, col=0))  # a5-a2
-        solution_2 = solution2.from_vertical(vertical=Vertical(
+        solution_2 = victor_solution.from_vertical(vertical=Vertical(
             upper=Square(row=1, col=0),  # a5
             lower=Square(row=2, col=0),  # a4
         ))
         problem_3 = Problem(player=1, start=Square(row=0, col=1), end=Square(row=3, col=4))  # b6-e3
-        solution_3 = solution2.from_claimeven(claimeven=Claimeven(
+        solution_3 = victor_solution.from_claimeven(claimeven=Claimeven(
             upper=Square(row=0, col=1),  # b6
             lower=Square(row=1, col=1),  # b5
         ))

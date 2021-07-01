@@ -1,7 +1,7 @@
 from typing import Set
 
 from connect_four.evaluation.victor.solution import SolutionManager
-from connect_four.evaluation.victor.solution.solution2 import Solution
+from connect_four.evaluation.victor.solution.solution import Solution
 
 
 class FakeSolutionManager(SolutionManager):

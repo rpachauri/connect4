@@ -14,8 +14,8 @@ from connect_four.evaluation.victor.rules.highinverse import HighinverseManager
 from connect_four.evaluation.victor.rules.lowinverse import LowinverseManager
 from connect_four.evaluation.victor.rules.specialbefore import SpecialbeforeManager
 from connect_four.evaluation.victor.rules.vertical import VerticalManager
-from connect_four.evaluation.victor.solution import solution2
-from connect_four.evaluation.victor.solution.solution2 import Solution
+from connect_four.evaluation.victor.solution import victor_solution
+from connect_four.evaluation.victor.solution.victor_solution import VictorSolution
 from connect_four.evaluation.victor.solution.solution_manager import SolutionManager
 from connect_four.game import Square
 
@@ -33,11 +33,11 @@ class VictorSolutionManager(SolutionManager):
         self.moves = []
 
     @staticmethod
-    def _find_all_solutions(board: Board) -> Set[Solution]:
+    def _find_all_solutions(board: Board) -> Set[VictorSolution]:
         """Finds all Solutions for the current board.
 
         Returns:
-            solutions (Set[Solution]): the set of all Solutions for either player in the current board.
+            solutions (Set[VictorSolution]): the set of all Solutions for either player in the current board.
         """
         white_groups = board.potential_groups(0)
         black_groups = board.potential_groups(1)
@@ -61,29 +61,29 @@ class VictorSolutionManager(SolutionManager):
         # Convert the rule instances into Solutions.
         solutions = set()
         for claimeven in claimevens:
-            solutions.add(solution2.from_claimeven(claimeven=claimeven))
+            solutions.add(victor_solution.from_claimeven(claimeven=claimeven))
         for baseinverse in baseinverses:
-            solutions.add(solution2.from_baseinverse(baseinverse=baseinverse))
+            solutions.add(victor_solution.from_baseinverse(baseinverse=baseinverse))
         for vertical in verticals:
-            solutions.add(solution2.from_vertical(vertical=vertical))
+            solutions.add(victor_solution.from_vertical(vertical=vertical))
         for aftereven in white_afterevens:
-            solutions.add(solution2.from_aftereven(aftereven=aftereven))
+            solutions.add(victor_solution.from_aftereven(aftereven=aftereven))
         for aftereven in black_afterevens:
-            solutions.add(solution2.from_aftereven(aftereven=aftereven))
+            solutions.add(victor_solution.from_aftereven(aftereven=aftereven))
         for lowinverse in lowinverses:
-            solutions.add(solution2.from_lowinverse(lowinverse=lowinverse))
+            solutions.add(victor_solution.from_lowinverse(lowinverse=lowinverse))
         for highinverse in highinverses:
-            solutions.add(solution2.from_highinverse(highinverse=highinverse))
+            solutions.add(victor_solution.from_highinverse(highinverse=highinverse))
         for baseclaim in baseclaims:
-            solutions.add(solution2.from_baseclaim(baseclaim=baseclaim))
+            solutions.add(victor_solution.from_baseclaim(baseclaim=baseclaim))
         for before in white_befores:
-            solutions.add(solution2.from_before(before=before))
+            solutions.add(victor_solution.from_before(before=before))
         for before in black_befores:
-            solutions.add(solution2.from_before(before=before))
+            solutions.add(victor_solution.from_before(before=before))
         for specialbefore in white_specialbefores:
-            solutions.add(solution2.from_specialbefore(specialbefore=specialbefore))
+            solutions.add(victor_solution.from_specialbefore(specialbefore=specialbefore))
         for specialbefore in black_specialbefores:
-            solutions.add(solution2.from_specialbefore(specialbefore=specialbefore))
+            solutions.add(victor_solution.from_specialbefore(specialbefore=specialbefore))
         # for odd_threat in white_odd_threats:
         #     solutions.add(solution2.from_odd_threat(odd_threat=odd_threat))
 
@@ -101,8 +101,8 @@ class VictorSolutionManager(SolutionManager):
             col (int): the column to play
 
         Returns:
-            removed_solutions (Set[Solution]): the Solutions that were removed after the given move.
-            added_solutions (Set[Solution]): the Solutions that were added after the given move.
+            removed_solutions (Set[VictorSolution]): the Solutions that were removed after the given move.
+            added_solutions (Set[VictorSolution]): the Solutions that were added after the given move.
         """
         removed_solutions, added_solutions = VictorSolutionManager.added_removed_solutions(
             player=player, row=row, col=col, board=self.board,
@@ -116,7 +116,7 @@ class VictorSolutionManager(SolutionManager):
         return removed_solutions, added_solutions
 
     @staticmethod
-    def added_removed_solutions(player: int, row: int, col: int, board: Board) -> (Set[Solution], Set[Solution]):
+    def added_removed_solutions(player: int, row: int, col: int, board: Board) -> (Set[VictorSolution], Set[VictorSolution]):
         claimeven_manager = ClaimevenManager(board=board)
         baseinverse_manager = BaseinverseManager(board=board)
         vertical_manager = VerticalManager(board=board)
@@ -163,37 +163,37 @@ class VictorSolutionManager(SolutionManager):
         # Convert the rule instances into Solutions.
         removed_solutions = set()
         if claimeven is not None:
-            removed_solutions.add(solution2.from_claimeven(claimeven=claimeven))
+            removed_solutions.add(victor_solution.from_claimeven(claimeven=claimeven))
         for baseinverse in removed_baseinverses:
-            removed_solutions.add(solution2.from_baseinverse(baseinverse=baseinverse))
+            removed_solutions.add(victor_solution.from_baseinverse(baseinverse=baseinverse))
         if vertical is not None:
-            removed_solutions.add(solution2.from_vertical(vertical=vertical))
+            removed_solutions.add(victor_solution.from_vertical(vertical=vertical))
         for aftereven in removed_afterevens:
-            removed_solutions.add(solution2.from_aftereven(aftereven=aftereven))
+            removed_solutions.add(victor_solution.from_aftereven(aftereven=aftereven))
         for lowinverse in removed_lowinverses:
-            removed_solutions.add(solution2.from_lowinverse(lowinverse=lowinverse))
+            removed_solutions.add(victor_solution.from_lowinverse(lowinverse=lowinverse))
         for highinverse in removed_highinverses:
-            removed_solutions.add(solution2.from_highinverse(highinverse=highinverse))
+            removed_solutions.add(victor_solution.from_highinverse(highinverse=highinverse))
         for baseclaim in removed_baseclaims:
-            removed_solutions.add(solution2.from_baseclaim(baseclaim=baseclaim))
+            removed_solutions.add(victor_solution.from_baseclaim(baseclaim=baseclaim))
         for before in removed_befores:
-            removed_solutions.add(solution2.from_before(before=before))
+            removed_solutions.add(victor_solution.from_before(before=before))
         for specialbefore in removed_specialbefores:
-            removed_solutions.add(solution2.from_specialbefore(specialbefore=specialbefore))
+            removed_solutions.add(victor_solution.from_specialbefore(specialbefore=specialbefore))
 
         added_solutions = set()
         for baseinverse in added_baseinverses:
-            added_solutions.add(solution2.from_baseinverse(baseinverse=baseinverse))
+            added_solutions.add(victor_solution.from_baseinverse(baseinverse=baseinverse))
         for aftereven in added_afterevens:
-            added_solutions.add(solution2.from_aftereven(aftereven=aftereven))
+            added_solutions.add(victor_solution.from_aftereven(aftereven=aftereven))
         for highinverse in added_highinverses:
-            added_solutions.add(solution2.from_highinverse(highinverse=highinverse))
+            added_solutions.add(victor_solution.from_highinverse(highinverse=highinverse))
         for baseclaim in added_baseclaims:
-            added_solutions.add(solution2.from_baseclaim(baseclaim=baseclaim))
+            added_solutions.add(victor_solution.from_baseclaim(baseclaim=baseclaim))
         for before in added_befores:
-            added_solutions.add(solution2.from_before(before=before))
+            added_solutions.add(victor_solution.from_before(before=before))
         for specialbefore in added_specialbefores:
-            added_solutions.add(solution2.from_specialbefore(specialbefore=specialbefore))
+            added_solutions.add(victor_solution.from_specialbefore(specialbefore=specialbefore))
 
         return removed_solutions, added_solutions
 
@@ -205,8 +205,8 @@ class VictorSolutionManager(SolutionManager):
                 is at the state given upon initialization.
 
         Returns:
-            added_solutions (Set[Solution]): the Solutions that were added by undoing the most recent move.
-            removed_solutions (Set[Solution]): the Solutions that were removed by undoing the most recent move.
+            added_solutions (Set[VictorSolution]): the Solutions that were added by undoing the most recent move.
+            removed_solutions (Set[VictorSolution]): the Solutions that were removed by undoing the most recent move.
         """
         assert self.moves
         # current_solutions = self._find_all_solutions(board=self.board)
@@ -222,23 +222,23 @@ class VictorSolutionManager(SolutionManager):
 
         return added_solutions, removed_solutions
 
-    def get_solutions(self) -> Set[Solution]:
+    def get_solutions(self) -> Set[VictorSolution]:
         """Returns all Solutions for the current game position.
 
         Returns:
-            solutions (Set[Solution]): the set of all Solutions that can be used in the current state.
+            solutions (Set[VictorSolution]): the set of all Solutions that can be used in the current state.
         """
         # return self.solutions_by_move[-1]
         return self._find_all_solutions(board=self.board)
 
-    def get_win_conditions(self) -> Set[Solution]:
+    def get_win_conditions(self) -> Set[VictorSolution]:
         """Returns all win conditions for the current game position.
 
         Returns:
-            win_conditions (Set[Solution]): a subset of all Solutions in this state.
+            win_conditions (Set[VictorSolution]): a subset of all Solutions in this state.
 
             Constraints on win_conditions:
-                1. No Solution in win_conditions may be combined with another Solution in win_conditions.
+                1. No VictorSolution in win_conditions may be combined with another VictorSolution in win_conditions.
         """
         win_conditions = set()
 

@@ -15,7 +15,7 @@ from connect_four.evaluation.victor.rules.before import add_before_variations, B
 from connect_four.evaluation.victor.rules.before import empty_squares_of_before_group
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
-from connect_four.problem import ConnectFourProblemManager
+from connect_four.problem import ConnectFourGroupManager
 
 
 class TestBefore(unittest.TestCase):
@@ -318,7 +318,7 @@ class TestBefore(unittest.TestCase):
                 [0, 0, 1, 0, 0, 0, 0, ],
             ],
         ])
-        pm = ConnectFourProblemManager(env_variables=self.env.env_variables)
+        pm = ConnectFourGroupManager(env_variables=self.env.env_variables)
 
         # Before b4-e1+b5+e2 refutes b5-e2.
         before_b4_e1 = Before(

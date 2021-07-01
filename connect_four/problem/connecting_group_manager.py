@@ -2,13 +2,14 @@ from typing import List, Set, Dict
 
 from connect_four.envs import TwoPlayerGameEnvVariables
 from connect_four.game import Square
-from connect_four.problem import Group as Problem
+from connect_four.problem import Group
+from connect_four.problem.problem import Problem
 from connect_four.problem.problem_manager import ProblemManager
 
 
-class ConnectingProblemManager(ProblemManager):
+class ConnectingGroupManager(ProblemManager):
     def __init__(self, env_variables: TwoPlayerGameEnvVariables, num_to_connect: int):
-        """Initializes the ConnectingProblemManager with the given env_variables.
+        """Initializes the ConnectingGroupManager with the given env_variables.
 
         Args:
             env_variables (TwoPlayerGameEnvVariables): a TwoPlayerGame's env_variables.
@@ -40,8 +41,8 @@ class ConnectingProblemManager(ProblemManager):
         self.groups_removed_by_squares_by_move = []
 
     @staticmethod
-    def _create_all_groups(num_rows: int, num_cols: int, num_to_connect: int) -> Set[Problem]:
-        """Creates a set of all Problems for an empty board with the given number of rows and columns.
+    def _create_all_groups(num_rows: int, num_cols: int, num_to_connect: int) -> Set[Group]:
+        """Creates a set of all Groups for an empty board with the given number of rows and columns.
 
         Args:
             num_rows (int): The number of rows there are in the board.
@@ -49,7 +50,7 @@ class ConnectingProblemManager(ProblemManager):
             num_to_connect (int): The number of squares that need to be connected for a win.
 
         Returns:
-            all_groups (Set[Problem]): the set of all Problems that can be used by either player in an empty board.
+            all_groups (Set[Group]): the set of all Groups that can be used by either player in an empty board.
         """
         directions = [
             (-1, 1),  # up-right diagonal
@@ -64,9 +65,9 @@ class ConnectingProblemManager(ProblemManager):
                     for direction in directions:
                         end_row = start_row + (num_to_connect - 1) * direction[0]
                         end_col = start_col + (num_to_connect - 1) * direction[1]
-                        if ConnectingProblemManager._is_valid(
+                        if ConnectingGroupManager._is_valid(
                                 row=end_row, col=end_col, num_rows=num_rows, num_cols=num_cols):
-                            all_groups.add(Problem(
+                            all_groups.add(Group(
                                 player=player,
                                 start=Square(row=start_row, col=start_col),
                                 end=Square(row=end_row, col=end_col),
@@ -90,16 +91,16 @@ class ConnectingProblemManager(ProblemManager):
 
     @staticmethod
     def _create_all_groups_by_square_by_player(
-            num_rows: int, num_cols: int, all_groups: Set[Problem]) -> List[List[List[Set[Problem]]]]:
+            num_rows: int, num_cols: int, all_groups: Set[Group]) -> List[List[List[Set[Group]]]]:
         """
 
         Args:
             num_rows (int): the number of rows in the board.
             num_cols (int): the number of columns in the board.
-            all_groups (Set[Problem]): the set of all Groups that can be used by either player in an empty board.
+            all_groups (Set[Group]): the set of all Groups that can be used by either player in an empty board.
 
         Returns:
-            groups_by_square_by_player (List[List[List[Set[Problem]]]]): a 3D array of a Set of Groups.
+            groups_by_square_by_player (List[List[List[Set[Group]]]]): a 3D array of a Set of Groups.
                 1. The first dimension is the player.
                 2. The second dimension is the row.
                 3. The third dimension is the col.
@@ -124,7 +125,7 @@ class ConnectingProblemManager(ProblemManager):
             groups_by_square_by_player.append(player_squares)
         return groups_by_square_by_player
 
-    def _play_square(self, player: int, row: int, col: int) -> Dict[Square, Set[Problem]]:
+    def _play_square(self, player: int, row: int, col: int) -> Dict[Square, Set[Group]]:
         """Plays the given square for the given player.
 
         Args:
@@ -140,15 +141,15 @@ class ConnectingProblemManager(ProblemManager):
                 2. May also change other squares to Indifferent. Those squares must be one of {Player1, Player2}.
 
         Returns:
-            groups_removed_by_squares (Dict[Square, Set[Problem]]):
-                A Dictionary mapping Squares to the Set of Problems that were removed from that Square.
+            groups_removed_by_squares (Dict[Square, Set[Group]]):
+                A Dictionary mapping Squares to the Set of Groups that were removed from that Square.
                 For every square in groups_removed_by_squares, the opponent can no longer win using that Group.
         """
         opponent = 1 - player
         groups_removed_by_square = self._remove_groups(opponent=opponent, row=row, col=col)
         return groups_removed_by_square
 
-    def _remove_groups(self, opponent: int, row: int, col: int) -> Dict[Square, Set[Problem]]:
+    def _remove_groups(self, opponent: int, row: int, col: int) -> Dict[Square, Set[Group]]:
         """
         Args:
             opponent (int): the player whose Groups we are removing.
@@ -161,7 +162,7 @@ class ConnectingProblemManager(ProblemManager):
                 self.groups_by_square_by_player[opponent][square.row][square.col].
 
         Returns:
-            groups_removed_by_square (Dict[Square, Set[Problems]]):
+            groups_removed_by_square (Dict[Square, Set[Group]]):
                 A Dictionary mapping Squares to all Groups that were removed.
                 For every square in groups_removed_by_squares, the opponent can no longer win using that Group.
         """
@@ -182,11 +183,11 @@ class ConnectingProblemManager(ProblemManager):
                     groups_removed_by_square[s].add(g)
         return groups_removed_by_square
 
-    def move(self, player: int, row: int, col: int) -> Set[Square]:
+    def move(self, player: int, row: int, col: int) -> (Set[Square], Set[Problem]):
         """Plays a move at the given row and column for the given player.
 
         Assumptions:
-            1.  The internal state of the ConnectingProblemManager is not at a terminal state.
+            1.  The internal state of the ConnectingGroupManager is not at a terminal state.
 
         Args:
             player (int): the player making the move.
@@ -195,16 +196,20 @@ class ConnectingProblemManager(ProblemManager):
 
         Returns:
             affected_squares (Set[Square]): all squares which had a Problem removed.
+            removed_problems (Set[Problem]): all Problems which were removed.
         """
         groups_removed_by_square = self._play_square(player=player, row=row, col=col)
         self.groups_removed_by_squares_by_move.append(groups_removed_by_square)
-        return set(groups_removed_by_square.keys())
+        groups_removed = set()
+        for square in groups_removed_by_square:
+            groups_removed.update(groups_removed_by_square[square])
+        return set(groups_removed_by_square.keys()), groups_removed
 
     def undo_move(self) -> Set[Problem]:
         """Undoes the most recent move.
 
         Raises:
-            (AssertionError): if the internal state of the ConnectingProblemManager is
+            (AssertionError): if the internal state of the ConnectingGroupManager is
                 at the state given upon initialization.
 
         Returns:

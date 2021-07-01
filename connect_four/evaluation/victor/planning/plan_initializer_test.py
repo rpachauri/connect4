@@ -13,7 +13,7 @@ from connect_four.evaluation.victor.rules import Baseinverse
 
 from connect_four.evaluation.victor.threat_hunter import threat
 
-from connect_four.evaluation.victor.solution import solution
+from connect_four.evaluation.victor.solution import solution1
 from connect_four.evaluation.victor.evaluator import evaluator
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
@@ -69,74 +69,74 @@ class TestPlanInitializer(unittest.TestCase):
 
         # Define all Solutions using Claimevens.
         # A subset of these Claimevens can refute all of white_groups.
-        claimeven_a1_a2_solution = solution.from_claimeven(
+        claimeven_a1_a2_solution = solution1.from_claimeven(
             claimeven=claimeven_a1_a2,
             square_to_groups=square_to_groups,
         )
-        claimeven_a3_a4_solution = solution.from_claimeven(
+        claimeven_a3_a4_solution = solution1.from_claimeven(
             claimeven=claimeven_a3_a4,
             square_to_groups=square_to_groups,
         )
-        claimeven_a5_a6_solution = solution.from_claimeven(
+        claimeven_a5_a6_solution = solution1.from_claimeven(
             claimeven=claimeven_a5_a6,
             square_to_groups=square_to_groups,
         )
-        claimeven_b1_b2_solution = solution.from_claimeven(
+        claimeven_b1_b2_solution = solution1.from_claimeven(
             claimeven=claimeven_b1_b2,
             square_to_groups=square_to_groups,
         )
-        claimeven_b3_b4_solution = solution.from_claimeven(
+        claimeven_b3_b4_solution = solution1.from_claimeven(
             claimeven=claimeven_b3_b4,
             square_to_groups=square_to_groups,
         )
-        claimeven_b5_b6_solution = solution.from_claimeven(
+        claimeven_b5_b6_solution = solution1.from_claimeven(
             claimeven=claimeven_b5_b6,
             square_to_groups=square_to_groups,
         )
-        claimeven_c3_c4_solution = solution.from_claimeven(
+        claimeven_c3_c4_solution = solution1.from_claimeven(
             claimeven=claimeven_c3_c4,
             square_to_groups=square_to_groups,
         )
-        claimeven_c5_c6_solution = solution.from_claimeven(
+        claimeven_c5_c6_solution = solution1.from_claimeven(
             claimeven=claimeven_c5_c6,
             square_to_groups=square_to_groups,
         )
-        claimeven_e3_e4_solution = solution.from_claimeven(
+        claimeven_e3_e4_solution = solution1.from_claimeven(
             claimeven=claimeven_e3_e4,
             square_to_groups=square_to_groups,
         )
-        claimeven_e5_e6_solution = solution.from_claimeven(
+        claimeven_e5_e6_solution = solution1.from_claimeven(
             claimeven=claimeven_e5_e6,
             square_to_groups=square_to_groups,
         )
-        claimeven_f1_f2_solution = solution.from_claimeven(
+        claimeven_f1_f2_solution = solution1.from_claimeven(
             claimeven=claimeven_f1_f2,
             square_to_groups=square_to_groups,
         )
-        claimeven_f3_f4_solution = solution.from_claimeven(
+        claimeven_f3_f4_solution = solution1.from_claimeven(
             claimeven=claimeven_f3_f4,
             square_to_groups=square_to_groups,
         )
-        claimeven_f5_f6_solution = solution.from_claimeven(
+        claimeven_f5_f6_solution = solution1.from_claimeven(
             claimeven=claimeven_f5_f6,
             square_to_groups=square_to_groups,
         )
-        claimeven_g1_g2_solution = solution.from_claimeven(
+        claimeven_g1_g2_solution = solution1.from_claimeven(
             claimeven=claimeven_g1_g2,
             square_to_groups=square_to_groups,
         )
-        claimeven_g3_g4_solution = solution.from_claimeven(
+        claimeven_g3_g4_solution = solution1.from_claimeven(
             claimeven=claimeven_g3_g4,
             square_to_groups=square_to_groups,
         )
-        claimeven_g5_g6_solution = solution.from_claimeven(
+        claimeven_g5_g6_solution = solution1.from_claimeven(
             claimeven=claimeven_g5_g6,
             square_to_groups=square_to_groups,
         )
 
         # Note that typically, for a given set of Solutions, there may be multiple subsets of Solutions that
         # solve all groups.
-        # In this test case, the given Solution set is the desired set so there is exactly one subset.
+        # In this test case, the given VictorSolution set is the desired set so there is exactly one subset.
         solutions = {
             claimeven_a1_a2_solution,
             claimeven_a3_a4_solution,
@@ -227,35 +227,35 @@ class TestPlanInitializer(unittest.TestCase):
         square_to_groups = board.potential_groups_by_square()
         # Define all Solutions using Claimevens.
         # A subset of these Claimevens can refute all of Black's groups not in the 0th column.
-        claimeven_b5_b6_solution = solution.from_claimeven(
+        claimeven_b5_b6_solution = solution1.from_claimeven(
             claimeven=claimeven_b5_b6,
             square_to_groups=square_to_groups,
         )
-        claimeven_c5_c6_solution = solution.from_claimeven(
+        claimeven_c5_c6_solution = solution1.from_claimeven(
             claimeven=claimeven_c5_c6,
             square_to_groups=square_to_groups,
         )
-        claimeven_f1_f2_solution = solution.from_claimeven(
+        claimeven_f1_f2_solution = solution1.from_claimeven(
             claimeven=claimeven_f1_f2,
             square_to_groups=square_to_groups,
         )
-        claimeven_f3_f4_solution = solution.from_claimeven(
+        claimeven_f3_f4_solution = solution1.from_claimeven(
             claimeven=claimeven_f3_f4,
             square_to_groups=square_to_groups,
         )
-        claimeven_f5_f6_solution = solution.from_claimeven(
+        claimeven_f5_f6_solution = solution1.from_claimeven(
             claimeven=claimeven_f5_f6,
             square_to_groups=square_to_groups,
         )
-        claimeven_g3_g4_solution = solution.from_claimeven(
+        claimeven_g3_g4_solution = solution1.from_claimeven(
             claimeven=claimeven_g3_g4,
             square_to_groups=square_to_groups,
         )
-        claimeven_g5_g6_solution = solution.from_claimeven(
+        claimeven_g5_g6_solution = solution1.from_claimeven(
             claimeven=claimeven_g5_g6,
             square_to_groups=square_to_groups,
         )
-        baseinverse_d5_e5_solution = solution.from_baseinverse(
+        baseinverse_d5_e5_solution = solution1.from_baseinverse(
             baseinverse=baseinverse_d5_e5,
             square_to_groups=square_to_groups,
         )
@@ -267,7 +267,7 @@ class TestPlanInitializer(unittest.TestCase):
 
         # Note that typically, for a given set of Solutions, there may be multiple subsets of Solutions that
         # solve all groups.
-        # In this test case, the given Solution set is the desired set so there is exactly one subset.
+        # In this test case, the given VictorSolution set is the desired set so there is exactly one subset.
         solutions = {
             claimeven_b5_b6_solution,
             claimeven_c5_c6_solution,

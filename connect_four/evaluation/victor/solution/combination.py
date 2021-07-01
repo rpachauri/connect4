@@ -1,74 +1,74 @@
 from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Aftereven, Baseclaim, Before, \
     Specialbefore, Lowinverse, Highinverse, OddThreat
 
-from connect_four.evaluation.victor.solution.solution2 import Solution
+from connect_four.evaluation.victor.solution.victor_solution import VictorSolution
 
 
-def allowed(s1: Solution, s2: Solution) -> bool:
+def allowed(s1: VictorSolution, s2: VictorSolution) -> bool:
     """Returns True if the two Solutions can be combined; Otherwise, False.
 
     Args:
-        s1 (Solution): a Solution.
-        s2 (Solution): a Solution.
+        s1 (VictorSolution): a Solution.
+        s2 (VictorSolution): a Solution.
 
     Returns:
         combination_allowed (bool): True if the two Solutions can be combined; Otherwise, False.
     """
-    # If either Solution is an OddThreat.
+    # If either VictorSolution is an OddThreat.
     if isinstance(s1.rule_instance, OddThreat):
         return allowed_with_odd_threat(solution=s1, other=s2)
     if isinstance(s2.rule_instance, OddThreat):
         return allowed_with_odd_threat(solution=s2, other=s1)
 
-    # If either Solution is a Claimeven.
+    # If either VictorSolution is a Claimeven.
     if isinstance(s1.rule_instance, Claimeven):
         return allowed_with_claimeven(solution=s1, other=s2)
     if isinstance(s2.rule_instance, Claimeven):
         return allowed_with_claimeven(solution=s2, other=s1)
 
-    # If either Solution is a Baseinverse:
+    # If either VictorSolution is a Baseinverse:
     if isinstance(s1.rule_instance, Baseinverse):
         return allowed_with_baseinverse(solution=s1, other=s2)
     if isinstance(s2.rule_instance, Baseinverse):
         return allowed_with_baseinverse(solution=s2, other=s1)
 
-    # If either Solution is a Vertical:
+    # If either VictorSolution is a Vertical:
     if isinstance(s1.rule_instance, Vertical):
         return allowed_with_vertical(solution=s1, other=s2)
     if isinstance(s2.rule_instance, Vertical):
         return allowed_with_vertical(solution=s2, other=s1)
 
-    # If either Solution is an Aftereven:
+    # If either VictorSolution is an Aftereven:
     if isinstance(s1.rule_instance, Aftereven):
         return allowed_with_aftereven(solution=s1, other=s2)
     if isinstance(s2.rule_instance, Aftereven):
         return allowed_with_aftereven(solution=s2, other=s1)
 
-    # If either Solution is a Lowinverse:
+    # If either VictorSolution is a Lowinverse:
     if isinstance(s1.rule_instance, Lowinverse):
         return allowed_with_lowinverse(solution=s1, other=s2)
     if isinstance(s2.rule_instance, Lowinverse):
         return allowed_with_lowinverse(solution=s2, other=s1)
 
-    # If either Solution is a Highinverse:
+    # If either VictorSolution is a Highinverse:
     if isinstance(s1.rule_instance, Highinverse):
         return allowed_with_highinverse(solution=s1, other=s2)
     if isinstance(s2.rule_instance, Highinverse):
         return allowed_with_highinverse(solution=s2, other=s1)
 
-    # If either Solution is a Baseclaim:
+    # If either VictorSolution is a Baseclaim:
     if isinstance(s1.rule_instance, Baseclaim):
         return allowed_with_baseclaim(solution=s1, other=s2)
     if isinstance(s2.rule_instance, Baseclaim):
         return allowed_with_baseclaim(solution=s2, other=s1)
 
-    # If either Solution is a Before:
+    # If either VictorSolution is a Before:
     if isinstance(s1.rule_instance, Before):
         return allowed_with_before(solution=s1, other=s2)
     if isinstance(s2.rule_instance, Before):
         return allowed_with_before(solution=s2, other=s1)
 
-    # If either Solution is a Specialbefore: (although at this point, this must be true).
+    # If either VictorSolution is a Specialbefore: (although at this point, this must be true).
     if isinstance(s1.rule_instance, Specialbefore):
         return allowed_with_specialbefore(solution=s1, other=s2)
     if isinstance(s2.rule_instance, Specialbefore):
@@ -77,12 +77,12 @@ def allowed(s1: Solution, s2: Solution) -> bool:
     raise ValueError("Unacceptable Rule types:", s1.rule_instance, s2.rule_instance)
 
 
-def disjoint(solution: Solution, other: Solution) -> bool:
+def disjoint(solution: VictorSolution, other: VictorSolution) -> bool:
     """Returns True if the sets of squares are disjoint. Otherwise, False.
 
     Args:
-        solution (Solution): a Solution.
-        other (Solution): a Solution.
+        solution (VictorSolution): a Solution.
+        other (VictorSolution): a Solution.
 
     Returns:
         True if the sets of squares are disjoint. Otherwise, False
@@ -90,12 +90,12 @@ def disjoint(solution: Solution, other: Solution) -> bool:
     return solution.squares.isdisjoint(other.squares)
 
 
-def no_claimeven_below_or_at_inverse(inverse_solution: Solution, claimeven_solution: Solution) -> bool:
+def no_claimeven_below_or_at_inverse(inverse_solution: VictorSolution, claimeven_solution: VictorSolution) -> bool:
     """Returns True if there is no Claimeven in claimeven_solution below or at the Inverse of inverse_solution.
 
     Args:
-        inverse_solution (Solution): either a Lowinverse or Highinverse Solution.
-        claimeven_solution (Solution): a Claimeven, Aftereven, Baseclaim, Before, or Specialbefore Solution.
+        inverse_solution (VictorSolution): either a Lowinverse or Highinverse Solution.
+        claimeven_solution (VictorSolution): a Claimeven, Aftereven, Baseclaim, Before, or Specialbefore Solution.
 
     Returns:
         False if there exists a lower Claimeven square in claimeven_solution equal to or
@@ -111,12 +111,12 @@ def no_claimeven_below_or_at_inverse(inverse_solution: Solution, claimeven_solut
     return True
 
 
-def column_wise_disjoint(solution: Solution, other: Solution) -> bool:
+def column_wise_disjoint(solution: VictorSolution, other: VictorSolution) -> bool:
     """Returns true if the two solutions are disjoint (column-wise).
 
     Args:
-        solution (Solution): a Solution.
-        other (Solution): a Solution.
+        solution (VictorSolution): a Solution.
+        other (VictorSolution): a Solution.
 
     Returns:
         False if the two solutions have squares that share a column,
@@ -125,12 +125,12 @@ def column_wise_disjoint(solution: Solution, other: Solution) -> bool:
     return solution.squares_by_column.keys().isdisjoint(other.squares_by_column.keys())
 
 
-def column_wise_disjoint_or_equal(solution: Solution, other: Solution) -> bool:
+def column_wise_disjoint_or_equal(solution: VictorSolution, other: VictorSolution) -> bool:
     """Returns true if the two solutions are disjoint or equal (column-wise).
 
     Args:
-        solution (Solution): a Solution.
-        other (Solution): a Solution.
+        solution (VictorSolution): a Solution.
+        other (VictorSolution): a Solution.
 
     Returns:
         False if the two solutions have intersecting squares in a column,
@@ -146,12 +146,12 @@ def column_wise_disjoint_or_equal(solution: Solution, other: Solution) -> bool:
     return True
 
 
-def allowed_with_odd_threat(solution: Solution, other: Solution) -> bool:
+def allowed_with_odd_threat(solution: VictorSolution, other: VictorSolution) -> bool:
     """Returns True if other can be combined with solution; Otherwise, False.
 
     Args:
-        solution (Solution): a Solution with rule=Rule.Claimeven.
-        other (Solution): a Solution.
+        solution (VictorSolution): a Solution with rule=Rule.Claimeven.
+        other (VictorSolution): a Solution.
 
     Requires:
         1. solution must have rule=Rule.Claimeven.
@@ -174,7 +174,7 @@ def allowed_with_odd_threat(solution: Solution, other: Solution) -> bool:
     if isinstance(other.rule_instance, OddThreat):
         return False
 
-    # OddThreats cannot be combined with any other Solution that uses a square in the same column.
+    # OddThreats cannot be combined with any other VictorSolution that uses a square in the same column.
     if not column_wise_disjoint(solution=solution, other=other):
         return False
 
@@ -190,12 +190,12 @@ def allowed_with_odd_threat(solution: Solution, other: Solution) -> bool:
     return True
 
 
-def allowed_with_claimeven(solution: Solution, other: Solution) -> bool:
+def allowed_with_claimeven(solution: VictorSolution, other: VictorSolution) -> bool:
     """Returns True if other can be combined with solution; Otherwise, False.
 
     Args:
-        solution (Solution): a Solution with rule=Rule.Claimeven.
-        other (Solution): a Solution.
+        solution (VictorSolution): a Solution with rule=Rule.Claimeven.
+        other (VictorSolution): a Solution.
 
     Requires:
         1. solution must have rule=Rule.Claimeven.
@@ -220,12 +220,12 @@ def allowed_with_claimeven(solution: Solution, other: Solution) -> bool:
     raise ValueError("invalid other.rule_instance for allowed_with_claimeven:", other.rule_instance)
 
 
-def allowed_with_baseinverse(solution: Solution, other: Solution) -> bool:
+def allowed_with_baseinverse(solution: VictorSolution, other: VictorSolution) -> bool:
     """Returns True if other can be combined with solution; Otherwise, False.
 
     Args:
-        solution (Solution): a Solution with rule=Rule.Baseinverse.
-        other (Solution): a Solution.
+        solution (VictorSolution): a Solution with rule=Rule.Baseinverse.
+        other (VictorSolution): a Solution.
 
     Requires:
         1. solution must have rule=Rule.Baseinverse.
@@ -245,12 +245,12 @@ def allowed_with_baseinverse(solution: Solution, other: Solution) -> bool:
     return disjoint(solution=solution, other=other)
 
 
-def allowed_with_vertical(solution: Solution, other: Solution) -> bool:
+def allowed_with_vertical(solution: VictorSolution, other: VictorSolution) -> bool:
     """Returns True if other can be combined with solution; Otherwise, False.
 
     Args:
-        solution (Solution): a Solution with rule=Rule.Vertical.
-        other (Solution): a Solution.
+        solution (VictorSolution): a Solution with rule=Rule.Vertical.
+        other (VictorSolution): a Solution.
 
     Requires:
         1. solution must have rule=Rule.Vertical.
@@ -269,12 +269,12 @@ def allowed_with_vertical(solution: Solution, other: Solution) -> bool:
     return disjoint(solution=solution, other=other)
 
 
-def allowed_with_aftereven(solution: Solution, other: Solution) -> bool:
+def allowed_with_aftereven(solution: VictorSolution, other: VictorSolution) -> bool:
     """Returns True if other can be combined with solution; Otherwise, False.
 
     Args:
-        solution (Solution): a Solution with rule=Rule.Aftereven.
-        other (Solution): a Solution.
+        solution (VictorSolution): a Solution with rule=Rule.Aftereven.
+        other (VictorSolution): a Solution.
 
     Requires:
         1. solution must have rule=Rule.Aftereven.
@@ -299,12 +299,12 @@ def allowed_with_aftereven(solution: Solution, other: Solution) -> bool:
     raise ValueError("invalid other.rule for allowed_with_aftereven:", other.rule_instance)
 
 
-def allowed_with_lowinverse(solution: Solution, other: Solution) -> bool:
+def allowed_with_lowinverse(solution: VictorSolution, other: VictorSolution) -> bool:
     """Returns True if other can be combined with solution; Otherwise, False.
 
     Args:
-        solution (Solution): a Solution with rule=Rule.Lowinverse.
-        other (Solution): a Solution.
+        solution (VictorSolution): a Solution with rule=Rule.Lowinverse.
+        other (VictorSolution): a Solution.
 
     Requires:
         1. solution must have rule=Rule.Lowinverse.
@@ -328,12 +328,12 @@ def allowed_with_lowinverse(solution: Solution, other: Solution) -> bool:
                 column_wise_disjoint_or_equal(solution=solution, other=other))
 
 
-def allowed_with_highinverse(solution: Solution, other: Solution) -> bool:
+def allowed_with_highinverse(solution: VictorSolution, other: VictorSolution) -> bool:
     """Returns True if other can be combined with solution; Otherwise, False.
 
     Args:
-        solution (Solution): a Solution with rule=Rule.Highinverse.
-        other (Solution): a Solution.
+        solution (VictorSolution): a Solution with rule=Rule.Highinverse.
+        other (VictorSolution): a Solution.
 
     Requires:
         1. solution must have rule=Rule.Highinverse.
@@ -354,12 +354,12 @@ def allowed_with_highinverse(solution: Solution, other: Solution) -> bool:
     raise ValueError("invalid other.rule for allowed_with_aftereven:", other.rule_instance)
 
 
-def allowed_with_baseclaim(solution: Solution, other: Solution) -> bool:
+def allowed_with_baseclaim(solution: VictorSolution, other: VictorSolution) -> bool:
     """Returns True if other can be combined with solution; Otherwise, False.
 
     Args:
-        solution (Solution): a Solution with rule=Rule.Baseclaim.
-        other (Solution): a Solution.
+        solution (VictorSolution): a Solution with rule=Rule.Baseclaim.
+        other (VictorSolution): a Solution.
 
     Requires:
         1. solution must have rule=Rule.Baseclaim.
@@ -374,12 +374,12 @@ def allowed_with_baseclaim(solution: Solution, other: Solution) -> bool:
     return disjoint(solution=solution, other=other)
 
 
-def allowed_with_before(solution: Solution, other: Solution) -> bool:
+def allowed_with_before(solution: VictorSolution, other: VictorSolution) -> bool:
     """Returns True if other can be combined with solution; Otherwise, False.
 
     Args:
-        solution (Solution): a Solution with rule=Rule.Before.
-        other (Solution): a Solution.
+        solution (VictorSolution): a Solution with rule=Rule.Before.
+        other (VictorSolution): a Solution.
 
     Requires:
         1. solution must have rule=Rule.Before.
@@ -393,12 +393,12 @@ def allowed_with_before(solution: Solution, other: Solution) -> bool:
     return column_wise_disjoint_or_equal(solution=solution, other=other)
 
 
-def allowed_with_specialbefore(solution: Solution, other: Solution) -> bool:
+def allowed_with_specialbefore(solution: VictorSolution, other: VictorSolution) -> bool:
     """Returns True if other can be combined with solution; Otherwise, False.
 
     Args:
-        solution (Solution): a Solution with rule=Rule.Specialbefore.
-        other (Solution): a Solution.
+        solution (VictorSolution): a Solution with rule=Rule.Specialbefore.
+        other (VictorSolution): a Solution.
 
     Requires:
         1. solution must have rule=Rule.Specialbefore.

@@ -9,7 +9,7 @@ from connect_four.evaluation.victor.rules import OddThreat
 from connect_four.evaluation.victor.rules import find_all_odd_threats
 from connect_four.game import Square
 from connect_four.problem import Group
-from connect_four.problem import ConnectFourProblemManager
+from connect_four.problem import ConnectFourGroupManager
 
 
 class TestOddThreat(unittest.TestCase):
@@ -132,7 +132,7 @@ class TestOddThreat(unittest.TestCase):
             ],
         ])
         self.env.player_turn = 1  # Black to move.
-        pm = ConnectFourProblemManager(env_variables=self.env.env_variables)
+        pm = ConnectFourGroupManager(env_variables=self.env.env_variables)
 
         odd_threat_a3_d3 = OddThreat(
             group=Group(player=0, start=Square(row=3, col=0), end=Square(row=3, col=3)),  # a3-d3

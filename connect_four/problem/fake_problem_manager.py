@@ -1,7 +1,7 @@
 from typing import List, Set
 
 from connect_four.game import Square
-from connect_four.problem import Group as Problem
+from connect_four.problem.problem import Problem
 from connect_four.problem.problem_manager import ProblemManager
 
 
@@ -22,4 +22,9 @@ class FakeProblemManager(ProblemManager):
         pass
 
     def get_all_problems(self) -> Set[Problem]:
-        pass
+        problems = set()
+        for player in range(len(self.problems_by_square_by_player)):
+            for row in range(len(self.problems_by_square_by_player[player])):
+                for col in range(len(self.problems_by_square_by_player[player][row])):
+                    problems.update(self.problems_by_square_by_player[player][row][col])
+        return problems

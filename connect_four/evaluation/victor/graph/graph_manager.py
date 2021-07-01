@@ -3,7 +3,7 @@ from typing import Set, Dict
 from connect_four.evaluation.victor.solution import SolutionManager
 from connect_four.problem import Group as Problem
 from connect_four.evaluation.victor.solution import combination
-from connect_four.evaluation.victor.solution.solution2 import Solution
+from connect_four.evaluation.victor.solution.solution import Solution
 from connect_four.problem.problem_manager import ProblemManager
 
 
@@ -70,16 +70,17 @@ class GraphManager:
     def _remove_solutions(self, solutions):
         # removed_solution_to_solutions = {}
         for solution in solutions:
-            affected_problems = self.solution_to_problems.pop(solution)
-            for problem in affected_problems:
-                self.problem_to_solutions[problem].remove(solution)
+            if solution in self.solution_to_problems:
+                affected_problems = self.solution_to_problems.pop(solution)
+                for problem in affected_problems:
+                    self.problem_to_solutions[problem].remove(solution)
 
             # removed_solution_to_solutions[solution] = self.solution_to_solutions.pop(solution)
 
-        # for solution in removed_solution_to_solutions:
-            for adjacency in self.solution_to_solutions.pop(solution):  # removed_solution_to_solutions[solution]:
-                if adjacency in self.solution_to_solutions:
-                    self.solution_to_solutions[adjacency].remove(solution)
+            # for solution in removed_solution_to_solutions:
+                for adjacency in self.solution_to_solutions.pop(solution):  # removed_solution_to_solutions[solution]:
+                    if adjacency in self.solution_to_solutions:
+                        self.solution_to_solutions[adjacency].remove(solution)
 
     def _add_solutions(self, solutions):
         problems_by_square_by_player = self.problem_manager.get_problems_by_square_by_player()

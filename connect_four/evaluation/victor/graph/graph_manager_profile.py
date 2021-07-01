@@ -6,12 +6,13 @@ import tracemalloc
 
 from connect_four.evaluation.victor.graph.graph_manager import GraphManager
 from connect_four.evaluation.victor.solution import VictorSolutionManager, SolutionManager
-from connect_four.problem import ConnectFourProblemManager
+from connect_four.problem import ConnectFourGroupManager
 from connect_four.problem.problem_manager import ProblemManager
 
 env = gym.make('connect_four-v0')
 
-cfpm = ConnectFourProblemManager(env_variables=env.env_variables)
+# noinspection SpellCheckingInspection
+cfgm = ConnectFourGroupManager(env_variables=env.env_variables)
 vsm = VictorSolutionManager(env_variables=env.env_variables)
 
 
@@ -50,7 +51,7 @@ def display_top(snap_shot, key_type='lineno', limit=100):
 tracemalloc.start()
 
 cProfile.run(
-    'move_evaluate_undo(problem_manager=cfpm, solution_manager=vsm)',
+    'move_evaluate_undo(problem_manager=cfgm, solution_manager=vsm)',
     sort="cumtime",
 )
 

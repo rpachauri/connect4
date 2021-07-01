@@ -9,7 +9,7 @@ from connect_four.evaluation.victor.rules import ThreatCombination
 from connect_four.evaluation.victor.rules.threat_combination import ThreatCombinationType, find_all_threat_combinations
 from connect_four.game import Square
 from connect_four.problem import Group
-from connect_four.problem import ConnectFourProblemManager
+from connect_four.problem import ConnectFourGroupManager
 
 
 class TestThreatCombination(unittest.TestCase):
@@ -41,7 +41,7 @@ class TestThreatCombination(unittest.TestCase):
         ])
         self.env.player = 1
 
-        pm = ConnectFourProblemManager(env_variables=self.env.env_variables)
+        pm = ConnectFourGroupManager(env_variables=self.env.env_variables)
 
         board = Board(self.env.env_variables)
 
@@ -141,7 +141,7 @@ class TestThreatCombination(unittest.TestCase):
                 [0, 0, 0, 0, 1, 0, 1, ],
             ],
         ])
-        pm = ConnectFourProblemManager(env_variables=self.env.env_variables)
+        pm = ConnectFourGroupManager(env_variables=self.env.env_variables)
         board = Board(self.env.env_variables)
         want_even_group = Group(player=0, start=Square(row=1, col=3), end=Square(row=4, col=6))  # d5-g2
         want_odd_group = Group(player=0, start=Square(row=3, col=3), end=Square(row=3, col=6))  # d3-d3

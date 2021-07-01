@@ -12,7 +12,7 @@ from connect_four.evaluation.victor.rules import Claimeven
 from connect_four.evaluation.victor.rules import Baseinverse
 
 from connect_four.evaluation.victor.evaluator import evaluator
-from connect_four.evaluation.victor.solution import solution
+from connect_four.evaluation.victor.solution import solution1
 from connect_four.evaluation.victor.threat_hunter import threat, threat_combination
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
@@ -147,67 +147,67 @@ class TestEvaluator6x7(unittest.TestCase):
 
         # Define all Solutions using Claimevens.
         # A subset of these Claimevens can refute all of white_groups.
-        claimeven_a1_a2 = solution.from_claimeven(
+        claimeven_a1_a2 = solution1.from_claimeven(
             claimeven=Claimeven(lower=Square(row=5, col=0), upper=Square(row=4, col=0)),
             square_to_groups=square_to_groups,
         )
-        claimeven_a3_a4 = solution.from_claimeven(
+        claimeven_a3_a4 = solution1.from_claimeven(
             claimeven=Claimeven(lower=Square(row=3, col=0), upper=Square(row=2, col=0)),
             square_to_groups=square_to_groups,
         )
-        claimeven_a5_a6 = solution.from_claimeven(
+        claimeven_a5_a6 = solution1.from_claimeven(
             claimeven=Claimeven(lower=Square(row=1, col=0), upper=Square(row=0, col=0)),
             square_to_groups=square_to_groups,
         )
-        claimeven_b1_b2 = solution.from_claimeven(
+        claimeven_b1_b2 = solution1.from_claimeven(
             claimeven=Claimeven(lower=Square(row=5, col=1), upper=Square(row=4, col=1)),
             square_to_groups=square_to_groups,
         )
-        claimeven_b3_b4 = solution.from_claimeven(
+        claimeven_b3_b4 = solution1.from_claimeven(
             claimeven=Claimeven(lower=Square(row=3, col=1), upper=Square(row=2, col=1)),
             square_to_groups=square_to_groups,
         )
-        claimeven_b5_b6 = solution.from_claimeven(
+        claimeven_b5_b6 = solution1.from_claimeven(
             claimeven=Claimeven(lower=Square(row=1, col=1), upper=Square(row=0, col=1)),
             square_to_groups=square_to_groups,
         )
-        claimeven_c3_c4 = solution.from_claimeven(
+        claimeven_c3_c4 = solution1.from_claimeven(
             claimeven=Claimeven(lower=Square(row=3, col=2), upper=Square(row=2, col=2)),
             square_to_groups=square_to_groups,
         )
-        claimeven_c5_c6 = solution.from_claimeven(
+        claimeven_c5_c6 = solution1.from_claimeven(
             claimeven=Claimeven(lower=Square(row=1, col=2), upper=Square(row=0, col=2)),
             square_to_groups=square_to_groups,
         )
-        claimeven_e3_e4 = solution.from_claimeven(
+        claimeven_e3_e4 = solution1.from_claimeven(
             claimeven=Claimeven(lower=Square(row=3, col=4), upper=Square(row=2, col=4)),
             square_to_groups=square_to_groups,
         )
-        claimeven_e5_e6 = solution.from_claimeven(
+        claimeven_e5_e6 = solution1.from_claimeven(
             claimeven=Claimeven(lower=Square(row=1, col=4), upper=Square(row=0, col=4)),
             square_to_groups=square_to_groups,
         )
-        claimeven_f1_f2 = solution.from_claimeven(
+        claimeven_f1_f2 = solution1.from_claimeven(
             claimeven=Claimeven(lower=Square(row=5, col=5), upper=Square(row=4, col=5)),
             square_to_groups=square_to_groups,
         )
-        claimeven_f3_f4 = solution.from_claimeven(
+        claimeven_f3_f4 = solution1.from_claimeven(
             claimeven=Claimeven(lower=Square(row=3, col=5), upper=Square(row=2, col=5)),
             square_to_groups=square_to_groups,
         )
-        claimeven_f5_f6 = solution.from_claimeven(
+        claimeven_f5_f6 = solution1.from_claimeven(
             claimeven=Claimeven(lower=Square(row=1, col=5), upper=Square(row=0, col=5)),
             square_to_groups=square_to_groups,
         )
-        claimeven_g1_g2 = solution.from_claimeven(
+        claimeven_g1_g2 = solution1.from_claimeven(
             claimeven=Claimeven(lower=Square(row=5, col=6), upper=Square(row=4, col=6)),
             square_to_groups=square_to_groups,
         )
-        claimeven_g3_g4 = solution.from_claimeven(
+        claimeven_g3_g4 = solution1.from_claimeven(
             claimeven=Claimeven(lower=Square(row=3, col=6), upper=Square(row=2, col=6)),
             square_to_groups=square_to_groups,
         )
-        claimeven_g5_g6 = solution.from_claimeven(
+        claimeven_g5_g6 = solution1.from_claimeven(
             claimeven=Claimeven(lower=Square(row=1, col=6), upper=Square(row=0, col=6)),
             square_to_groups=square_to_groups,
         )
@@ -309,35 +309,35 @@ class TestEvaluator6x7(unittest.TestCase):
 
         # Define all Solutions using Claimevens.
         # A subset of these Claimevens can refute all of Black's groups not in the 0th column.
-        claimeven_b5_b6 = solution.from_claimeven(
+        claimeven_b5_b6 = solution1.from_claimeven(
             claimeven=Claimeven(lower=Square(row=1, col=1), upper=Square(row=0, col=1)),
             square_to_groups=square_to_groups,
         )
-        claimeven_c5_c6 = solution.from_claimeven(
+        claimeven_c5_c6 = solution1.from_claimeven(
             claimeven=Claimeven(lower=Square(row=1, col=2), upper=Square(row=0, col=2)),
             square_to_groups=square_to_groups,
         )
-        claimeven_f1_f2 = solution.from_claimeven(
+        claimeven_f1_f2 = solution1.from_claimeven(
             claimeven=Claimeven(lower=Square(row=5, col=5), upper=Square(row=4, col=5)),
             square_to_groups=square_to_groups,
         )
-        claimeven_f3_f4 = solution.from_claimeven(
+        claimeven_f3_f4 = solution1.from_claimeven(
             claimeven=Claimeven(lower=Square(row=3, col=5), upper=Square(row=2, col=5)),
             square_to_groups=square_to_groups,
         )
-        claimeven_f5_f6 = solution.from_claimeven(
+        claimeven_f5_f6 = solution1.from_claimeven(
             claimeven=Claimeven(lower=Square(row=1, col=5), upper=Square(row=0, col=5)),
             square_to_groups=square_to_groups,
         )
-        claimeven_g3_g4 = solution.from_claimeven(
+        claimeven_g3_g4 = solution1.from_claimeven(
             claimeven=Claimeven(lower=Square(row=3, col=6), upper=Square(row=2, col=6)),
             square_to_groups=square_to_groups,
         )
-        claimeven_g5_g6 = solution.from_claimeven(
+        claimeven_g5_g6 = solution1.from_claimeven(
             claimeven=Claimeven(lower=Square(row=1, col=6), upper=Square(row=0, col=6)),
             square_to_groups=square_to_groups,
         )
-        baseinverse_d5_e5 = solution.from_baseinverse(
+        baseinverse_d5_e5 = solution1.from_baseinverse(
             baseinverse=Baseinverse(playable1=Square(row=1, col=3), playable2=Square(row=1, col=4)),
             square_to_groups=square_to_groups,
         )

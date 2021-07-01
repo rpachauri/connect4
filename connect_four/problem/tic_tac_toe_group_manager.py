@@ -1,7 +1,7 @@
 from connect_four.envs import TwoPlayerGameEnvVariables
-from connect_four.problem.connecting_problem_manager import ConnectingProblemManager
+from connect_four.problem.connecting_group_manager import ConnectingGroupManager
 
 
-class TicTacToeProblemManager(ConnectingProblemManager):
+class TicTacToeGroupManager(ConnectingGroupManager):
     def __init__(self, env_variables: TwoPlayerGameEnvVariables):
         super().__init__(env_variables, num_to_connect=3)

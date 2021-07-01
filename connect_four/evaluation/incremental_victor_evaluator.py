@@ -4,14 +4,14 @@ from connect_four.evaluation.simple_evaluator import SimpleEvaluator
 from connect_four.evaluation.victor.board import Board
 from connect_four.evaluation.victor.graph.graph_manager import GraphManager
 from connect_four.evaluation.victor.solution import VictorSolutionManager
-from connect_four.problem import ConnectFourProblemManager
+from connect_four.problem import ConnectFourGroupManager
 
 
 class IncrementalVictor(SimpleEvaluator):
 
     def __init__(self, model: ConnectFourEnv):
         super().__init__(model=model)
-        problem_manager = ConnectFourProblemManager(env_variables=self.model.env_variables)
+        problem_manager = ConnectFourGroupManager(env_variables=self.model.env_variables)
         solution_manager = VictorSolutionManager(env_variables=self.model.env_variables)
         self.graph_manager = GraphManager(
             player=self.model.env_variables.player_turn,

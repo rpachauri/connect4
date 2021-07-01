@@ -7,7 +7,7 @@ from connect_four.envs import ConnectFourEnv
 from connect_four.evaluation.victor.board import Board
 from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Aftereven, Lowinverse, Highinverse, \
     Baseclaim, Before, Specialbefore, OddThreat
-from connect_four.evaluation.victor.solution import solution2
+from connect_four.evaluation.victor.solution import victor_solution
 from connect_four.evaluation.victor.solution.victor_solution_manager import VictorSolutionManager
 from connect_four.game import Square
 from connect_four.problem import Group
@@ -145,82 +145,82 @@ class TestSolutionManager(unittest.TestCase):
 
         want_solutions = {
             # Claimeven Solutions.
-            solution2.from_claimeven(claimeven=Claimeven(
+            victor_solution.from_claimeven(claimeven=Claimeven(
                 upper=Square(row=0, col=0),  # a6
                 lower=Square(row=1, col=0),  # a5
             )),
-            solution2.from_claimeven(claimeven=claimeven_a3_a4),
-            solution2.from_claimeven(claimeven=claimeven_a1_a2),
-            solution2.from_claimeven(claimeven=Claimeven(
+            victor_solution.from_claimeven(claimeven=claimeven_a3_a4),
+            victor_solution.from_claimeven(claimeven=claimeven_a1_a2),
+            victor_solution.from_claimeven(claimeven=Claimeven(
                 upper=Square(row=0, col=1),  # b6
                 lower=Square(row=1, col=1),  # b5
             )),
             # Baseinverse Solutions.
-            solution2.from_baseinverse(baseinverse=Baseinverse(
+            victor_solution.from_baseinverse(baseinverse=Baseinverse(
                 playable1=Square(row=5, col=0),  # a1
                 playable2=Square(row=2, col=1),  # b4
             )),
-            solution2.from_baseinverse(baseinverse=Baseinverse(
+            victor_solution.from_baseinverse(baseinverse=Baseinverse(
                 playable1=Square(row=5, col=0),  # a1
                 playable2=Square(row=0, col=4),  # e6
             )),
-            solution2.from_baseinverse(baseinverse=Baseinverse(
+            victor_solution.from_baseinverse(baseinverse=Baseinverse(
                 playable1=Square(row=2, col=1),  # b4
                 playable2=Square(row=0, col=4),  # e6
             )),
             # Vertical Solutions.
-            solution2.from_vertical(vertical=vertical_a4_a5),
-            solution2.from_vertical(vertical=vertical_a2_a3),
-            solution2.from_vertical(vertical=vertical_b4_b5),
+            victor_solution.from_vertical(vertical=vertical_a4_a5),
+            victor_solution.from_vertical(vertical=vertical_a2_a3),
+            victor_solution.from_vertical(vertical=vertical_b4_b5),
             # Aftereven Solutions.
-            solution2.from_aftereven(aftereven=Aftereven(
+            victor_solution.from_aftereven(aftereven=Aftereven(
                 group=Group(player=0, start=Square(row=4, col=0), end=Square(row=4, col=3)),  # a2-d2
                 claimevens=[claimeven_a1_a2],
             )),
             # Lowinverse Solutions.
-            solution2.from_lowinverse(lowinverse=lowinverse_a4_a5_b4_b5),
-            solution2.from_lowinverse(lowinverse=lowinverse_a2_a3_b4_b5),
+            victor_solution.from_lowinverse(lowinverse=lowinverse_a4_a5_b4_b5),
+            victor_solution.from_lowinverse(lowinverse=lowinverse_a2_a3_b4_b5),
             # Highinverse Solutions.
-            solution2.from_highinverse(highinverse=Highinverse(
+            victor_solution.from_highinverse(highinverse=Highinverse(
                 lowinverse=lowinverse_a4_a5_b4_b5,
                 directly_playable_squares=[Square(row=2, col=1)],  # b4
             )),
-            solution2.from_highinverse(highinverse=Highinverse(
+            victor_solution.from_highinverse(highinverse=Highinverse(
                 lowinverse=lowinverse_a2_a3_b4_b5,
                 directly_playable_squares=[Square(row=2, col=1)],  # b4
             )),
             # Baseclaim Solutions.
-            solution2.from_baseclaim(baseclaim=Baseclaim(
+            victor_solution.from_baseclaim(baseclaim=Baseclaim(
                 first=Square(row=2, col=1),  # b4
                 second=Square(row=5, col=0),  # a1
                 third=Square(row=0, col=4),  # e6
             )),
-            solution2.from_baseclaim(baseclaim=Baseclaim(
+            victor_solution.from_baseclaim(baseclaim=Baseclaim(
                 first=Square(row=0, col=4),  # e6
                 second=Square(row=5, col=0),  # a1
                 third=Square(row=2, col=1),  # b4
             )),
             # Before Solutions.
-            solution2.from_before(before=before_a2_d2),
-            solution2.from_before(before=before_a3_d3_variation_1),
-            solution2.from_before(before=before_a3_d3_variation_2),
-            solution2.from_before(before=before_a4_d4_variation_1),
-            solution2.from_before(before=before_a4_d4_variation_2),
-            solution2.from_before(before=before_a5_d5_variation_1),
-            solution2.from_before(before=before_a5_d5_variation_2),
-            solution2.from_before(before=before_a5_d5_variation_3),
-            solution2.from_before(before=before_a5_d5_variation_4),
-            solution2.from_before(before=before_b5_e2_variation_1),
-            solution2.from_before(before=before_b5_e2_variation_2),
+            victor_solution.from_before(before=before_a2_d2),
+            victor_solution.from_before(before=before_a3_d3_variation_1),
+            victor_solution.from_before(before=before_a3_d3_variation_2),
+            victor_solution.from_before(before=before_a4_d4_variation_1),
+            victor_solution.from_before(before=before_a4_d4_variation_2),
+            victor_solution.from_before(before=before_a5_d5_variation_1),
+            victor_solution.from_before(before=before_a5_d5_variation_2),
+            victor_solution.from_before(before=before_a5_d5_variation_3),
+            victor_solution.from_before(before=before_a5_d5_variation_4),
+            victor_solution.from_before(before=before_b5_e2_variation_1),
+            victor_solution.from_before(before=before_b5_e2_variation_2),
             # Specialbefore Solutions.
             # Note that a1 cannot be used with a4-d4 Befores because it is in the same
             # column as one of the empty squares of the Before.
-            solution2.from_specialbefore(specialbefore=Specialbefore(
+            victor_solution.from_specialbefore(specialbefore=Specialbefore(
                 before=before_a4_d4_variation_1,
                 internal_directly_playable_square=Square(row=2, col=1),  # b4
                 external_directly_playable_square=Square(row=0, col=4),  # e6
             )),
-            solution2.from_specialbefore(specialbefore=Specialbefore(
+            victor_solution.from_specialbefore(specialbefore=Specialbefore(
                 before=before_a4_d4_variation_2,
                 internal_directly_playable_square=Square(row=2, col=1),  # b4
                 external_directly_playable_square=Square(row=0, col=4),  # e6
@@ -281,38 +281,38 @@ class TestSolutionManager(unittest.TestCase):
 
         want_removed_solutions = {
             # Claimeven Solutions.
-            solution2.from_claimeven(claimeven=claimeven_a1_a2),
+            victor_solution.from_claimeven(claimeven=claimeven_a1_a2),
             # Baseinverse Solutions.
-            solution2.from_baseinverse(baseinverse=Baseinverse(
+            victor_solution.from_baseinverse(baseinverse=Baseinverse(
                 playable1=Square(row=5, col=0),  # a1
                 playable2=Square(row=2, col=1),  # b4
             )),
-            solution2.from_baseinverse(baseinverse=Baseinverse(
+            victor_solution.from_baseinverse(baseinverse=Baseinverse(
                 playable1=Square(row=5, col=0),  # a1
                 playable2=Square(row=0, col=4),  # e6
             )),
             # Vertical Solutions.
             # None.
             # Aftereven Solutions.
-            solution2.from_aftereven(aftereven=Aftereven(
+            victor_solution.from_aftereven(aftereven=Aftereven(
                 group=Group(player=0, start=Square(row=4, col=0), end=Square(row=4, col=3)),  # a2-d2
                 claimevens=[claimeven_a1_a2],
             )),
             # Lowinverse Solutions.
             # None.
             # Highinverse Solutions.
-            solution2.from_highinverse(highinverse=Highinverse(
+            victor_solution.from_highinverse(highinverse=Highinverse(
                 lowinverse=lowinverse_a2_a3_b4_b5,
                 # a2 is now directly playable, causing this Highinverse to be stale.
                 directly_playable_squares=[Square(row=2, col=1)],  # b4
             )),
             # Baseclaim Solutions.
-            solution2.from_baseclaim(baseclaim=Baseclaim(
+            victor_solution.from_baseclaim(baseclaim=Baseclaim(
                 first=Square(row=2, col=1),  # b4
                 second=Square(row=5, col=0),  # a1
                 third=Square(row=0, col=4),  # e6
             )),
-            solution2.from_baseclaim(baseclaim=Baseclaim(
+            victor_solution.from_baseclaim(baseclaim=Baseclaim(
                 first=Square(row=0, col=4),  # e6
                 second=Square(row=5, col=0),  # a1
                 third=Square(row=2, col=1),  # b4
@@ -328,11 +328,11 @@ class TestSolutionManager(unittest.TestCase):
             # Claimeven Solutions.
             # None.
             # Baseinverse Solutions.
-            solution2.from_baseinverse(baseinverse=Baseinverse(
+            victor_solution.from_baseinverse(baseinverse=Baseinverse(
                 playable1=Square(row=4, col=0),  # a2
                 playable2=Square(row=2, col=1),  # b4
             )),
-            solution2.from_baseinverse(baseinverse=Baseinverse(
+            victor_solution.from_baseinverse(baseinverse=Baseinverse(
                 playable1=Square(row=4, col=0),  # a2
                 playable2=Square(row=0, col=4),  # e6
             )),
@@ -343,7 +343,7 @@ class TestSolutionManager(unittest.TestCase):
             # Lowinverse Solutions.
             # None.
             # Highinverse Solutions.
-            solution2.from_highinverse(highinverse=Highinverse(
+            victor_solution.from_highinverse(highinverse=Highinverse(
                 lowinverse=lowinverse_a2_a3_b4_b5,
                 # a2 is now directly playable, causing this Highinverse to be stale.
                 directly_playable_squares=[
@@ -356,12 +356,12 @@ class TestSolutionManager(unittest.TestCase):
             # Before Solutions.
             # None.
             # Specialbefore Solutions.
-            solution2.from_specialbefore(specialbefore=Specialbefore(
+            victor_solution.from_specialbefore(specialbefore=Specialbefore(
                 before=before_a2_d2,
                 internal_directly_playable_square=Square(row=4, col=0),  # a2
                 external_directly_playable_square=Square(row=2, col=1),  # b4
             )),
-            solution2.from_specialbefore(specialbefore=Specialbefore(
+            victor_solution.from_specialbefore(specialbefore=Specialbefore(
                 before=before_a2_d2,
                 internal_directly_playable_square=Square(row=4, col=0),  # a2
                 external_directly_playable_square=Square(row=0, col=4),  # e6
@@ -384,7 +384,7 @@ class TestSolutionManager(unittest.TestCase):
         player, row, col = 0, 5, 0
         sm = VictorSolutionManager(env_variables=self.env.env_variables)
 
-        baseclaim_solution = solution2.from_baseclaim(
+        baseclaim_solution = victor_solution.from_baseclaim(
             baseclaim=Baseclaim(
                 first=Square(row=5, col=3),
                 second=Square(row=5, col=5),
@@ -478,7 +478,7 @@ class TestSolutionManager(unittest.TestCase):
         self.env.player_turn = 1  # Black to move.
         solution_manager = VictorSolutionManager(env_variables=self.env.env_variables)
 
-        want_odd_threat_a3_d3 = solution2.from_odd_threat(
+        want_odd_threat_a3_d3 = victor_solution.from_odd_threat(
             odd_threat=OddThreat(
                 group=Group(player=0, start=Square(row=3, col=0), end=Square(row=3, col=3)),  # a3-d3
                 empty_square=Square(row=3, col=0),  # a3

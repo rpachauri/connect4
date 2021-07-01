@@ -18,12 +18,12 @@ from connect_four.evaluation.victor.rules import Before
 from connect_four.evaluation.victor.rules import Specialbefore
 
 from connect_four.evaluation.victor.solution import Solution
-from connect_four.evaluation.victor.solution import solution
+from connect_four.evaluation.victor.solution import solution1
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
 
 
-class TestSolution(unittest.TestCase):
+class TestSolution1(unittest.TestCase):
     def setUp(self) -> None:
         self.env = gym.make('connect_four-v0')
         ConnectFourEnv.M = 6
@@ -58,7 +58,7 @@ class TestSolution(unittest.TestCase):
         # d3-g6, c2-f5, b1-e4, e3-e6
         claimeven_2_4 = Claimeven(upper=Square(row=2, col=4), lower=Square(row=3, col=4))
 
-        got_solution = solution.from_claimeven(claimeven_2_4, square_to_groups)
+        got_solution = solution1.from_claimeven(claimeven_2_4, square_to_groups)
         want_solution = Solution(
             squares=frozenset([claimeven_2_4.upper, claimeven_2_4.lower]),
             groups=frozenset([
@@ -98,7 +98,7 @@ class TestSolution(unittest.TestCase):
         # The Baseinverse a1-b1 solves a1-d1.
         baseinverse_a1_b1 = Baseinverse(playable1=Square(row=5, col=0), playable2=Square(row=5, col=1))
 
-        got_solution = solution.from_baseinverse(baseinverse_a1_b1, square_to_groups)
+        got_solution = solution1.from_baseinverse(baseinverse_a1_b1, square_to_groups)
         want_solution = Solution(
             squares=frozenset(baseinverse_a1_b1.squares),
             groups=frozenset([
@@ -111,7 +111,7 @@ class TestSolution(unittest.TestCase):
         # As stated in the original paper, the Baseinverse a1-c4 is possible but useless.
         # Thus, it should not be converted into a Solution.
         baseinverse_a1_c4 = Baseinverse(playable1=Square(row=5, col=0), playable2=Square(row=2, col=2))
-        self.assertIsNone(solution.from_baseinverse(baseinverse_a1_c4, square_to_groups))
+        self.assertIsNone(solution1.from_baseinverse(baseinverse_a1_c4, square_to_groups))
 
     def test_from_vertical(self):
         # This board is from Diagram 6.3 of the original paper.
@@ -139,7 +139,7 @@ class TestSolution(unittest.TestCase):
         # The Vertical e4-e5 solves e2-e5 and e3-e6.
         vertical_e4_e5 = Vertical(upper=Square(row=2, col=4), lower=Square(row=1, col=4))
 
-        got_solution = solution.from_vertical(vertical_e4_e5, square_to_groups)
+        got_solution = solution1.from_vertical(vertical_e4_e5, square_to_groups)
         want_solution = Solution(
             squares=frozenset([vertical_e4_e5.upper, vertical_e4_e5.lower]),
             groups=frozenset([
@@ -182,7 +182,7 @@ class TestSolution(unittest.TestCase):
             ],
         )
 
-        got_solution = solution.from_aftereven(aftereven_d2_g2, square_to_groups)
+        got_solution = solution1.from_aftereven(aftereven_d2_g2, square_to_groups)
         want_solution = Solution(
             squares=frozenset([
                 # Squares from d2-g2.
@@ -249,7 +249,7 @@ class TestSolution(unittest.TestCase):
             second_vertical=Vertical(upper=Square(row=3, col=3), lower=Square(row=4, col=3)),  # d2-d3
         )
 
-        got_solution = solution.from_lowinverse(lowinverse_c2_c3_d2_d3, square_to_groups)
+        got_solution = solution1.from_lowinverse(lowinverse_c2_c3_d2_d3, square_to_groups)
         want_solution = Solution(
             squares=frozenset([
                 Square(row=3, col=2),
@@ -344,7 +344,7 @@ class TestSolution(unittest.TestCase):
             ]),
             rule_instance=highinverse_c2_c3_c4_d2_d3_d4,
         )
-        got_solution = solution.from_highinverse(
+        got_solution = solution1.from_highinverse(
             highinverse=highinverse_c2_c3_c4_d2_d3_d4,
             square_to_groups=square_to_groups,
         )
@@ -380,7 +380,7 @@ class TestSolution(unittest.TestCase):
             first_vertical=Vertical(upper=Square(row=1, col=2), lower=Square(row=2, col=2)),  # c4-c5
             second_vertical=Vertical(upper=Square(row=1, col=3), lower=Square(row=2, col=3)),  # d4-d5
         )
-        got_lowinverse_solution = solution.from_lowinverse(
+        got_lowinverse_solution = solution1.from_lowinverse(
             lowinverse=lowinverse_c4_c5_d4_d5,
             square_to_groups=square_to_groups,
         )
@@ -416,7 +416,7 @@ class TestSolution(unittest.TestCase):
             ]),
             rule_instance=highinverse_c4_c5_c6_d4_d5_d6,
         )
-        got_highinverse_solution = solution.from_highinverse(
+        got_highinverse_solution = solution1.from_highinverse(
             highinverse=highinverse_c4_c5_c6_d4_d5_d6,
             square_to_groups=square_to_groups,
         )
@@ -456,7 +456,7 @@ class TestSolution(unittest.TestCase):
             first_vertical=Vertical(upper=Square(row=1, col=2), lower=Square(row=2, col=2)),  # c4-c5
             second_vertical=Vertical(upper=Square(row=1, col=3), lower=Square(row=2, col=3)),  # d4-d5
         )
-        got_lowinverse_solution = solution.from_lowinverse(
+        got_lowinverse_solution = solution1.from_lowinverse(
             lowinverse=lowinverse_c4_c5_d4_d5,
             square_to_groups=square_to_groups,
         )
@@ -468,7 +468,7 @@ class TestSolution(unittest.TestCase):
             lowinverse=lowinverse_c4_c5_d4_d5,
             directly_playable_squares=[Square(row=2, col=2), Square(row=2, col=3)],  # c4 and d4
         )
-        got_highinverse_solution = solution.from_highinverse(
+        got_highinverse_solution = solution1.from_highinverse(
             highinverse=highinverse_c4_c5_c6_d4_d5_d6,
             square_to_groups=square_to_groups,
         )
@@ -505,7 +505,7 @@ class TestSolution(unittest.TestCase):
             first_vertical=Vertical(upper=Square(row=1, col=2), lower=Square(row=2, col=2)),  # c4-c5
             second_vertical=Vertical(upper=Square(row=1, col=3), lower=Square(row=2, col=3)),  # d4-d5
         )
-        got_lowinverse_solution = solution.from_lowinverse(
+        got_lowinverse_solution = solution1.from_lowinverse(
             lowinverse=lowinverse_c4_c5_d4_d5,
             square_to_groups=square_to_groups,
         )
@@ -517,7 +517,7 @@ class TestSolution(unittest.TestCase):
             lowinverse=lowinverse_c4_c5_d4_d5,
             directly_playable_squares=[Square(row=2, col=2), Square(row=2, col=3)],  # c4 and d4
         )
-        got_highinverse_solution = solution.from_highinverse(
+        got_highinverse_solution = solution1.from_highinverse(
             highinverse=highinverse_c4_c5_c6_d4_d5_d6,
             square_to_groups=square_to_groups,
         )
@@ -553,7 +553,7 @@ class TestSolution(unittest.TestCase):
             third=Square(row=5, col=4),  # e1
         )
 
-        got_solution = solution.from_baseclaim(
+        got_solution = solution1.from_baseclaim(
             baseclaim=baseclaim_b1_c1_c2_f1,
             square_to_groups=square_to_groups,
         )
@@ -610,7 +610,7 @@ class TestSolution(unittest.TestCase):
             ]
         )
 
-        got_solution = solution.from_before(before_b4_e1, square_to_groups)
+        got_solution = solution1.from_before(before_b4_e1, square_to_groups)
         want_solution = Solution(
             squares=frozenset([
                 # Empty squares part of the Before group.
@@ -681,7 +681,7 @@ class TestSolution(unittest.TestCase):
             external_directly_playable_square=Square(row=3, col=3),  # d3
         )
 
-        got_solution = solution.from_specialbefore(
+        got_solution = solution1.from_specialbefore(
             specialbefore=specialbefore_d2_g2,
             square_to_groups=square_to_groups,
         )
@@ -769,7 +769,7 @@ class TestSolution(unittest.TestCase):
         # Note that there are no groups that contain b5-e2 and d1 because that is not possible.
         # Thus, this Specialbefore is useless.
 
-        got_solution = solution.from_specialbefore(
+        got_solution = solution1.from_specialbefore(
             specialbefore=specialbefore_d2_g2,
             square_to_groups=square_to_groups,
         )

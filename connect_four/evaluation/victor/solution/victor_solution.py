@@ -5,10 +5,10 @@ from connect_four.evaluation.victor.rules import Claimeven, Rule, Baseinverse, V
 from connect_four.game import Square
 
 
-class Solution:
-    """A Solution is an application of a Rule.
+class VictorSolution:
+    """A VictorSolution is an application of a Rule.
 
-    Two Solutions may or may not work together depending on which squares each
+    Two VictorSolutions may or may not work together depending on which squares each
     consists of and which rule they are an application of.
     """
 
@@ -41,7 +41,7 @@ class Solution:
         return col_to_squares_dict
 
     def __eq__(self, other):
-        if isinstance(other, Solution):
+        if isinstance(other, VictorSolution):
             return (self.rule_instance == other.rule_instance and
                     self.squares == other.squares and
                     self.claimeven_bottom_squares == other.claimeven_bottom_squares)
@@ -55,52 +55,52 @@ class Solution:
         return str(self.rule_instance.__class__) + " -> " + str(self.squares)
 
 
-def from_claimeven(claimeven: Claimeven) -> Solution:
-    """Converts a Claimeven into a Solution.
+def from_claimeven(claimeven: Claimeven) -> VictorSolution:
+    """Converts a Claimeven into a VictorSolution.
 
     Args:
         claimeven (Claimeven): a Claimeven.
 
     Returns:
-        solution (Solution): a Solution.
+        solution (VictorSolution): a VictorSolution.
     """
-    return Solution(
+    return VictorSolution(
         rule_instance=claimeven,
         squares=[claimeven.upper, claimeven.lower],
         claimeven_bottom_squares=[claimeven.lower],
     )
 
 
-def from_baseinverse(baseinverse: Baseinverse) -> Solution:
-    return Solution(
+def from_baseinverse(baseinverse: Baseinverse) -> VictorSolution:
+    return VictorSolution(
         rule_instance=baseinverse,
         squares=baseinverse.squares,
     )
 
 
-def from_vertical(vertical: Vertical) -> Solution:
-    """Converts a Vertical into a Solution.
+def from_vertical(vertical: Vertical) -> VictorSolution:
+    """Converts a Vertical into a VictorSolution.
 
     Args:
         vertical (Vertical): a Vertical.
 
     Returns:
-        solution (Solution): a Solution.
+        solution (VictorSolution): a VictorSolution.
     """
-    return Solution(
+    return VictorSolution(
         rule_instance=vertical,
         squares=[vertical.upper, vertical.lower],
     )
 
 
-def from_aftereven(aftereven: Aftereven) -> Solution:
-    """Converts an Aftereven into a Solution.
+def from_aftereven(aftereven: Aftereven) -> VictorSolution:
+    """Converts an Aftereven into a VictorSolution.
 
     Args:
         aftereven (Aftereven): an Aftereven.
 
     Returns:
-        solution (Solution): a Solution.
+        solution (VictorSolution): a VictorSolution.
     """
     squares_involved = list(aftereven.group.squares)
     claimeven_bottom_squares = []
@@ -108,39 +108,39 @@ def from_aftereven(aftereven: Aftereven) -> Solution:
         squares_involved.append(claimeven.lower)
         claimeven_bottom_squares.append(claimeven.lower)
 
-    return Solution(
+    return VictorSolution(
         rule_instance=aftereven,
         squares=frozenset(squares_involved),
         claimeven_bottom_squares=claimeven_bottom_squares,
     )
 
 
-def from_lowinverse(lowinverse: Lowinverse) -> Solution:
-    """Converts a Lowinverse into a Solution.
+def from_lowinverse(lowinverse: Lowinverse) -> VictorSolution:
+    """Converts a Lowinverse into a VictorSolution.
 
     Args:
         lowinverse (Lowinverse): a Lowinverse.
 
     Returns:
-        solution (Solution): a Solution.
+        solution (VictorSolution): a VictorSolution.
     """
     verticals_as_list = list(lowinverse.verticals)
     vertical_0, vertical_1 = verticals_as_list[0], verticals_as_list[1]
 
-    return Solution(
+    return VictorSolution(
         rule_instance=lowinverse,
         squares=frozenset([vertical_0.upper, vertical_0.lower, vertical_1.upper, vertical_1.lower]),
     )
 
 
-def from_highinverse(highinverse: Highinverse) -> Solution:
-    """Converts a Highinverse into a Solution.
+def from_highinverse(highinverse: Highinverse) -> VictorSolution:
+    """Converts a Highinverse into a VictorSolution.
 
     Args:
         highinverse (Highinverse): a Highinverse.
 
     Returns:
-        solution (Solution): a Solution.
+        solution (VictorSolution): a VictorSolution.
     """
     verticals_as_list = list(highinverse.lowinverse.verticals)
     vertical_0, vertical_1 = verticals_as_list[0], verticals_as_list[1]
@@ -156,38 +156,38 @@ def from_highinverse(highinverse: Highinverse) -> Solution:
         vertical_1.upper,
         vertical_1.lower,
     ])
-    return Solution(
+    return VictorSolution(
         squares=squares,
         rule_instance=highinverse,
     )
 
 
-def from_baseclaim(baseclaim: Baseclaim) -> Solution:
-    """Converts a Baseclaim into a Solution.
+def from_baseclaim(baseclaim: Baseclaim) -> VictorSolution:
+    """Converts a Baseclaim into a VictorSolution.
 
     Args:
         baseclaim (Baseclaim): a Baseclaim.
 
     Returns:
-        solution (Solution): a Solution.
+        solution (VictorSolution): a VictorSolution.
     """
     square_above_second = Square(row=baseclaim.second.row - 1, col=baseclaim.second.col)
 
-    return Solution(
+    return VictorSolution(
         rule_instance=baseclaim,
         squares=[baseclaim.first, baseclaim.second, baseclaim.third, square_above_second],
         claimeven_bottom_squares=[baseclaim.second],
     )
 
 
-def from_before(before: Before) -> Solution:
-    """Converts a Before into a Solution.
+def from_before(before: Before) -> VictorSolution:
+    """Converts a Before into a VictorSolution.
 
     Args:
         before (Before): a Before.
 
     Returns:
-        solution (Solution): a Solution.
+        solution (VictorSolution): a VictorSolution.
     """
     empty_squares = before.empty_squares_of_before_group()
 
@@ -205,21 +205,21 @@ def from_before(before: Before) -> Solution:
         squares.add(claimeven.lower)
         claimeven_bottom_squares.append(claimeven.lower)
 
-    return Solution(
+    return VictorSolution(
         rule_instance=before,
         squares=frozenset(squares),
         claimeven_bottom_squares=claimeven_bottom_squares,
     )
 
 
-def from_specialbefore(specialbefore: Specialbefore) -> Solution:
-    """Converts a Specialbefore into a Solution.
+def from_specialbefore(specialbefore: Specialbefore) -> VictorSolution:
+    """Converts a Specialbefore into a VictorSolution.
 
     Args:
         specialbefore (Specialbefore): a Specialbefore.
 
     Returns:
-        solution (Solution): a Solution.
+        solution (VictorSolution): a VictorSolution.
     """
     # Find all groups that contain the internal directly playable square and
     # external directly playable square of the Specialbefore.
@@ -241,24 +241,24 @@ def from_specialbefore(specialbefore: Specialbefore) -> Solution:
         squares.add(claimeven.lower)
         claimeven_bottom_squares.append(claimeven.lower)
 
-    # The Specialbefore Solution includes all squares that the Before Solution has.
-    return Solution(
+    # The Specialbefore VictorSolution includes all squares that the Before VictorSolution has.
+    return VictorSolution(
         squares=frozenset(squares),
         claimeven_bottom_squares=claimeven_bottom_squares,
         rule_instance=specialbefore,
     )
 
 
-def from_odd_threat(odd_threat: OddThreat) -> Solution:
-    """Converts an OddThreat into a Solution.
+def from_odd_threat(odd_threat: OddThreat) -> VictorSolution:
+    """Converts an OddThreat into a VictorSolution.
 
     Args:
         odd_threat (OddThreat): an OddThreat.
 
     Returns:
-        solution (Solution): a Solution.
+        solution (VictorSolution): a VictorSolution.
     """
-    return Solution(
+    return VictorSolution(
         rule_instance=odd_threat,
         squares=[odd_threat.empty_square],
     )

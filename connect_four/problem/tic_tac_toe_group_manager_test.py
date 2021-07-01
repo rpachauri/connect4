@@ -5,7 +5,7 @@ import numpy as np
 
 from connect_four.game import Square
 from connect_four.problem import Group
-from connect_four.problem.tic_tac_toe_problem_manager import TicTacToeProblemManager
+from connect_four.problem.tic_tac_toe_group_manager import TicTacToeGroupManager
 
 
 class TestTicTacToeProblemManager(unittest.TestCase):
@@ -13,7 +13,7 @@ class TestTicTacToeProblemManager(unittest.TestCase):
         self.env = gym.make('tic_tac_toe-v0')
 
     def test_remove_groups(self):
-        pm = TicTacToeProblemManager(env_variables=self.env.env_variables)
+        pm = TicTacToeGroupManager(env_variables=self.env.env_variables)
         # It should be Player 1's turn.
         self.assertEqual(0, pm.player)
 
@@ -48,7 +48,7 @@ class TestTicTacToeProblemManager(unittest.TestCase):
                 [0, 0, 0, ],
             ],
         ])
-        pm = TicTacToeProblemManager(env_variables=self.env.env_variables)
+        pm = TicTacToeGroupManager(env_variables=self.env.env_variables)
 
         group_00_to_22 = Group(player=1, start=Square(row=0, col=0), end=Square(row=2, col=2))
 
@@ -67,19 +67,19 @@ class TestTicTacToeProblemManager(unittest.TestCase):
         self.assertNotIn(Square(row=2, col=2), pm.groups_removed_by_squares_by_move[-1])
 
     def test_move(self):
-        pm = TicTacToeProblemManager(env_variables=self.env.env_variables)
+        pm = TicTacToeGroupManager(env_variables=self.env.env_variables)
         pm.move(player=0, row=0, col=0)
         # Validate that the stack of moves is of length 1.
         self.assertEqual(1, len(pm.groups_removed_by_squares_by_move))
 
     def test_undo_move_raises_assertion_error(self):
         # undo_move() should raise an assertion error if the PM is at the given state.
-        pm = TicTacToeProblemManager(env_variables=self.env.env_variables)
+        pm = TicTacToeGroupManager(env_variables=self.env.env_variables)
         with self.assertRaises(AssertionError):
             pm.undo_move()
 
     def test_play_move_undo_move_initial_state(self):
-        pm = TicTacToeProblemManager(env_variables=self.env.env_variables)
+        pm = TicTacToeGroupManager(env_variables=self.env.env_variables)
 
         pm.move(player=0, row=0, col=0)
         self.assertTrue(pm.groups_removed_by_squares_by_move)
@@ -87,7 +87,7 @@ class TestTicTacToeProblemManager(unittest.TestCase):
         pm.undo_move()
         self.assertFalse(pm.groups_removed_by_squares_by_move)
 
-        pm2 = TicTacToeProblemManager(env_variables=self.env.env_variables)
+        pm2 = TicTacToeGroupManager(env_variables=self.env.env_variables)
         self.assertEqual(pm2.groups_removed_by_squares_by_move, pm.groups_removed_by_squares_by_move)
 
 

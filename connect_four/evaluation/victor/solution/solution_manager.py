@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import Set
 
-from connect_four.evaluation.victor.solution.solution2 import Solution
+from connect_four.evaluation.victor.solution.solution1 import Solution
 
 
 class SolutionManager:

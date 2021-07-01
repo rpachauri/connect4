@@ -1,6 +1,8 @@
 from connect_four.game import Square
 from enum import Enum
 
+from connect_four.problem.problem import Problem
+
 
 class GroupDirection(Enum):
     horizontal = 0
@@ -25,7 +27,7 @@ ROW_COL_DIFFS_TO_group_DIRECTION = {
 }
 
 
-class Group:
+class Group(Problem):
     """A Group is a group of squares in a line on a TwoPlayerGameEnv state.
 
     Each Group belongs to a specific player (0 or 1).

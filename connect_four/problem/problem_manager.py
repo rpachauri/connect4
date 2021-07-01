@@ -2,7 +2,7 @@ from abc import abstractmethod
 from typing import List, Set
 
 from connect_four.game import Square
-from connect_four.problem import Group as Problem
+from connect_four.problem.problem import Problem
 
 
 class ProblemManager:

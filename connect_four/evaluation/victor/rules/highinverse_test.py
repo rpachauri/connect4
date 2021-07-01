@@ -17,7 +17,7 @@ from connect_four.evaluation.victor.rules import find_all_highinverses
 
 from connect_four.envs.connect_four_env import ConnectFourEnv
 from connect_four.problem import Group
-from connect_four.problem import ConnectFourProblemManager
+from connect_four.problem import ConnectFourGroupManager
 
 
 class TestHighinverse(unittest.TestCase):
@@ -392,7 +392,7 @@ class TestHighinverse(unittest.TestCase):
                 [0, 0, 1, 0, 0, 0, 0, ],
             ],
         ])
-        pm = ConnectFourProblemManager(env_variables=self.env.env_variables)
+        pm = ConnectFourGroupManager(env_variables=self.env.env_variables)
 
         # Lowinverse c2-c3-d2-d3 guarantees that Black will get at least one square
         # out of each of three pairs of squares:

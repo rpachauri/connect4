@@ -6,7 +6,7 @@ import numpy as np
 from connect_four.envs.connect_four_env import ConnectFourEnv
 from connect_four.evaluation.victor.graph.graph_manager import GraphManager
 from connect_four.evaluation.victor.solution import VictorSolutionManager
-from connect_four.problem import ConnectFourProblemManager
+from connect_four.problem import ConnectFourGroupManager
 
 
 class TestGraphManager6x4(unittest.TestCase):
@@ -31,7 +31,7 @@ class TestGraphManager6x4(unittest.TestCase):
                 [0, 0, 0, 0, 0, 0, ],
             ],
         ])
-        problem_manager = ConnectFourProblemManager(env_variables=self.env.env_variables)
+        problem_manager = ConnectFourGroupManager(env_variables=self.env.env_variables)
         solution_manager = VictorSolutionManager(env_variables=self.env.env_variables)
 
         gm = GraphManager(player=0, problem_manager=problem_manager, solution_manager=solution_manager)
@@ -62,7 +62,7 @@ class TestGraphManager6x4(unittest.TestCase):
         ])
         self.env.player_turn = 1  # Black to move.
 
-        problem_manager = ConnectFourProblemManager(env_variables=self.env.env_variables)
+        problem_manager = ConnectFourGroupManager(env_variables=self.env.env_variables)
         solution_manager = VictorSolutionManager(env_variables=self.env.env_variables)
 
         gm = GraphManager(player=1, problem_manager=problem_manager, solution_manager=solution_manager)
@@ -94,7 +94,7 @@ class TestGraphManager6x4(unittest.TestCase):
         ])
         self.env.player_turn = 1  # Black to move.
 
-        problem_manager = ConnectFourProblemManager(env_variables=self.env.env_variables)
+        problem_manager = ConnectFourGroupManager(env_variables=self.env.env_variables)
         solution_manager = VictorSolutionManager(env_variables=self.env.env_variables)
 
         gm = GraphManager(player=1, problem_manager=problem_manager, solution_manager=solution_manager)
