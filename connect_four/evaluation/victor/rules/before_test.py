@@ -349,6 +349,67 @@ class TestBefore(unittest.TestCase):
         )
         self.assertEqual(want_problems_solved, got_problems_solved)
 
+    def test_solves(self):
+        # Before b4-e1+b5+e2 refutes b5-e2.
+        before_b4_e1 = Before(
+            group=Group(player=1, start=Square(row=2, col=1), end=Square(row=5, col=4)),  # Group b4-e1
+            verticals=[
+                Vertical(upper=Square(row=4, col=4), lower=Square(row=5, col=4)),  # Vertical e1-e2
+            ],
+            claimevens=[
+                Claimeven(upper=Square(row=2, col=1), lower=Square(row=3, col=1))  # Claimeven b3-b4
+            ]
+        )
+
+        # White b5-e2 is a Group that include all successors of empty squares of the Before group.
+        white_group_b5_e2 = Group(player=0, start=Square(row=1, col=1), end=Square(row=4, col=4))  # b5-e2
+        self.assertTrue(before_b4_e1.solves(group=white_group_b5_e2))
+        # Black b5-e2 belongs to the same player as the Before, so it cannot be solved by the Before.
+        black_group_b5_e2 = Group(player=1, start=Square(row=1, col=1), end=Square(row=4, col=4))  # b5-e2
+        self.assertFalse(before_b4_e1.solves(group=black_group_b5_e2))
+
+        # White a4-d4 is a Group that can be solved by Claimeven b3-b4.
+        white_group_a4_d4 = Group(player=0, start=Square(row=2, col=0), end=Square(row=2, col=3))  # a4-d4
+        self.assertTrue(before_b4_e1.solves(group=white_group_a4_d4))
+        # Black a4-d4 belongs to the same player as the Before, so it cannot be solved by the Before.
+        black_group_a4_d4 = Group(player=1, start=Square(row=2, col=0), end=Square(row=2, col=3))  # a4-d4
+        self.assertFalse(before_b4_e1.solves(group=black_group_a4_d4))
+
+        # White e1-e4 is a Group that can be solved by Vertical e1-e2.
+        white_group_e1_e4 = Group(player=0, start=Square(row=5, col=4), end=Square(row=2, col=4))  # e1-e4
+        self.assertTrue(before_b4_e1.solves(group=white_group_e1_e4))
+        # Black e1-e4 belongs to the same player as the Before, so it cannot be solved by the Before.
+        black_group_e1_e4 = Group(player=1, start=Square(row=5, col=4), end=Square(row=2, col=4))  # e1-e4
+        self.assertFalse(before_b4_e1.solves(group=black_group_e1_e4))
+
+        # White a6-d3 is a Group that includes only a subset of all successors of empty squares of the Before group.
+        white_group_a6_d3 = Group(player=0, start=Square(row=0, col=0), end=Square(row=3, col=3))  # a6-d3
+        self.assertFalse(before_b4_e1.solves(group=white_group_a6_d3))
+
+    def test_is_useful(self):
+        # Before b4-e1+b5+e2 refutes b5-e2.
+        before_b4_e1 = Before(
+            group=Group(player=1, start=Square(row=2, col=1), end=Square(row=5, col=4)),  # Group b4-e1
+            verticals=[
+                Vertical(upper=Square(row=4, col=4), lower=Square(row=5, col=4)),  # Vertical e1-e2
+            ],
+            claimevens=[
+                Claimeven(upper=Square(row=2, col=1), lower=Square(row=3, col=1))  # Claimeven b3-b4
+            ]
+        )
+
+        # White b5-e2 is a Group that include all successors of empty squares of the Before group.
+        white_group_b5_e2 = Group(player=0, start=Square(row=1, col=1), end=Square(row=4, col=4))  # b5-e2
+        # White a4-d4 is a Group that can be solved by Claimeven b3-b4.
+        white_group_a4_d4 = Group(player=0, start=Square(row=2, col=0), end=Square(row=2, col=3))  # a4-d4
+        # White e1-e4 is a Group that can be solved by Vertical e1-e2.
+        white_group_e1_e4 = Group(player=0, start=Square(row=5, col=4), end=Square(row=2, col=4))  # e1-e4
+
+        # The Before is useful only if there is a Group that includes all successors of empty squares of the Before
+        # group.
+        self.assertTrue(before_b4_e1.is_useful(groups={white_group_b5_e2, white_group_a4_d4, white_group_e1_e4}))
+        self.assertFalse(before_b4_e1.is_useful(groups={white_group_a4_d4, white_group_e1_e4}))
+
     def test_diagram_7_2(self):
         # This test case is based on Diagram 5.4 of the original paper.
         self.env.state = np.array([

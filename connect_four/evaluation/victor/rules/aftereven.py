@@ -38,6 +38,9 @@ class Aftereven(Rule):
         return empty_squares
 
     def solves(self, group: Group) -> bool:
+        if group.player == self.group.player:
+            return False
+
         for claimeven in self.claimevens:
             if claimeven.solves(group=group):
                 return True
@@ -46,7 +49,7 @@ class Aftereven(Rule):
 
     def is_useful(self, groups: Set[Group]) -> bool:
         # Assuming every group in groups can be solved by this Aftereven, if there is a single Group that
-        # cannot be solved by one of the Aftereven's Claimeven's, then this Aftereven is useful.
+        # cannot be solved by one of the Aftereven's Claimevens, then this Aftereven is useful.
         solved_claimeven_groups = set()
         for group in groups:
             for claimeven in self.claimevens:
@@ -67,9 +70,6 @@ class Aftereven(Rule):
         Returns:
             is_group_solvable_by_aftereven (bool): true if this Aftereven solves group; otherwise, false.
         """
-        if group.player == self.group.player:
-            return False
-
         empty_squares_of_aftereven = self.empty_squares_of_aftereven_group()
 
         # The Group must have one square above every empty square of the Aftereven Group.

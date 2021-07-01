@@ -434,12 +434,19 @@ class TestAftereven(unittest.TestCase):
             ],
         )
 
+        # White d3-g3 is a Group that include all successors of empty squares of the Aftereven group.
         white_group_d3_g3 = Group(player=0, start=Square(row=3, col=3), end=Square(row=3, col=6))  # d3-g3
-        # Note that it does not solve Groups that belong to the same player as the Aftereven group.
-        black_group_d3_g3 = Group(player=1, start=Square(row=3, col=3), end=Square(row=3, col=6))  # d3-g3
-
         self.assertTrue(aftereven_d2_g2.solves(group=white_group_d3_g3))
+        # Black d3-g3 belongs to the same player as the Aftereven, so it cannot be solved by the Aftereven.
+        black_group_d3_g3 = Group(player=1, start=Square(row=3, col=3), end=Square(row=3, col=6))  # d3-g3
         self.assertFalse(aftereven_d2_g2.solves(group=black_group_d3_g3))
+
+        # White f1-f4 is a Group that can be refuted by Claimeven f1-f2.
+        white_group_f1_f4 = Group(player=0, start=Square(row=2, col=5), end=Square(row=5, col=5))  # f1-f4
+        self.assertTrue(aftereven_d2_g2.solves(group=white_group_f1_f4))
+        # Black f1-f4 belongs to the same player as the Aftereven, so it cannot be solved by the Aftereven.
+        black_group_f1_f4 = Group(player=1, start=Square(row=2, col=5), end=Square(row=5, col=5))  # f1-f4
+        self.assertFalse(aftereven_d2_g2.solves(group=black_group_f1_f4))
 
     def test_is_useful(self):
         aftereven_d2_g2 = Aftereven(

@@ -8,6 +8,8 @@ from connect_four.evaluation.victor.board import Board
 from connect_four.evaluation.victor.rules import Claimeven, Rule
 from connect_four.evaluation.victor.rules import Vertical
 
+import warnings
+
 
 class Before(Rule):
     def __init__(self, group: Group, verticals, claimevens):
@@ -55,6 +57,77 @@ class Before(Rule):
 
         return frozenset(empty_squares)
 
+    def solves(self, group: Group) -> bool:
+        if group.player == self.group.player:
+            return False
+
+        for claimeven in self.claimevens:
+            if claimeven.solves(group=group):
+                return True
+
+        for vertical in self.verticals:
+            if vertical.solves(group=group):
+                return True
+
+        return self.is_group_solvable_by_before(group=group)
+
+    def is_useful(self, groups: Set[Group]) -> bool:
+        # Assuming every group in groups can be solved by this Before, if there is a single Group that
+        # cannot be solved by one of the Before's Claimevens or Verticals, then this Before is useful.
+        already_solved_groups = set()
+        for group in groups:
+            for claimeven in self.claimevens:
+                if claimeven.solves(group=group):
+                    already_solved_groups.add(group)
+
+            for vertical in self.verticals:
+                if vertical.solves(group=group):
+                    already_solved_groups.add(group)
+
+        # Given that already_solved_groups is a subset of groups, it will not equal groups only if there exists
+        # a Group this Before can solve that one of its Claimevens or Verticals cannot.
+        return already_solved_groups != groups
+
+    def is_group_solvable_by_before(self, group: Group) -> bool:
+        """Returns whether or not group has at least one square in all Before columns,
+        above the empty square of the Before group in that column.
+
+        Args:
+            group (Group): a Group to be solved.
+
+        Returns:
+            is_group_solvable_by_group (bool): true if this Before solves group; otherwise, false.
+        """
+        if group.player == self.group.player:
+            return False
+
+        empty_squares_of_group = self.empty_squares_of_before_group()
+
+        # The Group must have one square above every empty square of the Before Group.
+        # If this is not the case, return False.
+        for empty_square in empty_squares_of_group:
+            if not Before.group_above_square(square=empty_square, group=group):
+                return False
+
+        # If all empty squares of the Before Group is below a Square in group, return True.
+        return True
+
+    @staticmethod
+    def group_above_square(square: Square, group: Group) -> bool:
+        """Returns whether or not group contains a Square above square.
+
+        Args:
+            square (Square): a Square.
+            group (Group): a Group.
+
+        Returns:
+            group_above_square (bool): True if group contains a Square above square; otherwise, false.
+        """
+        for square_in_group in group.squares:
+            if square.col == square_in_group.col and square.row > square_in_group.row:
+                return True
+        return False
+
     def find_problems_solved(self, groups_by_square_by_player: List[List[List[Set[Group]]]]) -> Set[Group]:
         """Finds all Problems this Rule solves.
 
@@ -71,6 +144,7 @@ class Before(Rule):
         Returns:
             problems_solved (Set[Group]): All Problems in square_to_groups this Rule solves.
         """
+        warnings.warn("find_problems_solved is deprecated. use solves() instead", DeprecationWarning)
         empty_squares = self.empty_squares_of_before_group()
         empty_square_successors = []
         for square in empty_squares:
@@ -234,8 +308,8 @@ class BeforeManager:
             board (Board): the Board state, without square having been played yet.
 
         Returns:
-            removed_befores (Set[Before]): the set of Afterevens being removed.
-            added_befores (Set[Before]): the set of Afterevens being added.
+            removed_befores (Set[Before]): the set of Befores being removed.
+            added_befores (Set[Before]): the set of Befores being added.
         """
         removed_befores, added_befores = BeforeManager.added_removed_befores(player=player, square=square, board=board)
 
@@ -258,8 +332,8 @@ class BeforeManager:
             board (Board): the Board state, without square having been played yet.
 
         Returns:
-            removed_befores (Set[Before]): the set of Afterevens being removed.
-            added_befores (Set[Before]): the set of Afterevens being added.
+            removed_befores (Set[Before]): the set of Befores being removed.
+            added_befores (Set[Before]): the set of Befores being added.
         """
         removed_befores = set()
 
@@ -345,8 +419,8 @@ class BeforeManager:
             board (Board): the Board state, with square being empty.
 
         Returns:
-            added_befores (Set[Before]): the set of Afterevens being added.
-            removed_befores (Set[Before]): the set of Afterevens being removed.
+            added_befores (Set[Before]): the set of Befores being added.
+            removed_befores (Set[Before]): the set of Befores being removed.
         """
         added_befores, removed_befores = BeforeManager.added_removed_befores(player=player, square=square, board=board)
 
