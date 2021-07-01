@@ -674,7 +674,7 @@ class TestSolution1(unittest.TestCase):
             verticals=[vertical_e2_e3],
             claimevens=[claimeven_f1_f2, claimeven_g1_g2],
         )
-        # Specialbefore d2-g2.
+        # Specialbefore d2-g2+e2+d3.
         specialbefore_d2_g2 = Specialbefore(
             before=before_d2_g2,
             internal_directly_playable_square=Square(row=4, col=4),  # e2
@@ -754,15 +754,15 @@ class TestSolution1(unittest.TestCase):
         vertical_c2_c3 = Vertical(upper=Square(row=3, col=2), lower=Square(row=4, col=2))
         claimeven_d1_d2 = Claimeven(upper=Square(row=4, col=3), lower=Square(row=5, col=3))
         vertical_e1_e2 = Vertical(upper=Square(row=4, col=4), lower=Square(row=5, col=4))
-        # Before b4-e1.
-        before_b4_e1 = Before(
+        # Before d2-g2.
+        before_d2_g2 = Before(
             group=Group(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6)),  # d2-g2
             verticals=[vertical_b4_b5, vertical_c2_c3, vertical_e1_e2],
             claimevens=[claimeven_d1_d2],
         )
-        # Specialbefore b4-e1.
+        # Specialbefore d2-g2+e1+d1.
         specialbefore_d2_g2 = Specialbefore(
-            before=before_b4_e1,
+            before=before_d2_g2,
             internal_directly_playable_square=Square(row=5, col=4),  # e1
             external_directly_playable_square=Square(row=5, col=3),  # d1
         )

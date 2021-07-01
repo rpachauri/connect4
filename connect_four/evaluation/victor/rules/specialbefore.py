@@ -3,7 +3,7 @@ from typing import List, Set
 from connect_four.game import Square
 from connect_four.evaluation.victor.board import Board
 
-from connect_four.evaluation.victor.rules import Vertical, Rule
+from connect_four.evaluation.victor.rules import Vertical, Rule, Baseinverse
 from connect_four.evaluation.victor.rules import Before
 from connect_four.problem import Group
 
@@ -61,6 +61,91 @@ class Specialbefore(Rule):
                 col=self.internal_directly_playable_square.col,
             ),
         )
+
+    def solves(self, group: Group) -> bool:
+        if group.player == self.before.group.player:
+            return False
+
+        baseinverse = Baseinverse(
+            playable1=self.internal_directly_playable_square,
+            playable2=self.external_directly_playable_square,
+        )
+        if baseinverse.solves(group=group):
+            return True
+
+        for claimeven in self.before.claimevens:
+            if claimeven.solves(group=group):
+                return True
+
+        for vertical in self.before.verticals:
+            if vertical != self.unused_vertical() and vertical.solves(group=group):
+                return True
+
+        return self.is_group_solvable_by_specialbefore(group=group)
+
+    def is_useful(self, groups: Set[Group]) -> bool:
+        for group in groups:
+            if self.is_group_solvable_by_specialbefore(group=group):
+                return True
+
+        return False
+
+    def is_group_solvable_by_specialbefore(self, group: Group) -> bool:
+        """Returns whether or not group has at least one square in all Specialbefore columns,
+        above the empty square of the Specialbefore group in that column.
+
+        Args:
+            group (Group): a Group to be solved.
+
+        Returns:
+            is_group_solvable_by_group (bool): true if this Before solves group; otherwise, false.
+        """
+        empty_squares_of_group = self.before.empty_squares_of_before_group()
+
+        # The Group must have a square above the external directly playable square.
+        if not Specialbefore.group_at_or_above_square(square=self.external_directly_playable_square, group=group):
+            return False
+
+        # The Group must have one square above every empty square of the Before Group.
+        # If this is not the case, return False.
+        for empty_square in empty_squares_of_group:
+            if not Specialbefore.group_above_square(square=empty_square, group=group):
+                return False
+
+        # If all empty squares of the Before Group is below a Square in group, return True.
+        return True
+
+    @staticmethod
+    def group_at_or_above_square(square: Square, group: Group) -> bool:
+        """Returns whether or not group contains a Square at or above square.
+
+        Args:
+            square (Square): a Square.
+            group (Group): a Group.
+
+        Returns:
+            group_above_square (bool): True if group contains a Square at or above square; otherwise, false.
+        """
+        for square_in_group in group.squares:
+            if square.col == square_in_group.col and square.row >= square_in_group.row:
+                return True
+        return False
+
+    @staticmethod
+    def group_above_square(square: Square, group: Group) -> bool:
+        """Returns whether or not group contains a Square above square.
+
+        Args:
+            square (Square): a Square.
+            group (Group): a Group.
+
+        Returns:
+            group_above_square (bool): True if group contains a Square above square; otherwise, false.
+        """
+        for square_in_group in group.squares:
+            if square.col == square_in_group.col and square.row > square_in_group.row:
+                return True
+        return False
 
     def find_problems_solved(self, groups_by_square_by_player: List[List[List[Set[Group]]]]) -> Set[Group]:
         """Finds all Problems this Rule solves.

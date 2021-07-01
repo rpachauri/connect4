@@ -922,6 +922,93 @@ class TestSpecialbefore(unittest.TestCase):
         )
         self.assertEqual(want_problems_solved, got_problems_solved)
 
+    def test_solves(self):
+        # Verticals/Claimevens which are part of the Before.
+        vertical_e2_e3 = Vertical(upper=Square(row=3, col=4), lower=Square(row=4, col=4))  # Vertical e2-e3.
+        claimeven_f1_f2 = Claimeven(upper=Square(row=4, col=5), lower=Square(row=5, col=5))  # Claimeven f1-f2.
+        claimeven_g1_g2 = Claimeven(upper=Square(row=4, col=6), lower=Square(row=5, col=6))  # Claimeven g1-g2.
+
+        # Before d2-g2.
+        before_d2_g2 = Before(
+            group=Group(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6)),  # d2-g2
+            verticals=[vertical_e2_e3],
+            claimevens=[claimeven_f1_f2, claimeven_g1_g2],
+        )
+        # Specialbefore d2-g2+e2+d3.
+        specialbefore_d2_g2 = Specialbefore(
+            before=before_d2_g2,
+            internal_directly_playable_square=Square(row=4, col=4),  # e2
+            external_directly_playable_square=Square(row=3, col=3),  # d3
+        )
+
+        # White d3-g3 is a Group that contains the external directly playable square and
+        # all successors of empty squares of the Specialbefore.
+        white_group_d3_g3 = Group(player=0, start=Square(row=3, col=3), end=Square(row=3, col=6))  # d3-g3
+        self.assertTrue(specialbefore_d2_g2.solves(group=white_group_d3_g3))
+        # Black d3-g3 belongs to the same player as the Specialbefore, so it cannot be solved by the Specialbefore.
+        black_group_d3_g3 = Group(player=1, start=Square(row=3, col=3), end=Square(row=3, col=6))  # d3-g3
+        self.assertFalse(specialbefore_d2_g2.solves(group=black_group_d3_g3))
+        # White c3-f3 is a Group that contains the external directly playable square but not
+        # all successors of empty squares of the Specialbefore.
+        white_group_c3_f3 = Group(player=0, start=Square(row=3, col=2), end=Square(row=3, col=5))  # c3-f3
+        self.assertFalse(specialbefore_d2_g2.solves(group=white_group_c3_f3))
+
+        # White b5-e2 is a Group that contains the internal directly playable square and
+        # external directly playable square of the Specialbefore.
+        white_group_b5_e2 = Group(player=0, start=Square(row=1, col=1), end=Square(row=4, col=4))  # b5-e2
+        self.assertTrue(specialbefore_d2_g2.solves(group=white_group_b5_e2))
+
+        # White e2-e5 is a Group that is not solved because Vertical e2-e3 does not get used.
+        white_group_e2_e5 = Group(player=0, start=Square(row=1, col=4), end=Square(row=4, col=4))  # e2-e5
+        self.assertFalse(specialbefore_d2_g2.solves(group=white_group_e2_e5))
+
+        # White f2-f5 is a Group that can be refuted by Claimeven f1-f2.
+        white_group_f2_f5 = Group(player=0, start=Square(row=1, col=5), end=Square(row=4, col=5))  # f2-f5
+        self.assertTrue(specialbefore_d2_g2.solves(group=white_group_f2_f5))
+
+        # White g2-g5 is a Group that can be refuted by Claimeven g1-g2.
+        white_group_g2_g5 = Group(player=0, start=Square(row=1, col=6), end=Square(row=4, col=6))  # g2-g5
+        self.assertTrue(specialbefore_d2_g2.solves(group=white_group_g2_g5))
+
+    def test_is_useful(self):
+        # Verticals/Claimevens which are part of the Before.
+        vertical_e2_e3 = Vertical(upper=Square(row=3, col=4), lower=Square(row=4, col=4))  # Vertical e2-e3.
+        claimeven_f1_f2 = Claimeven(upper=Square(row=4, col=5), lower=Square(row=5, col=5))  # Claimeven f1-f2.
+        claimeven_g1_g2 = Claimeven(upper=Square(row=4, col=6), lower=Square(row=5, col=6))  # Claimeven g1-g2.
+
+        # Before d2-g2.
+        before_d2_g2 = Before(
+            group=Group(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6)),  # d2-g2
+            verticals=[vertical_e2_e3],
+            claimevens=[claimeven_f1_f2, claimeven_g1_g2],
+        )
+        # Specialbefore d2-g2+e2+d3.
+        specialbefore_d2_g2 = Specialbefore(
+            before=before_d2_g2,
+            internal_directly_playable_square=Square(row=4, col=4),  # e2
+            external_directly_playable_square=Square(row=3, col=3),  # d3
+        )
+
+        # White d3-g3 is a Group that contains the external directly playable square and
+        # all successors of empty squares of the Specialbefore.
+        white_group_d3_g3 = Group(player=0, start=Square(row=3, col=3), end=Square(row=3, col=6))  # d3-g3
+        # White b5-e2 is a Group that contains the internal directly playable square and
+        # external directly playable square of the Specialbefore.
+        white_group_b5_e2 = Group(player=0, start=Square(row=1, col=1), end=Square(row=4, col=4))  # b5-e2
+        # White f2-f5 is a Group that can be refuted by Claimeven f1-f2.
+        white_group_f2_f5 = Group(player=0, start=Square(row=1, col=5), end=Square(row=4, col=5))  # f2-f5
+        # White g2-g5 is a Group that can be refuted by Claimeven g1-g2.
+        white_group_g2_g5 = Group(player=0, start=Square(row=1, col=6), end=Square(row=4, col=6))  # g2-g5
+
+        # The Specialbefore is only useful if there is a Group it solves that contains the external
+        # directly playable square and all successors of empty squares of the Specialbefore.
+        self.assertTrue(specialbefore_d2_g2.is_useful(
+            groups={white_group_d3_g3, white_group_b5_e2, white_group_f2_f5, white_group_g2_g5},
+        ))
+        self.assertFalse(specialbefore_d2_g2.is_useful(
+            groups={white_group_b5_e2, white_group_f2_f5, white_group_g2_g5},
+        ))
+
     def test_specialbefore_manager_init_simplified_diagram_6_10(self):
         # This is a modified test case from Diagram 6.10 from the original paper.
         # We filled up a lot of the columns to simplify the test case and reduce the total number of Specialbefores.

@@ -72,21 +72,11 @@ class Before(Rule):
         return self.is_group_solvable_by_before(group=group)
 
     def is_useful(self, groups: Set[Group]) -> bool:
-        # Assuming every group in groups can be solved by this Before, if there is a single Group that
-        # cannot be solved by one of the Before's Claimevens or Verticals, then this Before is useful.
-        already_solved_groups = set()
         for group in groups:
-            for claimeven in self.claimevens:
-                if claimeven.solves(group=group):
-                    already_solved_groups.add(group)
+            if self.is_group_solvable_by_before(group=group):
+                return True
 
-            for vertical in self.verticals:
-                if vertical.solves(group=group):
-                    already_solved_groups.add(group)
-
-        # Given that already_solved_groups is a subset of groups, it will not equal groups only if there exists
-        # a Group this Before can solve that one of its Claimevens or Verticals cannot.
-        return already_solved_groups != groups
+        return False
 
     def is_group_solvable_by_before(self, group: Group) -> bool:
         """Returns whether or not group has at least one square in all Before columns,
@@ -98,9 +88,6 @@ class Before(Rule):
         Returns:
             is_group_solvable_by_group (bool): true if this Before solves group; otherwise, false.
         """
-        if group.player == self.group.player:
-            return False
-
         empty_squares_of_group = self.empty_squares_of_before_group()
 
         # The Group must have one square above every empty square of the Before Group.
