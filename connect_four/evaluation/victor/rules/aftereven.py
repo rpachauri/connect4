@@ -35,6 +35,66 @@ class Aftereven(Rule):
 
         return empty_squares
 
+    def solves(self, group: Group) -> bool:
+        for claimeven in self.claimevens:
+            if claimeven.solves(group=group):
+                return True
+
+        return self.is_group_solvable_by_aftereven(group=group)
+
+    def is_useful(self, groups: Set[Group]) -> bool:
+        # Assuming every group in groups can be solved by this Aftereven, if there is a single Group that
+        # cannot be solved by one of the Aftereven's Claimeven's, then this Aftereven is useful.
+        solved_claimeven_groups = set()
+        for group in groups:
+            for claimeven in self.claimevens:
+                if claimeven.solves(group=group):
+                    solved_claimeven_groups.add(group)
+
+        # Given that solved_claimeven_groups is a subset of groups, it will not equal groups only if there exists
+        # a Group this Aftereven can solve that one of its Claimevens cannot.
+        return solved_claimeven_groups != groups
+
+    def is_group_solvable_by_aftereven(self, group: Group) -> bool:
+        """Returns whether or not group has at least one square in all Aftereven columns,
+        above the empty square of the Aftereven group in that column
+
+        Args:
+            group (Group): a Group to be solved.
+
+        Returns:
+            is_group_solvable_by_aftereven (bool): true if this Aftereven solves group; otherwise, false.
+        """
+        if group.player == self.group.player:
+            return False
+
+        empty_squares_of_aftereven = self.empty_squares_of_aftereven_group()
+
+        # The Group must have one square above every empty square of the Aftereven Group.
+        # If this is not the case, return False.
+        for empty_square in empty_squares_of_aftereven:
+            if not Aftereven.group_above_square(square=empty_square, group=group):
+                return False
+
+        # If all empty squares of the Aftereven Group is below a Square in group, return True.
+        return True
+
+    @staticmethod
+    def group_above_square(square: Square, group: Group) -> bool:
+        """Returns whether or not group contains a Square above square.
+
+        Args:
+            square (Square): a Square.
+            group (Group): a Group.
+
+        Returns:
+            group_above_square (bool): True if group contains a Square above square; otherwise, false.
+        """
+        for square_in_group in group.squares:
+            if square.col == square_in_group.col and square.row > square_in_group.row:
+                return True
+        return False
+
     def find_problems_solved(self, groups_by_square_by_player: List[List[List[Set[Group]]]]) -> Set[Group]:
         """Finds all Problems this Rule solves.
 
@@ -138,48 +198,6 @@ def find_all_afterevens(board: Board, opponent_groups: Set[Group]) -> Set[Aftere
             afterevens.add(Aftereven(group, aftereven_claimevens))
 
     return afterevens
-
-
-# def get_aftereven_claimevens(board: Board, group: Group) -> Optional[Set[Claimeven]]:
-#     """get_aftereven_claimevens takes a Board, set of Claimevens and a group.
-#     It figures out if the group is an Aftereven group.
-#     If the group is an Aftereven group, then it returns the Claimevens which are part of the Aftereven.
-#     If the group is not an Aftereven group, then it returns None.
-#
-#     Args:
-#         board (Board): a Board instance.
-#         group (Group): a group on this board.
-#
-#     Returns:
-#         claimevens (iterable<Claimeven>):
-#             If the given group is an Aftereven group, an iterable of Claimevens,
-#             where the upper square of each Claimeven is an empty square in the Aftereven group.
-#
-#             If the given group is not an Aftereven group, returns None.
-#     """
-#     claimevens = set()
-#
-#     for square in group.squares:
-#         # If the square is not empty, we assume it already belongs to the player who owns the Group.
-#         if board.is_empty(square):
-#             # If a square is in the top row, then this would be a useless Aftereven.
-#             if square.row == 0:
-#                 return None
-#
-#             # If square is odd, then we cannot use a Claimeven to build the Aftereven.
-#             if square.row % 2 == 1:
-#                 return None
-#
-#             lower = Square(row=square.row + 1, col=square.col)
-#
-#             # If an even square of an Aftereven group is empty, but the square below it is not,
-#             # then it is not a Claimeven.
-#             if not board.is_empty(square=lower):
-#                 return None
-#
-#             claimevens.add(Claimeven(lower=lower, upper=square))
-#
-#     return claimevens
 
 
 class AfterevenManager:

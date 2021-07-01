@@ -424,6 +424,40 @@ class TestAftereven(unittest.TestCase):
         )
         self.assertEqual(want_problems_solved, got_problems_solved)
 
+    def test_solves(self):
+        # The Aftereven d2-g2 solves all groups which need a square in both the f and g column.
+        aftereven_d2_g2 = Aftereven(
+            group=Group(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6)),  # d2-g2
+            claimevens=[
+                Claimeven(upper=Square(row=4, col=5), lower=Square(row=5, col=5)),  # Claimeven f1-f2
+                Claimeven(upper=Square(row=4, col=6), lower=Square(row=5, col=6)),  # Claimeven g1-g2
+            ],
+        )
+
+        white_group_d3_g3 = Group(player=0, start=Square(row=3, col=3), end=Square(row=3, col=6))  # d3-g3
+        # Note that it does not solve Groups that belong to the same player as the Aftereven group.
+        black_group_d3_g3 = Group(player=1, start=Square(row=3, col=3), end=Square(row=3, col=6))  # d3-g3
+
+        self.assertTrue(aftereven_d2_g2.solves(group=white_group_d3_g3))
+        self.assertFalse(aftereven_d2_g2.solves(group=black_group_d3_g3))
+
+    def test_is_useful(self):
+        aftereven_d2_g2 = Aftereven(
+            group=Group(player=1, start=Square(row=4, col=3), end=Square(row=4, col=6)),  # d2-g2
+            claimevens=[
+                Claimeven(upper=Square(row=4, col=5), lower=Square(row=5, col=5)),  # Claimeven f1-f2
+                Claimeven(upper=Square(row=4, col=6), lower=Square(row=5, col=6)),  # Claimeven g1-g2
+            ],
+        )
+
+        # Neither of the Claimevens can solve d3-g3 even though the Aftereven can.
+        white_group_d3_g3 = Group(player=0, start=Square(row=3, col=3), end=Square(row=3, col=6))  # d3-g3
+        # Group f1-f4 can be refuted by Claimeven f1-f2.
+        white_group_f1_f4 = Group(player=0, start=Square(row=2, col=5), end=Square(row=5, col=5))  # f1-f4
+
+        self.assertTrue(aftereven_d2_g2.is_useful(groups={white_group_d3_g3}))
+        self.assertFalse(aftereven_d2_g2.is_useful(groups={white_group_f1_f4}))
+
 
 if __name__ == '__main__':
     unittest.main()
