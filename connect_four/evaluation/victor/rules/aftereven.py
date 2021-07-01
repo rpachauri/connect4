@@ -5,6 +5,8 @@ from connect_four.game import Square
 from connect_four.problem import Group, GroupDirection
 from connect_four.evaluation.victor.board import Board
 
+import warnings
+
 
 class Aftereven(Rule):
     def __init__(self, group: Group, claimevens):
@@ -111,6 +113,7 @@ class Aftereven(Rule):
         Returns:
             problems_solved (Set[Group]): All Problems in square_to_groups this Rule solves.
         """
+        warnings.warn("find_problems_solved is deprecated. use solves() instead", DeprecationWarning)
         groups = set()
         self.add_new_groups_from_aftereven(
             groups=groups,

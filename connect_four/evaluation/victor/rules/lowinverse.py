@@ -3,6 +3,8 @@ from typing import List, Set, Optional
 from connect_four.evaluation.victor.rules import Vertical, Rule
 from connect_four.problem import Group
 
+import warnings
+
 
 class Lowinverse(Rule):
     def __init__(self, first_vertical: Vertical, second_vertical: Vertical):
@@ -18,6 +20,26 @@ class Lowinverse(Rule):
 
     def __hash__(self):
         return self.verticals.__hash__()
+
+    def solves(self, group: Group) -> bool:
+        for vertical in self.verticals:
+            if vertical.solves(group=group):
+                return True
+
+        vertical_0, vertical_1 = tuple(self.verticals)
+        upper_squares = {vertical_0.upper, vertical_1.upper}
+        return upper_squares.issubset(group.squares)
+
+    def is_useful(self, groups: Set[Group]) -> bool:
+        solved_vertical_groups = set()
+        for group in groups:
+            for vertical in self.verticals:
+                if vertical.solves(group=group):
+                    solved_vertical_groups.add(group)
+
+        # Given that solved_vertical_groups is a subset of groups, it will not equal groups only if there exists
+        # a Group this Lowinverse can solve that one of its Verticals cannot.
+        return solved_vertical_groups != groups
 
     def find_problems_solved(self, groups_by_square_by_player: List[List[List[Set[Group]]]]) -> Set[Group]:
         """Finds all Problems this Rule solves.
@@ -35,6 +57,7 @@ class Lowinverse(Rule):
         Returns:
             problems_solved (Set[Group]): All Problems in square_to_groups this Rule solves.
         """
+        warnings.warn("find_problems_solved is deprecated. use solves() instead", DeprecationWarning)
         white_problems_solved = self.find_problems_solved_for_player(groups_by_square=groups_by_square_by_player[0])
         black_problems_solved = self.find_problems_solved_for_player(groups_by_square=groups_by_square_by_player[1])
         return white_problems_solved.union(black_problems_solved)

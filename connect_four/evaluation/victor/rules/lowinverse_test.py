@@ -443,6 +443,58 @@ class TestLowinverse(unittest.TestCase):
         )
         self.assertEqual(want_problems_solved, got_problems_solved)
 
+    def test_solves(self):
+        # Lowinverse c2-c3-d2-d3 guarantees that Black will get at least one square
+        # out of each of three pairs of squares:
+        # 1. The squares in the first column (c2-c3).
+        # 2. The squares in the other column (d2-d3).
+        # 3. The upper two squares (c3-d3).
+        lowinverse_c2_c3_d2_d3 = Lowinverse(
+            first_vertical=Vertical(upper=Square(row=3, col=2), lower=Square(row=4, col=2)),  # c2-c3
+            second_vertical=Vertical(upper=Square(row=3, col=3), lower=Square(row=4, col=3)),  # d2-d3
+        )
+
+        # a3-d3 is a Group that contains both upper squares of both Verticals.
+        white_group_a3_d3 = Group(player=0, start=Square(row=3, col=0), end=Square(row=3, col=3))  # a3-d3
+        self.assertTrue(lowinverse_c2_c3_d2_d3.solves(group=white_group_a3_d3))
+        # groups refuted by Vertical c2-c3.
+        white_group_c2_c5 = Group(player=0, start=Square(row=1, col=2), end=Square(row=4, col=2))  # c2-c5
+        self.assertTrue(lowinverse_c2_c3_d2_d3.solves(group=white_group_c2_c5))
+        # groups refuted by Vertical d2-d3.
+        white_group_d2_d5 = Group(player=0, start=Square(row=1, col=3), end=Square(row=4, col=3))  # d2-d5
+        self.assertTrue(lowinverse_c2_c3_d2_d3.solves(group=white_group_d2_d5))
+        # The Lowinverse makes no guarantee about solving groups that contain the two lower squares of both Verticals.
+        white_group_a2_d2 = Group(player=0, start=Square(row=4, col=0), end=Square(row=4, col=3))  # a2-d2
+        self.assertFalse(lowinverse_c2_c3_d2_d3.solves(group=white_group_a2_d2))
+
+    def test_is_useful(self):
+        # Lowinverse c2-c3-d2-d3 guarantees that Black will get at least one square
+        # out of each of three pairs of squares:
+        # 1. The squares in the first column (c2-c3).
+        # 2. The squares in the other column (d2-d3).
+        # 3. The upper two squares (c3-d3).
+
+        # Since the two Verticals that make it up already solve #1 and #2, the Lowinverse is only useful if
+        # it solves a group that satisfies #3.
+        lowinverse_c2_c3_d2_d3 = Lowinverse(
+            first_vertical=Vertical(upper=Square(row=3, col=2), lower=Square(row=4, col=2)),  # c2-c3
+            second_vertical=Vertical(upper=Square(row=3, col=3), lower=Square(row=4, col=3)),  # d2-d3
+        )
+
+        # a3-d3 is a Group that contains both upper squares of both Verticals.
+        white_group_a3_d3 = Group(player=0, start=Square(row=3, col=0), end=Square(row=3, col=3))  # a3-d3
+        # groups refuted by Vertical c2-c3.
+        white_group_c2_c5 = Group(player=0, start=Square(row=1, col=2), end=Square(row=4, col=2))  # c2-c5
+        # groups refuted by Vertical d2-d3.
+        white_group_d2_d5 = Group(player=0, start=Square(row=1, col=3), end=Square(row=4, col=3))  # d2-d5
+
+        self.assertTrue(lowinverse_c2_c3_d2_d3.is_useful(
+            groups={white_group_a3_d3, white_group_c2_c5, white_group_d2_d5},
+        ))
+        self.assertFalse(lowinverse_c2_c3_d2_d3.is_useful(
+            groups={white_group_c2_c5, white_group_d2_d5},
+        ))
+
 
 if __name__ == '__main__':
     unittest.main()
