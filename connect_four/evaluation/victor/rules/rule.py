@@ -24,3 +24,30 @@ class Rule:
             problems_solved (Set[Group]): All Problems in square_to_groups this Rule solves.
         """
         pass
+
+    @abstractmethod
+    def solves(self, group: Group) -> bool:
+        """Returns whether or not this Rule solves the given Group.
+
+        Args:
+            group (Group): Group being considered.
+
+        Returns:
+            solves (bool): True if this Rule instance solves the given Group; otherwise, false.
+        """
+        pass
+
+    @abstractmethod
+    def is_useful(self, groups: Set[Group]) -> bool:
+        """Returns whether or not this Rule would be considered useful given that this is the set of Groups it solves.
+
+        Requires:
+            1. For every group in groups, self.solves(group) must be True.
+
+        Args:
+            groups (Set[Group]): a set of Groups that this Rule instance solves.
+
+        Returns:
+            is_useful (bool): True if this Rule instance is useful; otherwise, false.
+        """
+        pass

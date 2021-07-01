@@ -4,6 +4,7 @@ from connect_four.evaluation.victor.rules import Claimeven, Rule, Baseinverse, V
     Highinverse, Baseclaim, Before, Specialbefore, OddThreat
 from connect_four.evaluation.victor.solution.solution import Solution
 from connect_four.game import Square
+from connect_four.problem import Group
 from connect_four.problem.problem import Problem
 
 
@@ -25,13 +26,27 @@ class VictorSolution(Solution):
         self.squares_by_column = self.cols_to_squares(squares=self.squares)
 
     def solves(self, problem: Problem) -> bool:
-        pass
+        if isinstance(problem, Group):
+            return self.rule_instance.solves(group=problem)
+        return False
 
     def is_useful(self, problems: Set[Problem]) -> bool:
-        pass
+        groups = set()
+        for problem in problems:
+            if isinstance(problem, Group):
+                if not self.rule_instance.solves(group=problem):
+                    raise ValueError("solution", self, "not able to solve", problem)
+                groups.add(problem)
+            else:
+                raise TypeError(problem, "not of type", Group)
+
+        return self.rule_instance.is_useful(groups=groups)
 
     def can_be_combined_with(self, solution: Solution) -> bool:
-        pass
+        if isinstance(solution, VictorSolution):
+            from connect_four.evaluation.victor.solution import combination
+            return combination.allowed(s1=self, s2=solution)
+        return False
 
     @staticmethod
     def cols_to_squares(squares: FrozenSet[Square]) -> Dict[int, Set[Square]]:

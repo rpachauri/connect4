@@ -189,6 +189,29 @@ class TestClaimeven(unittest.TestCase):
         )
         self.assertEqual(want_problems_solved, got_problems_solved)
 
+    def test_solves(self):
+        claimeven_2_4 = Claimeven(upper=Square(row=2, col=4), lower=Square(row=3, col=4))  # e3, e4
+
+        # Note that a Claimeven can solve Groups belonging to either player.
+        white_group_d3_g6 = Group(player=0, start=Square(row=3, col=3), end=Square(row=0, col=6))  # d3-g6
+        black_group_e3_e6 = Group(player=1, start=Square(row=3, col=4), end=Square(row=0, col=4))  # e3-e6
+
+        self.assertTrue(claimeven_2_4.solves(group=white_group_d3_g6))
+        self.assertTrue(claimeven_2_4.solves(group=black_group_e3_e6))
+
+        # The claimeven cannot solve the below group.
+        white_group_a6_d6 = Group(player=0, start=Square(row=0, col=0), end=Square(row=0, col=3))  # a6-d6
+        self.assertFalse(claimeven_2_4.solves(group=white_group_a6_d6))
+
+    def test_is_useful(self):
+        claimeven_2_4 = Claimeven(upper=Square(row=2, col=4), lower=Square(row=3, col=4))  # e3, e4
+
+        white_group_d3_g6 = Group(player=0, start=Square(row=3, col=3), end=Square(row=0, col=6))  # d3-g6
+
+        # If a Claimeven solves at least one Group, it is useful.
+        self.assertTrue(claimeven_2_4.is_useful(groups={white_group_d3_g6}))
+        self.assertFalse(claimeven_2_4.is_useful(groups=set()))
+
 
 if __name__ == '__main__':
     unittest.main()

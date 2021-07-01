@@ -5,6 +5,8 @@ from connect_four.game import Square
 from connect_four.evaluation.victor.board import Board
 from connect_four.problem import Group
 
+import warnings
+
 
 class Claimeven(Rule):
     def __init__(self, upper: Square, lower: Square):
@@ -18,6 +20,12 @@ class Claimeven(Rule):
 
     def __hash__(self):
         return self.upper.__hash__() * 31 + self.lower.__hash__()
+
+    def solves(self, group: Group) -> bool:
+        return self.upper in group.squares
+
+    def is_useful(self, groups: Set[Group]) -> bool:
+        return not not groups
 
     def find_problems_solved(self, groups_by_square_by_player: List[List[List[Set[Group]]]]) -> Set[Group]:
         """Finds all Problems this Rule solves.
@@ -35,6 +43,7 @@ class Claimeven(Rule):
         Returns:
             problems_solved (Set[Group]): All Problems in square_to_groups this Rule solves.
         """
+        warnings.warn("find_problems_solved is deprecated. use solves() instead", DeprecationWarning)
         # Return problems that belong to either player at the upper square.
         white_problems_solved = self.find_problems_solved_for_player(groups_by_square=groups_by_square_by_player[0])
         black_problems_solved = self.find_problems_solved_for_player(groups_by_square=groups_by_square_by_player[1])
