@@ -1,9 +1,9 @@
 from typing import Set, Dict
 
 from connect_four.evaluation.victor.solution import SolutionManager
-from connect_four.problem import Group as Problem
 from connect_four.evaluation.victor.solution import combination
 from connect_four.evaluation.victor.solution.solution import Solution
+from connect_four.problem.problem import Problem
 from connect_four.problem.problem_manager import ProblemManager
 
 
@@ -28,16 +28,72 @@ class GraphManager:
         """Initializes the NodeGraph connecting Problems to Solutions,
         Solutions to Problems, and Solutions to Solutions.
         """
-        solutions = self.solution_manager.get_solutions()
-
         self.problem_to_solutions: Dict[Problem, Set[Solution]] = {}
         self.solution_to_problems: Dict[Solution, Set[Problem]] = {}
         self.solution_to_solutions: Dict[Solution, Set[Solution]] = {}
 
-        for problem in self.problem_manager.get_all_problems():
-            self.problem_to_solutions[problem] = set()
+        problems = self.problem_manager.get_all_problems()
+        solutions = self.solution_manager.get_solutions()
 
-        self._add_solutions(solutions=solutions)
+        for problem in problems:
+            self._add_problem(problem)
+
+        for solution in solutions:
+            self._add_solution(solution)
+
+        # for problem in self.problem_manager.get_all_problems():
+        #     self.problem_to_solutions[problem] = set()
+        #
+        # self._add_solutions(solutions=solutions)
+
+    def _add_problem(self, problem: Problem):
+        """Adds a Problem to this Graph.
+
+        Args:
+            problem (Problem): a Problem to add to this Graph.
+
+        Returns:
+            None.
+        """
+        self.problem_to_solutions[problem] = set()
+        for solution in self.solution_to_problems:
+            if solution.solves(problem=problem):
+                self.solution_to_problems[solution].add(problem)
+                self.problem_to_solutions[problem].add(solution)
+
+    def _add_solution(self, solution: Solution):
+        """Adds a Solution to this Graph if it is useful.
+
+        Requires:
+            1. All Problems in the current state should be added to this Graph.
+
+        Args:
+            solution (Solution): a Solution to add to this Graph.
+
+        Returns:
+            None.
+        """
+        solved_problems = set()
+        for problem in self.problem_to_solutions:
+            if solution.solves(problem=problem):
+                solved_problems.add(problem)
+
+        # Don't add the Solution to this Graph if it is not useful.
+        if not solution.is_useful(problems=solved_problems):
+            return
+
+        # Now that we know the Solution is useful, we add it to the Graph.
+
+        for problem in solved_problems:
+            self.problem_to_solutions[problem].add(solution)
+
+        self.solution_to_problems[solution] = solved_problems
+
+        self.solution_to_solutions[solution] = set()
+        for other_solution in self.solution_to_solutions:
+            if not solution.can_be_combined_with(solution=other_solution):
+                self.solution_to_solutions[solution].add(other_solution)
+                self.solution_to_solutions[other_solution].add(solution)
 
     def move(self, row: int, col: int):
         """Plays a move at the given row and column for the current player.

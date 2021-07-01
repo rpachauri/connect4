@@ -15,6 +15,7 @@ from connect_four.evaluation.victor.rules.lowinverse import LowinverseManager
 from connect_four.evaluation.victor.rules.specialbefore import SpecialbeforeManager
 from connect_four.evaluation.victor.rules.vertical import VerticalManager
 from connect_four.evaluation.victor.solution import victor_solution
+from connect_four.evaluation.victor.solution.solution import Solution
 from connect_four.evaluation.victor.solution.victor_solution import VictorSolution
 from connect_four.evaluation.victor.solution.solution_manager import SolutionManager
 from connect_four.game import Square
