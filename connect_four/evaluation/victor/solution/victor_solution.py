@@ -2,16 +2,17 @@ from typing import Iterable, FrozenSet, Dict, Set
 
 from connect_four.evaluation.victor.rules import Claimeven, Rule, Baseinverse, Vertical, Aftereven, Lowinverse, \
     Highinverse, Baseclaim, Before, Specialbefore, OddThreat
+from connect_four.evaluation.victor.solution.solution import Solution
 from connect_four.game import Square
+from connect_four.problem.problem import Problem
 
 
-class VictorSolution:
+class VictorSolution(Solution):
     """A VictorSolution is an application of a Rule.
 
     Two VictorSolutions may or may not work together depending on which squares each
     consists of and which rule they are an application of.
     """
-
     def __init__(self, rule_instance: Rule, squares: Iterable[Square],
                  claimeven_bottom_squares: Iterable[Square] = None):
         self.rule_instance = rule_instance
@@ -22,6 +23,15 @@ class VictorSolution:
             claimeven_bottom_squares = set()
         self.claimeven_bottom_squares = frozenset(claimeven_bottom_squares)
         self.squares_by_column = self.cols_to_squares(squares=self.squares)
+
+    def solves(self, problem: Problem) -> bool:
+        pass
+
+    def is_useful(self, problems: Set[Problem]) -> bool:
+        pass
+
+    def can_be_combined_with(self, solution: Solution) -> bool:
+        pass
 
     @staticmethod
     def cols_to_squares(squares: FrozenSet[Square]) -> Dict[int, Set[Square]]:
