@@ -216,6 +216,7 @@ class TestGraphManager6x7(unittest.TestCase):
         got_evaluation = gm.evaluate()
         self.assertIsNotNone(got_evaluation)
 
+    @unittest.skip("OddThreat not implemented yet")
     def test_find_chosen_set_diagram_8_1(self):
         # This test case is based on Diagram 8.1.
         # Black is to move and White has an odd threat at a3.
@@ -364,6 +365,7 @@ class TestGraphManager6x7(unittest.TestCase):
         got_evaluation = gm.evaluate()
         self.assertIsNone(got_evaluation)
 
+    @unittest.skip("GraphManager.remove_problem() not yet implemented")
     def test_move(self):
         problem_manager = ConnectFourGroupManager(env_variables=self.env.env_variables)
         solution_manager = VictorSolutionManager(env_variables=self.env.env_variables)
@@ -383,6 +385,7 @@ class TestGraphManager6x7(unittest.TestCase):
             self.assertIn(solution, gm2.solution_to_solutions)
             self.assertEqual(gm1.solution_to_solutions[solution], gm2.solution_to_solutions[solution])
 
+    @unittest.skip("GraphManager.remove_problem() not yet implemented")
     def test_move_undo_move(self):
         problem_manager = ConnectFourGroupManager(env_variables=self.env.env_variables)
         solution_manager = VictorSolutionManager(env_variables=self.env.env_variables)

@@ -1,4 +1,4 @@
-from typing import List, Set
+from typing import List, Set, FrozenSet
 
 from connect_four.game import Square
 from connect_four.problem import Group
@@ -36,7 +36,7 @@ class Before(Rule):
     def __repr__(self):
         return self.group.__repr__() + " Verticals: " + str(self.verticals) + " Claimevens: " + str(self.claimevens)
 
-    def empty_squares_of_before_group(self):
+    def empty_squares_of_before_group(self) -> FrozenSet[Square]:
         """Returns the empty squares of the Before group of this Before.
 
         Returns:
@@ -90,30 +90,14 @@ class Before(Rule):
         """
         empty_squares_of_group = self.empty_squares_of_before_group()
 
-        # The Group must have one square above every empty square of the Before Group.
-        # If this is not the case, return False.
+        # For every empty square in the Before Group, group must contain its direct successor.
         for empty_square in empty_squares_of_group:
-            if not Before.group_above_square(square=empty_square, group=group):
+            square_above = Square(row=empty_square.row - 1, col=empty_square.col)
+            if square_above not in group.squares:
                 return False
 
         # If all empty squares of the Before Group is below a Square in group, return True.
         return True
-
-    @staticmethod
-    def group_above_square(square: Square, group: Group) -> bool:
-        """Returns whether or not group contains a Square above square.
-
-        Args:
-            square (Square): a Square.
-            group (Group): a Group.
-
-        Returns:
-            group_above_square (bool): True if group contains a Square above square; otherwise, false.
-        """
-        for square_in_group in group.squares:
-            if square.col == square_in_group.col and square.row > square_in_group.row:
-                return True
-        return False
 
     def find_problems_solved(self, groups_by_square_by_player: List[List[List[Set[Group]]]]) -> Set[Group]:
         """Finds all Problems this Rule solves.

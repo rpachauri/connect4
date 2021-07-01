@@ -103,49 +103,18 @@ class Specialbefore(Rule):
         empty_squares_of_group = self.before.empty_squares_of_before_group()
 
         # The Group must have a square above the external directly playable square.
-        if not Specialbefore.group_at_or_above_square(square=self.external_directly_playable_square, group=group):
+        if self.external_directly_playable_square not in group.squares:
             return False
 
         # The Group must have one square above every empty square of the Before Group.
         # If this is not the case, return False.
         for empty_square in empty_squares_of_group:
-            if not Specialbefore.group_above_square(square=empty_square, group=group):
+            square_above = Square(row=empty_square.row - 1, col=empty_square.col)
+            if square_above not in group.squares:
                 return False
 
         # If all empty squares of the Before Group is below a Square in group, return True.
         return True
-
-    @staticmethod
-    def group_at_or_above_square(square: Square, group: Group) -> bool:
-        """Returns whether or not group contains a Square at or above square.
-
-        Args:
-            square (Square): a Square.
-            group (Group): a Group.
-
-        Returns:
-            group_above_square (bool): True if group contains a Square at or above square; otherwise, false.
-        """
-        for square_in_group in group.squares:
-            if square.col == square_in_group.col and square.row >= square_in_group.row:
-                return True
-        return False
-
-    @staticmethod
-    def group_above_square(square: Square, group: Group) -> bool:
-        """Returns whether or not group contains a Square above square.
-
-        Args:
-            square (Square): a Square.
-            group (Group): a Group.
-
-        Returns:
-            group_above_square (bool): True if group contains a Square above square; otherwise, false.
-        """
-        for square_in_group in group.squares:
-            if square.col == square_in_group.col and square.row > square_in_group.row:
-                return True
-        return False
 
     def find_problems_solved(self, groups_by_square_by_player: List[List[List[Set[Group]]]]) -> Set[Group]:
         """Finds all Problems this Rule solves.

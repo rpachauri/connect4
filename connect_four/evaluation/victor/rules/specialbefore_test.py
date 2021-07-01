@@ -952,6 +952,10 @@ class TestSpecialbefore(unittest.TestCase):
         # all successors of empty squares of the Specialbefore.
         white_group_c3_f3 = Group(player=0, start=Square(row=3, col=2), end=Square(row=3, col=5))  # c3-f3
         self.assertFalse(specialbefore_d2_g2.solves(group=white_group_c3_f3))
+        # White d3-g6 is a Group that contains the external directly playable square and
+        # has squares above empty squares of the Specialbefore. However, they are not direct successors.
+        white_group_d3_g6 = Group(player=0, start=Square(row=3, col=3), end=Square(row=0, col=6))  # d3-g6
+        self.assertFalse(specialbefore_d2_g2.solves(group=white_group_d3_g6))
 
         # White b5-e2 is a Group that contains the internal directly playable square and
         # external directly playable square of the Specialbefore.

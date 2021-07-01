@@ -367,6 +367,10 @@ class TestBefore(unittest.TestCase):
         # Black b5-e2 belongs to the same player as the Before, so it cannot be solved by the Before.
         black_group_b5_e2 = Group(player=1, start=Square(row=1, col=1), end=Square(row=4, col=4))  # b5-e2
         self.assertFalse(before_b4_e1.solves(group=black_group_b5_e2))
+        # White b6-e3 is a Group that has squares above all empty squares of the Before group; however,
+        # they are not direct successors.
+        white_group_b6_e3 = Group(player=0, start=Square(row=0, col=1), end=Square(row=3, col=4))  # b6-e3
+        self.assertFalse(before_b4_e1.solves(group=white_group_b6_e3))
 
         # White a4-d4 is a Group that can be solved by Claimeven b3-b4.
         white_group_a4_d4 = Group(player=0, start=Square(row=2, col=0), end=Square(row=2, col=3))  # a4-d4
