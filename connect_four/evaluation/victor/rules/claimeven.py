@@ -87,19 +87,18 @@ class ClaimevenManager:
         self.claimevens = find_all_claimevens(board=board)
         self.claimevens_removed_by_move = []
 
-    def move(self, row: int, col: int) -> Optional[Claimeven]:
+    def move(self, square: Square) -> Optional[Claimeven]:
         """Moves the internal state of the ClaimevenManager to after this square has been played.
 
         Args:
-            row (int): the row being played.
-            col (int): the col being played.
+            square (Square): the Square being played.
 
         Returns:
             removed_claimeven (Optional[Claimeven]): the Claimeven being removed, if there is one.
         """
         removed_claimeven = None
-        if row % 2 == 1:  # row is odd
-            removed_claimeven = Claimeven(lower=Square(row=row, col=col), upper=Square(row=row - 1, col=col))
+        if square.row % 2 == 1:  # row is odd
+            removed_claimeven = Claimeven(lower=square, upper=Square(row=square.row - 1, col=square.col))
             self.claimevens.remove(removed_claimeven)
         self.claimevens_removed_by_move.append(removed_claimeven)
         return removed_claimeven

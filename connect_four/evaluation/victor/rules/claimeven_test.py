@@ -129,13 +129,16 @@ class TestClaimeven(unittest.TestCase):
         board = Board(self.env.env_variables)
         cm = ClaimevenManager(board=board)
 
+        square_5_0 = Square(row=5, col=0)
+        square_4_0 = Square(row=4, col=0)
+
         # Move (5, 0).
-        claimeven = Claimeven(lower=Square(row=5, col=0), upper=Square(row=4, col=0))
-        got_removed_claimeven = cm.move(row=5, col=0)
+        claimeven = Claimeven(lower=square_5_0, upper=square_4_0)
+        got_removed_claimeven = cm.move(square=square_5_0)
         self.assertEqual(claimeven, got_removed_claimeven)
 
         # Move (4, 0).
-        got_removed_claimeven = cm.move(row=4, col=0)
+        got_removed_claimeven = cm.move(square=square_4_0)
         self.assertIsNone(got_removed_claimeven)
 
         # Undo (4, 0).

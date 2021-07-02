@@ -74,7 +74,7 @@ class Lowinverse(Rule):
         return solved_by_two_upper_squares.union(vertical_0_problems).union(vertical_1_problems)
 
 
-def find_all_lowinverses(verticals: Set[Vertical]):
+def find_all_lowinverses(verticals: Set[Vertical]) -> Set[Lowinverse]:
     """find_all_lowinverses takes an iterable of Verticals and returns an iterable of Lowinverses.
 
     Args:
@@ -151,5 +151,5 @@ class LowinverseManager:
             added_lowinverses (Set[Lowinverse]): the set of Lowinverses being added.
         """
         added_lowinverses = LowinverseManager._find_affected_lowinverses(vertical=vertical, verticals=verticals)
-        self.lowinverses += added_lowinverses
+        self.lowinverses.update(added_lowinverses)
         return added_lowinverses

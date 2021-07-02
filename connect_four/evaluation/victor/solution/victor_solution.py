@@ -80,6 +80,37 @@ class VictorSolution(Solution):
         return str(self.rule_instance.__class__) + " -> " + str(self.squares)
 
 
+# def from_rule(rule: Rule) -> VictorSolution:
+#     """Converts a Rule into a VictorSolution.
+#
+#     Args:
+#         rule (Rule): a Rule.
+#
+#     Returns:
+#         solution (VictorSolution): a VictorSolution.
+#     """
+#     if isinstance(rule, Claimeven):
+#         return from_claimeven(claimeven=rule)
+#     if isinstance(rule, Baseinverse):
+#         return from_baseinverse(baseinverse=rule)
+#     if isinstance(rule, Vertical):
+#         return from_vertical(vertical=rule)
+#     if isinstance(rule, Aftereven):
+#         return from_aftereven(aftereven=rule)
+#     if isinstance(rule, Lowinverse):
+#         return from_lowinverse(lowinverse=rule)
+#     if isinstance(rule, Highinverse):
+#         return from_highinverse(highinverse=rule)
+#     if isinstance(rule, Baseclaim):
+#         return from_baseclaim(baseclaim=rule)
+#     if isinstance(rule, Before):
+#         return from_before(before=rule)
+#     if isinstance(rule, Specialbefore):
+#         return from_specialbefore(specialbefore=rule)
+#     if isinstance(rule, OddThreat):
+#         return from_odd_threat(odd_threat=rule)
+
+
 def from_claimeven(claimeven: Claimeven) -> VictorSolution:
     """Converts a Claimeven into a VictorSolution.
 

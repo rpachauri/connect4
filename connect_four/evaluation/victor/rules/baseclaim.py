@@ -248,4 +248,4 @@ class BaseclaimManager:
         self.baseclaims.difference_update(removed_baseclaims)
         self.baseclaims.update(added_baseclaims)
 
-        return removed_baseclaims, added_baseclaims
+        return added_baseclaims, removed_baseclaims
