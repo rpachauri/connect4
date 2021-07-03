@@ -46,32 +46,32 @@ class TestBaseinverse(unittest.TestCase):
 
         want_baseinverses = {
             # All matches with Square(5, 0).
-            Baseinverse(Square(5, 0), Square(5, 1)),
-            Baseinverse(Square(5, 0), Square(2, 2)),
-            Baseinverse(Square(5, 0), Square(3, 3)),
-            Baseinverse(Square(5, 0), Square(4, 4)),
-            Baseinverse(Square(5, 0), Square(5, 5)),
-            Baseinverse(Square(5, 0), Square(5, 6)),
+            Baseinverse(Square(5, 0), Square(5, 1)),  # a1-b1
+            # Baseinverse(Square(5, 0), Square(2, 2)),  # a1-c4
+            # Baseinverse(Square(5, 0), Square(3, 3)),  # a1-d3
+            # Baseinverse(Square(5, 0), Square(4, 4)),  # a1-e2
+            # Baseinverse(Square(5, 0), Square(5, 5)),  # a1-f1
+            # Baseinverse(Square(5, 0), Square(5, 6)),  # a1-g1
             # All matches with Square(5, 1).
-            Baseinverse(Square(5, 1), Square(2, 2)),
-            Baseinverse(Square(5, 1), Square(3, 3)),
-            Baseinverse(Square(5, 1), Square(4, 4)),
-            Baseinverse(Square(5, 1), Square(5, 5)),
-            Baseinverse(Square(5, 1), Square(5, 6)),
+            # Baseinverse(Square(5, 1), Square(2, 2)),  # b1-c4
+            Baseinverse(Square(5, 1), Square(3, 3)),  # b1-d3
+            # Baseinverse(Square(5, 1), Square(4, 4)),  # b1-e2
+            # Baseinverse(Square(5, 1), Square(5, 5)),  # b1-f1
+            # Baseinverse(Square(5, 1), Square(5, 6)),  # b1-g1
             # All matches with Square(2, 2).
-            Baseinverse(Square(2, 2), Square(3, 3)),
-            Baseinverse(Square(2, 2), Square(4, 4)),
-            Baseinverse(Square(2, 2), Square(5, 5)),
-            Baseinverse(Square(2, 2), Square(5, 6)),
+            Baseinverse(Square(2, 2), Square(3, 3)),  # c4-d3
+            Baseinverse(Square(2, 2), Square(4, 4)),  # c4-e2
+            Baseinverse(Square(2, 2), Square(5, 5)),  # c4-f1
+            # Baseinverse(Square(2, 2), Square(5, 6)),  # c4-g1
             # All matches with Square(3, 3).
-            Baseinverse(Square(3, 3), Square(4, 4)),
-            Baseinverse(Square(3, 3), Square(5, 5)),
-            Baseinverse(Square(3, 3), Square(5, 6)),
+            Baseinverse(Square(3, 3), Square(4, 4)),  # d3-e2
+            Baseinverse(Square(3, 3), Square(5, 5)),  # d3-f1
+            # Baseinverse(Square(3, 3), Square(5, 6)),  # d3-g1
             # All matches with Square(4, 4).
-            Baseinverse(Square(4, 4), Square(5, 5)),
-            Baseinverse(Square(4, 4), Square(5, 6)),
+            Baseinverse(Square(4, 4), Square(5, 5)),  # e2-f1
+            # Baseinverse(Square(4, 4), Square(5, 6)),  # e2-g1
             # All matches with Square(5, 5).
-            Baseinverse(Square(5, 5), Square(5, 6)),
+            Baseinverse(Square(5, 5), Square(5, 6)),  # f1-g1
         }
         self.assertEqual(want_baseinverses, got_baseinverses)
 
@@ -100,32 +100,32 @@ class TestBaseinverse(unittest.TestCase):
 
         want_baseinverses = {
             # All matches with Square(5, 0).
-            Baseinverse(Square(5, 0), Square(5, 1)),
-            Baseinverse(Square(5, 0), Square(2, 2)),
-            Baseinverse(Square(5, 0), Square(3, 3)),
-            Baseinverse(Square(5, 0), Square(4, 4)),
-            Baseinverse(Square(5, 0), Square(5, 5)),
-            Baseinverse(Square(5, 0), Square(5, 6)),
+            Baseinverse(Square(5, 0), Square(5, 1)),  # a1-b1
+            # Baseinverse(Square(5, 0), Square(2, 2)),  # a1-c4
+            # Baseinverse(Square(5, 0), Square(3, 3)),  # a1-d3
+            # Baseinverse(Square(5, 0), Square(4, 4)),  # a1-e2
+            # Baseinverse(Square(5, 0), Square(5, 5)),  # a1-f1
+            # Baseinverse(Square(5, 0), Square(5, 6)),  # a1-g1
             # All matches with Square(5, 1).
-            Baseinverse(Square(5, 1), Square(2, 2)),
-            Baseinverse(Square(5, 1), Square(3, 3)),
-            Baseinverse(Square(5, 1), Square(4, 4)),
-            Baseinverse(Square(5, 1), Square(5, 5)),
-            Baseinverse(Square(5, 1), Square(5, 6)),
+            # Baseinverse(Square(5, 1), Square(2, 2)),  # b1-c4
+            Baseinverse(Square(5, 1), Square(3, 3)),  # b1-d3
+            # Baseinverse(Square(5, 1), Square(4, 4)),  # b1-e2
+            # Baseinverse(Square(5, 1), Square(5, 5)),  # b1-f1
+            # Baseinverse(Square(5, 1), Square(5, 6)),  # b1-g1
             # All matches with Square(2, 2).
-            Baseinverse(Square(2, 2), Square(3, 3)),
-            Baseinverse(Square(2, 2), Square(4, 4)),
-            Baseinverse(Square(2, 2), Square(5, 5)),
-            Baseinverse(Square(2, 2), Square(5, 6)),
+            Baseinverse(Square(2, 2), Square(3, 3)),  # c4-d3
+            Baseinverse(Square(2, 2), Square(4, 4)),  # c4-e2
+            Baseinverse(Square(2, 2), Square(5, 5)),  # c4-f1
+            # Baseinverse(Square(2, 2), Square(5, 6)),  # c4-g1
             # All matches with Square(3, 3).
-            Baseinverse(Square(3, 3), Square(4, 4)),
-            Baseinverse(Square(3, 3), Square(5, 5)),
-            Baseinverse(Square(3, 3), Square(5, 6)),
+            Baseinverse(Square(3, 3), Square(4, 4)),  # d3-e2
+            Baseinverse(Square(3, 3), Square(5, 5)),  # d3-f1
+            # Baseinverse(Square(3, 3), Square(5, 6)),  # d3-g1
             # All matches with Square(4, 4).
-            Baseinverse(Square(4, 4), Square(5, 5)),
-            Baseinverse(Square(4, 4), Square(5, 6)),
+            Baseinverse(Square(4, 4), Square(5, 5)),  # e2-f1
+            # Baseinverse(Square(4, 4), Square(5, 6)),  # e2-g1
             # All matches with Square(5, 5).
-            Baseinverse(Square(5, 5), Square(5, 6)),
+            Baseinverse(Square(5, 5), Square(5, 6)),  # f1-g1
         }
         self.assertEqual(want_baseinverses, got_baseinverses)
 
@@ -154,20 +154,20 @@ class TestBaseinverse(unittest.TestCase):
         # White will play at a1, removing any Baseinverses that include a1 and adding any Baseinverses that include a2.
 
         want_removed_baseinverses = {
-            Baseinverse(Square(5, 0), Square(5, 1)),
-            Baseinverse(Square(5, 0), Square(2, 2)),
-            Baseinverse(Square(5, 0), Square(3, 3)),
-            Baseinverse(Square(5, 0), Square(4, 4)),
-            Baseinverse(Square(5, 0), Square(5, 5)),
-            Baseinverse(Square(5, 0), Square(5, 6)),
+            Baseinverse(Square(5, 0), Square(5, 1)),  # a1-b1
+            # Baseinverse(Square(5, 0), Square(2, 2)),  # a1-c4
+            # Baseinverse(Square(5, 0), Square(3, 3)),  # a1-d3
+            # Baseinverse(Square(5, 0), Square(4, 4)),  # a1-e2
+            # Baseinverse(Square(5, 0), Square(5, 5)),  # a1-f1
+            # Baseinverse(Square(5, 0), Square(5, 6)),  # a1-g1
         }
         want_added_baseinverses = {
-            Baseinverse(Square(4, 0), Square(5, 1)),
-            Baseinverse(Square(4, 0), Square(2, 2)),
-            Baseinverse(Square(4, 0), Square(3, 3)),
-            Baseinverse(Square(4, 0), Square(4, 4)),
-            Baseinverse(Square(4, 0), Square(5, 5)),
-            Baseinverse(Square(4, 0), Square(5, 6)),
+            # Baseinverse(Square(4, 0), Square(5, 1)),  # a2-b1
+            Baseinverse(Square(4, 0), Square(2, 2)),  # a2-c4
+            # Baseinverse(Square(4, 0), Square(3, 3)),  # a2-d3
+            # Baseinverse(Square(4, 0), Square(4, 4)),  # a2-e2
+            # Baseinverse(Square(4, 0), Square(5, 5)),  # a2-f1
+            # Baseinverse(Square(4, 0), Square(5, 6)),  # a2-g1
         }
 
         got_removed_baseinverses, got_added_baseinverses = bm.move(
@@ -199,24 +199,14 @@ class TestBaseinverse(unittest.TestCase):
         board = Board(self.env.env_variables)
         bm = BaseinverseManager(board=board)
 
-        # White will play at d6, removing any Baseinverses that include d6 and not adding any Baseinverses.
-
-        want_removed_baseinverses = {
-            Baseinverse(Square(5, 0), Square(0, 3)),
-            Baseinverse(Square(5, 1), Square(0, 3)),
-            Baseinverse(Square(4, 2), Square(0, 3)),
-            Baseinverse(Square(5, 4), Square(0, 3)),
-            Baseinverse(Square(5, 5), Square(0, 3)),
-            Baseinverse(Square(5, 6), Square(0, 3)),
-        }
-        want_added_baseinverses = set()
-
+        # White will play at d6.
+        # This does not remove or add any Baseinverses.
         got_removed_baseinverses, got_added_baseinverses = bm.move(
             square=Square(0, 3),
             playable_squares=board.playable_squares(),
         )
-        self.assertEqual(want_removed_baseinverses, got_removed_baseinverses)
-        self.assertEqual(want_added_baseinverses, got_added_baseinverses)
+        self.assertFalse(got_removed_baseinverses)
+        self.assertFalse(got_added_baseinverses)
 
     def test_undo_move(self):
         self.env.state = np.array([
@@ -246,20 +236,20 @@ class TestBaseinverse(unittest.TestCase):
         )
 
         want_added_baseinverses = {
-            Baseinverse(Square(5, 0), Square(5, 1)),
-            Baseinverse(Square(5, 0), Square(2, 2)),
-            Baseinverse(Square(5, 0), Square(3, 3)),
-            Baseinverse(Square(5, 0), Square(4, 4)),
-            Baseinverse(Square(5, 0), Square(5, 5)),
-            Baseinverse(Square(5, 0), Square(5, 6)),
+            Baseinverse(Square(5, 0), Square(5, 1)),  # a1-b1
+            # Baseinverse(Square(5, 0), Square(2, 2)),  # a1-c4
+            # Baseinverse(Square(5, 0), Square(3, 3)),  # a1-d3
+            # Baseinverse(Square(5, 0), Square(4, 4)),  # a1-e2
+            # Baseinverse(Square(5, 0), Square(5, 5)),  # a1-f1
+            # Baseinverse(Square(5, 0), Square(5, 6)),  # a1-g1
         }
         want_removed_baseinverses = {
-            Baseinverse(Square(4, 0), Square(5, 1)),
-            Baseinverse(Square(4, 0), Square(2, 2)),
-            Baseinverse(Square(4, 0), Square(3, 3)),
-            Baseinverse(Square(4, 0), Square(4, 4)),
-            Baseinverse(Square(4, 0), Square(5, 5)),
-            Baseinverse(Square(4, 0), Square(5, 6)),
+            # Baseinverse(Square(4, 0), Square(5, 1)),  # a2-b1
+            Baseinverse(Square(4, 0), Square(2, 2)),  # a2-c4
+            # Baseinverse(Square(4, 0), Square(3, 3)),  # a2-d3
+            # Baseinverse(Square(4, 0), Square(4, 4)),  # a2-e2
+            # Baseinverse(Square(4, 0), Square(5, 5)),  # a2-f1
+            # Baseinverse(Square(4, 0), Square(5, 6)),  # a2-g1
         }
 
         got_added_baseinverses, got_removed_baseinverses = bm.undo_move(
@@ -299,23 +289,12 @@ class TestBaseinverse(unittest.TestCase):
         )
 
         # We now undo White's move at d6.
-
-        want_added_baseinverses = {
-            Baseinverse(Square(5, 0), Square(0, 3)),
-            Baseinverse(Square(5, 1), Square(0, 3)),
-            Baseinverse(Square(4, 2), Square(0, 3)),
-            Baseinverse(Square(5, 4), Square(0, 3)),
-            Baseinverse(Square(5, 5), Square(0, 3)),
-            Baseinverse(Square(5, 6), Square(0, 3)),
-        }
-        want_removed_baseinverses = set()
-
         got_added_baseinverses, got_removed_baseinverses = bm.undo_move(
             square=Square(0, 3),
             playable_squares=board.playable_squares(),
         )
-        self.assertEqual(want_added_baseinverses, got_added_baseinverses)
-        self.assertEqual(want_removed_baseinverses, got_removed_baseinverses)
+        self.assertFalse(got_added_baseinverses)
+        self.assertFalse(got_removed_baseinverses)
 
     def test_find_problems_solved(self):
         # This board is from Diagram 6.2 of the original paper.

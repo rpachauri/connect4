@@ -1,6 +1,6 @@
 from typing import List, Set
 
-from connect_four.evaluation.victor.rules import Rule
+from connect_four.evaluation.victor.rules import Rule, connection
 from connect_four.game import Square
 from connect_four.evaluation.victor.board import Board
 from connect_four.problem import Group
@@ -76,8 +76,8 @@ def find_all_baseinverses(board: Board) -> Set[Baseinverse]:
 
     for playable1 in playable_squares:
         for playable2 in playable_squares:
-            if playable1 != playable2:
-                baseinverses.add(Baseinverse(playable1, playable2))
+            if playable1 != playable2 and connection.is_possible(a=playable1, b=playable2):
+                baseinverses.add(Baseinverse(playable1=playable1, playable2=playable2))
     return baseinverses
 
 
@@ -103,7 +103,7 @@ class BaseinverseManager:
         """
         removed_baseinverses = set()
         for other_square in playable_squares:
-            if other_square != square:
+            if other_square != square and connection.is_possible(a=square, b=other_square):
                 baseinverse = Baseinverse(playable1=square, playable2=other_square)
                 self.baseinverses.remove(baseinverse)
                 removed_baseinverses.add(baseinverse)
@@ -112,7 +112,7 @@ class BaseinverseManager:
         if square.row > 0:
             square_above = Square(row=square.row - 1, col=square.col)
             for other_square in playable_squares:
-                if other_square != square:
+                if other_square != square and connection.is_possible(a=square_above, b=other_square):
                     baseinverse = Baseinverse(playable1=square_above, playable2=other_square)
                     self.baseinverses.add(baseinverse)
                     added_baseinverses.add(baseinverse)
@@ -132,7 +132,7 @@ class BaseinverseManager:
         """
         added_baseinverses = set()
         for other_square in playable_squares:
-            if other_square != square:
+            if other_square != square and connection.is_possible(a=square, b=other_square):
                 baseinverse = Baseinverse(playable1=square, playable2=other_square)
                 self.baseinverses.add(baseinverse)
                 added_baseinverses.add(baseinverse)
@@ -141,7 +141,7 @@ class BaseinverseManager:
         if square.row > 0:
             square_above = Square(row=square.row - 1, col=square.col)
             for other_square in playable_squares:
-                if other_square != square:
+                if other_square != square and connection.is_possible(a=square_above, b=other_square):
                     baseinverse = Baseinverse(playable1=square_above, playable2=other_square)
                     self.baseinverses.remove(baseinverse)
                     removed_baseinverses.add(baseinverse)

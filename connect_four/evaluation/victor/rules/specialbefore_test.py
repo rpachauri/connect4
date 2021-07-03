@@ -47,7 +47,7 @@ class TestSpecialbefore(unittest.TestCase):
             lower=directly_playable_square_4_4,
             upper=square_above_directly_playable_square_4_4,
         )
-        got_unused_vertical = specialbefore.unused_vertical()
+        got_unused_vertical = specialbefore.unused_vertical
         self.assertEqual(want_unused_vertical, got_unused_vertical)
 
     def test_before_simplified_diagram_6_10(self):

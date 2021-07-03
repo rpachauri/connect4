@@ -156,18 +156,6 @@ class TestSolutionManager(unittest.TestCase):
                 lower=Square(row=1, col=1),  # b5
             )),
             # Baseinverse Solutions.
-            victor_solution.from_baseinverse(baseinverse=Baseinverse(
-                playable1=Square(row=5, col=0),  # a1
-                playable2=Square(row=2, col=1),  # b4
-            )),
-            victor_solution.from_baseinverse(baseinverse=Baseinverse(
-                playable1=Square(row=5, col=0),  # a1
-                playable2=Square(row=0, col=4),  # e6
-            )),
-            victor_solution.from_baseinverse(baseinverse=Baseinverse(
-                playable1=Square(row=2, col=1),  # b4
-                playable2=Square(row=0, col=4),  # e6
-            )),
             # Vertical Solutions.
             victor_solution.from_vertical(vertical=vertical_a4_a5),
             victor_solution.from_vertical(vertical=vertical_a2_a3),
@@ -283,14 +271,7 @@ class TestSolutionManager(unittest.TestCase):
             # Claimeven Solutions.
             victor_solution.from_claimeven(claimeven=claimeven_a1_a2),
             # Baseinverse Solutions.
-            victor_solution.from_baseinverse(baseinverse=Baseinverse(
-                playable1=Square(row=5, col=0),  # a1
-                playable2=Square(row=2, col=1),  # b4
-            )),
-            victor_solution.from_baseinverse(baseinverse=Baseinverse(
-                playable1=Square(row=5, col=0),  # a1
-                playable2=Square(row=0, col=4),  # e6
-            )),
+            # None.
             # Vertical Solutions.
             # None.
             # Aftereven Solutions.
@@ -328,14 +309,7 @@ class TestSolutionManager(unittest.TestCase):
             # Claimeven Solutions.
             # None.
             # Baseinverse Solutions.
-            victor_solution.from_baseinverse(baseinverse=Baseinverse(
-                playable1=Square(row=4, col=0),  # a2
-                playable2=Square(row=2, col=1),  # b4
-            )),
-            victor_solution.from_baseinverse(baseinverse=Baseinverse(
-                playable1=Square(row=4, col=0),  # a2
-                playable2=Square(row=0, col=4),  # e6
-            )),
+            # None.
             # Vertical Solutions.
             # None.
             # Aftereven Solutions.
