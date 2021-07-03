@@ -117,7 +117,7 @@ def from_specialbefore(specialbefore: Specialbefore) -> SimplePlan:
         ),
     )
     for vertical in specialbefore.before.verticals:
-        if vertical != specialbefore.unused_vertical():
+        if vertical != specialbefore.unused_vertical:
             builder.add(plan=from_vertical(vertical=vertical))
     for claimeven in specialbefore.before.claimevens:
         builder.add(plan=from_claimeven(claimeven=claimeven))

@@ -101,6 +101,7 @@ class TestSimplePlan(unittest.TestCase):
         got_plan = simple_plan.from_before(before=before_b4_e1)
         self.assertEqual(want_plan, got_plan)
 
+    @unittest.skip("not yet implemented")
     def test_from_specialbefore(self):
         # Example from Diagram 6.10.
         internal_directly_playable_square_e2 = Square(row=4, col=4)

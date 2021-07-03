@@ -21,7 +21,7 @@ for _ in range(100):
 
     while not done:
         board = Board(env_variables=env.env_variables)
-        initial_solutions = VictorSolutionManager._find_all_solutions(board=board)
+        initial_solutions = vsm.solutions
 
         action = random_agent.action(env, last_action)
         _, reward, done, _ = env.step(action)
@@ -35,7 +35,7 @@ for _ in range(100):
         env_variables_by_move.append(env.env_variables)
 
         board = Board(env_variables=env.env_variables)
-        final_solutions = VictorSolutionManager._find_all_solutions(board=board)
+        final_solutions = vsm.solutions
 
         want_removed_solutions = initial_solutions - final_solutions
         want_added_solutions = final_solutions - initial_solutions
@@ -54,9 +54,9 @@ for _ in range(100):
         print("player, row, col =", player, row, col)
         board = Board(env_variables=env_variables)
 
-        final_solutions = VictorSolutionManager._find_all_solutions(board=board)
+        final_solutions = vsm.solutions
         board.state[player][row][col] = 0
-        initial_solutions = VictorSolutionManager._find_all_solutions(board=board)
+        initial_solutions = vsm.solutions
 
         want_added_solutions = initial_solutions - final_solutions
         want_removed_solutions = final_solutions - initial_solutions

@@ -1,6 +1,6 @@
 from typing import List, Set, Optional
 
-from connect_four.evaluation.victor.rules import Vertical, Rule
+from connect_four.evaluation.victor.rules import Vertical, Rule, connection
 from connect_four.problem import Group
 
 import warnings
@@ -86,7 +86,8 @@ def find_all_lowinverses(verticals: Set[Vertical]) -> Set[Lowinverse]:
     lowinverses = set()
     for first_vertical in verticals:
         for second_vertical in verticals:
-            if first_vertical.upper.col != second_vertical.upper.col:
+            if (first_vertical.upper.col != second_vertical.upper.col and
+                    connection.is_possible(a=first_vertical.upper, b=second_vertical.upper)):
                 lowinverses.add(Lowinverse(first_vertical, second_vertical))
 
     return lowinverses
@@ -135,7 +136,7 @@ class LowinverseManager:
 
         affected_lowinverses = set()
         for other in verticals - {vertical}:
-            if vertical.upper.col != other.upper.col:
+            if vertical.upper.col != other.upper.col and connection.is_possible(a=vertical.upper, b=other.upper):
                 affected_lowinverses.add(Lowinverse(first_vertical=vertical, second_vertical=other))
         return affected_lowinverses
 

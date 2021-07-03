@@ -5,7 +5,7 @@ import numpy as np
 
 from connect_four.envs import ConnectFourEnv
 from connect_four.evaluation.victor.board import Board
-from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Aftereven, Lowinverse, Highinverse, \
+from connect_four.evaluation.victor.rules import Claimeven, Vertical, Aftereven, Lowinverse, Highinverse, \
     Baseclaim, Before, Specialbefore, Oddthreat
 from connect_four.evaluation.victor.solution import victor_solution
 from connect_four.evaluation.victor.solution.victor_solution_manager import VictorSolutionManager
@@ -68,10 +68,6 @@ class TestSolutionManager(unittest.TestCase):
         # Lowinverse instances.
         lowinverse_a4_a5_b4_b5 = Lowinverse(
             first_vertical=vertical_a4_a5,
-            second_vertical=vertical_b4_b5,
-        )
-        lowinverse_a2_a3_b4_b5 = Lowinverse(
-            first_vertical=vertical_a2_a3,
             second_vertical=vertical_b4_b5,
         )
         # Before instances.
@@ -167,14 +163,9 @@ class TestSolutionManager(unittest.TestCase):
             )),
             # Lowinverse Solutions.
             victor_solution.from_lowinverse(lowinverse=lowinverse_a4_a5_b4_b5),
-            victor_solution.from_lowinverse(lowinverse=lowinverse_a2_a3_b4_b5),
             # Highinverse Solutions.
             victor_solution.from_highinverse(highinverse=Highinverse(
                 lowinverse=lowinverse_a4_a5_b4_b5,
-                directly_playable_squares=[Square(row=2, col=1)],  # b4
-            )),
-            victor_solution.from_highinverse(highinverse=Highinverse(
-                lowinverse=lowinverse_a2_a3_b4_b5,
                 directly_playable_squares=[Square(row=2, col=1)],  # b4
             )),
             # Baseclaim Solutions.
