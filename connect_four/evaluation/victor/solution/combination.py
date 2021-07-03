@@ -1,5 +1,5 @@
 from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Aftereven, Baseclaim, Before, \
-    Specialbefore, Lowinverse, Highinverse, OddThreat
+    Specialbefore, Lowinverse, Highinverse, Oddthreat
 
 from connect_four.evaluation.victor.solution.victor_solution import VictorSolution
 
@@ -14,10 +14,10 @@ def allowed(s1: VictorSolution, s2: VictorSolution) -> bool:
     Returns:
         combination_allowed (bool): True if the two Solutions can be combined; Otherwise, False.
     """
-    # If either VictorSolution is an OddThreat.
-    if isinstance(s1.rule_instance, OddThreat):
+    # If either VictorSolution is an Oddthreat.
+    if isinstance(s1.rule_instance, Oddthreat):
         return allowed_with_odd_threat(solution=s1, other=s2)
-    if isinstance(s2.rule_instance, OddThreat):
+    if isinstance(s2.rule_instance, Oddthreat):
         return allowed_with_odd_threat(solution=s2, other=s1)
 
     # If either VictorSolution is a Claimeven.
@@ -156,7 +156,7 @@ def allowed_with_odd_threat(solution: VictorSolution, other: VictorSolution) -> 
     Requires:
         1. solution must have rule=Rule.Claimeven.
         2. other must have rule be one of the following:
-            -   Rule.OddThreat
+            -   Rule.Oddthreat
             -   Rule.Claimeven
             -   Rule.Baseinverse
             -   Rule.Vertical
@@ -170,8 +170,8 @@ def allowed_with_odd_threat(solution: VictorSolution, other: VictorSolution) -> 
     Returns:
         combination_allowed (bool): True if other can be combined with solution; Otherwise, False.
     """
-    # No OddThreat can be combined with another OddThreat.
-    if isinstance(other.rule_instance, OddThreat):
+    # No Oddthreat can be combined with another Oddthreat.
+    if isinstance(other.rule_instance, Oddthreat):
         return False
 
     # OddThreats cannot be combined with any other VictorSolution that uses a square in the same column.

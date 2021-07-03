@@ -1,7 +1,7 @@
 import unittest
 
 from connect_four.game import Square
-from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Lowinverse, Aftereven, OddThreat, \
+from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Lowinverse, Aftereven, Oddthreat, \
     Before, Specialbefore
 
 from connect_four.evaluation.victor.solution.victor_solution import VictorSolution
@@ -310,13 +310,13 @@ class TestCombination(unittest.TestCase):
         ))
 
     def test_allowed_with_odd_threat(self):
-        # No OddThreat can be combined with another OddThreat.
-        odd_threat_a3_d3 = victor_solution.from_odd_threat(odd_threat=OddThreat(
+        # No Oddthreat can be combined with another Oddthreat.
+        odd_threat_a3_d3 = victor_solution.from_odd_threat(odd_threat=Oddthreat(
             group=Group(player=0, start=Square(row=3, col=0), end=Square(row=3, col=3)),  # a3-d3
             empty_square=Square(row=3, col=0),  # a3
             directly_playable_square=Square(row=5, col=0),  # a1
         ))
-        odd_threat_d5_g5 = victor_solution.from_odd_threat(odd_threat=OddThreat(
+        odd_threat_d5_g5 = victor_solution.from_odd_threat(odd_threat=Oddthreat(
             group=Group(player=0, start=Square(row=1, col=3), end=Square(row=1, col=6)),  # d5-g5
             empty_square=Square(row=1, col=6),  # g5
             directly_playable_square=Square(row=5, col=6),  # g5

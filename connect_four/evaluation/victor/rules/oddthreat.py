@@ -5,20 +5,39 @@ from connect_four.evaluation.victor.rules import Rule
 from connect_four.game import Square
 from connect_four.problem import Group
 
+import warnings
 
-class OddThreat(Rule):
+
+class Oddthreat(Rule):
     def __init__(self, group: Group, empty_square: Square, directly_playable_square: Square):
         self.group = group
         self.empty_square = empty_square
         self.directly_playable_square = directly_playable_square
 
     def __eq__(self, other):
-        if isinstance(other, OddThreat):
+        if isinstance(other, Oddthreat):
             return self.group == other.group and self.empty_square == other.empty_square
         return False
 
     def __hash__(self):
         return self.group.__hash__() * 97 + self.empty_square.__hash__() * 31
+
+    def solves(self, group: Group) -> bool:
+        for square in group.squares:
+            if square.col == self.empty_square.col:
+                # If group contains an odd square at or below the empty square of this Oddthreat but above the directly
+                # playable square of this Oddthreat, it can be refuted.
+                if self.empty_square.row <= square.row < self.directly_playable_square.row and square.row % 2 == 1:
+                    return True
+
+                # If group contains a square above the empty square of this Oddthreat, it can be refuted.
+                if self.empty_square.row > square.row:
+                    return True
+
+        return False
+
+    def is_useful(self, groups: Set[Group]) -> bool:
+        return True
 
     def find_problems_solved(self, groups_by_square_by_player: List[List[List[Set[Group]]]]) -> Set[Group]:
         """Finds all Problems this Rule solves.
@@ -36,6 +55,7 @@ class OddThreat(Rule):
         Returns:
             problems_solved (Set[Group]): All Problems in square_to_groups this Rule solves.
         """
+        warnings.warn("find_problems_solved is deprecated. use solves() instead", DeprecationWarning)
         problems_solved = set()
 
         # Add Groups containing any odd Square up to the Odd Threat that are not directly playable.
@@ -50,7 +70,7 @@ class OddThreat(Rule):
         return problems_solved
 
 
-def find_all_odd_threats(board: Board) -> Set[OddThreat]:
+def find_all_odd_threats(board: Board) -> Set[Oddthreat]:
     """find_threat_combination returns an Odd Threat for White if one exists. Otherwise, returns None.
     If multiple Odd Threats exist, picks one arbitrarily.
 
@@ -71,7 +91,7 @@ def find_all_odd_threats(board: Board) -> Set[OddThreat]:
                 empty_squares[0] not in directly_playable_squares and
                 empty_squares[0].row % 2 == 1):
             empty_square = empty_squares[0]
-            odd_threat = OddThreat(
+            odd_threat = Oddthreat(
                 group=group,
                 empty_square=empty_square,
                 directly_playable_square=board.playable_square(col=empty_square.col)
@@ -95,3 +115,34 @@ def empty_squares_of_group(board: Board, group: Group) -> List[Square]:
         if board.is_empty(square):
             empty_squares.append(square)
     return empty_squares
+
+
+class OddthreatManager:
+    def __init__(self, board: Board):
+        self.oddthreats = find_all_odd_threats(board=board)
+
+    def move(self, player: int, square: Square, board: Board):
+        board.state[player][square.row][square.col] = 1
+
+        new_oddthreats = find_all_odd_threats(board=board)
+
+        removed_oddthreats = self.oddthreats - new_oddthreats
+        added_oddthreats = new_oddthreats - self.oddthreats
+
+        self.oddthreats = new_oddthreats
+
+        board.state[player][square.row][square.col] = 0
+
+        return removed_oddthreats, added_oddthreats
+
+    def undo_move(self, player: int, square: Square, board: Board):
+        old_oddthreats = find_all_odd_threats(board=board)
+
+        added_oddthreats = old_oddthreats - self.oddthreats
+        removed_oddthreats = self.oddthreats - old_oddthreats
+
+        self.oddthreats = old_oddthreats
+
+        board.state[player][square.row][square.col] = 0
+
+        return added_oddthreats, removed_oddthreats

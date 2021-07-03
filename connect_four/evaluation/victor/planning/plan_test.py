@@ -347,7 +347,7 @@ class TestPlan(unittest.TestCase):
         self.assertEqual(square_d3, got_response)
 
     def test_execute_diagram_8_1(self):
-        # Define all the Squares that will be used in the OddThreat.
+        # Define all the Squares that will be used in the Oddthreat.
         square_a2 = Square(row=4, col=0)
         square_a3 = Square(row=3, col=0)
 
@@ -367,7 +367,7 @@ class TestPlan(unittest.TestCase):
         self.assertEqual(square_a3, got_response)
 
     def test_execute_diagram_8_2(self):
-        # Define all the Squares that will be used in the Claimeven and the OddThreat.
+        # Define all the Squares that will be used in the Claimeven and the Oddthreat.
         square_a1 = Square(row=5, col=0)
         square_a3 = Square(row=3, col=0)
         square_b4 = Square(row=2, col=1)
