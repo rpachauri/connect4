@@ -1,7 +1,7 @@
 import unittest
 
 from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Aftereven, Lowinverse, Highinverse, \
-    Baseclaim, Before, Specialbefore, OddThreat
+    Baseclaim, Before, Specialbefore, Oddthreat
 from connect_four.evaluation.victor.solution import victor_solution
 from connect_four.game import Square
 from connect_four.problem import Group
@@ -208,7 +208,7 @@ class TestSolution(unittest.TestCase):
         self.assertEqual(want_solution, got_solution)
 
     def test_from_odd_threat(self):
-        odd_threat_a3_d3 = OddThreat(
+        odd_threat_a3_d3 = Oddthreat(
             group=Group(player=0, start=Square(row=3, col=0), end=Square(row=3, col=3)),  # a3-d3
             empty_square=Square(row=3, col=0),  # a3
             directly_playable_square=Square(row=5, col=0),  # a1

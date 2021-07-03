@@ -549,7 +549,7 @@ def from_specialbefore(specialbefore: Specialbefore, square_to_groups) -> Soluti
         groups = external_and_successor_groups.union(directly_playable_squares_groups)
 
         for vertical in specialbefore.before.verticals:
-            if vertical != specialbefore.unused_vertical():
+            if vertical != specialbefore.unused_vertical:
                 # Add all squares part of Verticals which are part of the Before.
                 squares.add(vertical.upper)
                 squares.add(vertical.lower)

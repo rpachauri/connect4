@@ -5,7 +5,7 @@ import numpy as np
 
 from connect_four.envs import ConnectFourEnv
 from connect_four.evaluation.victor.graph.graph_manager import GraphManager
-from connect_four.evaluation.victor.rules import Claimeven, OddThreat, Baseinverse
+from connect_four.evaluation.victor.rules import Claimeven, Oddthreat, Baseinverse
 from connect_four.evaluation.victor.solution import victor_solution, VictorSolutionManager
 from connect_four.evaluation.victor.solution.fake_solution_manager import FakeSolutionManager
 from connect_four.game import Square
@@ -216,7 +216,6 @@ class TestGraphManager6x7(unittest.TestCase):
         got_evaluation = gm.evaluate()
         self.assertIsNotNone(got_evaluation)
 
-    @unittest.skip("OddThreat not implemented yet")
     def test_find_chosen_set_diagram_8_1(self):
         # This test case is based on Diagram 8.1.
         # Black is to move and White has an odd threat at a3.
@@ -267,7 +266,7 @@ class TestGraphManager6x7(unittest.TestCase):
             baseinverse=Baseinverse(playable1=Square(row=1, col=3), playable2=Square(row=1, col=4)),
         )
         odd_threat_a3_d3 = victor_solution.from_odd_threat(
-            odd_threat=OddThreat(
+            odd_threat=Oddthreat(
                 group=Problem(player=0, start=Square(row=3, col=0), end=Square(row=3, col=3)),  # a3-d3
                 empty_square=Square(row=3, col=0),  # a3
                 directly_playable_square=Square(row=4, col=0),  # a2
@@ -306,7 +305,6 @@ class TestGraphManager6x7(unittest.TestCase):
         # Problems that need to be solved in this position.
         self.assertTrue(problem_manager.get_current_problems().issubset(got_solved_problems))
 
-    @unittest.skip("odd threats not implemented in VictorSolutionManager yet")
     def test_evaluate_6x7_8_1(self):
         # This test case is based on Diagram 8.1.
         # Black is to move and White has an odd threat at a3.

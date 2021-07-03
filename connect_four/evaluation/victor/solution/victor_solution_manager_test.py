@@ -6,7 +6,7 @@ import numpy as np
 from connect_four.envs import ConnectFourEnv
 from connect_four.evaluation.victor.board import Board
 from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Aftereven, Lowinverse, Highinverse, \
-    Baseclaim, Before, Specialbefore, OddThreat
+    Baseclaim, Before, Specialbefore, Oddthreat
 from connect_four.evaluation.victor.solution import victor_solution
 from connect_four.evaluation.victor.solution.victor_solution_manager import VictorSolutionManager
 from connect_four.game import Square
@@ -225,7 +225,7 @@ class TestSolutionManager(unittest.TestCase):
                 internal_directly_playable_square=Square(row=2, col=1),  # b4
                 external_directly_playable_square=Square(row=0, col=4),  # e6
             )),
-            # OddThreat Solutions.
+            # Oddthreat Solutions.
             # None.
         }
         self.assertEqual(want_solutions, sm.solutions)
@@ -321,7 +321,7 @@ class TestSolutionManager(unittest.TestCase):
             # None.
             # Specialbefore Solutions.
             # None.
-            # OddThreat Solutions.
+            # Oddthreat Solutions.
             # None.
         }
         want_added_solutions = {
@@ -366,7 +366,7 @@ class TestSolutionManager(unittest.TestCase):
                 internal_directly_playable_square=Square(row=4, col=0),  # a2
                 external_directly_playable_square=Square(row=0, col=4),  # e6
             )),
-            # OddThreat Solutions.
+            # Oddthreat Solutions.
             # None.
         }
         got_removed_solutions, got_added_solutions = sm.move(player=0, row=5, col=0)
@@ -454,7 +454,6 @@ class TestSolutionManager(unittest.TestCase):
         self.assertEqual(want_removed_solutions, got_removed_solutions)
         self.assertEqual(want_added_solutions, got_added_solutions)
 
-    @unittest.skip("odd threats not implemented yet")
     def test_win_conditions_diagram_8_1(self):
         # This test case is based on Diagram 8.1.
         # Black is to move and White has an odd threat at a3.
@@ -480,7 +479,7 @@ class TestSolutionManager(unittest.TestCase):
         solution_manager = VictorSolutionManager(env_variables=self.env.env_variables)
 
         want_odd_threat_a3_d3 = victor_solution.from_odd_threat(
-            odd_threat=OddThreat(
+            odd_threat=Oddthreat(
                 group=Group(player=0, start=Square(row=3, col=0), end=Square(row=3, col=3)),  # a3-d3
                 empty_square=Square(row=3, col=0),  # a3
                 directly_playable_square=Square(row=4, col=0),  # a2

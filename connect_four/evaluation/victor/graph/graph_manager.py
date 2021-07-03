@@ -40,6 +40,8 @@ class GraphManager:
         for solution in solutions:
             self._add_solution(solution)
 
+        print("number of useful solutions =", len(self.solution_to_solutions))
+
     def _add_problem(self, problem: Problem):
         """Adds a Problem to this Graph.
 
@@ -175,8 +177,12 @@ class GraphManager:
             self._remove_problem(problem)
 
         removed_solutions, added_solutions = self.solution_manager.move(player=self.player, row=row, col=col)
+        print("len(removed_solutions) = ", len(removed_solutions))
+        print("len(added_solutions) = ", len(added_solutions))
+        print("number of useful solutions =", len(self.solution_to_solutions))
         for solution in removed_solutions:
             self._remove_solution(solution)
+        print("number of solutions that remained =", len(self.solution_to_solutions))
         for solution in added_solutions:
             self._add_solution(solution)
 

@@ -1,7 +1,7 @@
 from typing import Iterable, FrozenSet, Dict, Set
 
 from connect_four.evaluation.victor.rules import Claimeven, Rule, Baseinverse, Vertical, Aftereven, Lowinverse, \
-    Highinverse, Baseclaim, Before, Specialbefore, OddThreat
+    Highinverse, Baseclaim, Before, Specialbefore, Oddthreat
 from connect_four.evaluation.victor.solution.solution import Solution
 from connect_four.game import Square
 from connect_four.problem import Group
@@ -34,8 +34,8 @@ class VictorSolution(Solution):
         groups = set()
         for problem in problems:
             if isinstance(problem, Group):
-                if not self.rule_instance.solves(group=problem):
-                    raise ValueError("solution", self, "not able to solve", problem)
+                # if not self.rule_instance.solves(group=problem):
+                #     raise ValueError("solution", self, "not able to solve", problem)
                 groups.add(problem)
             else:
                 raise TypeError(problem, "not of type", Group)
@@ -72,9 +72,9 @@ class VictorSolution(Solution):
                     self.claimeven_bottom_squares == other.claimeven_bottom_squares)
 
     def __hash__(self):
-        return (self.rule_instance.__hash__() * 61 +
-                self.squares.__hash__() * 59 +
-                self.claimeven_bottom_squares.__hash__())
+        return (self.rule_instance.__hash__() * 19441 +
+                self.squares.__hash__() * 96137 +
+                self.claimeven_bottom_squares.__hash__() * 24551)
 
     def __repr__(self):
         return str(self.rule_instance.__class__) + " -> " + str(self.squares)
@@ -107,7 +107,7 @@ class VictorSolution(Solution):
 #         return from_before(before=rule)
 #     if isinstance(rule, Specialbefore):
 #         return from_specialbefore(specialbefore=rule)
-#     if isinstance(rule, OddThreat):
+#     if isinstance(rule, Oddthreat):
 #         return from_odd_threat(odd_threat=rule)
 
 
@@ -285,7 +285,7 @@ def from_specialbefore(specialbefore: Specialbefore) -> VictorSolution:
     squares = {sq1, sq2}
 
     for vertical in specialbefore.before.verticals:
-        if vertical != specialbefore.unused_vertical():
+        if vertical != specialbefore.unused_vertical:
             # Add all squares part of Verticals which are part of the Before.
             squares.add(vertical.upper)
             squares.add(vertical.lower)
@@ -305,11 +305,11 @@ def from_specialbefore(specialbefore: Specialbefore) -> VictorSolution:
     )
 
 
-def from_odd_threat(odd_threat: OddThreat) -> VictorSolution:
+def from_odd_threat(odd_threat: Oddthreat) -> VictorSolution:
     """Converts an OddThreat into a VictorSolution.
 
     Args:
-        odd_threat (OddThreat): an OddThreat.
+        odd_threat (Oddthreat): an OddThreat.
 
     Returns:
         solution (VictorSolution): a VictorSolution.

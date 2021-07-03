@@ -49,6 +49,7 @@ def evaluate(board: Board) -> Optional[Evaluation]:
     """
     player_groups = board.potential_groups(player=board.player)
     all_solutions = find_all_solutions(board=board)
+    print("number of solution =", len(all_solutions))
 
     evaluation_builder = EvaluationBuilder()
 
