@@ -37,9 +37,19 @@ class TestConnection(unittest.TestCase):
         self.assertTrue(connection.is_possible(a=a, b=b))
 
     def test_right_diagonal(self):
+        a = Square(row=2, col=2)
+        b = Square(row=4, col=0)
+        self.assertTrue(connection.is_possible(a=a, b=b))
+
+    def test_impossible_left_diagonal(self):
+        a = Square(row=4, col=0)
+        b = Square(row=5, col=1)
+        self.assertFalse(connection.is_possible(a=a, b=b))
+
+    def test_impossible_right_diagonal(self):
         a = Square(row=0, col=1)
         b = Square(row=1, col=0)
-        self.assertTrue(connection.is_possible(a=a, b=b))
+        self.assertFalse(connection.is_possible(a=a, b=b))
 
 
 if __name__ == '__main__':
