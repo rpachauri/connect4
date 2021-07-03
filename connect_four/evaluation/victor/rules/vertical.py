@@ -19,7 +19,7 @@ class Vertical(Rule):
         return False
 
     def __hash__(self):
-        return self.upper.__hash__() * 31 + self.lower.__hash__()
+        return self.upper.__hash__() * 2141 + self.lower.__hash__() * 8243
 
     def solves(self, group: Group) -> bool:
         return {self.upper, self.lower}.issubset(group.squares)

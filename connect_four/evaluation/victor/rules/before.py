@@ -31,7 +31,7 @@ class Before(Rule):
                     self.claimevens == other.claimevens)
 
     def __hash__(self):
-        return self.group.__hash__() * 41 + self.verticals.__hash__() * 31 + self.claimevens.__hash__()
+        return self.group.__hash__() * 3593 + self.verticals.__hash__() * 9041 + self.claimevens.__hash__() * 3137
 
     def __repr__(self):
         return self.group.__repr__() + " Verticals: " + str(self.verticals) + " Claimevens: " + str(self.claimevens)

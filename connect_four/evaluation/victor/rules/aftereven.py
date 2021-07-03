@@ -25,7 +25,7 @@ class Aftereven(Rule):
         return False
 
     def __hash__(self):
-        return self.group.__hash__() * 31 + self.claimevens.__hash__()
+        return self.group.__hash__() * 1559 + self.claimevens.__hash__() * 2999
 
     def empty_squares_of_aftereven_group(self):
         empty_squares = []

@@ -19,7 +19,7 @@ class Lowinverse(Rule):
         return False
 
     def __hash__(self):
-        return self.verticals.__hash__()
+        return self.verticals.__hash__() * 7159
 
     def solves(self, group: Group) -> bool:
         for vertical in self.verticals:

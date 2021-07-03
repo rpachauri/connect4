@@ -24,7 +24,7 @@ class Highinverse(Rule):
         return False
 
     def __hash__(self):
-        return self.lowinverse.__hash__() * 37 + self.directly_playable_squares.__hash__()
+        return self.lowinverse.__hash__() * 3217 + self.directly_playable_squares.__hash__() * 7207
 
     def solves(self, group: Group) -> bool:
         if self.lowinverse.solves(group=group):

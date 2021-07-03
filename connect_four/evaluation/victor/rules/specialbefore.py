@@ -7,6 +7,8 @@ from connect_four.evaluation.victor.rules import Vertical, Rule, Baseinverse
 from connect_four.evaluation.victor.rules import Before
 from connect_four.problem import Group
 
+import warnings
+
 
 class Specialbefore(Rule):
     def __init__(self,
@@ -35,6 +37,13 @@ class Specialbefore(Rule):
         self.before = before
         self.internal_directly_playable_square = internal_directly_playable_square
         self.external_directly_playable_square = external_directly_playable_square
+        self.unused_vertical = Vertical(
+            lower=self.internal_directly_playable_square,
+            upper=Square(
+                row=self.internal_directly_playable_square.row - 1,
+                col=self.internal_directly_playable_square.col,
+            ),
+        )
 
     def __eq__(self, other):
         if isinstance(other, Specialbefore):
@@ -44,9 +53,9 @@ class Specialbefore(Rule):
         return False
 
     def __hash__(self):
-        return (self.before.__hash__() * 59 +
-                self.internal_directly_playable_square.__hash__() * 47 +
-                self.external_directly_playable_square.__hash__())
+        return (self.before.__hash__() * 9643 +
+                self.internal_directly_playable_square.__hash__() * 2671 +
+                self.external_directly_playable_square.__hash__()) * 1013
 
     def unused_vertical(self) -> Vertical:
         """
@@ -54,13 +63,7 @@ class Specialbefore(Rule):
             unused_vertical (Vertical): a Vertical part of the Before but not part of the Specialbefore.
                 The lower square of the Vertical is the internal directly playable square of the Specialbefore.
         """
-        return Vertical(
-            lower=self.internal_directly_playable_square,
-            upper=Square(
-                row=self.internal_directly_playable_square.row - 1,
-                col=self.internal_directly_playable_square.col,
-            ),
-        )
+        return self.unused_vertical
 
     def solves(self, group: Group) -> bool:
         if group.player == self.before.group.player:
@@ -78,7 +81,7 @@ class Specialbefore(Rule):
                 return True
 
         for vertical in self.before.verticals:
-            if vertical != self.unused_vertical() and vertical.solves(group=group):
+            if vertical != self.unused_vertical and vertical.solves(group=group):
                 return True
 
         return self.is_group_solvable_by_specialbefore(group=group)
@@ -132,6 +135,7 @@ class Specialbefore(Rule):
         Returns:
             problems_solved (Set[Group]): All Problems in square_to_groups this Rule solves.
         """
+        warnings.warn("find_problems_solved is deprecated. use solves() instead", DeprecationWarning)
         opponent = 1 - self.before.group.player
         # Find all groups that contain the external directly playable square and
         # all successors of empty squares of the Specialbefore.
@@ -154,7 +158,7 @@ class Specialbefore(Rule):
         groups = external_and_successor_groups.union(directly_playable_squares_groups)
 
         for vertical in self.before.verticals:
-            if vertical != self.unused_vertical():
+            if vertical != self.unused_vertical:
                 # Add all groups refuted by Verticals which are part of the Before.
                 groups.update(vertical.find_problems_solved_for_player(
                     groups_by_square=groups_by_square_by_player[opponent],

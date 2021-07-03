@@ -19,7 +19,7 @@ class Claimeven(Rule):
         return False
 
     def __hash__(self):
-        return self.upper.__hash__() * 31 + self.lower.__hash__()
+        return self.upper.__hash__() * 6323 + self.lower.__hash__() * 2377
 
     def solves(self, group: Group) -> bool:
         return self.upper in group.squares

@@ -27,7 +27,7 @@ class Baseclaim(Rule):
         return False
 
     def __hash__(self):
-        return self.first.__hash__() * 41 + self.second.__hash__() * 31 + self.third.__hash__()
+        return self.first.__hash__() * 5347 + self.second.__hash__() * 9209 + self.third.__hash__() * 7549
 
     def solves(self, group: Group) -> bool:
         square_above_second = Square(row=self.second.row - 1, col=self.second.col)

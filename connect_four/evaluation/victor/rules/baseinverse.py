@@ -24,7 +24,7 @@ class Baseinverse(Rule):
         return False
 
     def __hash__(self):
-        return self.squares.__hash__()
+        return self.squares.__hash__() * 5419
 
     def solves(self, group: Group) -> bool:
         return self.squares.issubset(group.squares)
