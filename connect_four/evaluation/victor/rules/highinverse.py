@@ -1,4 +1,5 @@
 from typing import List, Set
+from collections import namedtuple
 
 from connect_four.evaluation.victor.board import Board
 
@@ -9,13 +10,20 @@ from connect_four.problem import Group
 import warnings
 
 
+HighinverseColumn = namedtuple("HighinverseColumn", ["upper", "middle", "lower", "directly_playable"])
+
+
 class Highinverse(Rule):
-    def __init__(self, lowinverse: Lowinverse, directly_playable_squares=None):
+    def __init__(self, lowinverse: Lowinverse, directly_playable_squares=None, columns=None):
         self.lowinverse = lowinverse
 
         if directly_playable_squares is None:
             directly_playable_squares = set()
         self.directly_playable_squares = frozenset(directly_playable_squares)
+
+        if columns is None:
+            columns = set()
+        self.columns = frozenset(columns)
 
     def __eq__(self, other):
         if isinstance(other, Highinverse):
@@ -24,7 +32,9 @@ class Highinverse(Rule):
         return False
 
     def __hash__(self):
-        return self.lowinverse.__hash__() * 3217 + self.directly_playable_squares.__hash__() * 7207
+        return (self.lowinverse.__hash__() * 3217 +
+                self.directly_playable_squares.__hash__() * 7207 +
+                self.columns.__hash__() * 5189)
 
     def solves(self, group: Group) -> bool:
         if self.lowinverse.solves(group=group):
