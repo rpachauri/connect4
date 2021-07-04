@@ -7,6 +7,7 @@ from connect_four.envs import ConnectFourEnv
 from connect_four.evaluation.victor.board import Board
 from connect_four.evaluation.victor.rules import Claimeven, Vertical, Aftereven, Lowinverse, Highinverse, \
     Baseclaim, Before, Specialbefore, Oddthreat
+from connect_four.evaluation.victor.rules.highinverse import HighinverseColumn
 from connect_four.evaluation.victor.solution import victor_solution
 from connect_four.evaluation.victor.solution.victor_solution_manager import VictorSolutionManager
 from connect_four.game import Square
@@ -69,6 +70,25 @@ class TestSolutionManager(unittest.TestCase):
         lowinverse_a4_a5_b4_b5 = Lowinverse(
             first_vertical=vertical_a4_a5,
             second_vertical=vertical_b4_b5,
+        )
+        # HighinverseColumns.
+        highinverse_column_a4_a5_a6 = HighinverseColumn(
+            upper=Square(row=0, col=0),  # a6
+            middle=Square(row=1, col=0),  # a5
+            lower=Square(row=2, col=0),  # a4
+            directly_playable=False,
+        )
+        highinverse_column_a2_a3_a4 = HighinverseColumn(
+            upper=Square(row=2, col=0),  # a4
+            middle=Square(row=3, col=0),  # a3
+            lower=Square(row=4, col=0),  # a2
+            directly_playable=False,
+        )
+        highinverse_column_b4_b5_b6 = HighinverseColumn(
+            upper=Square(row=0, col=1),  # b6
+            middle=Square(row=1, col=1),  # b5
+            lower=Square(row=2, col=1),  # b4
+            directly_playable=True,
         )
         # Before instances.
         vertical_a3_a4 = Vertical(
@@ -165,8 +185,10 @@ class TestSolutionManager(unittest.TestCase):
             victor_solution.from_lowinverse(lowinverse=lowinverse_a4_a5_b4_b5),
             # Highinverse Solutions.
             victor_solution.from_highinverse(highinverse=Highinverse(
-                lowinverse=lowinverse_a4_a5_b4_b5,
-                directly_playable_squares=[Square(row=2, col=1)],  # b4
+                columns={highinverse_column_a4_a5_a6, highinverse_column_b4_b5_b6},
+            )),
+            victor_solution.from_highinverse(highinverse=Highinverse(
+                columns={highinverse_column_a2_a3_a4, highinverse_column_b4_b5_b6},
             )),
             # Baseclaim Solutions.
             victor_solution.from_baseclaim(baseclaim=Baseclaim(
@@ -251,6 +273,25 @@ class TestSolutionManager(unittest.TestCase):
             first_vertical=vertical_a2_a3,
             second_vertical=vertical_b4_b5,
         )
+        # HighinverseColumns.
+        old_highinverse_column_a2_a3_a4 = HighinverseColumn(
+            upper=Square(row=2, col=0),  # a4
+            middle=Square(row=3, col=0),  # a3
+            lower=Square(row=4, col=0),  # a2
+            directly_playable=False,
+        )
+        new_highinverse_column_a2_a3_a4 = HighinverseColumn(
+            upper=Square(row=2, col=0),  # a4
+            middle=Square(row=3, col=0),  # a3
+            lower=Square(row=4, col=0),  # a2
+            directly_playable=True,
+        )
+        highinverse_column_b4_b5_b6 = HighinverseColumn(
+            upper=Square(row=0, col=1),  # b6
+            middle=Square(row=1, col=1),  # b5
+            lower=Square(row=2, col=1),  # b4
+            directly_playable=True,
+        )
         # Before instances.
         before_a2_d2 = Before(
             group=Group(player=0, start=Square(row=4, col=0), end=Square(row=4, col=3)),  # a2-d2
@@ -274,9 +315,7 @@ class TestSolutionManager(unittest.TestCase):
             # None.
             # Highinverse Solutions.
             victor_solution.from_highinverse(highinverse=Highinverse(
-                lowinverse=lowinverse_a2_a3_b4_b5,
-                # a2 is now directly playable, causing this Highinverse to be stale.
-                directly_playable_squares=[Square(row=2, col=1)],  # b4
+                columns={old_highinverse_column_a2_a3_a4, highinverse_column_b4_b5_b6},
             )),
             # Baseclaim Solutions.
             victor_solution.from_baseclaim(baseclaim=Baseclaim(
@@ -309,12 +348,7 @@ class TestSolutionManager(unittest.TestCase):
             # None.
             # Highinverse Solutions.
             victor_solution.from_highinverse(highinverse=Highinverse(
-                lowinverse=lowinverse_a2_a3_b4_b5,
-                # a2 is now directly playable, causing this Highinverse to be stale.
-                directly_playable_squares=[
-                    Square(row=4, col=0),  # a2
-                    Square(row=2, col=1),  # b4
-                ],
+                columns={new_highinverse_column_a2_a3_a4, highinverse_column_b4_b5_b6},
             )),
             # Baseclaim Solutions.
             # None

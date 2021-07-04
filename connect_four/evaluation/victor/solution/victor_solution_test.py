@@ -2,6 +2,7 @@ import unittest
 
 from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Aftereven, Lowinverse, Highinverse, \
     Baseclaim, Before, Specialbefore, Oddthreat
+from connect_four.evaluation.victor.rules.highinverse import HighinverseColumn
 from connect_four.evaluation.victor.solution import victor_solution
 from connect_four.game import Square
 from connect_four.problem import Group
@@ -86,14 +87,22 @@ class TestSolution(unittest.TestCase):
         )
         self.assertEqual(want_solution, got_solution)
 
-    def test_from_highinverse(self):
-        lowinverse_c2_c3_d2_d3 = Lowinverse(
-            first_vertical=Vertical(upper=Square(row=3, col=2), lower=Square(row=4, col=2)),  # c2-c3
-            second_vertical=Vertical(upper=Square(row=3, col=3), lower=Square(row=4, col=3)),  # d2-d3
-        )
+    def test_from_highinverse_using_highinverse_columns(self):
         highinverse_c2_c3_c4_d2_d3_d4 = Highinverse(
-            lowinverse=lowinverse_c2_c3_d2_d3,
-            directly_playable_squares=[Square(row=4, col=2), Square(row=4, col=3)],  # c2 and d2
+            columns={
+                HighinverseColumn(
+                    upper=Square(row=2, col=2),  # c4
+                    middle=Square(row=3, col=2),  # c3
+                    lower=Square(row=4, col=2),  # c2
+                    directly_playable=False,
+                ),
+                HighinverseColumn(
+                    upper=Square(row=2, col=3),  # d4
+                    middle=Square(row=3, col=3),  # d3
+                    lower=Square(row=4, col=3),  # d2
+                    directly_playable=False,
+                ),
+            }
         )
         want_solution = victor_solution.VictorSolution(
             rule_instance=highinverse_c2_c3_c4_d2_d3_d4,

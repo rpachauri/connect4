@@ -3,6 +3,7 @@ import unittest
 
 import numpy as np
 
+from connect_four.evaluation.victor.rules.highinverse import HighinverseColumn
 from connect_four.game import Square
 from connect_four.problem import Group
 from connect_four.evaluation.victor.board import Board
@@ -273,7 +274,7 @@ class TestSolution1(unittest.TestCase):
         )
         self.assertEqual(want_solution, got_solution)
 
-    def test_from_highinverse(self):
+    def test_from_highinverse_using_highinverse_columns(self):
         # This board is from Diagram 6.6 of the original paper.
         self.env.state = np.array([
             [
@@ -296,232 +297,70 @@ class TestSolution1(unittest.TestCase):
         board = Board(self.env.env_variables)
         square_to_groups = board.potential_groups_by_square()
 
-        # Lowinverse c2-c3-d2-d3 guarantees that Black will get at least one square
-        # out of each of three pairs of squares:
-        # 1. The squares in the first column (c2-c3).
-        # 2. The squares in the other column (d2-d3).
-        # 3. The upper two squares (c3-d3).
-        lowinverse_c2_c3_d2_d3 = Lowinverse(
-            first_vertical=Vertical(upper=Square(row=3, col=2), lower=Square(row=4, col=2)),  # c2-c3
-            second_vertical=Vertical(upper=Square(row=3, col=3), lower=Square(row=4, col=3)),  # d2-d3
-        )
-        # Highinverse c2-c3-c4-d2-d3-d4 guarantees that Black will get at least one square
-        # out of each of four pairs of squares:
+        # Highinverse c2-c3-c4-e2-e3-e4 guarantees at least one square
+        # out of each pairs of squares:
         # 1. The upper two squares in the first column (c3-c4).
-        # 2. The upper two squares in the second column (d3-d4).
-        # 3. The middle squares from both columns (c3-d3).
-        # 4. The upper squares from both columns (c4-d4).
-        highinverse_c2_c3_c4_d2_d3_d4 = Highinverse(
-            lowinverse=lowinverse_c2_c3_d2_d3,
-            directly_playable_squares=[Square(row=4, col=2), Square(row=4, col=3)],  # c2 and d2
+        # 2. The upper two squares in the second column (e3-e4).
+        # 3. The middle squares from both columns (c3-e3).
+        # 4. The upper squares from both columns (c4-e4).
+        # 5. The lower square in the first column (since it's directly playable) and
+        #    the upper square in the second column (c2-e4).
+        # 6. The lower square in the second column (since it's directly playable) and
+        #    the upper square in the first column (c4-e2).
+        highinverse_c2_c3_c4_e2_e3_e4 = Highinverse(
+            columns={
+                HighinverseColumn(
+                    upper=Square(row=2, col=2),  # c4
+                    middle=Square(row=3, col=2),  # c3
+                    lower=Square(row=4, col=2),  # c2
+                    directly_playable=True,
+                ),
+                HighinverseColumn(
+                    upper=Square(row=2, col=4),  # e4
+                    middle=Square(row=3, col=4),  # e3
+                    lower=Square(row=4, col=4),  # e2
+                    directly_playable=True,
+                ),
+            }
         )
+
         want_solution = Solution(
             squares=frozenset([
                 Square(row=2, col=2),  # c4
                 Square(row=3, col=2),  # c3
                 Square(row=4, col=2),  # c2
-                Square(row=2, col=3),  # d4
-                Square(row=3, col=3),  # d3
-                Square(row=4, col=3),  # d2
+                Square(row=2, col=4),  # e4
+                Square(row=3, col=4),  # e3
+                Square(row=4, col=4),  # e2
             ]),
-            groups=frozenset([
-                # groups which contain the upper squares of both columns.
-                Group(player=0, start=Square(row=2, col=0), end=Square(row=2, col=3)),  # a4-d4
-                Group(player=0, start=Square(row=2, col=1), end=Square(row=2, col=4)),  # b4-e4
-                Group(player=0, start=Square(row=2, col=2), end=Square(row=2, col=5)),  # c4-f4
-                # groups which contain the middle squares of both columns.
-                Group(player=0, start=Square(row=3, col=0), end=Square(row=3, col=3)),  # a3-d3
+            groups=frozenset({
+                # Groups solved by c3-c4.
+                Group(player=0, start=Square(row=1, col=2), end=Square(row=4, col=2)),  # c2-c5
+                Group(player=0, start=Square(row=0, col=2), end=Square(row=3, col=2)),  # c3-c6
+                # Groups solved by e3-e4.
+                Group(player=0, start=Square(row=2, col=4), end=Square(row=5, col=4)),  # e1-e4
+                Group(player=0, start=Square(row=1, col=4), end=Square(row=4, col=4)),  # e2-e5
+                Group(player=0, start=Square(row=0, col=4), end=Square(row=3, col=4)),  # e3-e6
+                # Groups solved by c3-e3.
                 Group(player=0, start=Square(row=3, col=1), end=Square(row=3, col=4)),  # b3-e3
                 Group(player=0, start=Square(row=3, col=2), end=Square(row=3, col=5)),  # c3-f3
-                # groups refuted by Vertical c3-c4.
-                Group(player=0, start=Square(row=0, col=2), end=Square(row=3, col=2)),  # c3-c6
-                Group(player=0, start=Square(row=1, col=2), end=Square(row=4, col=2)),  # c2-c5
-                # Note that c1-c4 does not need to be refuted because Black already occupies c1.
-                # groups refuted by Vertical d3-d4.
-                Group(player=0, start=Square(row=0, col=3), end=Square(row=3, col=3)),  # d3-d6
-                Group(player=0, start=Square(row=1, col=3), end=Square(row=4, col=3)),  # d2-d5
-                Group(player=0, start=Square(row=2, col=3), end=Square(row=5, col=3)),  # d1-d4
-            ]),
-            rule_instance=highinverse_c2_c3_c4_d2_d3_d4,
+                # Groups solved by c4-e4.
+                Group(player=0, start=Square(row=2, col=1), end=Square(row=2, col=4)),  # b4-e4
+                Group(player=0, start=Square(row=2, col=2), end=Square(row=2, col=5)),  # c4-f4
+                # Groups solved by c2-e4.
+                Group(player=0, start=Square(row=5, col=1), end=Square(row=2, col=4)),  # b1-e4
+                Group(player=0, start=Square(row=4, col=2), end=Square(row=1, col=5)),  # c2-f5
+                # Groups solved by c4-e2.
+                Group(player=0, start=Square(row=1, col=1), end=Square(row=4, col=4)),  # b5-e2
+                Group(player=0, start=Square(row=2, col=2), end=Square(row=5, col=5)),  # c4-f1
+            }),
+            rule_instance=highinverse_c2_c3_c4_e2_e3_e4,
         )
         got_solution = solution1.from_highinverse(
-            highinverse=highinverse_c2_c3_c4_d2_d3_d4,
+            highinverse=highinverse_c2_c3_c4_e2_e3_e4,
             square_to_groups=square_to_groups,
         )
         self.assertEqual(want_solution, got_solution)
-
-    def test_from_highinverse_useful_highinverse_useless_lowinverse(self):
-        # This test verifies that a Highinverse is converted into a Solution even when
-        # its Lowinverse cannot be converted into one.
-        self.env.state = np.array([
-            [
-                [0, 0, 0, 0, 0, 0, 0, ],
-                [0, 0, 0, 0, 0, 0, 0, ],
-                [0, 1, 0, 0, 0, 0, 0, ],
-                [0, 0, 0, 0, 1, 0, 0, ],
-                [0, 1, 0, 0, 0, 0, 0, ],
-                [0, 1, 0, 1, 1, 0, 0, ],
-            ],
-            [
-                [0, 0, 0, 0, 0, 0, 0, ],
-                [0, 1, 0, 0, 1, 0, 0, ],
-                [0, 0, 0, 0, 1, 0, 0, ],
-                [0, 1, 0, 0, 0, 0, 0, ],
-                [0, 0, 0, 0, 1, 0, 0, ],
-                [0, 0, 1, 0, 0, 0, 0, ],
-            ],
-        ])
-        board = Board(self.env.env_variables)
-        square_to_groups = board.potential_groups_by_square()
-
-        # Lowinverse c4-c5-d4-d5 does not refute any groups that the
-        # Verticals which are part of it don't already refute.
-        lowinverse_c4_c5_d4_d5 = Lowinverse(
-            first_vertical=Vertical(upper=Square(row=1, col=2), lower=Square(row=2, col=2)),  # c4-c5
-            second_vertical=Vertical(upper=Square(row=1, col=3), lower=Square(row=2, col=3)),  # d4-d5
-        )
-        got_lowinverse_solution = solution1.from_lowinverse(
-            lowinverse=lowinverse_c4_c5_d4_d5,
-            square_to_groups=square_to_groups,
-        )
-        self.assertIsNone(got_lowinverse_solution)
-        # Highinverse c4-c5-c6-d4-d5-d6 guarantees that Black will get at least one square
-        # out of each of four pairs of squares:
-        # 1. The upper two squares in the first column (c5-c6).
-        # 2. The upper two squares in the second column (d5-d6).
-        # 3. The middle squares from both columns (c5-d5).
-        # 4. The upper squares from both columns (c6-d6).
-        highinverse_c4_c5_c6_d4_d5_d6 = Highinverse(
-            lowinverse=lowinverse_c4_c5_d4_d5,
-        )
-        want_highinverse_solution = Solution(
-            squares=frozenset([
-                Square(row=2, col=2),  # c4
-                Square(row=1, col=2),  # c5
-                Square(row=0, col=2),  # c6
-                Square(row=2, col=3),  # d4
-                Square(row=1, col=3),  # d5
-                Square(row=0, col=3),  # d6
-            ]),
-            groups=frozenset([
-                # groups which contain the upper squares of both columns.
-                Group(player=0, start=Square(row=0, col=0), end=Square(row=0, col=3)),  # a6-d6
-                Group(player=0, start=Square(row=0, col=1), end=Square(row=0, col=4)),  # b6-e6
-                Group(player=0, start=Square(row=0, col=2), end=Square(row=0, col=5)),  # c6-f6
-                # There are no groups which contain the middle squares of both columns.
-                # groups refuted by Vertical c5-c6.
-                Group(player=0, start=Square(row=0, col=2), end=Square(row=3, col=2)),  # c3-c6
-                # groups refuted by Vertical d5-d6.
-                Group(player=0, start=Square(row=0, col=3), end=Square(row=3, col=3)),  # d3-d6
-            ]),
-            rule_instance=highinverse_c4_c5_c6_d4_d5_d6,
-        )
-        got_highinverse_solution = solution1.from_highinverse(
-            highinverse=highinverse_c4_c5_c6_d4_d5_d6,
-            square_to_groups=square_to_groups,
-        )
-        self.assertEqual(want_highinverse_solution, got_highinverse_solution)
-
-    def test_from_highinverse_useless_highinverse_useful_lowinverse(self):
-        # This test verifies that a Highinverse is not converted into a Solution
-        # if it doesn't create any new potential groups.
-        # Specifically, the only groups it solves are already solved by its Lowinverse.
-        self.env.state = np.array([
-            [
-                [0, 0, 0, 0, 0, 0, 0, ],
-                [0, 1, 0, 0, 1, 0, 0, ],
-                [0, 0, 0, 0, 0, 0, 0, ],
-                [0, 1, 0, 0, 1, 0, 0, ],
-                [0, 0, 1, 1, 0, 0, 0, ],
-                [1, 1, 0, 1, 1, 0, 0, ],
-            ],
-            [
-                [0, 1, 0, 0, 1, 0, 0, ],
-                [0, 0, 0, 0, 0, 0, 0, ],
-                [0, 1, 0, 0, 1, 0, 0, ],
-                [0, 0, 1, 1, 0, 0, 0, ],
-                [0, 1, 0, 0, 1, 0, 0, ],
-                [0, 0, 1, 0, 0, 1, 0, ],
-            ],
-        ])
-        board = Board(self.env.env_variables)
-        square_to_groups = board.potential_groups_by_square()
-
-        # Lowinverse c4-c5-d4-d5 guarantees that Black will get at least one square
-        # out of each of three pairs of squares:
-        # 1. The squares in the first column (c4-c5).
-        # 2. The squares in the other column (d4-d5).
-        # 3. The upper two squares (c5-d5).
-        lowinverse_c4_c5_d4_d5 = Lowinverse(
-            first_vertical=Vertical(upper=Square(row=1, col=2), lower=Square(row=2, col=2)),  # c4-c5
-            second_vertical=Vertical(upper=Square(row=1, col=3), lower=Square(row=2, col=3)),  # d4-d5
-        )
-        got_lowinverse_solution = solution1.from_lowinverse(
-            lowinverse=lowinverse_c4_c5_d4_d5,
-            square_to_groups=square_to_groups,
-        )
-        self.assertIsNotNone(got_lowinverse_solution)
-
-        # Highinverse c4-c5-c6-d4-d5-d6 does not refute any groups that the
-        # Lowinverse which is part of it doesn't already refute.
-        highinverse_c4_c5_c6_d4_d5_d6 = Highinverse(
-            lowinverse=lowinverse_c4_c5_d4_d5,
-            directly_playable_squares=[Square(row=2, col=2), Square(row=2, col=3)],  # c4 and d4
-        )
-        got_highinverse_solution = solution1.from_highinverse(
-            highinverse=highinverse_c4_c5_c6_d4_d5_d6,
-            square_to_groups=square_to_groups,
-        )
-        self.assertIsNone(got_highinverse_solution)
-
-    def test_from_highinverse_useless_highinverse_useful_vertical(self):
-        # This test verifies that a Highinverse is not converted into a Solution
-        # if it doesn't create any new potential groups.
-        # Specifically, the only groups it solves are already solved by one of its Verticals.
-        self.env.state = np.array([
-            [
-                [0, 0, 0, 0, 0, 0, 0, ],
-                [0, 0, 0, 0, 0, 0, 0, ],
-                [0, 1, 0, 0, 0, 0, 0, ],
-                [0, 0, 0, 1, 1, 0, 0, ],
-                [1, 1, 1, 0, 0, 0, 0, ],
-                [1, 1, 0, 1, 1, 0, 0, ],
-            ],
-            [
-                [0, 1, 0, 0, 1, 0, 0, ],
-                [0, 1, 0, 0, 1, 0, 0, ],
-                [0, 0, 0, 0, 1, 0, 0, ],
-                [0, 1, 1, 0, 0, 0, 0, ],
-                [0, 0, 0, 1, 1, 0, 0, ],
-                [0, 0, 1, 0, 0, 0, 0, ],
-            ],
-        ])
-        board = Board(self.env.env_variables)
-        square_to_groups = board.potential_groups_by_square()
-
-        # Lowinverse c4-c5-d4-d5 does not refute any groups that the
-        # Verticals which are part of it don't already refute.
-        lowinverse_c4_c5_d4_d5 = Lowinverse(
-            first_vertical=Vertical(upper=Square(row=1, col=2), lower=Square(row=2, col=2)),  # c4-c5
-            second_vertical=Vertical(upper=Square(row=1, col=3), lower=Square(row=2, col=3)),  # d4-d5
-        )
-        got_lowinverse_solution = solution1.from_lowinverse(
-            lowinverse=lowinverse_c4_c5_d4_d5,
-            square_to_groups=square_to_groups,
-        )
-        self.assertIsNone(got_lowinverse_solution)
-
-        # Highinverse c4-c5-c6-d4-d5-d6 does not refute any groups that
-        # Vertical c4-c5 which is part of it doesn't already refute.
-        highinverse_c4_c5_c6_d4_d5_d6 = Highinverse(
-            lowinverse=lowinverse_c4_c5_d4_d5,
-            directly_playable_squares=[Square(row=2, col=2), Square(row=2, col=3)],  # c4 and d4
-        )
-        got_highinverse_solution = solution1.from_highinverse(
-            highinverse=highinverse_c4_c5_c6_d4_d5_d6,
-            square_to_groups=square_to_groups,
-        )
-        self.assertIsNone(got_highinverse_solution)
 
     def test_from_baseclaim(self):
         # This board is from Diagram 6.7 of the original paper.

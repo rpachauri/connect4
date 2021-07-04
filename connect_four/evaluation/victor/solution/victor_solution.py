@@ -198,6 +198,21 @@ def from_highinverse(highinverse: Highinverse) -> VictorSolution:
     Returns:
         solution (VictorSolution): a VictorSolution.
     """
+    if highinverse.columns:
+        column_0, column_1 = tuple(highinverse.columns)
+        squares = frozenset([
+            column_0.upper,
+            column_0.middle,
+            column_0.lower,
+            column_1.upper,
+            column_1.middle,
+            column_1.lower,
+        ])
+        return VictorSolution(
+            squares=squares,
+            rule_instance=highinverse,
+        )
+
     verticals_as_list = list(highinverse.lowinverse.verticals)
     vertical_0, vertical_1 = verticals_as_list[0], verticals_as_list[1]
     upper_square_0 = Square(row=vertical_0.upper.row - 1, col=vertical_0.upper.col)

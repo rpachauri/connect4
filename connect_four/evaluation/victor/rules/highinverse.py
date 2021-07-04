@@ -3,7 +3,7 @@ from collections import namedtuple
 
 from connect_four.evaluation.victor.board import Board
 
-from connect_four.evaluation.victor.rules import Lowinverse, Rule, Vertical
+from connect_four.evaluation.victor.rules import Rule, Vertical
 from connect_four.game import Square
 from connect_four.problem import Group
 
@@ -13,109 +13,52 @@ HighinverseColumn = namedtuple("HighinverseColumn", ["upper", "middle", "lower",
 
 
 class Highinverse(Rule):
-    def __init__(self, lowinverse: Lowinverse = None, directly_playable_squares=None, columns=None):
-        self.lowinverse = lowinverse
-
-        if directly_playable_squares is None:
-            directly_playable_squares = set()
-        self.directly_playable_squares = frozenset(directly_playable_squares)
-
+    def __init__(self, columns: Set[HighinverseColumn]):
         if columns is None:
             columns = set()
         self.columns = frozenset(columns)
 
     def __eq__(self, other):
         if isinstance(other, Highinverse):
-            return (self.lowinverse == other.lowinverse and
-                    self.directly_playable_squares == other.directly_playable_squares)
+            return self.columns == other.columns
         return False
 
     def __hash__(self):
-        return (self.lowinverse.__hash__() * 3217 +
-                self.directly_playable_squares.__hash__() * 7207 +
-                self.columns.__hash__() * 5189)
+        return self.columns.__hash__() * 5189
 
     def solves(self, group: Group) -> bool:
-        if self.columns:
-            column_0, column_1 = tuple(self.columns)
+        column_0, column_1 = tuple(self.columns)
 
-            #  All groups which contain the two upper squares.
-            if column_0.upper in group.squares and column_1.upper in group.squares:
-                return True
-
-            #  All groups which contain the two middle squares.
-            if column_0.middle in group.squares and column_1.middle in group.squares:
-                return True
-
-            # All vertical groups which contain the two upper squares of the first column.
-            if column_0.upper in group.squares and column_0.middle in group.squares:
-                return True
-
-            # All vertical groups which contain the two upper squares of the second column.
-            if column_1.upper in group.squares and column_1.middle in group.squares:
-                return True
-
-            # All groups which contain both the lower square of the first column and the upper square of the second
-            # column.
-            if column_0.directly_playable and column_0.lower in group.squares and column_1.upper in group.squares:
-                return True
-
-            # All groups which contain both the lower square of the second column and the upper square of the first
-            # column.
-            if column_1.directly_playable and column_1.lower in group.squares and column_0.upper in group.squares:
-                return True
-
-            return False
-
-        if self.lowinverse.solves(group=group):
+        #  All groups which contain the two upper squares.
+        if column_0.upper in group.squares and column_1.upper in group.squares:
             return True
 
-        verticals_as_list = list(self.lowinverse.verticals)
-        vertical_0, vertical_1 = verticals_as_list[0], verticals_as_list[1]
-        upper_square_0 = Square(row=vertical_0.upper.row - 1, col=vertical_0.upper.col)
-        upper_square_1 = Square(row=vertical_1.upper.row - 1, col=vertical_1.upper.col)
-
-        # If the lower square of the first column is directly playable:
-        if (vertical_0.lower in self.directly_playable_squares and
-                vertical_0.lower in group.squares and
-                upper_square_1 in group.squares):
-            # Return True if the Group contains both the lower square of the first column and
-            # the upper square of the second column.
+        #  All groups which contain the two middle squares.
+        if column_0.middle in group.squares and column_1.middle in group.squares:
             return True
 
-        # If the lower square of the second column is directly playable:
-        if (vertical_1.lower in self.directly_playable_squares and
-                vertical_1.lower in group.squares and
-                upper_square_0 in group.squares):
-            # Return True if the Group contains both the lower square of the second column and
-            # the upper square of the first column.
+        # All vertical groups which contain the two upper squares of the first column.
+        if column_0.upper in group.squares and column_0.middle in group.squares:
             return True
 
-        upper_vertical_0 = Vertical(upper=upper_square_0, lower=vertical_0.upper)
-        if upper_vertical_0.solves(group=group):
+        # All vertical groups which contain the two upper squares of the second column.
+        if column_1.upper in group.squares and column_1.middle in group.squares:
             return True
 
-        upper_vertical_1 = Vertical(upper=upper_square_1, lower=vertical_1.upper)
-        if upper_vertical_1.solves(group=group):
+        # All groups which contain both the lower square of the first column and the upper square of the second
+        # column.
+        if column_0.directly_playable and column_0.lower in group.squares and column_1.upper in group.squares:
             return True
 
-        return upper_square_0 in group.squares and upper_square_1 in group.squares
+        # All groups which contain both the lower square of the second column and the upper square of the first
+        # column.
+        if column_1.directly_playable and column_1.lower in group.squares and column_0.upper in group.squares:
+            return True
+
+        return False
 
     def is_useful(self, groups: Set[Group]) -> bool:
-        if self.columns:
-            return not not groups
-        already_solved_groups = set()
-        for group in groups:
-            for vertical in self.lowinverse.verticals:
-                if vertical.solves(group=group):
-                    already_solved_groups.add(group)
-
-            if self.lowinverse.solves(group=group):
-                already_solved_groups.add(group)
-
-        # Given that already_solved_groups is a subset of groups, it will not equal groups only if there exists
-        # a Group this Highinverse can solve that one of its Verticals or its Lowinverse cannot.
-        return already_solved_groups != groups
+        return not not groups
 
     def find_problems_solved(self, groups_by_square_by_player: List[List[List[Set[Group]]]]) -> Set[Group]:
         """Finds all Problems this Rule solves.
@@ -139,157 +82,135 @@ class Highinverse(Rule):
         return white_problems_solved.union(black_problems_solved)
 
     def find_problems_solved_for_player(self, groups_by_square: List[List[Set[Group]]]) -> Set[Group]:
-        if self.columns:
-            highinverse_groups = set()
-            column_0, column_1 = tuple(self.columns)
-
-            #  Add all groups which contain the two upper squares.
-            upper_square_0 = column_0.upper
-            upper_square_1 = column_1.upper
-            upper_squares_groups = groups_by_square[upper_square_0.row][upper_square_0.col].intersection(
-                groups_by_square[upper_square_1.row][upper_square_1.col],
-            )
-            highinverse_groups.update(upper_squares_groups)
-
-            # Add all groups which contain the two middle squares.
-            middle_squares_groups = groups_by_square[column_0.middle.row][column_0.middle.col].intersection(
-                groups_by_square[column_1.middle.row][column_1.middle.col],
-            )
-            highinverse_groups.update(middle_squares_groups)
-
-            # For each Highinverse column, add all (vertical) groups which contain the two highest squares of the
-            # column.
-            upper_vertical_0 = Vertical(upper=column_0.upper, lower=column_0.middle)
-            upper_vertical_1 = Vertical(upper=column_1.upper, lower=column_1.middle)
-            highinverse_groups.update(
-                upper_vertical_0.find_problems_solved_for_player(groups_by_square=groups_by_square))
-            highinverse_groups.update(
-                upper_vertical_1.find_problems_solved_for_player(groups_by_square=groups_by_square))
-
-            # If the lower square of the first column is directly playable:
-            if column_0.directly_playable:
-                # Add all groups which contain both the lower square of the first column and
-                # the upper square of the second column.
-                lower_0_upper_1_groups = groups_by_square[column_0.lower.row][column_0.lower.col].intersection(
-                    groups_by_square[upper_square_1.row][upper_square_1.col],
-                )
-                highinverse_groups.update(lower_0_upper_1_groups)
-
-            # If the lower square of the second column is directly playable:
-            if column_1.directly_playable:
-                # Add all groups which contain both the lower square of the second column and
-                # the upper square of the first column.
-                lower_1_upper_0_groups = groups_by_square[column_1.lower.row][column_1.lower.col].intersection(
-                    groups_by_square[upper_square_0.row][upper_square_0.col],
-                )
-                highinverse_groups.update(lower_1_upper_0_groups)
-
-            return highinverse_groups
-
         highinverse_groups = set()
+        column_0, column_1 = tuple(self.columns)
 
-        # Add all groups which contain the two upper squares.
-        verticals_as_list = list(self.lowinverse.verticals)
-        vertical_0, vertical_1 = verticals_as_list[0], verticals_as_list[1]
-        upper_square_0 = Square(row=vertical_0.upper.row - 1, col=vertical_0.upper.col)
-        upper_square_1 = Square(row=vertical_1.upper.row - 1, col=vertical_1.upper.col)
+        #  Add all groups which contain the two upper squares.
+        upper_square_0 = column_0.upper
+        upper_square_1 = column_1.upper
         upper_squares_groups = groups_by_square[upper_square_0.row][upper_square_0.col].intersection(
             groups_by_square[upper_square_1.row][upper_square_1.col],
         )
         highinverse_groups.update(upper_squares_groups)
 
         # Add all groups which contain the two middle squares.
-        middle_squares_groups = groups_by_square[vertical_0.upper.row][vertical_0.upper.col].intersection(
-            groups_by_square[vertical_1.upper.row][vertical_1.upper.col],
+        middle_squares_groups = groups_by_square[column_0.middle.row][column_0.middle.col].intersection(
+            groups_by_square[column_1.middle.row][column_1.middle.col],
         )
         highinverse_groups.update(middle_squares_groups)
 
-        # For each Highinverse column, add all (vertical) groups which contain the two highest squares of the column.
-        upper_vertical_0 = Vertical(upper=upper_square_0, lower=vertical_0.upper)
-        upper_vertical_1 = Vertical(upper=upper_square_1, lower=vertical_1.upper)
-        highinverse_groups.update(upper_vertical_0.find_problems_solved_for_player(groups_by_square=groups_by_square))
-        highinverse_groups.update(upper_vertical_1.find_problems_solved_for_player(groups_by_square=groups_by_square))
+        # For each Highinverse column, add all (vertical) groups which contain the two highest squares of the
+        # column.
+        upper_vertical_0 = Vertical(upper=column_0.upper, lower=column_0.middle)
+        upper_vertical_1 = Vertical(upper=column_1.upper, lower=column_1.middle)
+        highinverse_groups.update(
+            upper_vertical_0.find_problems_solved_for_player(groups_by_square=groups_by_square))
+        highinverse_groups.update(
+            upper_vertical_1.find_problems_solved_for_player(groups_by_square=groups_by_square))
 
         # If the lower square of the first column is directly playable:
-        if vertical_0.lower in self.directly_playable_squares:
+        if column_0.directly_playable:
             # Add all groups which contain both the lower square of the first column and
             # the upper square of the second column.
-            lower_0_upper_1_groups = groups_by_square[vertical_0.lower.row][vertical_0.lower.col].intersection(
+            lower_0_upper_1_groups = groups_by_square[column_0.lower.row][column_0.lower.col].intersection(
                 groups_by_square[upper_square_1.row][upper_square_1.col],
             )
             highinverse_groups.update(lower_0_upper_1_groups)
 
         # If the lower square of the second column is directly playable:
-        if vertical_1.lower in self.directly_playable_squares:
+        if column_1.directly_playable:
             # Add all groups which contain both the lower square of the second column and
             # the upper square of the first column.
-            lower_1_upper_0_groups = groups_by_square[vertical_1.lower.row][vertical_1.lower.col].intersection(
+            lower_1_upper_0_groups = groups_by_square[column_1.lower.row][column_1.lower.col].intersection(
                 groups_by_square[upper_square_0.row][upper_square_0.col],
             )
             highinverse_groups.update(lower_1_upper_0_groups)
 
-        # Add all groups solved by the lowinverse.
-        highinverse_groups.update(self.lowinverse.find_problems_solved_for_player(groups_by_square=groups_by_square))
-
         return highinverse_groups
 
 
-def find_all_highinverses(board: Board, lowinverses: Set[Lowinverse]) -> Set[Highinverse]:
-    """find_all_highinverses takes a set of Lowinverses and returns an set of Highinverses.
+def find_all_highinverse_columns(board: Board) -> Set[HighinverseColumn]:
+    """find_all_highinverse_columns returns the set of HighinverseColumns for the board.
 
     Args:
         board (Board): a Board instance.
-        lowinverses (Set<Lowinverse>): a set of Lowinverses.
 
     Returns:
-        highinverses (Set<Highinverse>): a set of Highinverses.
+        columns (Set[HighinverseColumn]): the set of HighinverseColumns for the board.
     """
-    directly_playable_squares = board.playable_squares()
+    columns = set()
+    playable_squares = board.playable_squares()
+    for row in range(0, len(board.state[0]) - 2, 2):
+        for col in range(len(board.state[0][0])):
+            upper = Square(row=row, col=col)
+            middle = Square(row + 1, col)
+            lower = Square(row + 2, col)
+            directly_playable = lower in playable_squares
+            if board.is_empty(square=upper) and board.is_empty(square=middle) and board.is_empty(square=lower):
+                columns.add(HighinverseColumn(
+                    upper=upper, middle=middle, lower=lower, directly_playable=directly_playable,
+                ))
+    return columns
+
+
+def highinverses_given_column(column: HighinverseColumn, columns: Set[HighinverseColumn]) -> Set[Highinverse]:
+    """
+
+    Args:
+        column (HighinverseColumn): a HighinverseColumn that all Highinverses will have.
+        columns (Set[HighinverseColumn): a set of HighinverseColumns to create Highinverses with column.
+
+    Returns:
+        highinverses (Set[Highinverse]): a set of Highinverses created using the cross product
+            between column and columns.
+    """
     highinverses = set()
-    for lowinverse in lowinverses:
-        highinverse_directly_playable_squares = set()
-        for vertical in lowinverse.verticals:
-            if vertical.lower in directly_playable_squares:
-                highinverse_directly_playable_squares.add(vertical.lower)
-        highinverses.add(Highinverse(
-            lowinverse=lowinverse,
-            directly_playable_squares=highinverse_directly_playable_squares,
-        ))
+    for other_column in columns:
+        if column.upper.col != other_column.upper.col:
+            highinverses.add(Highinverse(columns={column, other_column}))
+    return highinverses
+
+
+def find_all_highinverses_using_highinverse_columns(board: Board) -> Set[Highinverse]:
+    """find_all_highinverses_using_highinverse_columns returns the set of Highinverses for the board.
+
+    Args:
+        board (Board): a Board instance.
+
+    Returns:
+        highinverses (Set[Highinverse]): the set of Highinverses for the board.
+    """
+    columns = find_all_highinverse_columns(board=board)
+    highinverses = set()
+    for column in columns:
+        highinverses.update(highinverses_given_column(column=column, columns=columns))
     return highinverses
 
 
 class HighinverseManager:
-    def __init__(self, board: Board, lowinverses: Set[Lowinverse]):
-        """Initializes the LowinverseManager.
+    def __init__(self, board: Board):
+        """Initializes the HighinverseManager.
 
         Args:
             board (Board): a Board instance.
-            lowinverses (Set[Lowinverse]): an set of Lowinverses for board.
         """
-        self.highinverses = find_all_highinverses(board=board, lowinverses=lowinverses)
+        self.columns = find_all_highinverse_columns(board=board)
+        self.highinverses = set()
+        for column in self.columns:
+            self.highinverses.update(highinverses_given_column(column=column, columns=self.columns))
 
-    def move(self, square: Square,
-             removed_lowinverses: Set[Lowinverse],
-             verticals: Set[Vertical],
-             directly_playable_squares: Set[Square]) -> (Set[Highinverse], Set[Highinverse]):
+    def move(self, square: Square) -> (Set[Highinverse], Set[Highinverse]):
         """Moves the internal state of the HighinverseManager to after this square has been played.
 
         Args:
             square (Square): the Square being played.
-            removed_lowinverses (Set[Lowinverse]): the set of Lowinverses removed after square is played.
-            verticals (Set[Vertical]): the set of Verticals in the current state.
-            directly_playable_squares (Set[Square]): the set of directly playable Squares in the current state.
 
         Returns:
             removed_highinverses (Set[Highinverse]): the set of Highinverses removed after square is played.
             added_highinverses (Set[Highinverse]): the set of Highinverses added after square is played.
         """
-        removed_highinverses, added_highinverses = HighinverseManager._removed_added_highinverses(
-            square=square,
-            removed_lowinverses=removed_lowinverses,
-            verticals=verticals,
-            directly_playable_squares=directly_playable_squares,
-        )
+        removed_highinverses, added_highinverses = \
+            HighinverseManager._removed_added_highinverses_using_highinverse_column(square=square, columns=self.columns)
 
         self.highinverses.difference_update(removed_highinverses)
         self.highinverses.update(added_highinverses)
@@ -297,142 +218,50 @@ class HighinverseManager:
         return removed_highinverses, added_highinverses
 
     @staticmethod
-    def _removed_added_highinverses(
-            square: Square,
-            removed_lowinverses: Set[Lowinverse],
-            verticals: Set[Vertical],
-            directly_playable_squares: Set[Square]) -> (Set[Highinverse], Set[Highinverse]):
-        """
+    def _removed_added_highinverses_using_highinverse_column(
+            square: Square, columns: Set[HighinverseColumn]) -> (Set[Highinverse], Set[Highinverse]):
+        # Try to make a column out of square
+        above_2 = Square(row=square.row - 2, col=square.col)
+        above = Square(row=square.row - 1, col=square.col)
+        column = HighinverseColumn(upper=above_2, middle=above, lower=square, directly_playable=True)
+        if square.row % 2 == 0:
+            # If column is not in columns, no Highinverses are affected.
+            if column not in columns:
+                return set(), set()
 
-        Args:
-            square (Square): the Square being played.
-            removed_lowinverses (Set[Lowinverse]): the set of Lowinverses removed after square is played.
-            verticals (Set[Vertical]): the set of Verticals in the current state.
-            directly_playable_squares (Set[Square]): the set of directly playable Squares in the current state.
+            # Since square is an even Square, only one HighinverseColumn is removed. Thus, any Highinverses with that
+            # column should be removed.
+            removed_highinverses = highinverses_given_column(column=column, columns=columns)
+            return removed_highinverses, set()
 
-        Returns:
-            removed_highinverses (Set[Highinverse]): the set of Highinverses removed after square is played.
-            added_highinverses (Set[Highinverse]): the set of Highinverses added after square is played.
-        """
-        removed_highinverses = set()
-        added_highinverses = set()
+        # Since square is odd, the square above it was not directly playable, but now is.
+        above_3 = Square(row=square.row - 3, col=square.col)
+        old_column = HighinverseColumn(upper=above_3, middle=above_2, lower=above, directly_playable=False)
 
-        removed_highinverses.update(HighinverseManager._highinverse_given_lowinverses(
-            lowinverses=removed_lowinverses,
-            directly_playable_squares=directly_playable_squares,
-        ))
+        # If old_column is not in columns, no Highinverses are affected.
+        if old_column not in columns:
+            return set(), set()
 
-        # If square is an odd square and is not in the second-from-the-top row:
-        if square.row % 2 == 1 and square.row != 1:
-            lower = Square(row=square.row - 1, col=square.col)
-            upper = Square(row=lower.row - 1, col=square.col)
-            vertical = Vertical(upper=upper, lower=lower)
+        new_column = HighinverseColumn(upper=above_3, middle=above_2, lower=above, directly_playable=True)
 
-            not_directly_playable_highinverses, directly_playable_highinverses = \
-                HighinverseManager._directly_playable_highinverse_changes(
-                    vertical=vertical,
-                    verticals=verticals,
-                    directly_playable_squares=directly_playable_squares
-                )
-            removed_highinverses.update(not_directly_playable_highinverses)
-            added_highinverses.update(directly_playable_highinverses)
-
+        removed_highinverses = highinverses_given_column(column=old_column, columns=columns)
+        added_highinverses = highinverses_given_column(column=new_column, columns=columns)
         return removed_highinverses, added_highinverses
 
-    @staticmethod
-    def _highinverse_given_lowinverses(
-            lowinverses: Set[Lowinverse], directly_playable_squares: Set[Square]) -> Set[Highinverse]:
-        """Derive a set of Highinverses given a set of Lowinverses and the set of directly playable squares.
-
-        Args:
-            lowinverses (Set[Lowinverse]): a set of Lowinverses to derive Highinverses from.
-            directly_playable_squares (Set[Square]): the set of directly playable Squares.
-
-        Returns:
-            highinverses (Set[Highinverse]): a set of Highinverses derived from lowinverses and
-                directly_playable_squares.
-        """
-        highinverses = set()
-
-        for lowinverse in lowinverses:
-            vertical0, vertical1 = tuple(lowinverse.verticals)
-            lower0, lower1 = vertical0.lower, vertical1.lower
-            highinverse = Highinverse(
-                lowinverse=lowinverse,
-                directly_playable_squares=directly_playable_squares.intersection({lower0, lower1}),
-            )
-            highinverses.add(highinverse)
-
-        return highinverses
-
-    @staticmethod
-    def _directly_playable_highinverse_changes(
-            vertical: Vertical,
-            verticals: Set[Vertical],
-            directly_playable_squares: Set[Square]) -> (Set[Highinverse], Set[Highinverse]):
-        """
-
-        Requires:
-            1. The square below vertical.lower is in directly_playable_squares.
-            2. vertical.lower is not in directly_playable_squares.
-
-        Args:
-            vertical (Vertical): a directly playable Vertical.
-            verticals (Set[Vertical]): a set of Verticals, including vertical.
-            directly_playable_squares (Set[Square]): the set of directly playable Squares.
-
-        Returns:
-            removed_highinverses (Set[Highinverse]): a set of Highinverses that would be removed after vertical.lower
-                becomes directly playable.
-            added_highinverses (Set[Highinverse]): a set of Highinverses that would be added after vertical.lower
-                becomes directly playable.
-        """
-        removed_highinverses = set()
-        added_highinverses = set()
-
-        for other in verticals - {vertical}:
-            if vertical.upper.col != other.upper.col:
-                lowinverse = Lowinverse(first_vertical=vertical, second_vertical=other)
-                removed_highinverse_directly_playable_squares = directly_playable_squares.intersection({other.lower})
-                removed_highinverses.add(Highinverse(
-                    lowinverse=lowinverse,
-                    directly_playable_squares=removed_highinverse_directly_playable_squares,
-                ))
-
-                added_highinverse_directly_playable_squares = removed_highinverse_directly_playable_squares.union(
-                    {vertical.lower},
-                )
-                added_highinverses.add(Highinverse(
-                    lowinverse=lowinverse,
-                    directly_playable_squares=added_highinverse_directly_playable_squares,
-                ))
-        return removed_highinverses, added_highinverses
-
-    def undo_move(self, square: Square,
-                  added_lowinverses: Set[Lowinverse],
-                  verticals: Set[Vertical],
-                  directly_playable_squares: Set[Square]) -> (Set[Highinverse], Set[Highinverse]):
+    def undo_move(self, square: Square) -> (Set[Highinverse], Set[Highinverse]):
         """Moves the internal state of the HighinverseManager to before this square has been played.
 
         Args:
             square (Square): the Square being undone.
-            added_lowinverses (Set[Lowinverse]): the set of Lowinverses added after square is undone.
-            verticals (Set[Vertical]): the set of Verticals in the state after square is undone.
-            directly_playable_squares (Set[Square]): the set of directly playable Squares in the
-                state after square is undone.
 
         Returns:
             added_highinverses (Set[Highinverse]): the set of Highinverses added after square is undone.
             removed_highinverses (Set[Highinverse]): the set of Highinverses removed after square is undone.
         """
-        added_highinverses, removed_highinverses = HighinverseManager._removed_added_highinverses(
-            square=square,
-            removed_lowinverses=added_lowinverses,
-            verticals=verticals,
-            directly_playable_squares=directly_playable_squares,
-        )
+        added_highinverses, removed_highinverses = \
+            HighinverseManager._removed_added_highinverses_using_highinverse_column(square=square, columns=self.columns)
 
-        self.highinverses.update(added_highinverses)
         self.highinverses.difference_update(removed_highinverses)
+        self.highinverses.update(added_highinverses)
 
         return added_highinverses, removed_highinverses

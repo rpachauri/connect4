@@ -2,9 +2,6 @@ from typing import Set
 
 from connect_four.envs import TwoPlayerGameEnvVariables
 from connect_four.evaluation.victor.board import Board
-from connect_four.evaluation.victor.rules import find_all_claimevens, find_all_baseinverses, find_all_verticals, \
-    find_all_afterevens, find_all_lowinverses, find_all_highinverses, find_all_baseclaims, find_all_befores, \
-    find_all_specialbefores, find_all_odd_threats, Oddthreat
 from connect_four.evaluation.victor.rules.aftereven import AfterevenManager
 from connect_four.evaluation.victor.rules.baseclaim import BaseclaimManager
 from connect_four.evaluation.victor.rules.baseinverse import BaseinverseManager
@@ -41,7 +38,7 @@ class VictorSolutionManager(SolutionManager):
         self.vertical_manager = VerticalManager(board=self.board)
         self.aftereven_manager = AfterevenManager(board=self.board)
         self.lowinverse_manager = LowinverseManager(verticals=self.vertical_manager.verticals)
-        self.highinverse_manager = HighinverseManager(board=self.board, lowinverses=self.lowinverse_manager.lowinverses)
+        self.highinverse_manager = HighinverseManager(board=self.board)
         self.baseclaim_manager = BaseclaimManager(board=self.board)
         self.before_manager = BeforeManager(board=self.board)
         self.specialbefore_manager = SpecialbeforeManager(board=self.board, befores=self.before_manager.befores)
@@ -171,9 +168,9 @@ class VictorSolutionManager(SolutionManager):
         )
         removed_highinverses, added_highinverses = self.highinverse_manager.move(
             square=square,
-            removed_lowinverses=removed_lowinverses,
-            verticals=self.vertical_manager.verticals,
-            directly_playable_squares=playable_squares,
+            # removed_lowinverses=removed_lowinverses,
+            # verticals=self.vertical_manager.verticals,
+            # directly_playable_squares=playable_squares,
         )
         removed_baseclaims, added_baseclaims = self.baseclaim_manager.move(
             square=square,
@@ -358,9 +355,9 @@ class VictorSolutionManager(SolutionManager):
         )
         added_highinverses, removed_highinverses = self.highinverse_manager.undo_move(
             square=square,
-            added_lowinverses=added_lowinverses,
-            verticals=self.vertical_manager.verticals,
-            directly_playable_squares=playable_squares,
+            # added_lowinverses=added_lowinverses,
+            # verticals=self.vertical_manager.verticals,
+            # directly_playable_squares=playable_squares,
         )
         added_baseclaims, removed_baseclaims = self.baseclaim_manager.undo_move(
             square=square,

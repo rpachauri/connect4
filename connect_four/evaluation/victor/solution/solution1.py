@@ -18,7 +18,7 @@ from connect_four.evaluation.victor.rules import find_all_baseinverses
 from connect_four.evaluation.victor.rules import find_all_verticals
 from connect_four.evaluation.victor.rules import find_all_afterevens
 from connect_four.evaluation.victor.rules import find_all_lowinverses
-from connect_four.evaluation.victor.rules import find_all_highinverses
+from connect_four.evaluation.victor.rules import find_all_highinverses_using_highinverse_columns
 from connect_four.evaluation.victor.rules import find_all_baseclaims
 from connect_four.evaluation.victor.rules import find_all_befores
 from connect_four.evaluation.victor.rules import find_all_specialbefores
@@ -94,7 +94,7 @@ def find_all_solutions(board: Board):
     verticals = find_all_verticals(board=board)
     afterevens = find_all_afterevens(board=board, opponent_groups=opponent_groups)
     lowinverses = find_all_lowinverses(verticals=verticals)
-    highinverses = find_all_highinverses(board=board, lowinverses=lowinverses)
+    highinverses = find_all_highinverses_using_highinverse_columns(board=board)
     baseclaims = find_all_baseclaims(board=board)
     befores = find_all_befores(board=board, opponent_groups=opponent_groups)
     specialbefores = find_all_specialbefores(board=board, befores=befores)
@@ -354,6 +354,55 @@ def from_highinverse(highinverse: Highinverse, square_to_groups) -> Solution:
     Returns:
         solution (Solution): a Solution if highinverse can be converted into one. None if it can't.
     """
+    if highinverse.columns:
+        column_0, column_1 = tuple(highinverse.columns)
+        squares = frozenset([
+            column_0.upper,
+            column_0.middle,
+            column_0.lower,
+            column_1.upper,
+            column_1.middle,
+            column_1.lower,
+        ])
+
+        highinverse_groups = set()
+        column_0, column_1 = tuple(highinverse.columns)
+
+        #  Add all groups which contain the two upper squares.
+        upper_square_0 = column_0.upper
+        upper_square_1 = column_1.upper
+        upper_squares_groups = square_to_groups[upper_square_0].intersection(square_to_groups[upper_square_1])
+        highinverse_groups.update(upper_squares_groups)
+
+        # Add all groups which contain the two middle squares.
+        middle_squares_groups = square_to_groups[column_0.middle].intersection(square_to_groups[column_1.middle])
+        highinverse_groups.update(middle_squares_groups)
+
+        # For each Highinverse column, add all (vertical) groups which contain the two highest squares of the
+        # column.
+        highinverse_groups.update(square_to_groups[column_0.upper].intersection(square_to_groups[column_0.middle]))
+        highinverse_groups.update(square_to_groups[column_1.upper].intersection(square_to_groups[column_1.middle]))
+
+        # If the lower square of the first column is directly playable:
+        if column_0.directly_playable:
+            # Add all groups which contain both the lower square of the first column and
+            # the upper square of the second column.
+            lower_0_upper_1_groups = square_to_groups[column_0.lower].intersection(square_to_groups[upper_square_1])
+            highinverse_groups.update(lower_0_upper_1_groups)
+
+        # If the lower square of the second column is directly playable:
+        if column_1.directly_playable:
+            # Add all groups which contain both the lower square of the second column and
+            # the upper square of the first column.
+            lower_1_upper_0_groups = square_to_groups[column_1.lower].intersection(square_to_groups[upper_square_0])
+            highinverse_groups.update(lower_1_upper_0_groups)
+
+        return Solution(
+            squares=squares,
+            groups=frozenset(highinverse_groups),
+            rule_instance=highinverse,
+        )
+
     highinverse_groups = set()
 
     # Add all groups which contain the two upper squares.

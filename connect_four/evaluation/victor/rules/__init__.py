@@ -16,7 +16,8 @@ from connect_four.evaluation.victor.rules.lowinverse import Lowinverse
 from connect_four.evaluation.victor.rules.lowinverse import find_all_lowinverses
 
 from connect_four.evaluation.victor.rules.highinverse import Highinverse
-from connect_four.evaluation.victor.rules.highinverse import find_all_highinverses
+# from connect_four.evaluation.victor.rules.highinverse import find_all_highinverses
+from connect_four.evaluation.victor.rules.highinverse import find_all_highinverses_using_highinverse_columns
 
 from connect_four.evaluation.victor.rules.baseclaim import Baseclaim
 from connect_four.evaluation.victor.rules.baseclaim import find_all_baseclaims
