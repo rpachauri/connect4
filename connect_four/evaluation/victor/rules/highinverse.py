@@ -9,12 +9,11 @@ from connect_four.problem import Group
 
 import warnings
 
-
 HighinverseColumn = namedtuple("HighinverseColumn", ["upper", "middle", "lower", "directly_playable"])
 
 
 class Highinverse(Rule):
-    def __init__(self, lowinverse: Lowinverse, directly_playable_squares=None, columns=None):
+    def __init__(self, lowinverse: Lowinverse = None, directly_playable_squares=None, columns=None):
         self.lowinverse = lowinverse
 
         if directly_playable_squares is None:
@@ -37,6 +36,37 @@ class Highinverse(Rule):
                 self.columns.__hash__() * 5189)
 
     def solves(self, group: Group) -> bool:
+        if self.columns:
+            column_0, column_1 = tuple(self.columns)
+
+            #  All groups which contain the two upper squares.
+            if column_0.upper in group.squares and column_1.upper in group.squares:
+                return True
+
+            #  All groups which contain the two middle squares.
+            if column_0.middle in group.squares and column_1.middle in group.squares:
+                return True
+
+            # All vertical groups which contain the two upper squares of the first column.
+            if column_0.upper in group.squares and column_0.middle in group.squares:
+                return True
+
+            # All vertical groups which contain the two upper squares of the second column.
+            if column_1.upper in group.squares and column_1.middle in group.squares:
+                return True
+
+            # All groups which contain both the lower square of the first column and the upper square of the second
+            # column.
+            if column_0.directly_playable and column_0.lower in group.squares and column_1.upper in group.squares:
+                return True
+
+            # All groups which contain both the lower square of the second column and the upper square of the first
+            # column.
+            if column_1.directly_playable and column_1.lower in group.squares and column_0.upper in group.squares:
+                return True
+
+            return False
+
         if self.lowinverse.solves(group=group):
             return True
 
@@ -72,6 +102,8 @@ class Highinverse(Rule):
         return upper_square_0 in group.squares and upper_square_1 in group.squares
 
     def is_useful(self, groups: Set[Group]) -> bool:
+        if self.columns:
+            return not not groups
         already_solved_groups = set()
         for group in groups:
             for vertical in self.lowinverse.verticals:
@@ -107,6 +139,53 @@ class Highinverse(Rule):
         return white_problems_solved.union(black_problems_solved)
 
     def find_problems_solved_for_player(self, groups_by_square: List[List[Set[Group]]]) -> Set[Group]:
+        if self.columns:
+            highinverse_groups = set()
+            column_0, column_1 = tuple(self.columns)
+
+            #  Add all groups which contain the two upper squares.
+            upper_square_0 = column_0.upper
+            upper_square_1 = column_1.upper
+            upper_squares_groups = groups_by_square[upper_square_0.row][upper_square_0.col].intersection(
+                groups_by_square[upper_square_1.row][upper_square_1.col],
+            )
+            highinverse_groups.update(upper_squares_groups)
+
+            # Add all groups which contain the two middle squares.
+            middle_squares_groups = groups_by_square[column_0.middle.row][column_0.middle.col].intersection(
+                groups_by_square[column_1.middle.row][column_1.middle.col],
+            )
+            highinverse_groups.update(middle_squares_groups)
+
+            # For each Highinverse column, add all (vertical) groups which contain the two highest squares of the
+            # column.
+            upper_vertical_0 = Vertical(upper=column_0.upper, lower=column_0.middle)
+            upper_vertical_1 = Vertical(upper=column_1.upper, lower=column_1.middle)
+            highinverse_groups.update(
+                upper_vertical_0.find_problems_solved_for_player(groups_by_square=groups_by_square))
+            highinverse_groups.update(
+                upper_vertical_1.find_problems_solved_for_player(groups_by_square=groups_by_square))
+
+            # If the lower square of the first column is directly playable:
+            if column_0.directly_playable:
+                # Add all groups which contain both the lower square of the first column and
+                # the upper square of the second column.
+                lower_0_upper_1_groups = groups_by_square[column_0.lower.row][column_0.lower.col].intersection(
+                    groups_by_square[upper_square_1.row][upper_square_1.col],
+                )
+                highinverse_groups.update(lower_0_upper_1_groups)
+
+            # If the lower square of the second column is directly playable:
+            if column_1.directly_playable:
+                # Add all groups which contain both the lower square of the second column and
+                # the upper square of the first column.
+                lower_1_upper_0_groups = groups_by_square[column_1.lower.row][column_1.lower.col].intersection(
+                    groups_by_square[upper_square_0.row][upper_square_0.col],
+                )
+                highinverse_groups.update(lower_1_upper_0_groups)
+
+            return highinverse_groups
+
         highinverse_groups = set()
 
         # Add all groups which contain the two upper squares.
