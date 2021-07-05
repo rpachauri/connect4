@@ -6,7 +6,7 @@ import numpy as np
 from connect_four.envs import ConnectFourEnv
 from connect_four.evaluation.victor.board import Board
 from connect_four.evaluation.victor.rules import Claimeven, Vertical, Aftereven, Lowinverse, Highinverse, \
-    Baseclaim, Before, Specialbefore, Oddthreat
+    Before, Specialbefore, Oddthreat
 from connect_four.evaluation.victor.rules.highinverse import HighinverseColumn
 from connect_four.evaluation.victor.solution import victor_solution
 from connect_four.evaluation.victor.solution.victor_solution_manager import VictorSolutionManager
@@ -191,16 +191,7 @@ class TestSolutionManager(unittest.TestCase):
                 columns={highinverse_column_a2_a3_a4, highinverse_column_b4_b5_b6},
             )),
             # Baseclaim Solutions.
-            victor_solution.from_baseclaim(baseclaim=Baseclaim(
-                first=Square(row=2, col=1),  # b4
-                second=Square(row=5, col=0),  # a1
-                third=Square(row=0, col=4),  # e6
-            )),
-            victor_solution.from_baseclaim(baseclaim=Baseclaim(
-                first=Square(row=0, col=4),  # e6
-                second=Square(row=5, col=0),  # a1
-                third=Square(row=2, col=1),  # b4
-            )),
+            # None.
             # Before Solutions.
             victor_solution.from_before(before=before_a2_d2),
             victor_solution.from_before(before=before_a3_d3_variation_1),
@@ -264,15 +255,6 @@ class TestSolutionManager(unittest.TestCase):
             upper=Square(row=3, col=0),  # a3
             lower=Square(row=4, col=0),  # a2
         )
-        vertical_b4_b5 = Vertical(
-            upper=Square(row=1, col=1),  # b5
-            lower=Square(row=2, col=1),  # b4
-        )
-        # Lowinverse instances.
-        lowinverse_a2_a3_b4_b5 = Lowinverse(
-            first_vertical=vertical_a2_a3,
-            second_vertical=vertical_b4_b5,
-        )
         # HighinverseColumns.
         old_highinverse_column_a2_a3_a4 = HighinverseColumn(
             upper=Square(row=2, col=0),  # a4
@@ -318,16 +300,7 @@ class TestSolutionManager(unittest.TestCase):
                 columns={old_highinverse_column_a2_a3_a4, highinverse_column_b4_b5_b6},
             )),
             # Baseclaim Solutions.
-            victor_solution.from_baseclaim(baseclaim=Baseclaim(
-                first=Square(row=2, col=1),  # b4
-                second=Square(row=5, col=0),  # a1
-                third=Square(row=0, col=4),  # e6
-            )),
-            victor_solution.from_baseclaim(baseclaim=Baseclaim(
-                first=Square(row=0, col=4),  # e6
-                second=Square(row=5, col=0),  # a1
-                third=Square(row=2, col=1),  # b4
-            )),
+            # None.
             # Before Solutions.
             # None.
             # Specialbefore Solutions.
@@ -383,17 +356,6 @@ class TestSolutionManager(unittest.TestCase):
         player, row, col = 0, 5, 0
         sm = VictorSolutionManager(env_variables=self.env.env_variables)
 
-        baseclaim_solution = victor_solution.from_baseclaim(
-            baseclaim=Baseclaim(
-                first=Square(row=5, col=3),
-                second=Square(row=5, col=5),
-                third=Square(row=5, col=0),
-            ),
-        )
-
-        got_solutions = sm.get_solutions()
-        self.assertIn(baseclaim_solution, got_solutions)
-
         # Validate internal variables upon initialization.
         self.assertEqual(0, sm.board.state[player][row][col])
         self.assertFalse(sm.moves)
@@ -410,8 +372,6 @@ class TestSolutionManager(unittest.TestCase):
 
         self.assertEqual(want_removed_solutions, got_removed_solutions)
         self.assertEqual(want_added_solutions, got_added_solutions)
-
-        self.assertIn(baseclaim_solution, want_added_solutions)
 
     @unittest.skip
     def test_move(self):

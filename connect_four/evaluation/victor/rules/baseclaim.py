@@ -1,6 +1,6 @@
 from typing import List, Set
 
-from connect_four.evaluation.victor.rules import Rule
+from connect_four.evaluation.victor.rules import Rule, connection
 from connect_four.game import Square
 from connect_four.evaluation.victor.board import Board
 from connect_four.problem import Group
@@ -88,14 +88,16 @@ def find_all_baseclaims(board: Board) -> Set[Baseclaim]:
 
     for first in playable_squares:
         for second in playable_squares:
+            square_above_second = Square(row=second.row - 1, col=second.col)
             if first == second or second.row % 2 == 0:
                 continue
             for third in playable_squares:
                 if third == first or third == second:
                     continue
-                # if in_order(first, second, third):
-                baseclaims.add(Baseclaim(first=first, second=second, third=third))
-                baseclaims.add(Baseclaim(first=third, second=second, third=first))
+                if connection.is_possible(a=first, b=square_above_second) and connection.is_possible(a=second, b=third):
+                    baseclaims.add(Baseclaim(first=first, second=second, third=third))
+                if connection.is_possible(a=third, b=square_above_second) and connection.is_possible(a=second, b=first):
+                    baseclaims.add(Baseclaim(first=third, second=second, third=first))
 
     return baseclaims
 
@@ -168,13 +170,16 @@ class BaseclaimManager:
         first = square
         baseclaims = set()
         for second in directly_playable_squares:
+            square_above_second = Square(row=second.row - 1, col=second.col)
             if first.col == second.col or second.row % 2 == 0:
                 continue
             for third in directly_playable_squares:
                 if first.col == third.col or second.col == third.col:
                     continue
-                baseclaims.add(Baseclaim(first=first, second=second, third=third))
-                baseclaims.add(Baseclaim(first=third, second=second, third=first))
+                if connection.is_possible(a=first, b=square_above_second) and connection.is_possible(a=second, b=third):
+                    baseclaims.add(Baseclaim(first=first, second=second, third=third))
+                if connection.is_possible(a=third, b=square_above_second) and connection.is_possible(a=second, b=first):
+                    baseclaims.add(Baseclaim(first=third, second=second, third=first))
 
         return baseclaims
 
@@ -197,6 +202,8 @@ class BaseclaimManager:
         if second.row % 2 == 0:
             return set()
 
+        square_above_second = Square(row=second.row - 1, col=second.col)
+
         baseclaims = set()
         for first in directly_playable_squares:
             if first.col == second.col:
@@ -204,8 +211,10 @@ class BaseclaimManager:
             for third in directly_playable_squares:
                 if first.col == third.col or second.col == third.col:
                     continue
-                baseclaims.add(Baseclaim(first=first, second=second, third=third))
-                baseclaims.add(Baseclaim(first=third, second=second, third=first))
+                if connection.is_possible(a=first, b=square_above_second) and connection.is_possible(a=second, b=third):
+                    baseclaims.add(Baseclaim(first=first, second=second, third=third))
+                if connection.is_possible(a=third, b=square_above_second) and connection.is_possible(a=second, b=first):
+                    baseclaims.add(Baseclaim(first=third, second=second, third=first))
 
         return baseclaims
 
