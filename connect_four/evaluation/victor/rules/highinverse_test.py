@@ -3,12 +3,11 @@ import unittest
 
 import numpy as np
 
-from connect_four.evaluation.victor.rules.highinverse import HighinverseManager, HighinverseColumn
+from connect_four.evaluation.victor.rules.highinverse import HighinverseManager, HighinverseColumn, \
+    highinverses_given_column
 from connect_four.game import Square
 from connect_four.evaluation.victor.board import Board
 
-from connect_four.evaluation.victor.rules import Vertical
-from connect_four.evaluation.victor.rules import Lowinverse
 from connect_four.evaluation.victor.rules import Highinverse
 from connect_four.evaluation.victor.rules import find_all_highinverses_using_highinverse_columns
 
@@ -329,6 +328,87 @@ class TestHighinverse(unittest.TestCase):
         white_group_a4_d4 = Group(player=0, start=Square(row=2, col=0), end=Square(row=2, col=3))  # a4-d4
         self.assertTrue(highinverse_c2_c3_c4_e2_e3_e4.is_useful(groups={white_group_a4_d4}))
         self.assertFalse(highinverse_c2_c3_c4_e2_e3_e4.is_useful(groups=set()))
+
+    def test_highinverses_given_column_connection_possible_between_two_upper_and_middle_squares(self):
+        highinverse_column_a4_a5_a6 = HighinverseColumn(
+            upper=Square(row=0, col=0),  # a6
+            middle=Square(row=1, col=0),  # a5
+            lower=Square(row=2, col=0),  # a4
+            directly_playable=False,
+        )
+
+        # Connection is possible between the two upper and middle squares.
+        highinverse_column_b4_b5_b6 = HighinverseColumn(
+            upper=Square(row=0, col=1),  # b6
+            middle=Square(row=1, col=1),  # b5
+            lower=Square(row=2, col=1),  # b4
+            directly_playable=False,
+        )
+        # Connection is not possible between the two upper and middle squares.
+        highinverse_column_e4_e5_e6 = HighinverseColumn(
+            upper=Square(row=0, col=4),  # e6
+            middle=Square(row=1, col=4),  # e5
+            lower=Square(row=2, col=4),  # e4
+            directly_playable=False,
+        )
+        columns = {
+            highinverse_column_b4_b5_b6,
+            highinverse_column_e4_e5_e6,
+        }
+        want_highinverses = {
+            Highinverse(
+                columns={highinverse_column_a4_a5_a6, highinverse_column_b4_b5_b6},
+            )
+        }
+        got_highinverses = highinverses_given_column(column=highinverse_column_a4_a5_a6, columns=columns)
+        self.assertEqual(want_highinverses, got_highinverses)
+
+    def test_highinverses_given_column_connection_possible_between_lower_and_upper_squares(self):
+        # Test for when the lower square of one of the columns is directly playable and can be connected with the
+        # upper square of the other column.
+        highinverse_column_a4_a5_a6_not_playable = HighinverseColumn(
+            upper=Square(row=0, col=0),  # a6
+            middle=Square(row=1, col=0),  # a5
+            lower=Square(row=2, col=0),  # a4
+            directly_playable=False,
+        )
+        highinverse_column_a4_a5_a6_playable = HighinverseColumn(
+            upper=Square(row=0, col=0),  # a6
+            middle=Square(row=1, col=0),  # a5
+            lower=Square(row=2, col=0),  # a4
+            directly_playable=True,
+        )
+        highinverse_column_b4_b5_b6 = HighinverseColumn(
+            upper=Square(row=2, col=1),  # b4
+            middle=Square(row=3, col=1),  # b3
+            lower=Square(row=4, col=1),  # b2
+            directly_playable=False,
+        )
+
+        want_highinverses = {
+            Highinverse(columns={highinverse_column_a4_a5_a6_playable, highinverse_column_b4_b5_b6}),
+        }
+
+        # Covers the case when column contains the directly playable square.
+        columns_containing_the_b_column = {
+            highinverse_column_b4_b5_b6,
+        }
+        got_highinverses = highinverses_given_column(
+            column=highinverse_column_a4_a5_a6_playable,
+            columns=columns_containing_the_b_column,
+        )
+        self.assertEqual(want_highinverses, got_highinverses)
+
+        # Covers the case when other_column contains the directly playable square.
+        columns_containing_the_a_column = {
+            highinverse_column_a4_a5_a6_playable,
+            highinverse_column_a4_a5_a6_not_playable,
+        }
+        got_highinverses = highinverses_given_column(
+            column=highinverse_column_b4_b5_b6,
+            columns=columns_containing_the_a_column,
+        )
+        self.assertEqual(want_highinverses, got_highinverses)
 
 
 if __name__ == '__main__':

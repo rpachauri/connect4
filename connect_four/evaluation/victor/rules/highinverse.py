@@ -1,9 +1,9 @@
-from typing import List, Set
+from typing import List, Set, Optional
 from collections import namedtuple
 
 from connect_four.evaluation.victor.board import Board
 
-from connect_four.evaluation.victor.rules import Rule, Vertical
+from connect_four.evaluation.victor.rules import Rule, Vertical, connection
 from connect_four.game import Square
 from connect_four.problem import Group
 
@@ -166,7 +166,12 @@ def highinverses_given_column(column: HighinverseColumn, columns: Set[Highinvers
     """
     highinverses = set()
     for other_column in columns:
-        if column.upper.col != other_column.upper.col:
+        if column.upper.col != other_column.upper.col and (
+            connection.is_possible(a=column.upper, b=other_column.upper) or
+            connection.is_possible(a=column.middle, b=other_column.middle) or
+            (column.directly_playable and connection.is_possible(a=column.lower, b=other_column.upper)) or
+            (other_column.directly_playable and connection.is_possible(a=column.upper, b=other_column.lower))
+        ):
             highinverses.add(Highinverse(columns={column, other_column}))
     return highinverses
 
@@ -209,44 +214,50 @@ class HighinverseManager:
             removed_highinverses (Set[Highinverse]): the set of Highinverses removed after square is played.
             added_highinverses (Set[Highinverse]): the set of Highinverses added after square is played.
         """
-        removed_highinverses, added_highinverses = \
+        removed_highinverses, added_highinverses, removed_column, added_column = \
             HighinverseManager._removed_added_highinverses_using_highinverse_column(square=square, columns=self.columns)
 
         self.highinverses.difference_update(removed_highinverses)
         self.highinverses.update(added_highinverses)
 
+        if removed_column is not None:
+            self.columns.remove(removed_column)
+        if added_column is not None:
+            self.columns.add(added_column)
+
         return removed_highinverses, added_highinverses
 
     @staticmethod
     def _removed_added_highinverses_using_highinverse_column(
-            square: Square, columns: Set[HighinverseColumn]) -> (Set[Highinverse], Set[Highinverse]):
+            square: Square, columns: Set[HighinverseColumn]) -> (
+            Set[Highinverse], Set[Highinverse], Optional[HighinverseColumn], Optional[HighinverseColumn]):
         # Try to make a column out of square
         above_2 = Square(row=square.row - 2, col=square.col)
         above = Square(row=square.row - 1, col=square.col)
         column = HighinverseColumn(upper=above_2, middle=above, lower=square, directly_playable=True)
         if square.row % 2 == 0:
-            # If column is not in columns, no Highinverses are affected.
-            if column not in columns:
-                return set(), set()
+            # If column is not valid, no Highinverses are affected.
+            if above_2.row < 0:
+                return set(), set(), None, None
 
             # Since square is an even Square, only one HighinverseColumn is removed. Thus, any Highinverses with that
             # column should be removed.
             removed_highinverses = highinverses_given_column(column=column, columns=columns)
-            return removed_highinverses, set()
+            return removed_highinverses, set(), column, None
 
         # Since square is odd, the square above it was not directly playable, but now is.
         above_3 = Square(row=square.row - 3, col=square.col)
         old_column = HighinverseColumn(upper=above_3, middle=above_2, lower=above, directly_playable=False)
 
-        # If old_column is not in columns, no Highinverses are affected.
-        if old_column not in columns:
-            return set(), set()
+        # If old_column is not valid, no Highinverses are affected.
+        if above_3.row < 0:
+            return set(), set(), None, None
 
         new_column = HighinverseColumn(upper=above_3, middle=above_2, lower=above, directly_playable=True)
 
         removed_highinverses = highinverses_given_column(column=old_column, columns=columns)
         added_highinverses = highinverses_given_column(column=new_column, columns=columns)
-        return removed_highinverses, added_highinverses
+        return removed_highinverses, added_highinverses, old_column, new_column
 
     def undo_move(self, square: Square) -> (Set[Highinverse], Set[Highinverse]):
         """Moves the internal state of the HighinverseManager to before this square has been played.
@@ -258,10 +269,15 @@ class HighinverseManager:
             added_highinverses (Set[Highinverse]): the set of Highinverses added after square is undone.
             removed_highinverses (Set[Highinverse]): the set of Highinverses removed after square is undone.
         """
-        added_highinverses, removed_highinverses = \
+        added_highinverses, removed_highinverses, added_column, removed_column = \
             HighinverseManager._removed_added_highinverses_using_highinverse_column(square=square, columns=self.columns)
 
         self.highinverses.difference_update(removed_highinverses)
         self.highinverses.update(added_highinverses)
+
+        if added_column is not None:
+            self.columns.add(added_column)
+        if removed_column is not None:
+            self.columns.remove(removed_column)
 
         return added_highinverses, removed_highinverses
