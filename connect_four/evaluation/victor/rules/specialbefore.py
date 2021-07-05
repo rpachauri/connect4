@@ -3,7 +3,7 @@ from typing import List, Set
 from connect_four.game import Square
 from connect_four.evaluation.victor.board import Board
 
-from connect_four.evaluation.victor.rules import Vertical, Rule, Baseinverse
+from connect_four.evaluation.victor.rules import Vertical, Rule, Baseinverse, connection
 from connect_four.evaluation.victor.rules import Before
 from connect_four.problem import Group
 
@@ -252,6 +252,9 @@ def specialbefores_given_internal_square(
     """
     specialbefores = set()
     for before in befores:
+        # Ignore Befores where all the Groups are empty.
+        if len(before.claimevens) + len(before.verticals) == len(before.group.squares):
+            continue
         if internal_directly_playable_square in before.group.squares:
             for external_directly_playable_square in directly_playable_squares:
                 if can_be_used_with_before(external_directly_playable_square, before):
@@ -284,7 +287,9 @@ def can_be_used_with_before(external_directly_playable_square: Square, before: B
     # A weaker condition is that the directly playable square does not belong in the same
     # column as any empty square of the Before.
     for square in before.empty_squares_of_before_group():
-        if external_directly_playable_square.col == square.col:
+        successor = Square(row=square.row - 1, col=square.col)
+        if (external_directly_playable_square.col == square.col or
+                not connection.is_possible(a=external_directly_playable_square, b=successor)):
             return False
     return True
 

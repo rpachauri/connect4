@@ -205,18 +205,7 @@ class TestSolutionManager(unittest.TestCase):
             victor_solution.from_before(before=before_b5_e2_variation_1),
             victor_solution.from_before(before=before_b5_e2_variation_2),
             # Specialbefore Solutions.
-            # Note that a1 cannot be used with a4-d4 Befores because it is in the same
-            # column as one of the empty squares of the Before.
-            victor_solution.from_specialbefore(specialbefore=Specialbefore(
-                before=before_a4_d4_variation_1,
-                internal_directly_playable_square=Square(row=2, col=1),  # b4
-                external_directly_playable_square=Square(row=0, col=4),  # e6
-            )),
-            victor_solution.from_specialbefore(specialbefore=Specialbefore(
-                before=before_a4_d4_variation_2,
-                internal_directly_playable_square=Square(row=2, col=1),  # b4
-                external_directly_playable_square=Square(row=0, col=4),  # e6
-            )),
+            # None.
             # Oddthreat Solutions.
             # None.
         }
@@ -332,11 +321,6 @@ class TestSolutionManager(unittest.TestCase):
                 before=before_a2_d2,
                 internal_directly_playable_square=Square(row=4, col=0),  # a2
                 external_directly_playable_square=Square(row=2, col=1),  # b4
-            )),
-            victor_solution.from_specialbefore(specialbefore=Specialbefore(
-                before=before_a2_d2,
-                internal_directly_playable_square=Square(row=4, col=0),  # a2
-                external_directly_playable_square=Square(row=0, col=4),  # e6
             )),
             # Oddthreat Solutions.
             # None.
