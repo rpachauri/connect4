@@ -16,7 +16,7 @@ class TestGraphManager6x7(unittest.TestCase):
     def setUp(self) -> None:
         self.env = gym.make('connect_four-v0')
         ConnectFourEnv.M = 6
-        ConnectFourEnv.N = 6
+        ConnectFourEnv.N = 7
         self.env.reset()
 
     def test_find_chosen_set_diagram_6_1(self):

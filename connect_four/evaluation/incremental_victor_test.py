@@ -49,7 +49,7 @@ class TestIncrementalVictor(unittest.TestCase):
         got_status = self.evaluator.evaluate()
         self.assertEqual(ProofStatus.Disproven, got_status)
 
-    def test_evaluate_upon_initialization_works_for_disproving_diagram_8_1(self):
+    def test_evaluate_upon_initialization_works_for_proving_diagram_8_1(self):
         # This test case is based on Diagram 8.1.
         # Black is to move and White has an odd threat at a3.
         self.env.state = np.array([

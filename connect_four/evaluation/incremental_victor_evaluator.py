@@ -51,8 +51,6 @@ class IncrementalVictor(SimpleEvaluator):
             self.graph_manager.undo_move()
 
     def evaluate(self) -> ProofStatus:
-        # self.model.render()
-
         proof_status = super().evaluate()
         if proof_status != ProofStatus.Unknown:
             return proof_status

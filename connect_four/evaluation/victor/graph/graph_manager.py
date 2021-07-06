@@ -30,6 +30,7 @@ class GraphManager:
         self.problem_to_solutions: Dict[Problem, Set[Solution]] = {}
         self.solution_to_problems: Dict[Solution, Set[Problem]] = {}
         self.solution_to_solutions: Dict[Solution, Set[Solution]] = {}
+        self.solutions_removed_by_move = []
 
         problems = self.problem_manager.get_all_problems()
         solutions = self.solution_manager.get_solutions()
@@ -85,7 +86,11 @@ class GraphManager:
             return
 
         # Now that we know the Solution is useful, we add it to the Graph.
+        self._add_solution_to_graph(solution=solution, solved_problems=solved_problems)
 
+        self._representational_invariant()
+
+    def _add_solution_to_graph(self, solution: Solution, solved_problems: Set[Problem]):
         for problem in solved_problems:
             self.problem_to_solutions[problem].add(solution)
 
@@ -96,8 +101,6 @@ class GraphManager:
             if not solution.can_be_combined_with(solution=other_solution):
                 self.solution_to_solutions[solution].add(other_solution)
                 self.solution_to_solutions[other_solution].add(solution)
-
-        self._representational_invariant()
 
     def _remove_problem(self, problem: Problem):
         """Removes a Problem from this Graph.
@@ -118,6 +121,7 @@ class GraphManager:
         for solution in affected_solutions:
             if not solution.is_useful(self.solution_to_problems[solution]):
                 self._remove_solution(solution=solution)
+                self.solutions_removed_by_move[-1].add(solution)
 
         self._representational_invariant()
 
@@ -172,19 +176,20 @@ class GraphManager:
         Returns:
             Nothing.
         """
+        self.solutions_removed_by_move.append(set())
         _, removed_problems = self.problem_manager.move(player=self.player, row=row, col=col)
         for problem in removed_problems:
-            self._remove_problem(problem)
+            self._remove_problem(problem=problem)
 
         removed_solutions, added_solutions = self.solution_manager.move(player=self.player, row=row, col=col)
         print("len(removed_solutions) = ", len(removed_solutions))
         print("len(added_solutions) = ", len(added_solutions))
         print("number of useful solutions =", len(self.solution_to_solutions))
         for solution in removed_solutions:
-            self._remove_solution(solution)
+            self._remove_solution(solution=solution)
         print("number of solutions that remained =", len(self.solution_to_solutions))
         for solution in added_solutions:
-            self._add_solution(solution)
+            self._add_solution(solution=solution)
 
         # Switch play.
         self.player = 1 - self.player
@@ -197,13 +202,15 @@ class GraphManager:
         """
         added_problems = self.problem_manager.undo_move()
         for problem in added_problems:
-            self._add_problem(problem)
+            self._add_problem(problem=problem)
 
         added_solutions, removed_solutions = self.solution_manager.undo_move()
         for solution in removed_solutions:
-            self._remove_solution(solution)
+            self._remove_solution(solution=solution)
         for solution in added_solutions:
-            self._add_solution(solution)
+            self._add_solution(solution=solution)
+        for solution in self.solutions_removed_by_move.pop():
+            self._add_solution(solution=solution)
 
         # Switch play.
         self.player = 1 - self.player
