@@ -203,6 +203,7 @@ class ConnectingGroupManager(ProblemManager):
         groups_removed = set()
         for square in groups_removed_by_square:
             groups_removed.update(groups_removed_by_square[square])
+        self.player = 1 - self.player
         return set(groups_removed_by_square.keys()), groups_removed
 
     def undo_move(self) -> Set[Problem]:
@@ -223,6 +224,8 @@ class ConnectingGroupManager(ProblemManager):
             for group in groups_removed_by_squares[square]:
                 self.groups_by_square_by_player[group.player][square.row][square.col].add(group)
                 added_problems.add(group)
+
+        self.player = 1 - self.player
 
         return added_problems
 
