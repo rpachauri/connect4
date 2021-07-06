@@ -1,4 +1,4 @@
-from typing import Dict, Set, FrozenSet
+from typing import Dict, Set, FrozenSet, Optional
 
 from connect_four.game import Square
 from connect_four.evaluation.victor.board import Board
@@ -12,6 +12,7 @@ from connect_four.evaluation.victor.rules import Highinverse
 from connect_four.evaluation.victor.rules import Baseclaim
 from connect_four.evaluation.victor.rules import Before
 from connect_four.evaluation.victor.rules import Specialbefore
+from connect_four.evaluation.victor.rules import Oddthreat
 
 from connect_four.evaluation.victor.rules import find_all_claimevens
 from connect_four.evaluation.victor.rules import find_all_baseinverses
@@ -22,6 +23,8 @@ from connect_four.evaluation.victor.rules import find_all_highinverses_using_hig
 from connect_four.evaluation.victor.rules import find_all_baseclaims
 from connect_four.evaluation.victor.rules import find_all_befores
 from connect_four.evaluation.victor.rules import find_all_specialbefores
+from connect_four.evaluation.victor.rules import find_all_oddthreats
+from connect_four.problem import Group
 
 
 class Solution:
@@ -74,7 +77,7 @@ class Solution:
                 self.claimeven_bottom_squares.__hash__())
 
 
-def find_all_solutions(board: Board):
+def find_all_solutions(board: Board) -> Set[Solution]:
     """find_all_solutions finds all Solutions the opponent of the
     current player can employ for the given Board.
 
@@ -82,7 +85,7 @@ def find_all_solutions(board: Board):
         board (Board): a Board instance.
 
     Returns:
-        solutions (Set<Solution>): a set of Solutions the opponent of the
+        solutions (Set[Solution]): a set of Solutions the opponent of the
             current player can employ for board.
     """
     # opponent_groups are the potential groups that the opponent of the current player has for board.
@@ -354,122 +357,53 @@ def from_highinverse(highinverse: Highinverse, square_to_groups) -> Solution:
     Returns:
         solution (Solution): a Solution if highinverse can be converted into one. None if it can't.
     """
-    if highinverse.columns:
-        column_0, column_1 = tuple(highinverse.columns)
-        squares = frozenset([
-            column_0.upper,
-            column_0.middle,
-            column_0.lower,
-            column_1.upper,
-            column_1.middle,
-            column_1.lower,
-        ])
-
-        highinverse_groups = set()
-        column_0, column_1 = tuple(highinverse.columns)
-
-        #  Add all groups which contain the two upper squares.
-        upper_square_0 = column_0.upper
-        upper_square_1 = column_1.upper
-        upper_squares_groups = square_to_groups[upper_square_0].intersection(square_to_groups[upper_square_1])
-        highinverse_groups.update(upper_squares_groups)
-
-        # Add all groups which contain the two middle squares.
-        middle_squares_groups = square_to_groups[column_0.middle].intersection(square_to_groups[column_1.middle])
-        highinverse_groups.update(middle_squares_groups)
-
-        # For each Highinverse column, add all (vertical) groups which contain the two highest squares of the
-        # column.
-        highinverse_groups.update(square_to_groups[column_0.upper].intersection(square_to_groups[column_0.middle]))
-        highinverse_groups.update(square_to_groups[column_1.upper].intersection(square_to_groups[column_1.middle]))
-
-        # If the lower square of the first column is directly playable:
-        if column_0.directly_playable:
-            # Add all groups which contain both the lower square of the first column and
-            # the upper square of the second column.
-            lower_0_upper_1_groups = square_to_groups[column_0.lower].intersection(square_to_groups[upper_square_1])
-            highinverse_groups.update(lower_0_upper_1_groups)
-
-        # If the lower square of the second column is directly playable:
-        if column_1.directly_playable:
-            # Add all groups which contain both the lower square of the second column and
-            # the upper square of the first column.
-            lower_1_upper_0_groups = square_to_groups[column_1.lower].intersection(square_to_groups[upper_square_0])
-            highinverse_groups.update(lower_1_upper_0_groups)
-
-        return Solution(
-            squares=squares,
-            groups=frozenset(highinverse_groups),
-            rule_instance=highinverse,
-        )
+    column_0, column_1 = tuple(highinverse.columns)
+    squares = frozenset([
+        column_0.upper,
+        column_0.middle,
+        column_0.lower,
+        column_1.upper,
+        column_1.middle,
+        column_1.lower,
+    ])
 
     highinverse_groups = set()
+    column_0, column_1 = tuple(highinverse.columns)
 
-    # Add all groups which contain the two upper squares.
-    verticals_as_list = list(highinverse.lowinverse.verticals)
-    vertical_0, vertical_1 = verticals_as_list[0], verticals_as_list[1]
-    upper_square_0 = Square(row=vertical_0.upper.row - 1, col=vertical_0.upper.col)
-    upper_square_1 = Square(row=vertical_1.upper.row - 1, col=vertical_1.upper.col)
+    #  Add all groups which contain the two upper squares.
+    upper_square_0 = column_0.upper
+    upper_square_1 = column_1.upper
     upper_squares_groups = square_to_groups[upper_square_0].intersection(square_to_groups[upper_square_1])
     highinverse_groups.update(upper_squares_groups)
 
     # Add all groups which contain the two middle squares.
-    middle_squares_groups = square_to_groups[vertical_0.upper].intersection(square_to_groups[vertical_1.upper])
+    middle_squares_groups = square_to_groups[column_0.middle].intersection(square_to_groups[column_1.middle])
     highinverse_groups.update(middle_squares_groups)
 
-    # For each Highinverse column, add all (vertical) groups which contain the two highest squares of the column.
-    upper_vertical_0 = Vertical(upper=upper_square_0, lower=vertical_0.upper)
-    upper_vertical_1 = Vertical(upper=upper_square_1, lower=vertical_1.upper)
-    upper_vertical_0_solution = from_vertical(upper_vertical_0, square_to_groups)
-    upper_vertical_1_solution = from_vertical(upper_vertical_1, square_to_groups)
-    if upper_vertical_0_solution is not None:
-        highinverse_groups.update(upper_vertical_0_solution.groups)
-    if upper_vertical_1_solution is not None:
-        highinverse_groups.update(upper_vertical_1_solution.groups)
+    # For each Highinverse column, add all (vertical) groups which contain the two highest squares of the
+    # column.
+    highinverse_groups.update(square_to_groups[column_0.upper].intersection(square_to_groups[column_0.middle]))
+    highinverse_groups.update(square_to_groups[column_1.upper].intersection(square_to_groups[column_1.middle]))
 
     # If the lower square of the first column is directly playable:
-    if vertical_0.lower in highinverse.directly_playable_squares:
+    if column_0.directly_playable:
         # Add all groups which contain both the lower square of the first column and
         # the upper square of the second column.
-        lower_0_upper_1_groups = square_to_groups[vertical_0.lower].intersection(square_to_groups[upper_square_1])
+        lower_0_upper_1_groups = square_to_groups[column_0.lower].intersection(square_to_groups[upper_square_1])
         highinverse_groups.update(lower_0_upper_1_groups)
 
     # If the lower square of the second column is directly playable:
-    if vertical_1.lower in highinverse.directly_playable_squares:
+    if column_1.directly_playable:
         # Add all groups which contain both the lower square of the second column and
         # the upper square of the first column.
-        lower_1_upper_0_groups = square_to_groups[vertical_1.lower].intersection(square_to_groups[upper_square_0])
+        lower_1_upper_0_groups = square_to_groups[column_1.lower].intersection(square_to_groups[upper_square_0])
         highinverse_groups.update(lower_1_upper_0_groups)
 
-    # already_solved_groups are all groups that are already solved by vertical_0, vertical_1 or lowinverse.
-    already_solved_groups = set()
-    vertical_0_solution = from_vertical(vertical=vertical_0, square_to_groups=square_to_groups)
-    if vertical_0_solution is not None:
-        already_solved_groups.update(vertical_0_solution.groups)
-    vertical_1_solution = from_vertical(vertical=vertical_1, square_to_groups=square_to_groups)
-    if vertical_1_solution is not None:
-        already_solved_groups.update(vertical_1_solution.groups)
-    lowinverse_solution = from_lowinverse(lowinverse=highinverse.lowinverse, square_to_groups=square_to_groups)
-    if lowinverse_solution is not None:
-        already_solved_groups.update(lowinverse_solution.groups)
-
-    if not highinverse_groups.issubset(already_solved_groups):
-        # Form the highinverse into a solution.
-        squares = frozenset([
-            upper_square_0,
-            vertical_0.upper,
-            vertical_0.lower,
-            upper_square_1,
-            vertical_1.upper,
-            vertical_1.lower,
-        ])
-        return Solution(
-            squares=squares,
-            groups=frozenset(highinverse_groups),
-            rule_instance=highinverse,
-        )
-    # If the highinverse does not have any new groups, then we don't convert
-    # the Highinverse into a Solution.
+    return Solution(
+        squares=squares,
+        groups=frozenset(highinverse_groups),
+        rule_instance=highinverse,
+    )
 
 
 def from_baseclaim(baseclaim: Baseclaim, square_to_groups) -> Solution:
@@ -625,3 +559,49 @@ def from_specialbefore(specialbefore: Specialbefore, square_to_groups) -> Soluti
             claimeven_bottom_squares=claimeven_bottom_squares,
             rule_instance=specialbefore,
         )
+
+
+def find_all_win_conditions(board: Board) -> Set[Solution]:
+    """find_all_win_conditions finds all Solutions the opponent of the
+        current player can employ for the given Board.
+
+        Args:
+            board (Board): a Board instance.
+
+        Returns:
+            solutions (Set[Solution]): a set of Solutions the opponent of the
+                current player can employ for board. All are win conditions.
+        """
+    oddthreats = find_all_oddthreats(board=board)
+
+    # square_to_player_groups is a dict of all Squares on board that map to
+    # all groups the current player has that contain that Square.
+    square_to_player_groups = board.potential_groups_by_square()
+
+    # Convert each win condition into a Solution.
+    solutions = set()
+    for oddthreat in oddthreats:
+        solution = from_oddthreat(oddthreat=oddthreat, square_to_groups=square_to_player_groups)
+        if solution is not None:
+            solutions.add(solution)
+    return solutions
+
+
+def from_oddthreat(oddthreat: Oddthreat, square_to_groups: Dict[Square, Set[Group]]) -> Optional[Solution]:
+    groups_solved = set()
+
+    # Add Groups containing any odd Square up to the Odd Threat that are not directly playable.
+    for row in range(oddthreat.empty_square.row, oddthreat.directly_playable_square.row, 2):
+        square = Square(row=row, col=oddthreat.empty_square.col)
+        groups_solved.update(square_to_groups[square])
+
+    # Add Groups containing any Squares above the odd Threat.
+    for row in range(0, oddthreat.empty_square.row, 1):
+        square = Square(row=row, col=oddthreat.empty_square.col)
+        groups_solved.update(square_to_groups[square])
+
+    return Solution(
+        rule_instance=oddthreat,
+        squares=[oddthreat.empty_square],
+        groups=groups_solved,
+    )

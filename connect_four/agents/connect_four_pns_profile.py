@@ -34,7 +34,7 @@ env.state = np.array([
 
 # The above state of Connect Four is a win for White, which means it is proven for OR.
 
-evaluator = IncrementalVictor(model=env)
+evaluator = Victor(model=env)
 hasher = ConnectFourHasher(env=env)
 tt = SimpleTranspositionTable()
 agent = DFPN(evaluator, hasher, tt)

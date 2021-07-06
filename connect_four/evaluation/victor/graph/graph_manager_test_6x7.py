@@ -12,6 +12,7 @@ from connect_four.game import Square
 from connect_four.problem import ConnectFourGroupManager, Group as Problem
 
 
+@unittest.skip("deprecated")
 class TestGraphManager6x7(unittest.TestCase):
     def setUp(self) -> None:
         self.env = gym.make('connect_four-v0')

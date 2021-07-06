@@ -9,6 +9,7 @@ from connect_four.evaluation.victor.solution import VictorSolutionManager
 from connect_four.problem import ConnectFourGroupManager
 
 
+@unittest.skip("deprecated")
 class TestGraphManager4x5(unittest.TestCase):
     def setUp(self) -> None:
         self.env = gym.make('connect_four-v0')

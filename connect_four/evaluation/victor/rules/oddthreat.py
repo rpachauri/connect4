@@ -70,16 +70,14 @@ class Oddthreat(Rule):
         return problems_solved
 
 
-def find_all_odd_threats(board: Board) -> Set[Oddthreat]:
-    """find_threat_combination returns an Odd Threat for White if one exists. Otherwise, returns None.
-    If multiple Odd Threats exist, picks one arbitrarily.
+def find_all_oddthreats(board: Board) -> Set[Oddthreat]:
+    """find_all_oddthreats returns all OddThreats for White.
 
     Args:
         board (Board): a Board instance.
 
     Returns:
-        odd_group (Threat): a Threat with a single empty square. The single empty square will be odd.
-            None if no such Threat exists for board.
+        odd_group (Set[Oddthreat]): a set of Oddthreats for board.
     """
     directly_playable_squares = board.playable_squares()
     # Iterate through all groups that belong to White.
@@ -119,12 +117,12 @@ def empty_squares_of_group(board: Board, group: Group) -> List[Square]:
 
 class OddthreatManager:
     def __init__(self, board: Board):
-        self.oddthreats = find_all_odd_threats(board=board)
+        self.oddthreats = find_all_oddthreats(board=board)
 
     def move(self, player: int, square: Square, board: Board):
         board.state[player][square.row][square.col] = 1
 
-        new_oddthreats = find_all_odd_threats(board=board)
+        new_oddthreats = find_all_oddthreats(board=board)
 
         removed_oddthreats = self.oddthreats - new_oddthreats
         added_oddthreats = new_oddthreats - self.oddthreats
@@ -136,7 +134,7 @@ class OddthreatManager:
         return removed_oddthreats, added_oddthreats
 
     def undo_move(self, player: int, square: Square, board: Board):
-        old_oddthreats = find_all_odd_threats(board=board)
+        old_oddthreats = find_all_oddthreats(board=board)
 
         added_oddthreats = old_oddthreats - self.oddthreats
         removed_oddthreats = self.oddthreats - old_oddthreats

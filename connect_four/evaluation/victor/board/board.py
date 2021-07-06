@@ -1,4 +1,4 @@
-from typing import Set
+from typing import Set, Dict
 
 from connect_four.game import Square
 from connect_four.problem import Group
@@ -152,12 +152,12 @@ class Board:
 
         return groups
 
-    def potential_groups_by_square(self):
+    def potential_groups_by_square(self) -> Dict[Square, Set[Group]]:
         """Returns a dictionary of Squares to all groups that contain that Square.
         Every Group is a potential Group that the current player has in this board state.
 
         Returns:
-            square_to_groups (Map<Square, Set<Group>>):
+            square_to_groups (Dict[Square, Set[Group]]):
                 A dictionary mapping each Square to all groups that contain that Square.
                 Every Square in Board will be in the key set.
         """

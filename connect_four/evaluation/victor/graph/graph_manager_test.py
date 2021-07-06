@@ -9,6 +9,7 @@ from connect_four.problem.fake_problem import FakeProblem
 from connect_four.problem.fake_problem_manager import FakeProblemManager
 
 
+@unittest.skip("deprecated")
 class TestGraphManager(unittest.TestCase):
 
     def test_create_node_graph(self):

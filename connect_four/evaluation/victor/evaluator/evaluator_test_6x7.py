@@ -380,6 +380,7 @@ class TestEvaluator6x7(unittest.TestCase):
             solved_groups.update(sol.groups)
         self.assertEqual(black_groups, solved_groups)
 
+    @unittest.skip("threat combination not yet implemented")
     def test_evaluate_6x7_even_above_odd_threat_combination(self):
         # This test case is based on Diagram 8.3.
         # Black is to move and White has a ThreatCombination at d1-g4 and d3-g3.
@@ -416,6 +417,7 @@ class TestEvaluator6x7(unittest.TestCase):
         )
         self.assertEqual(want_odd_threat_guarantor, got_evaluation.odd_threat_guarantor)
 
+    @unittest.skip("threat combination not yet implemented")
     def test_evaluate_6x7_odd_above_not_directly_playable_even_threat_combination(self):
         # This test case is based on Diagram 8.7.
         # The even square of the ThreatCombination is NOT directly playable.
@@ -455,6 +457,7 @@ class TestEvaluator6x7(unittest.TestCase):
         )
         self.assertEqual(want_odd_threat_guarantor, got_evaluation.odd_threat_guarantor)
 
+    @unittest.skip("threat combination not yet implemented")
     def test_evaluate_6x7_odd_above_directly_playable_even_threat_combination(self):
         # This test case is based on Diagram 8.7.
         # The even square of the ThreatCombination IS directly playable.
@@ -493,6 +496,31 @@ class TestEvaluator6x7(unittest.TestCase):
             threat_combination_type=threat_combination.ThreatCombinationType.OddAboveDirectlyPlayableEven,
         )
         self.assertEqual(want_odd_threat_guarantor, got_evaluation.odd_threat_guarantor)
+
+    def test_evaluate_diagram_11_1_move_1(self):
+        # This test case is based on Diagram 11.1, after White has played a1.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 1, 1, 0, 0, ],
+                [1, 0, 0, 0, 1, 0, 0, ],
+            ],
+        ])
+        self.env.player_turn = 1  # Black to move.
+        board = Board(self.env.env_variables)
+        got_evaluation = evaluator.evaluate(board=board)
+        self.assertIsNone(got_evaluation)
 
 
 if __name__ == '__main__':

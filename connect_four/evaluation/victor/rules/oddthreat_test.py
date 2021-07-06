@@ -6,7 +6,7 @@ import numpy as np
 from connect_four.envs import ConnectFourEnv
 from connect_four.evaluation.victor.board import Board
 from connect_four.evaluation.victor.rules import Oddthreat
-from connect_four.evaluation.victor.rules import find_all_odd_threats
+from connect_four.evaluation.victor.rules import find_all_oddthreats
 from connect_four.game import Square
 from connect_four.problem import Group
 from connect_four.problem import ConnectFourGroupManager
@@ -40,7 +40,7 @@ class TestOddThreat(unittest.TestCase):
             ],
         ])
         board = Board(self.env.env_variables)
-        got_odd_threats = find_all_odd_threats(board=board)
+        got_odd_threats = find_all_oddthreats(board=board)
         self.assertFalse(got_odd_threats)
 
     def test_find_odd_threat(self):
@@ -71,7 +71,7 @@ class TestOddThreat(unittest.TestCase):
                 directly_playable_square=Square(row=4, col=0),  # a2
             ),
         }
-        got_odd_threats = find_all_odd_threats(board=board)
+        got_odd_threats = find_all_oddthreats(board=board)
         self.assertEqual(want_odd_threats, got_odd_threats)
 
     def test_find_odd_threat_when_multiple_exist(self):
@@ -107,7 +107,7 @@ class TestOddThreat(unittest.TestCase):
                 directly_playable_square=Square(row=5, col=5),  # f1
             ),
         }
-        got_odd_threats = find_all_odd_threats(board=board)
+        got_odd_threats = find_all_oddthreats(board=board)
         self.assertEqual(want_odd_threats, got_odd_threats)
 
     def test_find_problems_solved(self):
@@ -217,7 +217,7 @@ class TestOddThreat(unittest.TestCase):
         ])
         board = Board(self.env.env_variables)
 
-        got_odd_threats = find_all_odd_threats(board=board)
+        got_odd_threats = find_all_oddthreats(board=board)
         self.assertFalse(got_odd_threats)
 
 

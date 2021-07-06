@@ -92,7 +92,7 @@ class VictorSolutionManager(SolutionManager):
     #     black_befores = find_all_befores(board=board, opponent_groups=black_groups)
     #     black_specialbefores = find_all_specialbefores(board=board, befores=black_befores)
     #     # Find all win conditions for White.
-    #     white_odd_threats = find_all_odd_threats(board=board)
+    #     white_odd_threats = find_all_oddthreats(board=board)
     #
     #     # Convert the rule instances into Solutions.
     #     solutions = set()

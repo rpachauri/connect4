@@ -8,6 +8,7 @@ from connect_four.evaluation import ProofStatus
 from connect_four.evaluation.incremental_victor_evaluator import IncrementalVictor
 
 
+@unittest.skip("deprecated")
 class TestIncrementalVictor(unittest.TestCase):
     def setUp(self) -> None:
         self.env = gym.make('connect_four-v0')

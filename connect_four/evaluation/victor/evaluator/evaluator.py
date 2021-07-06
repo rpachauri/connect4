@@ -1,9 +1,9 @@
 """
 Note that in this module, we use the term "Group" and "Problem" interchangeably.
 """
-from collections import namedtuple
-from typing import Dict, Optional, Set, Union
+from typing import Dict, Set, Union
 
+from connect_four.evaluation.victor.solution.solution1 import find_all_win_conditions
 from connect_four.game import Square
 from connect_four.problem import Group
 from connect_four.evaluation.victor.board import Board
@@ -13,32 +13,7 @@ from connect_four.evaluation.victor.threat_hunter import Threat, ThreatCombinati
 from connect_four.evaluation.victor.threat_hunter import find_odd_threat, find_threat_combination
 
 
-Evaluation = namedtuple("Evaluation", ["chosen_set", "odd_threat_guarantor"])
-
-
-class EvaluationBuilder:
-    def __init__(self):
-        """
-        Public Fields:
-            chosen_set (Set<Solution>): a chosen set of Solutions the opponent can use that
-                refutes all groups belonging to the current player.
-            odd_threat_guarantor (Threat | ThreatCombination): A Threat or ThreatCombination for White.
-        """
-        self.chosen_set = None
-        self.odd_threat_guarantor = None
-
-    def set_chosen_set(self, chosen_set):
-        self.chosen_set = chosen_set
-
-    def set_odd_threat_guarantor(self, odd_threat_guarantor):
-        self.odd_threat_guarantor = odd_threat_guarantor
-
-    def build(self) -> Evaluation:
-        if self.chosen_set is not None:
-            return Evaluation(chosen_set=self.chosen_set, odd_threat_guarantor=self.odd_threat_guarantor)
-
-
-def evaluate(board: Board) -> Optional[Evaluation]:
+def evaluate(board: Board) -> Set[Solution]:
     """evaluate returns an Evaluation of the given Board instance.
 
     Args:
@@ -49,40 +24,34 @@ def evaluate(board: Board) -> Optional[Evaluation]:
     """
     player_groups = board.potential_groups(player=board.player)
     all_solutions = find_all_solutions(board=board)
-    print("number of solution =", len(all_solutions))
-
-    evaluation_builder = EvaluationBuilder()
+    node_graph = create_node_graph(solutions=all_solutions)
 
     if board.player == 1:  # Current player is Black.
-        # TODO consider if finding all possible odd group guarantors would be worth it.
-        #  e.g. if an odd threat works even when a threat combination doesn't, we'd still use it.
-        #  e.g. if a higher odd threat can be refuted but a lower odd threat cannot, we'd still use it.
-        odd_threat_guarantor = find_odd_threat_guarantor(board=board)
-        if odd_threat_guarantor is None:
-            return None
-        evaluation_builder.set_odd_threat_guarantor(odd_threat_guarantor=odd_threat_guarantor)
-        player_groups = player_groups - problems_solved_by_odd_threat_guarantor(
-            board=board,
-            problems=player_groups,
-            odd_threat_guarantor=odd_threat_guarantor,
-        )
-        all_solutions = all_solutions - unusable_solutions_with_guarantor(
-            solutions=all_solutions,
-            guarantor=odd_threat_guarantor,
-        )
-
-    node_graph = create_node_graph(solutions=all_solutions)
-    # Only try to find a set that can solve all problems if every Problem has at least one Solution.
-    if player_groups.issubset(node_graph.keys()):
-        evaluation_builder.set_chosen_set(
-            chosen_set=find_chosen_set(
+        win_conditions = find_all_win_conditions(board=board)
+        for win_condition in win_conditions:
+            # Only try to find a set that can solve all problems if every Problem has at least one Solution.
+            if player_groups.issubset(node_graph.keys()):
+                disallowed_solutions = solutions_disallowed_with_win_condition(
+                    solutions=all_solutions,
+                    win_condition=win_condition,
+                )
+                chosen_set = find_chosen_set(
+                    node_graph=node_graph,
+                    problems=player_groups - win_condition.groups,
+                    disallowed_solutions=disallowed_solutions,
+                    used_solutions={win_condition},
+                )
+                if chosen_set is not None:
+                    return chosen_set
+    else:
+        # Only try to find a set that can solve all problems if every Problem has at least one Solution.
+        if player_groups.issubset(node_graph.keys()):
+            return find_chosen_set(
                 node_graph=node_graph,
                 problems=player_groups,
                 disallowed_solutions=set(),
                 used_solutions=set(),
             )
-        )
-        return evaluation_builder.build()
 
 
 def create_node_graph(solutions: Set[Solution]) -> Dict[Union[Group, Solution], Set[Solution]]:
@@ -445,6 +414,14 @@ def _vertical_groups_in_stacked_column(
                 problems_solved.add(problem)
 
     return problems_solved
+
+
+def solutions_disallowed_with_win_condition(solutions: Set[Solution], win_condition: Solution) -> Set[Solution]:
+    disallowed_solutions = set()
+    for solution in solutions:
+        if not combination.allowed(s1=solution, s2=win_condition):
+            disallowed_solutions.add(solution)
+    return disallowed_solutions
 
 
 def unusable_solutions_with_guarantor(
