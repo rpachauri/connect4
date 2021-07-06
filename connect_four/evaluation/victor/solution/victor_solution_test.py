@@ -4,6 +4,7 @@ from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertica
     Baseclaim, Before, Specialbefore, Oddthreat
 from connect_four.evaluation.victor.rules.highinverse import HighinverseColumn
 from connect_four.evaluation.victor.solution import victor_solution
+from connect_four.evaluation.victor.solution.solution import SolutionType
 from connect_four.game import Square
 from connect_four.problem import Group
 
@@ -14,6 +15,7 @@ class TestSolution(unittest.TestCase):
         want_solution = victor_solution.VictorSolution(
             rule_instance=claimeven_2_4,
             squares=[claimeven_2_4.upper, claimeven_2_4.lower],
+            solution_type=SolutionType.SHARED,
             claimeven_bottom_squares=[claimeven_2_4.lower],
         )
         got_solution = victor_solution.from_claimeven(claimeven=claimeven_2_4)
@@ -25,6 +27,7 @@ class TestSolution(unittest.TestCase):
         got_solution = victor_solution.from_baseinverse(baseinverse=baseinverse_a1_b1)
         want_solution = victor_solution.VictorSolution(
             rule_instance=baseinverse_a1_b1,
+            solution_type=SolutionType.SHARED,
             squares=frozenset(baseinverse_a1_b1.squares),
         )
         self.assertEqual(want_solution, got_solution)
@@ -35,6 +38,7 @@ class TestSolution(unittest.TestCase):
         got_solution = victor_solution.from_vertical(vertical_e4_e5)
         want_solution = victor_solution.VictorSolution(
             rule_instance=vertical_e4_e5,
+            solution_type=SolutionType.SHARED,
             squares=frozenset([vertical_e4_e5.upper, vertical_e4_e5.lower]),
         )
         self.assertEqual(want_solution, got_solution)
@@ -66,6 +70,7 @@ class TestSolution(unittest.TestCase):
                 Square(row=5, col=6),
             ],
             rule_instance=aftereven_d2_g2,
+            solution_type=SolutionType.BLACK,
         )
         self.assertEqual(want_solution, got_solution)
 
@@ -84,6 +89,7 @@ class TestSolution(unittest.TestCase):
                 Square(row=3, col=3),
                 Square(row=4, col=3),
             ]),
+            solution_type=SolutionType.SHARED,
         )
         self.assertEqual(want_solution, got_solution)
 
@@ -114,6 +120,7 @@ class TestSolution(unittest.TestCase):
                 Square(row=3, col=3),  # d3
                 Square(row=4, col=3),  # d2
             ]),
+            solution_type=SolutionType.SHARED,
         )
         got_solution = victor_solution.from_highinverse(
             highinverse=highinverse_c2_c3_c4_d2_d3_d4,
@@ -141,6 +148,7 @@ class TestSolution(unittest.TestCase):
             claimeven_bottom_squares=[
                 Square(row=5, col=2),  # c1
             ],
+            solution_type=SolutionType.SHARED,
         )
         self.assertEqual(want_solution, got_solution)
 
@@ -169,6 +177,7 @@ class TestSolution(unittest.TestCase):
             claimeven_bottom_squares=[
                 Square(row=3, col=1),  # b3
             ],
+            solution_type=SolutionType.BLACK,
         )
         self.assertEqual(want_solution, got_solution)
 
@@ -213,6 +222,7 @@ class TestSolution(unittest.TestCase):
                 Square(row=5, col=5),  # f1 is the lower Square of Claimeven f1-f2.
                 Square(row=5, col=6),  # g1 is the lower Square of Claimeven g1-g2.
             ],
+            solution_type=SolutionType.BLACK,
         )
         self.assertEqual(want_solution, got_solution)
 
@@ -227,6 +237,7 @@ class TestSolution(unittest.TestCase):
         want_solution = victor_solution.VictorSolution(
             rule_instance=odd_threat_a3_d3,
             squares=[Square(row=3, col=0)],  # a3
+            solution_type=SolutionType.WHITE,
         )
         self.assertEqual(want_solution, got_solution)
 

@@ -14,6 +14,8 @@ class SolutionType(Enum):
 
 
 class Solution:
+    def __init__(self, solution_type: SolutionType):
+        self.solution_type = solution_type
 
     @abstractmethod
     def solves(self, problem: Problem) -> bool:

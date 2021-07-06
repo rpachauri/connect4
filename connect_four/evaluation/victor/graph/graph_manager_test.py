@@ -14,21 +14,12 @@ class TestGraphManager(unittest.TestCase):
         problem_1 = FakeProblem(name="p1")
         problem_2 = FakeProblem(name="p2")
         problem_3 = FakeProblem(name="p3")
-        solution_1 = AlwaysUsefulFakeSolution(
-            name="s1",
-            solvable_problems={problem_1},
-            disallowed_solutions={"s1", "s2"},
-        )
-        solution_2 = AlwaysUsefulFakeSolution(
-            name="s2",
-            solvable_problems={problem_2},
-            disallowed_solutions={"s1", "s2"},
-        )
-        solution_3 = AlwaysUsefulFakeSolution(
-            name="s3",
-            solvable_problems={problem_3},
-            disallowed_solutions={"s3"},
-        )
+        solution_1 = AlwaysUsefulFakeSolution(name="s1", solvable_problems={problem_1},
+                                              disallowed_solutions={"s1", "s2"}, solution_type=SolutionType.SHARED)
+        solution_2 = AlwaysUsefulFakeSolution(name="s2", solvable_problems={problem_2},
+                                              disallowed_solutions={"s1", "s2"}, solution_type=SolutionType.SHARED)
+        solution_3 = AlwaysUsefulFakeSolution(name="s3", solvable_problems={problem_3}, disallowed_solutions={"s3"},
+                                              solution_type=SolutionType.SHARED)
 
         want_problem_to_solutions = {
             problem_1: {solution_1},
@@ -93,11 +84,8 @@ class TestGraphManager(unittest.TestCase):
 
     def test_move_add_solution(self):
         problem_1 = FakeProblem(name="p1")
-        solution_1 = AlwaysUsefulFakeSolution(
-            name="s1",
-            solvable_problems={problem_1},
-            disallowed_solutions={"s1"},
-        )
+        solution_1 = AlwaysUsefulFakeSolution(name="s1", solvable_problems={problem_1}, disallowed_solutions={"s1"},
+                                              solution_type=SolutionType.SHARED)
 
         fake_problem_manager = FakeProblemManager(problems={problem_1}, removed_problems=set())
         fake_solution_manager = FakeSolutionManager(
@@ -132,11 +120,8 @@ class TestGraphManager(unittest.TestCase):
 
     def test_move_remove_solution(self):
         problem_1 = FakeProblem(name="p1")
-        solution_1 = AlwaysUsefulFakeSolution(
-            name="s1",
-            solvable_problems={problem_1},
-            disallowed_solutions={"s1"},
-        )
+        solution_1 = AlwaysUsefulFakeSolution(name="s1", solvable_problems={problem_1}, disallowed_solutions={"s1"},
+                                              solution_type=SolutionType.SHARED)
 
         fake_problem_manager = FakeProblemManager(problems={problem_1}, removed_problems=set())
         fake_solution_manager = FakeSolutionManager(
@@ -170,11 +155,8 @@ class TestGraphManager(unittest.TestCase):
         self.assertFalse(gm.solution_to_solutions)
 
     def test_remove_nonexistent_solution(self):
-        solution_1 = AlwaysUsefulFakeSolution(
-            name="s1",
-            solvable_problems=set(),
-            disallowed_solutions={"s1"},
-        )
+        solution_1 = AlwaysUsefulFakeSolution(name="s1", solvable_problems=set(), disallowed_solutions={"s1"},
+                                              solution_type=SolutionType.SHARED)
 
         # Initialize an empty Graph.
         fake_problem_manager = FakeProblemManager(problems=set())

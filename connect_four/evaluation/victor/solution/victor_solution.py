@@ -2,7 +2,7 @@ from typing import Iterable, FrozenSet, Dict, Set
 
 from connect_four.evaluation.victor.rules import Claimeven, Rule, Baseinverse, Vertical, Aftereven, Lowinverse, \
     Highinverse, Baseclaim, Before, Specialbefore, Oddthreat
-from connect_four.evaluation.victor.solution.solution import Solution
+from connect_four.evaluation.victor.solution.solution import Solution, SolutionType
 from connect_four.game import Square
 from connect_four.problem import Group
 from connect_four.problem.problem import Problem
@@ -14,8 +14,9 @@ class VictorSolution(Solution):
     Two VictorSolutions may or may not work together depending on which squares each
     consists of and which rule they are an application of.
     """
-    def __init__(self, rule_instance: Rule, squares: Iterable[Square],
+    def __init__(self, rule_instance: Rule, squares: Iterable[Square], solution_type: SolutionType,
                  claimeven_bottom_squares: Iterable[Square] = None):
+        super().__init__(solution_type=solution_type)
         self.rule_instance = rule_instance
 
         self.squares = frozenset(squares)
@@ -69,7 +70,8 @@ class VictorSolution(Solution):
         if isinstance(other, VictorSolution):
             return (self.rule_instance == other.rule_instance and
                     self.squares == other.squares and
-                    self.claimeven_bottom_squares == other.claimeven_bottom_squares)
+                    self.claimeven_bottom_squares == other.claimeven_bottom_squares and
+                    self.solution_type == other.solution_type)
 
     def __hash__(self):
         return (self.rule_instance.__hash__() * 19441 +
@@ -123,6 +125,7 @@ def from_claimeven(claimeven: Claimeven) -> VictorSolution:
     return VictorSolution(
         rule_instance=claimeven,
         squares=[claimeven.upper, claimeven.lower],
+        solution_type=SolutionType.SHARED,
         claimeven_bottom_squares=[claimeven.lower],
     )
 
@@ -130,6 +133,7 @@ def from_claimeven(claimeven: Claimeven) -> VictorSolution:
 def from_baseinverse(baseinverse: Baseinverse) -> VictorSolution:
     return VictorSolution(
         rule_instance=baseinverse,
+        solution_type=SolutionType.SHARED,
         squares=baseinverse.squares,
     )
 
@@ -145,6 +149,7 @@ def from_vertical(vertical: Vertical) -> VictorSolution:
     """
     return VictorSolution(
         rule_instance=vertical,
+        solution_type=SolutionType.SHARED,
         squares=[vertical.upper, vertical.lower],
     )
 
@@ -164,9 +169,14 @@ def from_aftereven(aftereven: Aftereven) -> VictorSolution:
         squares_involved.append(claimeven.lower)
         claimeven_bottom_squares.append(claimeven.lower)
 
+    solution_type = SolutionType.WHITE
+    if aftereven.group.player == 1:
+        solution_type = SolutionType.BLACK
+
     return VictorSolution(
         rule_instance=aftereven,
         squares=frozenset(squares_involved),
+        solution_type=solution_type,
         claimeven_bottom_squares=claimeven_bottom_squares,
     )
 
@@ -185,6 +195,7 @@ def from_lowinverse(lowinverse: Lowinverse) -> VictorSolution:
 
     return VictorSolution(
         rule_instance=lowinverse,
+        solution_type=SolutionType.SHARED,
         squares=frozenset([vertical_0.upper, vertical_0.lower, vertical_1.upper, vertical_1.lower]),
     )
 
@@ -198,37 +209,18 @@ def from_highinverse(highinverse: Highinverse) -> VictorSolution:
     Returns:
         solution (VictorSolution): a VictorSolution.
     """
-    if highinverse.columns:
-        column_0, column_1 = tuple(highinverse.columns)
-        squares = frozenset([
-            column_0.upper,
-            column_0.middle,
-            column_0.lower,
-            column_1.upper,
-            column_1.middle,
-            column_1.lower,
-        ])
-        return VictorSolution(
-            squares=squares,
-            rule_instance=highinverse,
-        )
-
-    verticals_as_list = list(highinverse.lowinverse.verticals)
-    vertical_0, vertical_1 = verticals_as_list[0], verticals_as_list[1]
-    upper_square_0 = Square(row=vertical_0.upper.row - 1, col=vertical_0.upper.col)
-    upper_square_1 = Square(row=vertical_1.upper.row - 1, col=vertical_1.upper.col)
-
-    # Form the highinverse into a solution.
+    column_0, column_1 = tuple(highinverse.columns)
     squares = frozenset([
-        upper_square_0,
-        vertical_0.upper,
-        vertical_0.lower,
-        upper_square_1,
-        vertical_1.upper,
-        vertical_1.lower,
+        column_0.upper,
+        column_0.middle,
+        column_0.lower,
+        column_1.upper,
+        column_1.middle,
+        column_1.lower,
     ])
     return VictorSolution(
         squares=squares,
+        solution_type=SolutionType.SHARED,
         rule_instance=highinverse,
     )
 
@@ -247,6 +239,7 @@ def from_baseclaim(baseclaim: Baseclaim) -> VictorSolution:
     return VictorSolution(
         rule_instance=baseclaim,
         squares=[baseclaim.first, baseclaim.second, baseclaim.third, square_above_second],
+        solution_type=SolutionType.SHARED,
         claimeven_bottom_squares=[baseclaim.second],
     )
 
@@ -276,9 +269,14 @@ def from_before(before: Before) -> VictorSolution:
         squares.add(claimeven.lower)
         claimeven_bottom_squares.append(claimeven.lower)
 
+    solution_type = SolutionType.WHITE
+    if before.group.player == 1:
+        solution_type = SolutionType.BLACK
+
     return VictorSolution(
         rule_instance=before,
         squares=frozenset(squares),
+        solution_type=solution_type,
         claimeven_bottom_squares=claimeven_bottom_squares,
     )
 
@@ -312,10 +310,15 @@ def from_specialbefore(specialbefore: Specialbefore) -> VictorSolution:
         squares.add(claimeven.lower)
         claimeven_bottom_squares.append(claimeven.lower)
 
+    solution_type = SolutionType.WHITE
+    if specialbefore.before.group.player == 1:
+        solution_type = SolutionType.BLACK
+
     # The Specialbefore VictorSolution includes all squares that the Before VictorSolution has.
     return VictorSolution(
         squares=frozenset(squares),
         claimeven_bottom_squares=claimeven_bottom_squares,
+        solution_type=solution_type,
         rule_instance=specialbefore,
     )
 
@@ -332,4 +335,5 @@ def from_odd_threat(odd_threat: Oddthreat) -> VictorSolution:
     return VictorSolution(
         rule_instance=odd_threat,
         squares=[odd_threat.empty_square],
+        solution_type=SolutionType.WHITE,
     )

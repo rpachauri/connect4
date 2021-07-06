@@ -1,11 +1,13 @@
 from typing import Set
 
-from connect_four.evaluation.victor.solution.solution import Solution
+from connect_four.evaluation.victor.solution.solution import Solution, SolutionType
 from connect_four.problem.problem import Problem
 
 
 class AlwaysUsefulFakeSolution(Solution):
-    def __init__(self, name: str, solvable_problems: Set[Problem], disallowed_solutions: Set[str]):
+    def __init__(self, name: str, solvable_problems: Set[Problem], disallowed_solutions: Set[str],
+                 solution_type: SolutionType):
+        super().__init__(solution_type=solution_type)
         self.name = name
         self.solvable_problems = solvable_problems
         self.disallowed_solutions = disallowed_solutions
