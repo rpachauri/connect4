@@ -1,9 +1,16 @@
 # So that we can use the Solution type within the Solution class.
 from __future__ import annotations
 from abc import abstractmethod
+from enum import Enum
 from typing import Set
 
 from connect_four.problem.problem import Problem
+
+
+class SolutionType(Enum):
+    WHITE = 0
+    BLACK = 1
+    SHARED = 2
 
 
 class Solution:
