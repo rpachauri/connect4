@@ -6,7 +6,7 @@ from connect_four.problem.problem import Problem
 
 class AlwaysUsefulFakeSolution(Solution):
     def __init__(self, name: str, solvable_problems: Set[Problem], disallowed_solutions: Set[str],
-                 solution_type: SolutionType):
+                 solution_type: SolutionType = SolutionType.SHARED):
         super().__init__(solution_type=solution_type)
         self.name = name
         self.solvable_problems = solvable_problems

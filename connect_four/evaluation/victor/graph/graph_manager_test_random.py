@@ -25,12 +25,6 @@ for _ in range(100):
 
     while not done:
         board = Board(env_variables=env.env_variables)
-        # initial_gm = GraphManager(
-        #     player=env.env_variables.player_turn,
-        #     problem_manager=ConnectFourGroupManager(env_variables=env.env_variables),
-        #     solution_manager=VictorSolutionManager(env_variables=env.env_variables),
-        # )
-        # initial_solutions = VictorSolutionManager(env_variables=env.env_variables).get_solutions()
 
         action = random_agent.action(env, last_action)
         _, reward, done, _ = env.step(action)
@@ -53,14 +47,6 @@ for _ in range(100):
         assert want_gm.problem_to_solutions == gm.problem_to_solutions
         assert want_gm.solution_to_problems == gm.solution_to_problems
         assert want_gm.solution_to_solutions == gm.solution_to_solutions
-        # final_solutions = VictorSolutionManager(env_variables=env.env_variables).get_solutions()
-
-        # want_removed_solutions = initial_solutions - final_solutions
-        # want_added_solutions = final_solutions - initial_solutions
-        # got_removed_solutions, got_added_solutions = vsm.move(player=player_turn, row=placed_row, col=action)
-
-        # assert want_removed_solutions == got_removed_solutions
-        # assert want_added_solutions == got_added_solutions
 
         player_turn = 1 - player_turn
 
@@ -83,10 +69,3 @@ for _ in range(100):
         assert want_gm.problem_to_solutions == gm.problem_to_solutions
         assert want_gm.solution_to_problems == gm.solution_to_problems
         assert want_gm.solution_to_solutions == gm.solution_to_solutions
-
-        # want_added_solutions = initial_solutions - final_solutions
-        # want_removed_solutions = final_solutions - initial_solutions
-        # got_added_solutions, got_removed_solutions = vsm.undo_move()
-        #
-        # assert want_added_solutions == got_added_solutions
-        # assert want_removed_solutions == got_removed_solutions

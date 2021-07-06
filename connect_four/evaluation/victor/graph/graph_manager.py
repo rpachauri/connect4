@@ -1,7 +1,7 @@
 from typing import Set, Dict
 
 from connect_four.evaluation.victor.solution import SolutionManager
-from connect_four.evaluation.victor.solution.solution import Solution
+from connect_four.evaluation.victor.solution.solution import Solution, SolutionType
 from connect_four.problem.problem import Problem
 from connect_four.problem.problem_manager import ProblemManager
 
@@ -31,6 +31,10 @@ class GraphManager:
         self.solution_to_problems: Dict[Solution, Set[Problem]] = {}
         self.solution_to_solutions: Dict[Solution, Set[Solution]] = {}
         self.solutions_removed_by_move = []
+        # Keep track of useful Solutions by type.
+        self.white_solutions = set()
+        self.black_solutions = set()
+        self.shared_solutions = set()
 
         problems = self.problem_manager.get_all_problems()
         solutions = self.solution_manager.get_solutions()
@@ -86,16 +90,46 @@ class GraphManager:
             return
 
         # Now that we know the Solution is useful, we add it to the Graph.
-        self._add_solution_to_graph(solution=solution, solved_problems=solved_problems)
-
-        self._representational_invariant()
-
-    def _add_solution_to_graph(self, solution: Solution, solved_problems: Set[Problem]):
         for problem in solved_problems:
             self.problem_to_solutions[problem].add(solution)
 
         self.solution_to_problems[solution] = solved_problems
 
+        if solution.solution_type == SolutionType.WHITE:
+            self._add_white_solution(solution=solution)
+        elif solution.solution_type == SolutionType.BLACK:
+            self._add_black_solution(solution=solution)
+        else:  # solution.type == SolutionType.Shared
+            self._add_shared_solution(solution=solution)
+
+        self._representational_invariant()
+
+    def _add_white_solution(self, solution: Solution):
+        self.white_solutions.add(solution)
+        self.solution_to_solutions[solution] = set()
+        for other_solution in self.white_solutions:
+            if not solution.can_be_combined_with(solution=other_solution):
+                self.solution_to_solutions[solution].add(other_solution)
+                self.solution_to_solutions[other_solution].add(solution)
+        for other_solution in self.shared_solutions:
+            if not solution.can_be_combined_with(solution=other_solution):
+                self.solution_to_solutions[solution].add(other_solution)
+                self.solution_to_solutions[other_solution].add(solution)
+
+    def _add_black_solution(self, solution: Solution):
+        self.black_solutions.add(solution)
+        self.solution_to_solutions[solution] = set()
+        for other_solution in self.black_solutions:
+            if not solution.can_be_combined_with(solution=other_solution):
+                self.solution_to_solutions[solution].add(other_solution)
+                self.solution_to_solutions[other_solution].add(solution)
+        for other_solution in self.shared_solutions:
+            if not solution.can_be_combined_with(solution=other_solution):
+                self.solution_to_solutions[solution].add(other_solution)
+                self.solution_to_solutions[other_solution].add(solution)
+
+    def _add_shared_solution(self, solution: Solution):
+        self.shared_solutions.add(solution)
         self.solution_to_solutions[solution] = set()
         for other_solution in self.solution_to_solutions:
             if not solution.can_be_combined_with(solution=other_solution):
@@ -139,12 +173,19 @@ class GraphManager:
         if solution not in self.solution_to_solutions:
             return None
 
-        affected_solutions = self.solution_to_solutions.pop(solution)  # [solution].pop()
+        if solution.solution_type == SolutionType.WHITE:
+            self.white_solutions.remove(solution)
+        elif solution.solution_type == SolutionType.BLACK:
+            self.black_solutions.remove(solution)
+        else:  # solution.solution_type == SolutionType.SHARED
+            self.shared_solutions.remove(solution)
+
+        affected_solutions = self.solution_to_solutions.pop(solution)
         for other_solution in affected_solutions:
             if other_solution != solution:
                 self.solution_to_solutions[other_solution].remove(solution)
 
-        affected_problems = self.solution_to_problems.pop(solution)  # [solution].pop()
+        affected_problems = self.solution_to_problems.pop(solution)
         for problem in affected_problems:
             self.problem_to_solutions[problem].remove(solution)
 
@@ -153,6 +194,15 @@ class GraphManager:
     def _representational_invariant(self):
         # # The key set of solution_to_problems should equal solution_to_solutions.
         # assert self.solution_to_problems.keys() == self.solution_to_solutions.keys()
+        #
+        # # The three Solution Sets should equal the key set of the above two Dicts.
+        # assert (self.white_solutions.union(self.black_solutions).union(self.shared_solutions) ==
+        #         self.solution_to_solutions.keys())
+        #
+        # # The three Solution sets should be disjoint.
+        # assert self.white_solutions.isdisjoint(self.black_solutions)
+        # assert self.white_solutions.isdisjoint(self.shared_solutions)
+        # assert self.black_solutions.isdisjoint(self.shared_solutions)
         #
         # # Every Solution in the Graph should be useful.
         # for solution in self.solution_to_problems:
@@ -233,7 +283,11 @@ class GraphManager:
         problems = self.problem_manager.get_current_problems()
 
         if self.player == 0:
-            return self._find_chosen_set(problems=problems, disallowed_solutions=set(), used_solutions=set())
+            return self._find_chosen_set(
+                problems=problems,
+                disallowed_solutions=self.white_solutions,
+                used_solutions=set(),
+            )
 
         if self.player == 1:
             # In order to prove White can win, White must be able to use a win condition and solve all problems
@@ -241,7 +295,7 @@ class GraphManager:
             for win_condition in self.solution_manager.get_win_conditions():
                 chosen_set = self._find_chosen_set(
                     problems=problems - self.solution_to_problems[win_condition],
-                    disallowed_solutions=self.solution_to_solutions[win_condition],
+                    disallowed_solutions=self.black_solutions.union(self.solution_to_solutions[win_condition]),
                     used_solutions={win_condition},
                 )
                 if chosen_set is not None:

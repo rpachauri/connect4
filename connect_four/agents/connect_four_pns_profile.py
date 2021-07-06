@@ -37,16 +37,16 @@ env.state = np.array([
 evaluator = IncrementalVictor(model=env)
 hasher = ConnectFourHasher(env=env)
 tt = SimpleTranspositionTable()
-# agent = DFPN(evaluator, hasher, tt)
-agent = PNS(evaluator=evaluator)
+agent = DFPN(evaluator, hasher, tt)
+# agent = PNS(evaluator=evaluator)
 
 # The given node should be proven.
-# cProfile.run(
-#     'agent.multiple_iterative_deepening(env=env, phi_threshold=DFPN.INF, delta_threshold=DFPN.INF)',
-#     sort="cumtime",
-# )
-
 cProfile.run(
-    'agent.proof_number_search()',
+    'agent.multiple_iterative_deepening(env=env, phi_threshold=DFPN.INF, delta_threshold=DFPN.INF)',
     sort="cumtime",
 )
+
+# cProfile.run(
+#     'agent.proof_number_search()',
+#     sort="cumtime",
+# )
