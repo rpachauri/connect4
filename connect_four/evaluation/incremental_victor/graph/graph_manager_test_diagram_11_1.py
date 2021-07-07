@@ -5,7 +5,7 @@ import numpy as np
 
 from connect_four.envs import ConnectFourEnv
 from connect_four.evaluation.incremental_victor.graph.graph_manager import GraphManager
-from connect_four.evaluation.victor.solution import VictorSolutionManager
+from connect_four.evaluation.incremental_victor.solution.victor_solution_manager import VictorSolutionManager
 from connect_four.problem import ConnectFourGroupManager
 
 

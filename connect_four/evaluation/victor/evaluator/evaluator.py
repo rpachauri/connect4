@@ -37,19 +37,27 @@ def evaluate(board: Board) -> Optional[Set[Solution]]:
         if not win_conditions or solved_groups != player_groups:
             return None
 
-        node_graph = create_node_graph(solutions=all_solutions)
-
+        # node_graph = create_node_graph(solutions=all_solutions)
+        solution_to_solutions = {}
         for win_condition in win_conditions:
             disallowed_solutions = solutions_disallowed_with_win_condition(
                 solutions=all_solutions,
                 win_condition=win_condition,
             )
-            chosen_set = find_chosen_set(
-                node_graph=node_graph,
-                problems=player_groups - win_condition.groups,
+            chosen_set = find_chosen_set_dynamic_programming(
+                problem_to_solutions=group_to_solutions,
+                solution_to_solutions=solution_to_solutions,
+                all_solutions=all_solutions,
+                problems_to_solve=player_groups - win_condition.groups,
                 disallowed_solutions=disallowed_solutions,
                 used_solutions={win_condition},
             )
+            # chosen_set = find_chosen_set(
+            #     node_graph=node_graph,
+            #     problems=player_groups - win_condition.groups,
+            #     disallowed_solutions=disallowed_solutions,
+            #     used_solutions={win_condition},
+            # )
             if chosen_set is not None:
                 return chosen_set
     else:

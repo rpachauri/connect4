@@ -1,11 +1,12 @@
 from connect_four.evaluation.board import Board
+from connect_four.evaluation.depth_1_evaluator import Depth1Evaluator
 from connect_four.evaluation.victor.evaluator import evaluator
 from connect_four.envs import ConnectFourEnv
 from connect_four.evaluation import ProofStatus, NodeType
 from connect_four.evaluation.simple_evaluator import SimpleEvaluator
 
 
-class Victor(SimpleEvaluator):
+class Victor(Depth1Evaluator):
 
     def __init__(self, model: ConnectFourEnv):
         super().__init__(model=model)

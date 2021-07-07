@@ -6,7 +6,7 @@ import numpy as np
 from connect_four.envs import ConnectFourEnv
 from connect_four.evaluation.incremental_victor.graph.graph_manager import GraphManager
 from connect_four.evaluation.victor.rules import Claimeven, Vertical, Baseinverse, Before
-from connect_four.evaluation.victor.solution import VictorSolutionManager
+from connect_four.evaluation.incremental_victor.solution.victor_solution_manager import VictorSolutionManager
 from connect_four.evaluation.incremental_victor.solution import victor_solution
 from connect_four.evaluation.incremental_victor.solution.fake_solution_manager import FakeSolutionManager
 from connect_four.game import Square

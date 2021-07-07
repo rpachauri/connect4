@@ -2,11 +2,11 @@ import gym
 
 from connect_four.agents import RandomAgent
 from connect_four.evaluation.board import Board
-from connect_four.evaluation.victor.solution import VictorSolutionManager
+from connect_four.evaluation.incremental_victor.solution.victor_solution_manager import VictorSolutionManager
 
 env = gym.make('connect_four-v0')
 
-for _ in range(100):
+for _ in range(0):
     obs = env.reset()
     env.render()
 
