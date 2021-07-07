@@ -1,7 +1,7 @@
 """
 Note that in this module, we use the term "Group" and "Problem" interchangeably.
 """
-from typing import Dict, Set, Union
+from typing import Dict, Set, Union, Optional
 
 from connect_four.evaluation.victor.solution.solution1 import find_all_win_conditions
 from connect_four.game import Square
@@ -13,7 +13,7 @@ from connect_four.evaluation.victor.threat_hunter import Threat, ThreatCombinati
 from connect_four.evaluation.victor.threat_hunter import find_odd_threat, find_threat_combination
 
 
-def evaluate(board: Board) -> Set[Solution]:
+def evaluate(board: Board) -> Optional[Set[Solution]]:
     """evaluate returns an Evaluation of the given Board instance.
 
     Args:
@@ -23,35 +23,45 @@ def evaluate(board: Board) -> Set[Solution]:
         evaluation (Evaluation): an Evaluation of board.
     """
     player_groups = board.potential_groups(player=board.player)
-    all_solutions = find_all_solutions(board=board)
-    node_graph = create_node_graph(solutions=all_solutions)
+    all_solutions, solved_groups = find_all_solutions(board=board)
 
     if board.player == 1:  # Current player is Black.
         win_conditions = find_all_win_conditions(board=board)
         for win_condition in win_conditions:
-            # Only try to find a set that can solve all problems if every Problem has at least one Solution.
-            if player_groups.issubset(node_graph.keys()):
-                disallowed_solutions = solutions_disallowed_with_win_condition(
-                    solutions=all_solutions,
-                    win_condition=win_condition,
-                )
-                chosen_set = find_chosen_set(
-                    node_graph=node_graph,
-                    problems=player_groups - win_condition.groups,
-                    disallowed_solutions=disallowed_solutions,
-                    used_solutions={win_condition},
-                )
-                if chosen_set is not None:
-                    return chosen_set
-    else:
-        # Only try to find a set that can solve all problems if every Problem has at least one Solution.
-        if player_groups.issubset(node_graph.keys()):
-            return find_chosen_set(
-                node_graph=node_graph,
-                problems=player_groups,
-                disallowed_solutions=set(),
-                used_solutions=set(),
+            solved_groups.update(win_condition.groups)
+
+        # Since creating the Node Graph is expensive, we don't create it if we know there's no chance of success.
+        # If there are no win conditions, White cannot guarantee a win.
+        # If there is a single Problem that has no Solutions.
+        if not win_conditions or solved_groups != player_groups:
+            return None
+
+        node_graph = create_node_graph(solutions=all_solutions)
+
+        for win_condition in win_conditions:
+            disallowed_solutions = solutions_disallowed_with_win_condition(
+                solutions=all_solutions,
+                win_condition=win_condition,
             )
+            chosen_set = find_chosen_set(
+                node_graph=node_graph,
+                problems=player_groups - win_condition.groups,
+                disallowed_solutions=disallowed_solutions,
+                used_solutions={win_condition},
+            )
+            if chosen_set is not None:
+                return chosen_set
+    else:
+        if solved_groups != player_groups:
+            return None
+
+        node_graph = create_node_graph(solutions=all_solutions)
+        return find_chosen_set(
+            node_graph=node_graph,
+            problems=player_groups,
+            disallowed_solutions=set(),
+            used_solutions=set(),
+        )
 
 
 def create_node_graph(solutions: Set[Solution]) -> Dict[Union[Group, Solution], Set[Solution]]:
