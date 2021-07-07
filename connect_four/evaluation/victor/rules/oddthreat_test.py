@@ -4,7 +4,7 @@ import gym
 import numpy as np
 
 from connect_four.envs import ConnectFourEnv
-from connect_four.evaluation.victor.board import Board
+from connect_four.evaluation.board import Board
 from connect_four.evaluation.victor.rules import Oddthreat
 from connect_four.evaluation.victor.rules import find_all_oddthreats
 from connect_four.game import Square

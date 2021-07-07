@@ -5,7 +5,7 @@ import numpy as np
 
 from connect_four.evaluation.victor.rules.lowinverse import LowinverseManager
 from connect_four.game import Square
-from connect_four.evaluation.victor.board import Board
+from connect_four.evaluation.board import Board
 
 from connect_four.evaluation.victor.rules import Vertical
 from connect_four.evaluation.victor.rules import find_all_verticals

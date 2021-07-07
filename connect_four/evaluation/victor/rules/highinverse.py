@@ -1,7 +1,7 @@
 from typing import List, Set, Optional
 from collections import namedtuple
 
-from connect_four.evaluation.victor.board import Board
+from connect_four.evaluation.board import Board
 
 from connect_four.evaluation.victor.rules import Rule, Vertical, connection
 from connect_four.game import Square

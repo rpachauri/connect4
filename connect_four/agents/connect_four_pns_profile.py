@@ -3,9 +3,8 @@ import numpy as np
 
 import cProfile
 
-from connect_four.agents import DFPN, PNS
-from connect_four.evaluation.incremental_victor_evaluator import IncrementalVictor
-from connect_four.evaluation.victor_evaluator import Victor
+from connect_four.agents import DFPN
+from connect_four.evaluation.victor.victor_evaluator import Victor
 from connect_four.hashing import ConnectFourHasher
 from connect_four.transposition.simple_transposition_table import SimpleTranspositionTable
 

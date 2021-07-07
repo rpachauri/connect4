@@ -1,7 +1,7 @@
 from typing import Dict, Set, FrozenSet, Optional
 
 from connect_four.game import Square
-from connect_four.evaluation.victor.board import Board
+from connect_four.evaluation.board import Board
 
 from connect_four.evaluation.victor.rules import Claimeven
 from connect_four.evaluation.victor.rules import Baseinverse
@@ -77,7 +77,14 @@ class Solution:
                 self.claimeven_bottom_squares.__hash__())
 
 
-def find_all_solutions(board: Board) -> (Set[Solution], Set[Group]):
+def add_solution_to_group_to_solutions(solution: Solution, group_to_solutions: Dict[Group, Set[Solution]]):
+    for group in solution.groups:
+        if group not in group_to_solutions:
+            group_to_solutions[group] = set()
+        group_to_solutions[group].add(solution)
+
+
+def find_all_solutions(board: Board) -> (Set[Solution], Dict[Group, Set[Solution]]):
     """find_all_solutions finds all Solutions the opponent of the
     current player can employ for the given Board.
 
@@ -108,63 +115,63 @@ def find_all_solutions(board: Board) -> (Set[Solution], Set[Group]):
 
     # Convert each application of each rule into a Solution.
     solutions = set()
-    solved_groups = set()
+    group_to_solutions = {}
 
     for claimeven in claimevens:
         solution = from_claimeven(claimeven=claimeven, square_to_groups=square_to_player_groups)
         if solution is not None:
             solutions.add(solution)
-            solved_groups.update(solution.groups)
+            add_solution_to_group_to_solutions(solution=solution, group_to_solutions=group_to_solutions)
 
     for baseinverse in baseinverses:
         solution = from_baseinverse(baseinverse=baseinverse, square_to_groups=square_to_player_groups)
         if solution is not None:
             solutions.add(solution)
-            solved_groups.update(solution.groups)
+            add_solution_to_group_to_solutions(solution=solution, group_to_solutions=group_to_solutions)
 
     for vertical in verticals:
         solution = from_vertical(vertical=vertical, square_to_groups=square_to_player_groups)
         if solution is not None:
             solutions.add(solution)
-            solved_groups.update(solution.groups)
+            add_solution_to_group_to_solutions(solution=solution, group_to_solutions=group_to_solutions)
 
     for aftereven in afterevens:
         solution = from_aftereven(aftereven=aftereven, square_to_groups=square_to_player_groups)
         if solution is not None:
             solutions.add(solution)
-            solved_groups.update(solution.groups)
+            add_solution_to_group_to_solutions(solution=solution, group_to_solutions=group_to_solutions)
 
     for lowinverse in lowinverses:
         solution = from_lowinverse(lowinverse=lowinverse, square_to_groups=square_to_player_groups)
         if solution is not None:
             solutions.add(solution)
-            solved_groups.update(solution.groups)
+            add_solution_to_group_to_solutions(solution=solution, group_to_solutions=group_to_solutions)
 
     for highinverse in highinverses:
         solution = from_highinverse(highinverse=highinverse, square_to_groups=square_to_player_groups)
         if solution is not None:
             solutions.add(solution)
-            solved_groups.update(solution.groups)
+            add_solution_to_group_to_solutions(solution=solution, group_to_solutions=group_to_solutions)
 
     for baseclaim in baseclaims:
         solution = from_baseclaim(baseclaim=baseclaim, square_to_groups=square_to_player_groups)
         if solution is not None:
             solutions.add(solution)
-            solved_groups.update(solution.groups)
+            add_solution_to_group_to_solutions(solution=solution, group_to_solutions=group_to_solutions)
 
     for before in befores:
         solution = from_before(before=before, square_to_groups=square_to_player_groups)
         if solution is not None:
             solutions.add(solution)
-            solved_groups.update(solution.groups)
+            add_solution_to_group_to_solutions(solution=solution, group_to_solutions=group_to_solutions)
 
     for specialbefore in specialbefores:
         solution = from_specialbefore(specialbefore=specialbefore, square_to_groups=square_to_player_groups)
         if solution is not None:
             solutions.add(solution)
-            solved_groups.update(solution.groups)
+            add_solution_to_group_to_solutions(solution=solution, group_to_solutions=group_to_solutions)
 
-    return solutions, solved_groups
+    return solutions, group_to_solutions
 
 
 def from_claimeven(claimeven: Claimeven, square_to_groups) -> Solution:

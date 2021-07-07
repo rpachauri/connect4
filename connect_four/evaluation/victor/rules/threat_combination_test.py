@@ -4,7 +4,7 @@ import gym
 import numpy as np
 
 from connect_four.envs import ConnectFourEnv
-from connect_four.evaluation.victor.board import Board
+from connect_four.evaluation.board import Board
 from connect_four.evaluation.victor.rules import ThreatCombination
 from connect_four.evaluation.victor.rules.threat_combination import ThreatCombinationType, find_all_threat_combinations
 from connect_four.game import Square

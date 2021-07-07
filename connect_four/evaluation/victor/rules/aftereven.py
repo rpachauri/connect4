@@ -3,7 +3,7 @@ from typing import List, Set, Optional
 from connect_four.evaluation.victor.rules import Rule, Claimeven
 from connect_four.game import Square
 from connect_four.problem import Group, GroupDirection
-from connect_four.evaluation.victor.board import Board
+from connect_four.evaluation.board import Board
 
 import warnings
 

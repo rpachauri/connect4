@@ -6,7 +6,7 @@ import numpy as np
 from connect_four.evaluation.victor.rules.aftereven import AfterevenManager
 from connect_four.game import Square
 from connect_four.problem import Group
-from connect_four.evaluation.victor.board import Board
+from connect_four.evaluation.board import Board
 from connect_four.evaluation.victor.rules import Claimeven
 from connect_four.evaluation.victor.rules import Aftereven
 from connect_four.evaluation.victor.rules import find_all_afterevens

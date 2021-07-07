@@ -6,7 +6,7 @@ from typing import Dict, Set, Union, Optional
 from connect_four.evaluation.victor.solution.solution1 import find_all_win_conditions
 from connect_four.game import Square
 from connect_four.problem import Group
-from connect_four.evaluation.victor.board import Board
+from connect_four.evaluation.board import Board
 from connect_four.evaluation.victor.solution import find_all_solutions, Solution
 from connect_four.evaluation.victor.solution import combination
 from connect_four.evaluation.victor.threat_hunter import Threat, ThreatCombination, ThreatCombinationType
@@ -23,7 +23,8 @@ def evaluate(board: Board) -> Optional[Set[Solution]]:
         evaluation (Evaluation): an Evaluation of board.
     """
     player_groups = board.potential_groups(player=board.player)
-    all_solutions, solved_groups = find_all_solutions(board=board)
+    all_solutions, group_to_solutions = find_all_solutions(board=board)
+    solved_groups = set(group_to_solutions.keys())
 
     if board.player == 1:  # Current player is Black.
         win_conditions = find_all_win_conditions(board=board)
@@ -55,13 +56,22 @@ def evaluate(board: Board) -> Optional[Set[Solution]]:
         if solved_groups != player_groups:
             return None
 
-        node_graph = create_node_graph(solutions=all_solutions)
-        return find_chosen_set(
-            node_graph=node_graph,
-            problems=player_groups,
+        return find_chosen_set_dynamic_programming(
+            problem_to_solutions=group_to_solutions,
+            solution_to_solutions={},
+            all_solutions=all_solutions,
+            problems_to_solve=player_groups,
             disallowed_solutions=set(),
             used_solutions=set(),
         )
+
+        # node_graph = create_node_graph(solutions=all_solutions)
+        # return find_chosen_set(
+        #     node_graph=node_graph,
+        #     problems=player_groups,
+        #     disallowed_solutions=set(),
+        #     used_solutions=set(),
+        # )
 
 
 def create_node_graph(solutions: Set[Solution]) -> Dict[Union[Group, Solution], Set[Solution]]:
@@ -139,6 +149,77 @@ def find_chosen_set(
 
         if chosen_set is not None:
             return chosen_set
+
+
+def find_chosen_set_dynamic_programming(
+        problem_to_solutions: Dict[Group, Set[Solution]],
+        solution_to_solutions: Dict[Solution, Set[Solution]],
+        all_solutions: Set[Solution],
+        problems_to_solve: Set[Group],
+        disallowed_solutions: Set[Solution],
+        used_solutions: Set[Solution]) -> Set[Solution]:
+    # Base Case.
+    if not problems_to_solve:
+        # If there are no problems, return the set of Solutions are currently using.
+        return used_solutions.copy()
+
+    # Recursive Case.
+    most_difficult_problem = problem_with_fewest_solutions(
+        problem_to_solutions=problem_to_solutions,
+        problems_to_solve=problems_to_solve,
+        disallowed_solutions=disallowed_solutions,
+    )
+    usable_solutions = problem_to_solutions[most_difficult_problem].difference(disallowed_solutions)
+
+    for solution in usable_solutions:
+        if solution not in solution_to_solutions:
+            solution_to_solutions[solution] = find_disallowed_solutions(solution=solution, solutions=all_solutions)
+
+        # Choose.
+        used_solutions.add(solution)
+        # Recurse.
+        chosen_set = find_chosen_set_dynamic_programming(
+            problem_to_solutions=problem_to_solutions,
+            solution_to_solutions=solution_to_solutions,
+            all_solutions=all_solutions,
+            problems_to_solve=problems_to_solve - solution.groups,
+            disallowed_solutions=disallowed_solutions.union(solution_to_solutions[solution]),
+            used_solutions=used_solutions,
+        )
+        # Unchoose.
+        used_solutions.remove(solution)
+
+        if chosen_set is not None:
+            return chosen_set
+
+
+def problem_with_fewest_solutions(
+        problem_to_solutions: Dict[Group, Set[Solution]],
+        problems_to_solve: Set[Group],
+        disallowed_solutions: Set[Solution]) -> Group:
+    # If there's a single Problem in problems_to_solve not in problem_to_solutions, there's an issue.
+    if not problems_to_solve.issubset(problem_to_solutions.keys()):
+        raise ValueError("No problem in problems and node_graph")
+
+    most_difficult_problem = None
+    num_solutions_of_most_difficult = 100000  # Set to an arbitrary high number.
+
+    # Find the Problem in problems_to_solve with the fewest Solutions in problem_to_solutions.
+    for problem in problems_to_solve:
+        num_nodes = len(problem_to_solutions[problem].difference(disallowed_solutions))
+        if num_nodes < num_solutions_of_most_difficult:
+            most_difficult_problem = problem
+            num_solutions_of_most_difficult = num_nodes
+
+    return most_difficult_problem
+
+
+def find_disallowed_solutions(solution: Solution, solutions: Set[Solution]) -> Set[Solution]:
+    disallowed_with_solution = set()
+    for other_solution in solutions:
+        if not combination.allowed(s1=solution, s2=other_solution):
+            disallowed_with_solution.add(other_solution)
+    return disallowed_with_solution
 
 
 def node_with_least_number_of_neighbors(

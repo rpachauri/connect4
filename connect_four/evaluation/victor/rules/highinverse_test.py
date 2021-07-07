@@ -6,7 +6,7 @@ import numpy as np
 from connect_four.evaluation.victor.rules.highinverse import HighinverseManager, HighinverseColumn, \
     highinverses_given_column
 from connect_four.game import Square
-from connect_four.evaluation.victor.board import Board
+from connect_four.evaluation.board import Board
 
 from connect_four.evaluation.victor.rules import Highinverse
 from connect_four.evaluation.victor.rules import find_all_highinverses_using_highinverse_columns

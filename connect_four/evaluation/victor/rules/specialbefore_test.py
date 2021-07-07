@@ -7,7 +7,7 @@ from connect_four.evaluation.victor.rules.before import BeforeManager
 from connect_four.evaluation.victor.rules.specialbefore import SpecialbeforeManager
 from connect_four.game import Square
 from connect_four.problem import Group
-from connect_four.evaluation.victor.board import Board
+from connect_four.evaluation.board import Board
 
 from connect_four.evaluation.victor.rules import Claimeven
 from connect_four.evaluation.victor.rules import Vertical

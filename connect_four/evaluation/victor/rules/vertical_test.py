@@ -5,7 +5,7 @@ import numpy as np
 
 from connect_four.evaluation.victor.rules.vertical import VerticalManager
 from connect_four.game import Square
-from connect_four.evaluation.victor.board import Board
+from connect_four.evaluation.board import Board
 from connect_four.evaluation.victor.rules import Vertical
 from connect_four.evaluation.victor.rules import find_all_verticals
 from connect_four.envs.connect_four_env import ConnectFourEnv

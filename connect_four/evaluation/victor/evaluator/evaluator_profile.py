@@ -3,9 +3,8 @@ import numpy as np
 
 import cProfile
 
-from connect_four.evaluation.victor.board import Board
+from connect_four.evaluation.board import Board
 from connect_four.envs.connect_four_env import ConnectFourEnv
-from connect_four.evaluation.victor.evaluator import evaluator
 
 env = gym.make('connect_four-v0')
 ConnectFourEnv.M = 6
