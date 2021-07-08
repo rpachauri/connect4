@@ -59,9 +59,9 @@ class ConnectFourHasher(Hasher):
             hash (str): a unique hash of the current state.
                         The encoding is a perfect hash (meaning there will be no collisions).
         """
-        transposition_arr = hasher_hash_utils.convert_square_types_to_transposition_arr(
+        transposition_arr = np.flipud(m=hasher_hash_utils.convert_square_types_to_transposition_arr(
             square_types=self.stm.square_types,
-        )
+        ))
         transposition = hasher_hash_utils.get_transposition(transposition_arr=transposition_arr)
         flipped = np.fliplr(m=transposition_arr)
         flipped_transposition = hasher_hash_utils.get_transposition(transposition_arr=flipped)
