@@ -478,6 +478,31 @@ class TestEvaluator6x7(unittest.TestCase):
         got_evaluation = evaluator.evaluate(board=board)
         self.assertIsNone(got_evaluation)
 
+    def test_evaluate_random_diagram(self):
+        # This test case is based on a child state of Diagram 13.6.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 1, 0, 0, 0, 0, 0, ],
+                [0, 1, 1, 1, 0, 0, 0, ],
+                [0, 1, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 1, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 1, 1, 0, 1, 0, ],
+                [0, 1, 0, 0, 0, 1, 0, ],
+            ],
+        ])
+        self.env.player_turn = 1  # Black to move.
+        board = Board(self.env.env_variables)
+        got_evaluation = evaluator.evaluate(board=board)
+        self.assertIsNone(got_evaluation)
+
 
 if __name__ == '__main__':
     unittest.main()

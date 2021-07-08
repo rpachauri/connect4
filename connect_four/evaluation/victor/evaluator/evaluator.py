@@ -28,18 +28,18 @@ def evaluate(board: Board) -> Optional[Set[Solution]]:
 
     if board.player == 1:  # Current player is Black.
         win_conditions = find_all_win_conditions(board=board)
-        for win_condition in win_conditions:
-            solved_groups.update(win_condition.groups)
 
         # Since creating the Node Graph is expensive, we don't create it if we know there's no chance of success.
         # If there are no win conditions, White cannot guarantee a win.
-        # If there is a single Problem that has no Solutions.
-        if not win_conditions or solved_groups != player_groups:
+        if not win_conditions:
             return None
 
-        # node_graph = create_node_graph(solutions=all_solutions)
         solution_to_solutions = {}
         for win_condition in win_conditions:
+            # If there is a single Problem that has no Solution, don't consider this win_condition.
+            # Note that we don't combine Problems from different win conditions since win conditions cannot be combined.
+            if solved_groups.union(win_condition.groups) != player_groups:
+                continue
             disallowed_solutions = solutions_disallowed_with_win_condition(
                 solutions=all_solutions,
                 win_condition=win_condition,
