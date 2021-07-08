@@ -25,7 +25,18 @@ class DFPN(Agent):
         Returns:
             status (ProofStatus): the ProofStatus (Proven or Disproven) of the state env is currently in.
         """
-        pass
+        phi, delta = self.multiple_iterative_deepening(env=env, phi_threshold=DFPN.INF, delta_threshold=DFPN.INF)
+        node_type = self.evaluator.get_node_type()
+        if node_type == NodeType.OR:
+            if phi == 0:
+                return ProofStatus.Proven
+            else:
+                return ProofStatus.Disproven
+        else:  # node_type == NodeType.AND:
+            if phi == 0:
+                return ProofStatus.Disproven
+            else:
+                return ProofStatus.Proven
 
     def multiple_iterative_deepening(self, env: TwoPlayerGameEnv,
                                      phi_threshold: int, delta_threshold: int) -> (int, int):
@@ -68,8 +79,8 @@ class DFPN(Agent):
             self.hasher.undo_move()
 
             phi, delta = self.calculate_phi_delta()
-            # print("phi =", phi)
-            # print("delta =", delta)
+            print("phi =", phi)
+            print("delta =", delta)
 
         transposition = self.hasher.hash()
         self.tt.save(transposition=transposition, phi=phi, delta=delta)
@@ -103,7 +114,7 @@ class DFPN(Agent):
             transposition = self.hasher.hash()
 
             if status != ProofStatus.Unknown:
-                phi, delta = self.determine_phi_delta(node_type=self.evaluator.node_type, status=status)
+                phi, delta = self.determine_phi_delta(node_type=self.evaluator.get_node_type(), status=status)
                 self.tt.save(transposition=transposition, phi=phi, delta=delta)
             elif transposition not in self.tt:  # ProofStatus is unknown and the state isn't already in the TT.
                 self.tt.save(transposition=transposition, phi=1, delta=1)
