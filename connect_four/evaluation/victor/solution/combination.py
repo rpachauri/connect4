@@ -1,5 +1,5 @@
 from connect_four.evaluation.victor.rules import Claimeven, Baseinverse, Vertical, Aftereven, Baseclaim, Before, \
-    Specialbefore, Lowinverse, Highinverse, Oddthreat
+    Specialbefore, Lowinverse, Highinverse, Oddthreat, ThreatCombination
 from connect_four.evaluation.victor.solution import Solution
 
 
@@ -13,11 +13,11 @@ def allowed(s1: Solution, s2: Solution) -> bool:
     Returns:
         combination_allowed (bool): True if the two Solutions can be combined; Otherwise, False.
     """
-    # If either Solution is an Oddthreat.
-    if isinstance(s1.rule_instance, Oddthreat):
-        return allowed_with_odd_threat(solution=s1, other=s2)
-    if isinstance(s2.rule_instance, Oddthreat):
-        return allowed_with_odd_threat(solution=s2, other=s1)
+    # If either Solution is an Oddthreat or ThreatCombination.
+    if isinstance(s1.rule_instance, (Oddthreat, ThreatCombination)):
+        return allowed_with_odd_threat_or_threat_combination(solution=s1, other=s2)
+    if isinstance(s2.rule_instance, (Oddthreat, ThreatCombination)):
+        return allowed_with_odd_threat_or_threat_combination(solution=s2, other=s1)
 
     # If either Solution is a Claimeven.
     if isinstance(s1.rule_instance, Claimeven):
@@ -145,16 +145,17 @@ def column_wise_disjoint_or_equal(solution: Solution, other: Solution) -> bool:
     return True
 
 
-def allowed_with_odd_threat(solution: Solution, other: Solution) -> bool:
+def allowed_with_odd_threat_or_threat_combination(solution: Solution, other: Solution) -> bool:
     """Returns True if other can be combined with solution; Otherwise, False.
 
     Args:
-        solution (Solution): a Solution with rule=Rule.Claimeven.
+        solution (Solution): a Solution with rule=Rule.Oddthreat or rule=Rule.ThreatCombination.
         other (Solution): a Solution.
 
     Requires:
-        1. solution must have rule=Rule.Claimeven.
+        1. solution must have rule=Rule.Oddthreat or rule=Rule.ThreatCombination.
         2. other must have rule be one of the following:
+            -   Rule.ThreatCombination
             -   Rule.Oddthreat
             -   Rule.Claimeven
             -   Rule.Baseinverse
@@ -169,8 +170,8 @@ def allowed_with_odd_threat(solution: Solution, other: Solution) -> bool:
     Returns:
         combination_allowed (bool): True if other can be combined with solution; Otherwise, False.
     """
-    # No Oddthreat can be combined with another Oddthreat.
-    if isinstance(other.rule_instance, Oddthreat):
+    # No Oddthreat can be combined with another Oddthreat or a ThreatCombination.
+    if isinstance(other.rule_instance, (Oddthreat, ThreatCombination)):
         return False
 
     # OddThreats cannot be combined with any other Solution that uses a square in the same column.

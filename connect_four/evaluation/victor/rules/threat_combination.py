@@ -77,6 +77,12 @@ class ThreatCombination(Rule):
             return self.even_square
         return self.odd_square
 
+    def solves(self, group: Group) -> bool:
+        pass
+
+    def is_useful(self, groups: Set[Group]) -> bool:
+        pass
+
     def find_problems_solved(self, groups_by_square_by_player: List[List[List[Set[Group]]]]) -> Set[Group]:
         """Finds all Problems this Rule solves.
 
