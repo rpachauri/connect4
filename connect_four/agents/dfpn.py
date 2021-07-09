@@ -1,3 +1,4 @@
+
 from connect_four.agents.agent import Agent
 from connect_four.envs import TwoPlayerGameEnv
 from connect_four.evaluation import ProofStatus, NodeType, Evaluator
@@ -79,8 +80,6 @@ class DFPN(Agent):
             self.hasher.undo_move()
 
             phi, delta = self.calculate_phi_delta()
-            print("phi =", phi)
-            print("delta =", delta)
 
         transposition = self.hasher.hash()
         self.tt.save(transposition=transposition, phi=phi, delta=delta)

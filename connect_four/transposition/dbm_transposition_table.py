@@ -1,9 +1,12 @@
+import dbm
+
 from connect_four.transposition import TranspositionTable
 
 
-class SimpleTranspositionTable(TranspositionTable):
-    def __init__(self):
-        self.transposition_to_phi_delta_numbers = {}
+class DBMTranspositionTable(TranspositionTable):
+    def __init__(self, phi_file: str, delta_file: str):
+        self.phi_db = dbm.open(phi_file, "c")
+        self.delta_db = dbm.open(delta_file, "c")
 
     def save(self, transposition: str, phi: int, delta: int):
         """Saves state with the given phi and delta numbers. Overwrites the phi/delta numbers if
@@ -14,7 +17,10 @@ class SimpleTranspositionTable(TranspositionTable):
             phi (int): the phi number of the state to save.
             delta: the delta number of the state to save.
         """
-        self.transposition_to_phi_delta_numbers[transposition] = (phi, delta)
+        phi_bytes = phi.to_bytes(length=8, byteorder="big", signed=False)
+        self.phi_db[transposition] = phi_bytes
+        delta_bytes = delta.to_bytes(length=8, byteorder="big", signed=False)
+        self.delta_db[transposition] = delta_bytes
 
     def retrieve(self, transposition: str) -> (int, int):
         """
@@ -28,7 +34,9 @@ class SimpleTranspositionTable(TranspositionTable):
             phi (int): the phi number of the state to retrieve.
             delta: the delta number of the state to retrieve.
         """
-        return self.transposition_to_phi_delta_numbers[transposition]
+        phi = int.from_bytes(bytes=self.phi_db[transposition], byteorder="big", signed=False)
+        delta = int.from_bytes(bytes=self.delta_db[transposition], byteorder="big", signed=False)
+        return phi, delta
 
     def __contains__(self, item):
         """
@@ -39,4 +47,4 @@ class SimpleTranspositionTable(TranspositionTable):
         Returns:
             contained (bool): true if transposition is contained in this TranspositionTable; otherwise, false.
         """
-        return item in self.transposition_to_phi_delta_numbers
+        return item in self.phi_db
