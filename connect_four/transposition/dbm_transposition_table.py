@@ -48,3 +48,7 @@ class DBMTranspositionTable(TranspositionTable):
             contained (bool): true if transposition is contained in this TranspositionTable; otherwise, false.
         """
         return item in self.phi_db
+
+    def close(self):
+        self.phi_db.close()
+        self.delta_db.close()

@@ -40,3 +40,6 @@ class SimpleTranspositionTable(TranspositionTable):
             contained (bool): true if transposition is contained in this TranspositionTable; otherwise, false.
         """
         return item in self.transposition_to_phi_delta_numbers
+
+    def close(self):
+        pass

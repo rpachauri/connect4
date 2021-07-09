@@ -38,3 +38,7 @@ class TranspositionTable(ABC):
             contained (bool): true if the state is contained in this TranspositionTable; otherwise, false.
         """
         pass
+
+    @abstractmethod
+    def close(self):
+        pass
