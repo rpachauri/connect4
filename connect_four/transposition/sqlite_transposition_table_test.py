@@ -56,6 +56,28 @@ class TestSQLiteTranspositionTable(unittest.TestCase):
         self.assertEqual(want_phi, got_phi)
         self.assertEqual(want_delta, got_delta)
 
+    def test_close_and_reload(self):
+        self.env.state = np.array([
+            [
+                [0, 0, 0, ],
+                [0, 0, 0, ],
+                [0, 0, 0, ],
+            ],
+            [
+                [0, 0, 0, ],
+                [0, 0, 0, ],
+                [0, 0, 0, ],
+            ],
+        ])
+        transposition = TicTacToeHasher(self.env).hash()
+        tt = SQLiteTranspositionTable(database_file="sqlite_test.db")
+        tt.save(transposition=transposition, phi=1, delta=1)
+        tt.close()
+
+        tt2 = SQLiteTranspositionTable(database_file="sqlite_test.db")
+        self.assertIn(transposition, tt2)
+        tt2.close()
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -4,6 +4,8 @@ from connect_four.transposition import TranspositionTable
 
 
 class SQLiteTranspositionTable(TranspositionTable):
+    COMMIT_FREQUENCY = 100000
+
     def __init__(self, database_file: str):
         self.con = sqlite3.connect(database=database_file)
         self.cursor = self.con.cursor()
@@ -14,6 +16,7 @@ class SQLiteTranspositionTable(TranspositionTable):
             Delta INTEGER
         )"""
         self.cursor.execute(create_phi_delta_table_sql)
+        self.num_insert_or_updates = 0
 
     def save(self, transposition: str, phi: int, delta: int):
         """Saves state with the given phi and delta numbers. Overwrites the phi/delta numbers if
@@ -30,6 +33,11 @@ class SQLiteTranspositionTable(TranspositionTable):
         else:
             update_sql = """UPDATE PhiDelta SET Phi = ?, Delta = ? WHERE Transposition = ?"""
             self.cursor.execute(update_sql, (phi, delta, transposition))
+
+        self.num_insert_or_updates += 1
+        if self.num_insert_or_updates >= SQLiteTranspositionTable.COMMIT_FREQUENCY:
+            self.con.commit()
+            self.num_insert_or_updates = 0
 
     def retrieve(self, transposition: str) -> (int, int):
         """
@@ -61,5 +69,6 @@ class SQLiteTranspositionTable(TranspositionTable):
         return self.cursor.fetchone() is not None
 
     def close(self):
+        self.con.commit()
         self.cursor.close()
         self.con.close()
