@@ -10,7 +10,7 @@ from connect_four.transposition.sqlite_transposition_table import SQLiteTranspos
 
 env = gym.make('connect_four-v0')
 
-env.reset(env_variables=difficult_connect_four_positions.diagram_13_14)
+env.reset()
 
 evaluator = Victor(model=env)
 hasher = ConnectFourHasher(env=env)

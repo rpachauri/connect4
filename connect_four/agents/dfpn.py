@@ -80,6 +80,8 @@ class DFPN(Agent):
             self.hasher.undo_move()
 
             phi, delta = self.calculate_phi_delta()
+            print("phi = ", phi)
+            print("delta = ", delta)
 
         transposition = self.hasher.hash()
         self.tt.save(transposition=transposition, phi=phi, delta=delta)
@@ -107,18 +109,20 @@ class DFPN(Agent):
 
     def generate_children(self):
         for action in self.evaluator.actions():
-            self.evaluator.move(action=action)
             self.hasher.move(action=action)
-            status = self.evaluator.evaluate()
             transposition = self.hasher.hash()
 
-            if status != ProofStatus.Unknown:
-                phi, delta = self.determine_phi_delta(node_type=self.evaluator.get_node_type(), status=status)
-                self.tt.save(transposition=transposition, phi=phi, delta=delta)
-            elif transposition not in self.tt:  # ProofStatus is unknown and the state isn't already in the TT.
-                self.tt.save(transposition=transposition, phi=1, delta=1)
+            if transposition not in self.tt:
+                self.evaluator.move(action=action)
+                status = self.evaluator.evaluate()
 
-            self.evaluator.undo_move()
+                if status != ProofStatus.Unknown:
+                    phi, delta = self.determine_phi_delta(node_type=self.evaluator.get_node_type(), status=status)
+                    self.tt.save(transposition=transposition, phi=phi, delta=delta)
+                else:  # ProofStatus is unknown and the state isn't already in the TT.
+                    self.tt.save(transposition=transposition, phi=1, delta=1)
+
+                self.evaluator.undo_move()
             self.hasher.undo_move()
 
     def calculate_phi_delta(self) -> (int, int):
