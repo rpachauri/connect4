@@ -1,4 +1,3 @@
-
 from connect_four.agents.agent import Agent
 from connect_four.envs import TwoPlayerGameEnv
 from connect_four.evaluation import ProofStatus, NodeType, Evaluator
@@ -55,7 +54,6 @@ class DFPN(Agent):
             delta (int): the most recent delta number of the state at env.
         """
         env_variables = env.env_variables
-        # state = env_variables[0]
 
         self.generate_children()
         phi, delta = self.calculate_phi_delta()
@@ -80,8 +78,8 @@ class DFPN(Agent):
             self.hasher.undo_move()
 
             phi, delta = self.calculate_phi_delta()
-            print("phi = ", phi)
-            print("delta = ", delta)
+            print("phi =", phi)
+            print("delta =", delta)
 
         transposition = self.hasher.hash()
         self.tt.save(transposition=transposition, phi=phi, delta=delta)
@@ -169,12 +167,10 @@ class DFPN(Agent):
         second_best_child_delta = DFPN.INF
         best_child_delta = DFPN.INF
 
-        env_variables = env.env_variables
         for action in env.actions():
-            obs, _, _, _ = env.step(action=action)
             self.hasher.move(action=action)
-
-            child_phi, child_delta = self.tt.retrieve(transposition=self.hasher.hash())
+            transposition = self.hasher.hash()
+            child_phi, child_delta = self.tt.retrieve(transposition=transposition)
             if child_delta < best_child_delta:
                 best_action = action
                 best_child_phi = child_phi
@@ -183,7 +179,6 @@ class DFPN(Agent):
             elif child_delta < second_best_child_delta:
                 second_best_child_delta = child_delta
 
-            env.reset(env_variables=env_variables)
             self.hasher.undo_move()
 
         return best_action, best_child_phi, second_best_child_delta
@@ -200,4 +195,14 @@ class DFPN(Agent):
         Returns:
             best_action (int): an action.
         """
-        pass
+        if last_action is not None:
+            self.evaluator.move(action=last_action)
+            self.hasher.move(action=last_action)
+
+        self.depth_first_proof_number_search(env=env)
+        best_action, _, _ = self.select_child(env=env)
+
+        self.evaluator.move(action=best_action)
+        self.hasher.move(action=best_action)
+
+        return best_action
