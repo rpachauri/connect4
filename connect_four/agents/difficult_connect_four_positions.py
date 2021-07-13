@@ -30,6 +30,28 @@ diagram_11_1 = TwoPlayerGameEnvVariables(
 # For each section, positions are sorted in ascending order by estimated difficulty.
 
 # From Section 13.2, these are the promising positions for proving d1, d2.
+# Disprove this position.
+diagram_13_6_b3 = TwoPlayerGameEnvVariables(
+    state=np.array([
+        [
+            [0, 0, 0, 0, 0, 0, 0, ],
+            [0, 0, 0, 1, 0, 0, 0, ],
+            [0, 0, 0, 0, 0, 0, 0, ],
+            [0, 0, 0, 1, 0, 0, 0, ],
+            [0, 1, 0, 0, 0, 0, 0, ],
+            [0, 0, 0, 1, 0, 0, 0, ],
+        ],
+        [
+            [0, 0, 0, 0, 0, 0, 0, ],
+            [0, 0, 0, 0, 0, 0, 0, ],
+            [0, 0, 0, 1, 0, 0, 0, ],
+            [0, 1, 0, 0, 0, 0, 0, ],
+            [0, 0, 0, 1, 0, 0, 0, ],
+            [0, 1, 0, 0, 0, 0, 0, ],
+        ],
+    ]),
+    player_turn=0,
+)
 diagram_13_6 = TwoPlayerGameEnvVariables(
     state=np.array([
         [
