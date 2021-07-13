@@ -180,6 +180,33 @@ class TestThreatCombination(unittest.TestCase):
         )
         self.assertEqual(want_problems_solved, got_problems_solved)
 
+    def test_exclude_directly_playable_shared_square(self):
+        # If the crossing square is directly playable, the ThreatCombination should not be created.
+        # Note that if a ThreatCombination using [(3,3)-(0,6)] and [(1,3)-(1,6)] cannot be created because
+        # the shared square (1, 5) is directly playable.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 1, 0, 0, ],
+                [0, 1, 0, 0, 1, 1, 0, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+                [0, 0, 1, 0, 1, 1, 0, ],
+                [0, 0, 1, 1, 0, 1, 0, ],
+            ],
+            [
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 1, 0, 0, 0, 0, ],
+                [0, 0, 1, 1, 0, 0, 0, ],
+                [0, 1, 0, 0, 1, 1, 0, ],
+                [0, 1, 0, 1, 0, 0, 0, ],
+                [1, 1, 0, 0, 1, 0, 0, ],
+            ],
+        ])
+        self.env.player_turn = 1
+        board = Board(self.env.env_variables)
+        got_threat_combinations = find_all_threat_combinations(board=board)
+        self.assertFalse(got_threat_combinations)
+
 
 if __name__ == '__main__':
     unittest.main()

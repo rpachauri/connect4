@@ -254,9 +254,13 @@ def create_threat_combination(
         odd_group: OddGroup,
         directly_playable_squares: Set[Square]) -> Optional[ThreatCombination]:
     odd_unshared_square = get_odd_unshared_square(even_group=even_group, odd_group=odd_group)
+    shared_square = even_group.odd_square
     if odd_unshared_square is None:
         return None
     if even_group.even_square.col != odd_unshared_square.col:
+        return None
+    # If the shared square is directly playable, return None.
+    if shared_square in directly_playable_squares:
         return None
 
     if even_group.even_square.row - odd_unshared_square.row == -1:
@@ -280,7 +284,7 @@ def create_threat_combination(
     return ThreatCombination(
         even_group=even_group.group,
         odd_group=odd_group.group,
-        shared_square=even_group.odd_square,
+        shared_square=shared_square,
         even_square=even_group.even_square,
         odd_square=odd_unshared_square,
         directly_playable_square_shared_col=directly_playable_square_shared_col,
