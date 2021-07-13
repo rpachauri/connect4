@@ -503,6 +503,33 @@ class TestEvaluator6x7(unittest.TestCase):
         got_evaluation = evaluator.evaluate(board=board)
         self.assertIsNone(got_evaluation)
 
+    def test_evaluate_cannot_refute_group_containing_square_below_shared_square(self):
+        # In this position, White has a Threat Combination containing the even group (3,3)-(0,6) and
+        # the odd group (1,3)-(1,6). This means the shared square is at (1,5).
+        # However, there is no way to refute Black's group at (5,2)-(2,5) (i.e. c1-f4).
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 1, 0, 0, ],
+                [0, 1, 0, 0, 1, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 1, 0, 0, 0, 1, 0, ],
+                [0, 0, 0, 1, 0, 1, 0, ],
+            ],
+            [
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 1, 0, 0, 1, 0, 0, ],
+                [0, 0, 0, 1, 1, 0, 0, ],
+                [0, 1, 0, 0, 1, 0, 0, ],
+            ],
+        ])
+        self.env.player_turn = 1  # Black to move.
+        board = Board(self.env.env_variables)
+        got_evaluation = evaluator.evaluate(board=board)
+        self.assertIsNone(got_evaluation)
+
 
 if __name__ == '__main__':
     unittest.main()

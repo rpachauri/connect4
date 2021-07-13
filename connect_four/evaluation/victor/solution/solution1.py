@@ -747,7 +747,7 @@ def no_odd_squares_in_crossing_column(
     problems_solved = set()
 
     # Add Groups containing any odd Square in the crossing column that are not directly playable.
-    for row in range(0, threat_combination.directly_playable_square_shared_col.row, 2):
+    for row in range(1, threat_combination.directly_playable_square_shared_col.row, 2):
         square = Square(row=row, col=threat_combination.shared_square.col)
         problems_solved.update(square_to_groups[square])
 

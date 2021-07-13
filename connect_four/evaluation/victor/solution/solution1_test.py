@@ -4,11 +4,12 @@ import unittest
 import numpy as np
 
 from connect_four.evaluation.victor.rules.highinverse import HighinverseColumn
+from connect_four.evaluation.victor.rules.threat_combination import ThreatCombinationType
 from connect_four.game import Square
 from connect_four.problem import Group
 from connect_four.evaluation.board import Board
 
-from connect_four.evaluation.victor.rules import Claimeven
+from connect_four.evaluation.victor.rules import Claimeven, ThreatCombination
 from connect_four.evaluation.victor.rules import Baseinverse
 from connect_four.evaluation.victor.rules import Vertical
 from connect_four.evaluation.victor.rules import Aftereven
@@ -613,6 +614,48 @@ class TestSolution1(unittest.TestCase):
             square_to_groups=square_to_groups,
         )
         self.assertIsNone(got_solution)
+
+    def test_no_odd_squares_in_crossing_column(self):
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 1, 0, 0, ],
+                [0, 1, 0, 0, 1, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 1, 0, 0, 0, 1, 0, ],
+                [0, 0, 0, 1, 0, 1, 0, ],
+            ],
+            [
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 1, 0, 0, 1, 0, 0, ],
+                [0, 0, 0, 1, 1, 0, 0, ],
+                [0, 1, 0, 0, 1, 0, 0, ],
+            ],
+        ])
+        self.env.player_turn = 1  # Black to move.
+        board = Board(self.env.env_variables)
+        square_to_groups = board.potential_groups_by_square()
+
+        even_group = Group(player=0, start=Square(row=3, col=3), end=Square(row=0, col=6))  # d3-g6
+        odd_group = Group(player=0, start=Square(row=1, col=3), end=Square(row=1, col=6))  # d5-g5
+        threat_combination_d3g6_d5g5 = ThreatCombination(
+            even_group=even_group,
+            odd_group=odd_group,
+            shared_square=Square(row=1, col=5),  # f5
+            even_square=Square(row=0, col=6),  # g6
+            odd_square=Square(row=1, col=6),  # g5
+            directly_playable_square_shared_col=Square(row=3, col=5),  # f3
+            directly_playable_square_stacked_col=Square(row=5, col=6),  # g1
+            threat_combination_type=ThreatCombinationType.EvenAboveOdd,
+        )
+        got_solution = solution1.from_even_above_odd_threat_combination(
+            threat_combination=threat_combination_d3g6_d5g5,
+            square_to_groups=square_to_groups,
+        )
+        group_c1_f4 = Group(player=1, start=Square(row=5, col=2), end=Square(row=2, col=5))  # c1-f4
+        self.assertNotIn(group_c1_f4, got_solution.groups)
 
 
 if __name__ == '__main__':
