@@ -823,7 +823,7 @@ def vertical_groups_in_stacked_column(
     # In the stacked column, add Groups containing two Squares on top of each other
     # up to and including the odd square in that column.
     # If a baseinverse is applied for the ThreatCombination, this observation starts one square higher.
-    for lower_row in range(threat_combination.odd_square.row + 1,
+    for lower_row in range(threat_combination.odd_square.row,
                            threat_combination.directly_playable_square_stacked_col.row - baseinverse_applied + 1):
         upper = Square(row=lower_row - 1, col=threat_combination.odd_square.col)
         lower = Square(row=lower_row, col=threat_combination.odd_square.col)

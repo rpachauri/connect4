@@ -657,6 +657,53 @@ class TestSolution1(unittest.TestCase):
         group_c1_f4 = Group(player=1, start=Square(row=5, col=2), end=Square(row=2, col=5))  # c1-f4
         self.assertNotIn(group_c1_f4, got_solution.groups)
 
+    def test_vertical_groups_in_stacked_column(self):
+        # This test case is based on Diagram 8.3.
+        # Black is to move and White has a ThreatCombination at d1-g4 and d3-g3.
+        self.env.state = np.array([
+            [
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 1, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 1, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 1, ],
+            ],
+            [
+                [0, 0, 0, 1, 1, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 1, 0, 0, ],
+                [0, 0, 0, 0, 0, 0, 0, ],
+                [0, 0, 0, 1, 0, 0, 0, ],
+                [0, 0, 0, 0, 1, 0, 0, ],
+            ],
+        ])
+        self.env.player_turn = 1  # Black to move.
+        board = Board(self.env.env_variables)
+        square_to_groups = board.potential_groups_by_square()
+
+        even_group = Group(player=0, start=Square(row=5, col=3), end=Square(row=2, col=6))  # d1-g4
+        odd_group = Group(player=0, start=Square(row=3, col=3), end=Square(row=3, col=6))  # d3-g3
+        threat_combination_d1g4_d3g3 = ThreatCombination(
+            even_group=even_group,
+            odd_group=odd_group,
+            shared_square=Square(row=3, col=5),  # f3
+            even_square=Square(row=2, col=6),  # g4
+            odd_square=Square(row=3, col=6),  # g3
+            directly_playable_square_shared_col=Square(row=5, col=5),  # f1
+            directly_playable_square_stacked_col=Square(row=4, col=6),  # g2
+            threat_combination_type=ThreatCombinationType.EvenAboveOdd,
+        )
+        got_solution = solution1.from_even_above_odd_threat_combination(
+            threat_combination=threat_combination_d1g4_d3g3,
+            square_to_groups=square_to_groups,
+        )
+        # As stated at the end of Section 8.3 of the original paper, White "gets one out of every two squares
+        # in the g-column starting from the first playable square up to and including g4". This means that
+        # White can refute g3-g6.
+        group_g3_g6 = Group(player=1, start=Square(row=3, col=6), end=Square(row=0, col=6))  # g3-g6
+        self.assertIn(group_g3_g6, got_solution.groups)
+
 
 if __name__ == '__main__':
     unittest.main()
