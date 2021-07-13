@@ -29,6 +29,9 @@ class ConnectFourEnv(TwoPlayerGameEnv):
         Args:
           action (int): 
         """
+        if action < 0 or action >= ConnectFourEnv.N:
+            raise ValueError("0 <=", action, "<", ConnectFourEnv.N, "must be true")
+
         # Find the highest token in the given column.
         highest_token = self._find_highest_token(action)
         # The location of the new token will be one above the highest token.
