@@ -1,7 +1,7 @@
 # Gotta import gym!
 import gym
 
-from connect_four.agents import FlatMonteCarlo
+from connect_four.agents import FlatMonteCarlo, DFPN
 from connect_four.agents import FlatUCB
 from connect_four.agents import MCPNS
 from connect_four.agents import MCTS
@@ -13,21 +13,29 @@ from connect_four.envs import ConnectFourEnv
 
 # Make the environment, replace this string with any
 # from the docs. (Some environments have dependencies)
+from connect_four.evaluation import Victor
+from connect_four.hashing import ConnectFourHasher
+from connect_four.transposition.sqlite_transposition_table import SQLiteTranspositionTable
+
 env = gym.make('connect_four-v0')
 
 agents_record = [0, 0, 0]
 
 for i in range(10):
-    # Initialize the agents
-    agent1 = FlatUCB(num_rollouts=1000)
-    agent2 = UCT(num_rollouts=1000)
-
     # Reset the environment to default beginning
     # Default observation variable
     obs = env.reset()
-
     done = False
     last_action = None
+
+    # Initialize the agents
+    evaluator = Victor(model=env)
+    hasher = ConnectFourHasher(env=env)
+    tt = SQLiteTranspositionTable(database_file="connect_four.db")
+    agent1 = DFPN(evaluator, hasher, tt)
+    # agent2 = FlatUCB(num_rollouts=1000)
+    # agent2 = UCT(num_rollouts=1000)
+    agent2 = Minimax(max_depth=5)
 
     while not done:
         # Let the agent whose turn it is select an action.

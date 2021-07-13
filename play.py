@@ -1,27 +1,37 @@
 # Gotta import gym!
 import gym
 
-from connect_four.agents import FlatMonteCarlo
+from connect_four.agents import FlatMonteCarlo, DFPN
 from connect_four.agents import FlatUCB
 from connect_four.agents import MCPNS
 from connect_four.agents import MCTS
 from connect_four.agents import Minimax
 from connect_four.agents import RandomAgent
 from connect_four.agents import PNS
+from connect_four.agents.human import Human
+from connect_four.evaluation import Victor
 
 from connect_four.evaluation.evaluator import NodeType
 from connect_four.evaluation.simple_evaluator import SimpleEvaluator
 
 # Make the environment, replace this string with any
 # from the docs. (Some environments have dependencies)
-# env = gym.make('connect_four-v0')
-env = gym.make('tic_tac_toe-v0')
+from connect_four.hashing import ConnectFourHasher
+from connect_four.transposition.sqlite_transposition_table import SQLiteTranspositionTable
+
+env = gym.make('connect_four-v0')
+# env = gym.make('tic_tac_toe-v0')
 
 # Initialize the agents
-agent1 = MCPNS(num_rollouts=30)  # Minimax(max_depth=9)
+evaluator = Victor(model=env)
+hasher = ConnectFourHasher(env=env)
+tt = SQLiteTranspositionTable(database_file="connect_four.db")
+agent1 = DFPN(evaluator, hasher, tt)
+# agent1 = MCPNS(num_rollouts=30)  # Minimax(max_depth=9)
 # agent2 = MCPNS(num_rollouts=30)
-evaluator = SimpleEvaluator(model=env)
-agent2 = PNS(evaluator=evaluator)
+# evaluator = SimpleEvaluator(model=env)
+# agent2 = PNS(evaluator=evaluator)
+agent2 = Human()
 
 # Reset the environment to default beginning
 # Default observation variable
