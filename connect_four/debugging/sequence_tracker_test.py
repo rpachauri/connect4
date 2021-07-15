@@ -1,6 +1,6 @@
 import unittest
 
-from connect_four.sequence_tracker import SequenceTracker
+from connect_four.debugging.sequence_tracker import SequenceTracker
 
 
 class TestSequenceTracker(unittest.TestCase):
