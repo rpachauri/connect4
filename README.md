@@ -20,6 +20,6 @@ Install the necessary dependencies with:
     
 Download the `connect_four.db` file from [this .zip file](https://drive.google.com/file/d/1NOuFxv5T2Z2YsOZzoiaLZUYKRYl5nNT4/view?usp=sharing) or [this .tgz file](https://drive.google.com/file/d/1XvgOu1ofMhTYj63ThcbIla3NAaINdWqE/view?usp=sharing) and place it in the same directory as `play.py`.
 
-Play against one of the DFPN agent:
+Play against the DFPN agent:
 
     $ python play.py
