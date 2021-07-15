@@ -110,4 +110,48 @@ Once an agent has deemed an action as either winning, losing or drawing, it no l
 
 After performing a number of rollouts, the agent must select an action. If it determines that an action is winning, then it immediately selects that action. Otherwise, it selects the action with the highest estimated action-value.
 
-For a more thorough understanding of Monte Carlo Proof Number Search, see Section 5.4.2 entitled "Monte Carlo Proof-Number Search (MC-PNS)" of Browne, C., E. Powley, D. Whitehouse, S. Lucas, P. Cowling, Philipp Rohlfshagen, Stephen Tavener, Diego Perez Liebana, Spyridon Samothrakis and S. Colton. “A Survey of Monte Carlo Tree Search Methods.” IEEE Transactions on Computational Intelligence and AI in Games 4 (2012): 1-43. The authors state that using these game-theoretic guarantees allows the algorithm to 
+For a more thorough understanding of Monte Carlo Proof Number Search, see Section 5.4.2 entitled "Monte Carlo Proof-Number Search (MC-PNS)" of Browne, C., E. Powley, D. Whitehouse, S. Lucas, P. Cowling, Philipp Rohlfshagen, Stephen Tavener, Diego Perez Liebana, Spyridon Samothrakis and S. Colton. “A Survey of Monte Carlo Tree Search Methods.” IEEE Transactions on Computational Intelligence and AI in Games 4 (2012): 1-43.
+
+### Proof Number Search
+
+Found in the `pns.py` file.
+
+Proof Number Search (PNS) is an algorithm that is used to find moves that are *provably* best rather than *probably* best (i.e. optimal play). It's a stronger version of Minimax because it takes advantage of the fact that two-player zero-sum games with perfect information have binary outcomes. The idea is to reimagine the game tree as an AND/OR tree (the root node is an OR node, all of its children are AND nodes, and so on). It tries to either prove or disprove a position as either winning or not winning. Every node is assigned a proof and disproof number, each being the number of child nodes (including subchildren) needed to be proven/disproven in order for that node to be proven/disproven (e.g. If a node has a proof number of 1, it only needs 1 child to be proved for it to be proved; similarly, if a node has a disproof number of 7, 7 children to be disproved for it to be disproved). If a node has a proof number of 0, it has been Proven and if a node has a disproof number of 0, it has been Disprovenl otherwise, it has a status of Unknown.
+
+For more on Proof Number Search and its family of algorithms, see [Kishimoto et al. (2012)](https://api.semanticscholar.org/CorpusID:18449585).
+
+### Depth-First Proof Number Search
+
+Found in the `dfpn.py` file.
+
+Depth-First Proof Number (DFPN) search is an improvement on Proof Number Search and it is the algorithm I used to solve Connect Four. It uses a stronger termination condition that allows it not to backtrack as much. It also is designed in a way that can be easily integrated with a transposition table. This was necessary as we needed a database in the order of millions of positions for Connect Four.
+
+For more on DFPN, see [Kishimoto et al. (2012)](https://api.semanticscholar.org/CorpusID:18449585).
+
+For proving Connect Four, I ran a script that built a database of positions using DFPN. Most were positions from Section 13 of [Allis (1988)](https://api.semanticscholar.org/CorpusID:24540039) used to solve Connect Four. I first tried to solve these smaller positions before trying to solve the initial state because I wanted to verify that everything worked by beating https://connect4.gamesolver.org/.
+
+The time was measured in seconds, but I've provided hours for convenience.
+| Position                 | Time (s) | Time (h) |
+|---                       |       ---|       --- |
+|Diagram 13.6              | 14094    |     3.9   |
+|Diagram 13.12 + d2        | 23838    |     6.6   |
+|Diagram 13.15 + f2        | 15544    |     4.3   |
+|Diagram 13.16             | 1117     |     0.3   |
+|Diagram 13.17             | 1409     |     0.4   |
+|Diagram 13.4              | 10397    |     2.9   |
+|1. d1 c1 2. f1 g1 3. f2 _ | 8395     |     2.3   |
+|Diagram 13.14             | 1179     |     0.3   |
+|Diagram 13.2              | 3283     |     0.9   |
+|Diagram 13.10             | 21751    |     6.0   |
+|Diagram 13.13             | 19       |     ~0    |
+|1. d1 a1 2. e1 _          | 16       |     ~0    |
+|Initial state             | 7        |     ~0    |
+
+In total, it took ~28 hours to solve the game of Connect Four on my personal laptop. For context, it took Allis about 350 total hours with 2 Sun-4 computers.
+
+There are several things that make these metrics difficult to compare:
+1. We ran the program on different computers.
+2. We used different proving algorithms (he used something akin to PN2 while I used df-pn).
+3. Allis started running from the initial state rather than easier positions, building up the proof. This allowed me to save some time (although I doubt it would have that much of an impact).
+
+However, I think the [dynamic programming algorithm I devised](https://github.com/rpachauri/connect4/tree/main/connect_four/evaluation/victor#dynamic-programming) for evaluating a position greatly improved the runtime as profiling showed that it solved positions at least 10x faster.
