@@ -1,7 +1,7 @@
 # Gotta import gym!
 import gym
 
-from connect_four.agents import FlatMonteCarlo, DFPN
+from connect_four.agents import FlatMonteCarlo, DFPN, difficult_connect_four_positions
 from connect_four.agents import FlatUCB
 from connect_four.agents import MCPNS
 from connect_four.agents import MCTS
@@ -22,6 +22,11 @@ from connect_four.transposition.sqlite_transposition_table import SQLiteTranspos
 env = gym.make('connect_four-v0')
 # env = gym.make('tic_tac_toe-v0')
 
+# Reset the environment to default beginning
+obs = env.reset()
+# Default observation variable
+env.render()
+
 # Initialize the agents
 evaluator = Victor(model=env)
 hasher = ConnectFourHasher(env=env)
@@ -32,11 +37,6 @@ agent1 = DFPN(evaluator, hasher, tt)
 # evaluator = SimpleEvaluator(model=env)
 # agent2 = PNS(evaluator=evaluator)
 agent2 = Human()
-
-# Reset the environment to default beginning
-# Default observation variable
-obs = env.reset()
-env.render()
 
 done = False
 last_action = None
